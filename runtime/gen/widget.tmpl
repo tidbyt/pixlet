@@ -1,0 +1,233 @@
+type {{.Name}} struct {
+	Widget
+	render.{{.Name}}
+{{range .AttrChild}}
+	starlark{{.Render}} starlark.Value
+{{end}}
+{{range .AttrChildren}}
+	starlark{{.Render}} *starlark.List
+{{end}}
+{{range .AttrInsets}}
+	starlark{{.Render}} starlark.Value
+{{end}}
+{{if .HasSize}}
+	size *starlark.Builtin
+{{end}}
+}
+
+func new{{.Name}}(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		{{range .AttrString}}{{.Starlark}} starlark.String
+		{{end}}
+		{{range .AttrInt}}{{.Starlark}} starlark.Int
+		{{end}}
+		{{range .AttrBool}}{{.Starlark}} starlark.Bool
+		{{end}}
+		{{range .AttrColor}}{{.Starlark}} starlark.String
+		{{end}}
+		{{range .AttrChild}}{{.Starlark}} starlark.Value
+		{{end}}
+		{{range .AttrChildren}}{{.Starlark}} *starlark.List
+		{{end}}
+		{{range .AttrInsets}}{{.Starlark}} starlark.Value
+		{{end}}
+	)
+
+	if err := starlark.UnpackArgs(
+		"{{.Name}}",
+		args, kwargs,
+{{- range .AttrAll}}
+		"{{.Starlark}}{{if not .Required}}?{{end}}", &{{.Starlark}},
+{{- end}}
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for {{.Name}}: %s", err)
+	}
+
+	w := &{{.Name}}{}
+	{{range .AttrString}}w.{{.Render}} = {{.Starlark}}.GoString()
+	{{end}}
+	{{- range .AttrBool}}w.{{.Render}} = bool({{.Starlark}})
+	{{end}}
+	{{- range .AttrInt}}w.{{.Render}} = int({{.Starlark}}.BigInt().Int64())
+	{{end}}
+
+{{range .AttrColor}}
+	if {{.Starlark}}.Len() > 0 {
+		c, err := colorful.Hex({{.Starlark}}.GoString())
+		if err != nil {
+			return nil, fmt.Errorf("{{.Starlark}} is not a valid hex string: %s", {{.Starlark}}.String())
+		}
+		w.{{.Render}} = c
+	}
+{{end}}
+
+{{range .AttrChild}}
+	if {{.Starlark}} != nil {
+		{{.Starlark}}Widget, ok := {{.Starlark}}.(Widget)
+		if !ok {
+			return nil, fmt.Errorf(
+				"invalid type for {{.Starlark}}: %s (expected Widget)",
+				{{.Starlark}}.Type(),
+			)
+		}
+		w.{{.Render}} = {{.Starlark}}Widget.AsRenderWidget()
+		w.starlark{{.Render}} = {{.Starlark}}
+	}
+{{end}}
+
+{{range .AttrChildren}}
+	var {{.Starlark}}Val starlark.Value
+	{{.Starlark}}Iter := {{.Starlark}}.Iterate()
+	defer {{.Starlark}}Iter.Done()
+	for i := 0; {{.Starlark}}Iter.Next(&{{.Starlark}}Val);  {
+		if _, isNone := {{.Starlark}}Val.(starlark.NoneType); isNone {
+			continue
+		}
+
+		{{.Starlark}}Child, ok := {{.Starlark}}Val.(Widget)
+		if !ok {
+			return nil, fmt.Errorf(
+				"expected {{.Starlark}} to be a list of Widget but found: %s (at index %d)",
+				{{.Starlark}}Val.Type(),
+				i,
+			)
+		}
+
+		w.{{.Render}} = append(w.{{.Render}}, {{.Starlark}}Child.AsRenderWidget())
+	}
+	w.starlark{{.Render}} = {{.Starlark}}
+{{end}}
+
+{{range .AttrInsets}}
+	w.starlark{{.Render}} = {{.Starlark}}
+	switch {{.Starlark}}Val := {{.Starlark}}.(type) {
+	case starlark.Int:
+		{{.Starlark}}Int := int({{.Starlark}}Val.BigInt().Int64())
+		w.{{.Render}}.Left = {{.Starlark}}Int
+		w.{{.Render}}.Top = {{.Starlark}}Int
+		w.{{.Render}}.Right = {{.Starlark}}Int
+		w.{{.Render}}.Bottom = {{.Starlark}}Int
+	case starlark.Tuple:
+		{{.Starlark}}List := []starlark.Value({{.Starlark}}Val)
+		if len({{.Starlark}}List) != 4 {
+			return nil, fmt.Errorf(
+				"{{.Starlark}} tuple must hold 4 elements (left, top, right, bottom), found %d",
+				len({{.Starlark}}List),
+			)
+		}
+		{{.Starlark}}ListInt := make([]starlark.Int, 4)
+		for i := 0; i < 4; i++ {
+			pi, ok := {{.Starlark}}List[i].(starlark.Int)
+			if !ok {
+				return nil, fmt.Errorf("{{.Starlark}} element %d is not int", i)
+			}
+			{{.Starlark}}ListInt[i] = pi
+		}
+		w.{{.Render}}.Left = int({{.Starlark}}ListInt[0].BigInt().Int64())
+		w.{{.Render}}.Top = int({{.Starlark}}ListInt[1].BigInt().Int64())
+		w.{{.Render}}.Right = int({{.Starlark}}ListInt[2].BigInt().Int64())
+		w.{{.Render}}.Bottom = int({{.Starlark}}ListInt[3].BigInt().Int64())
+	default:
+		return nil, fmt.Errorf("{{.Starlark}} must be int or 4-tuple of int")
+	}
+{{end}}
+
+{{if .HasSize}}
+	w.size = starlark.NewBuiltin("size", {{.Name|ToLower}}Size)
+
+{{end}}
+
+	return w, nil
+}
+
+func (w *{{.Name}}) AsRenderWidget() render.Widget {
+	return &w.{{.Name}}
+}
+
+func (w *{{.Name}}) AttrNames() []string {
+	return []string{
+{{range .AttrAll -}}
+		"{{.Starlark}}",
+{{- end}}
+	}
+}
+
+func (w *{{.Name}}) Attr(name string) (starlark.Value, error) {
+	switch name {
+{{range .AttrString}}
+	case "{{.Starlark}}":
+		return starlark.String(w.{{.Render}}), nil
+{{end}}
+{{range .AttrInt}}
+	case "{{.Starlark}}":
+		return starlark.MakeInt(w.{{.Render}}), nil
+{{end}}
+{{range .AttrColor}}
+	case "{{.Starlark}}":
+		if w.{{.Render}} == nil {
+			return nil, nil
+		}
+		c, ok := colorful.MakeColor(w.{{.Render}})
+		if !ok {
+			return nil, nil
+		}
+		return starlark.String(c.Hex()), nil
+{{end}}
+{{range .AttrBool}}
+	case "{{.Starlark}}":
+		return starlark.Bool(w.{{.Render}}), nil
+{{end}}
+{{range .AttrChildren}}
+	case "{{.Starlark}}":
+		return w.starlark{{.Render}}, nil
+{{end}}
+{{range .AttrChild}}
+	case "{{.Starlark}}":
+		return w.starlark{{.Render}}, nil
+{{end}}
+{{range .AttrInsets}}
+	case "{{.Starlark}}":
+		return w.starlark{{.Render}}, nil
+{{end}}
+{{if .HasSize}}
+	case "size":
+		return w.size.BindReceiver(w), nil
+{{end}}
+	default:
+		return nil, nil
+	}
+}
+
+func (w *{{.Name}}) String() string       { return "{{.Name}}(...)" }
+func (w *{{.Name}}) Type() string         { return "{{.Name}}" }
+func (w *{{.Name}}) Freeze()              {}
+func (w *{{.Name}}) Truth() starlark.Bool { return true }
+
+func (w *{{.Name}}) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, nil)
+	return uint32(sum), err
+}
+
+{{if .HasSize}}
+func {{.Name|ToLower}}Size(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*{{.Name}})
+	width, height := w.Size()
+
+	return starlark.Tuple([]starlark.Value{
+		starlark.MakeInt(width),
+		starlark.MakeInt(height),
+	}), nil
+}
+
+{{end}}
