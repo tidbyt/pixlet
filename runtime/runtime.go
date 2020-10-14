@@ -156,14 +156,8 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 
 	a.Id = fmt.Sprintf("%s/%x", filename, md5.Sum(src))
 
-	cache, err := LoadCacheModule()
-	if err != nil {
-		return fmt.Errorf("loading cache module: %v", err)
-	}
-
 	a.predeclared = starlark.StringDict{
 		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
-		"cache":  cache,
 	}
 
 	globals, err := starlark.ExecFile(a.thread(), a.Filename, a.src, a.predeclared)
@@ -270,6 +264,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	switch module {
 	case "render.star":
 		return LoadModule()
+
+	case "cache.star":
+		return LoadCacheModule()
 
 	case "encoding/base64.star":
 		return starlibbase64.LoadModule()

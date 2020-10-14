@@ -62,7 +62,7 @@ func (c *InMemoryCache) Set(key string, value []byte, ttl int64) error {
 
 var (
 	cacheOnce   sync.Once
-	cacheModule *starlarkstruct.Module
+	cacheModule starlark.StringDict
 	cache       Cache
 )
 
@@ -70,13 +70,15 @@ func InitCache(c Cache) {
 	cache = c
 }
 
-func LoadCacheModule() (*starlarkstruct.Module, error) {
+func LoadCacheModule() (starlark.StringDict, error) {
 	cacheOnce.Do(func() {
-		cacheModule = &starlarkstruct.Module{
-			Name: "cache",
-			Members: starlark.StringDict{
-				"get": starlark.NewBuiltin("get", cacheGet),
-				"set": starlark.NewBuiltin("set", cacheSet),
+		cacheModule = starlark.StringDict{
+			"cache": &starlarkstruct.Module{
+				Name: "cache",
+				Members: starlark.StringDict{
+					"get": starlark.NewBuiltin("get", cacheGet),
+					"set": starlark.NewBuiltin("set", cacheSet),
+				},
 			},
 		}
 	})
