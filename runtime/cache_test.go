@@ -9,7 +9,7 @@ import (
 func TestCacheGetAndSet(t *testing.T) {
 	src := `
 load("render.star", "render")
-# cache is predeclared and available without load()
+load("cache.star", "cache")
 
 def main():
     cache.set("key_one", '1')
@@ -44,7 +44,7 @@ def main():
 func TestCacheSurvivesExecution(t *testing.T) {
 	src := `
 load("render.star", "render")
-# cache is predeclared and available without load()
+load("cache.star", "cache")
 
 def main():
     i = int(cache.get("counter") or '1')
@@ -89,7 +89,7 @@ def main():
 func TestCacheNoInit(t *testing.T) {
 	src := `
 load("render.star", "render")
-# cache is predeclared and available without load()
+load("cache.star", "cache")
 
 def main():
     cache.set("key_one", str(1))
@@ -113,6 +113,7 @@ def main():
 func TestCacheBadValue(t *testing.T) {
 	src := `
 load("render.star", "render")
+load("cache.star", "cache")
 
 def main():
     cache.set("that's not a string value", 1)
