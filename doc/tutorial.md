@@ -5,7 +5,7 @@ using Pixlet. It looks pretty great on a
 [Tidbyt](http://www.tidbyt.com/) display, although we're admittedly
 biased.
 
-To follow along, you need a clone of the Pixlet repository, go 1.15
+To follow along, you need a clone of the Pixlet repository, [Go](https://golang.org/)
 and a little bit of programming chops. Python experience helps, but is
 not required.
 
@@ -29,14 +29,14 @@ examples/clock.webp: RIFF (little-endian) data, Web/P image
 For local development, its often convenient to run pixlet in "serve"
 mode:
 
-`$ ./pixlet serve examples/clock.star`
+`$ pixlet/pixlet serve examples/clock.star`
 
 Direct your web browser to `localhost:8080` and your rendered app will
 appear.
 
 ## Hello, World!
 
-Pixlet applets are written a simple, Python-like language called
+Pixlet applets are written in a simple, Python-like language called
 Starlark. Here's the venerable Hello World program:
 
 ```starlark
