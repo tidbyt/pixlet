@@ -193,6 +193,9 @@ render.Marquee(
 ## PNG
 PNG is a widget for rendering a pre-existing PNG.
 
+WARNING: This widget will likely be removed in the near future. Use
+Image instead.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
