@@ -57,6 +57,6 @@ def main(config):
     )
 ```
 
-Here's the resulting WebP:
+Here's the resulting image:
 
-![](doc/img/clock.webp)
+![](doc/img/clock.gif)

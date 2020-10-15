@@ -52,7 +52,7 @@ us access to Pixlet's [full set of Widgets](widgets.md). Next is the
 mandatory `main()` function, which must always return a `Root`
 Widget. In our case, we pass `Root` a `Text` Widget as child.
 
-![](img/tutorial_1.webp)
+![](img/tutorial_1.gif)
 
 By default, `Text` uses the "tb-8" font, but this can be overridden
 with the `font` parameter. You can read more about the available fonts
@@ -98,7 +98,7 @@ definition](https://github.com/google/starlark-go/blob/master/doc/spec.md). Anot
 built-in worth mentioning is `print()`, which of course is invaluable
 in debugging your Pixlet scripts.
 
-![](img/tutorial_2.webp)
+![](img/tutorial_2.gif)
 
 Voilà. A perfectly functional Bitcoin price tracker.
 
@@ -148,7 +148,7 @@ def main():
     )
 ```
 
-![](img/tutorial_3.webp)
+![](img/tutorial_3.gif)
 
 This clearly leaves something to be desired as far as layout is
 concerned, but the individual elements (the icon and the price) aren't
@@ -209,7 +209,7 @@ Dont' worry if all this alignment stuff feels a bit confusing at
 first. It'll be a lot clearer when you've had a chance to play around
 with it.
 
-![](img/tutorial_4.webp)
+![](img/tutorial_4.gif)
 
 Now that's a Bitcoin tracker.
 

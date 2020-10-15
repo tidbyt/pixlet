@@ -77,12 +77,12 @@ def main():
 			panic(err)
 		}
 
-		webp, err := screens.Render(Magnify)
+		gif, err := screens.RenderGIF(Magnify)
 		if err != nil {
 			panic(err)
 		}
 
-		err = ioutil.WriteFile(fmt.Sprintf("img/widget_%s.webp", name), webp, 0644)
+		err = ioutil.WriteFile(fmt.Sprintf("img/widget_%s.gif", name), gif, 0644)
 		if err != nil {
 			panic(err)
 		}

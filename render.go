@@ -14,13 +14,15 @@ import (
 )
 
 var (
-	output  string
-	magnify int
+	output    string
+	magnify   int
+	renderGif bool
 )
 
 func init() {
 	rootCmd.AddCommand(renderCmd)
-	renderCmd.Flags().StringVarP(&output, "output", "o", "", "Path for rendered webp")
+	renderCmd.Flags().StringVarP(&output, "output", "o", "", "Path for rendered image")
+	renderCmd.Flags().BoolVarP(&renderGif, "gif", "", false, "Generate GIF instead of WebP")
 	renderCmd.Flags().IntVarP(
 		&magnify,
 		"magnify",
@@ -45,7 +47,12 @@ func render(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	outPath := strings.TrimSuffix(script, ".star") + ".webp"
+	outPath := strings.TrimSuffix(script, ".star")
+	if renderGif {
+		outPath += ".gif"
+	} else {
+		outPath += ".webp"
+	}
 	if output != "" {
 		outPath = output
 	}
@@ -113,13 +120,19 @@ func render(cmd *cobra.Command, args []string) {
 		return out, nil
 	}
 
-	webp, err := screens.Render(filter)
+	var buf []byte
+
+	if renderGif {
+		buf, err = screens.RenderGIF(filter)
+	} else {
+		buf, err = screens.RenderWebP(filter)
+	}
 	if err != nil {
 		fmt.Printf("Error rendering: %s\n", err)
 		os.Exit(1)
 	}
 
-	err = ioutil.WriteFile(outPath, webp, 0644)
+	err = ioutil.WriteFile(outPath, buf, 0644)
 	if err != nil {
 		fmt.Printf("Writing %s: %s", outPath, err)
 		os.Exit(1)

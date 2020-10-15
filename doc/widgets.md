@@ -35,7 +35,7 @@ render.Animation(
      ],
 )
 ```
-![](img/widget_Animation_0.webp)
+![](img/widget_Animation_0.gif)
 
 
 ## Box
@@ -66,7 +66,7 @@ render.Box(
      )
 )
 ```
-![](img/widget_Box_0.webp)
+![](img/widget_Box_0.gif)
 
 
 ## Circle
@@ -89,7 +89,7 @@ render.Circle(
      child=render.Circle(color="#0ff", diameter=10),
 )
 ```
-![](img/widget_Circle_0.webp)
+![](img/widget_Circle_0.gif)
 
 
 ## Column
@@ -133,7 +133,7 @@ render.Column(
      ],
 )
 ```
-![](img/widget_Column_0.webp)
+![](img/widget_Column_0.gif)
 #### Example
 ```
 render.Column(
@@ -147,7 +147,7 @@ render.Column(
      ],
 )
 ```
-![](img/widget_Column_1.webp)
+![](img/widget_Column_1.gif)
 
 
 ## Image
@@ -187,7 +187,7 @@ render.Marquee(
      child=render.Text("this won't fit in 64 pixels"),
 )
 ```
-![](img/widget_Marquee_0.webp)
+![](img/widget_Marquee_0.gif)
 
 
 ## PNG
@@ -260,7 +260,7 @@ render.Row(
      ],
 )
 ```
-![](img/widget_Row_0.webp)
+![](img/widget_Row_0.gif)
 #### Example
 ```
 render.Row(
@@ -274,7 +274,7 @@ render.Row(
      ],
 )
 ```
-![](img/widget_Row_1.webp)
+![](img/widget_Row_1.gif)
 
 
 ## Stack
@@ -299,7 +299,7 @@ render.Stack(
      ],
 )
 ```
-![](img/widget_Stack_0.webp)
+![](img/widget_Stack_0.gif)
 
 
 ## Text
@@ -324,7 +324,7 @@ information.
 ```
 render.Text(content="Tidbyt!", color="#099")
 ```
-![](img/widget_Text_0.webp)
+![](img/widget_Text_0.gif)
 
 
 ## WrappedText
@@ -352,6 +352,6 @@ render.WrappedText(
       color="#fa0",
 )
 ```
-![](img/widget_WrappedText_0.webp)
+![](img/widget_WrappedText_0.gif)
 
 

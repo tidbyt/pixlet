@@ -65,7 +65,7 @@ func serve(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		webp, err := screens.Render()
+		webp, err := screens.RenderWebP()
 		if err != nil {
 			fmt.Println("Error rendering: %s\n", err)
 			return
