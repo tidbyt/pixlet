@@ -5,19 +5,18 @@ using Pixlet. It looks pretty great on a
 [Tidbyt](http://www.tidbyt.com/) display, although we're admittedly
 biased.
 
-To follow along, you need a clone of the Pixlet repository, [Go](https://golang.org/)
-and a little bit of programming chops. Python experience helps, but is
-not required.
-
 ## Running Pixlet
 
-Navigate to your local Pixlet clone and run
+To follow along, you need a clone of the Pixlet repository,
+[Go](https://golang.org/),
+[https://developers.google.com/speed/webp/docs/precompiled](WebP) and
+a little bit of programming chops. Python experience helps, but is not
+required.
 
-`cd render && go build && cd ../runtime && go build && cd ../pixlet && go build && cd ..`
+Navigate to your local Pixlet clone and run `go build`. If successful,
+you should be able to run the Pixlet CLI like so:
 
-If successful, you should be able to run the Pixlet CLI like so:
-
-`$ pixlet/pixlet render examples/clock.star`
+`$ ./pixlet render examples/clock.star`
 
 This should in turn run `clock.star` and produce a `clock.webp` file.
 
@@ -29,7 +28,7 @@ examples/clock.webp: RIFF (little-endian) data, Web/P image
 For local development, its often convenient to run pixlet in "serve"
 mode:
 
-`$ pixlet/pixlet serve examples/clock.star`
+`$ ./pixlet serve examples/clock.star`
 
 Direct your web browser to `localhost:8080` and your rendered app will
 appear.
@@ -268,7 +267,7 @@ repeately reload our browser (pointed at `http://localhost:8080/`), we
 see the following output from the `print()` statements:
 
 ```console
-$ pixlet/pixlet serve tutorial.star
+$ ./pixlet serve tutorial.star
 listening on tcp/8080
 [tutorial.star] Miss! Calling CoinDesk API.
 [tutorial.star] Hit! Displaying cached data.
