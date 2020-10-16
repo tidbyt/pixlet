@@ -64,7 +64,9 @@ func ScreensFromRoots(roots []render.Root) *Screens {
 		delay: DefaultScreenDelayMillis,
 	}
 	if len(roots) > 0 {
-		screens.delay = roots[0].Delay
+		if roots[0].Delay > 0 {
+			screens.delay = roots[0].Delay
+		}
 	}
 	return &screens
 }
