@@ -36,7 +36,7 @@ func serve(cmd *cobra.Command, args []string) {
 
 	src, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Printf("failed to read file %s: %v", filename, err)
+		fmt.Printf("failed to read file %s: %v\n", filename, err)
 		return
 	}
 
@@ -45,7 +45,7 @@ func serve(cmd *cobra.Command, args []string) {
 	applet := runtime.Applet{}
 	err = applet.Load(filename, src, nil)
 	if err != nil {
-		fmt.Printf("failed to load applet: %v", err)
+		fmt.Printf("failed to load applet: %v\n", err)
 		return
 	}
 
