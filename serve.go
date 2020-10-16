@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"sync"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 
 	"github.com/tidbyt/pixlet/runtime"
@@ -31,22 +34,63 @@ var serveCmd = &cobra.Command{
 	Run:   serve,
 }
 
-func serve(cmd *cobra.Command, args []string) {
-	filename := args[0]
-
+func loadScript(applet *runtime.Applet, filename string) error {
 	src, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Printf("failed to read file %s: %v\n", filename, err)
-		return
+		return fmt.Errorf("failed to read file %s: %v\n", filename, err)
 	}
 
 	runtime.InitCache(runtime.NewInMemoryCache())
 
-	applet := runtime.Applet{}
 	err = applet.Load(filename, src, nil)
 	if err != nil {
-		fmt.Printf("failed to load applet: %v\n", err)
-		return
+		return fmt.Errorf("failed to load applet: %v\n", err)
+	}
+
+	return nil
+}
+
+func serve(cmd *cobra.Command, args []string) {
+	applet := runtime.Applet{}
+	err := loadScript(&applet, args[0])
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		os.Exit(1)
+	}
+
+	mutex := sync.RWMutex{}
+
+	// if --watch/-w: monitor script and reload on file change
+	if watch {
+		watcher, err := fsnotify.NewWatcher()
+		if err != nil {
+			fmt.Printf("error watching for changes: %v\n", err)
+			os.Exit(1)
+		}
+
+		watcher.Add(args[0])
+
+		go func() {
+			for {
+				event, ok := <-watcher.Events
+				if !ok {
+					break
+				}
+
+				if (event.Op & fsnotify.Write) != 0 {
+					mutex.Lock()
+					err := loadScript(&applet, args[0])
+					mutex.Unlock()
+					if err != nil {
+						fmt.Printf("Error on reload: %v\n", err)
+					} else {
+						fmt.Printf("Reload\n")
+					}
+				}
+			}
+		}()
+
+		fmt.Printf("Loaded %s, watching for changes\n", args[0])
 	}
 
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +102,9 @@ func serve(cmd *cobra.Command, args []string) {
 		for k, vals := range r.URL.Query() {
 			config[k] = vals[0]
 		}
+
+		mutex.RLock()
+		defer mutex.RUnlock()
 
 		screens, err := applet.Run(config)
 		if err != nil {
