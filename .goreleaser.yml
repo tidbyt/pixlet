@@ -1,0 +1,14 @@
+builds:
+  - dir: .goreleaser
+
+    goarch:
+      - amd64
+
+    hooks:
+      post: ./.goreleaser/fetch-artifacts.sh
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
