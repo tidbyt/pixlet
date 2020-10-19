@@ -1,0 +1,29 @@
+on: [push, pull_request]
+
+name: Build & test
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get update && sudo apt-get install -y libwebp-dev
+
+    - name: Install macOS dependencies
+      if: matrix.os == 'macos-latest'
+      run: brew install webp
+
+    - name: Build & test
+      run: go build . && go test ./...
