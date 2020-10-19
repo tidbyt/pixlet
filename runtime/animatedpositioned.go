@@ -6,8 +6,8 @@ import (
 	"github.com/mitchellh/hashstructure"
 	"go.starlark.net/starlark"
 
-	"github.com/tidbyt/pixlet/render"
-	"github.com/tidbyt/pixlet/render/animation"
+	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/render/animation"
 )
 
 type AnimatedPositioned struct {

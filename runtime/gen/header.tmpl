@@ -11,7 +11,7 @@ import (
 	"github.com/mitchellh/hashstructure"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
-	"github.com/tidbyt/pixlet/render"
+	"tidbyt.dev/pixlet/render"
 )
 
 const (

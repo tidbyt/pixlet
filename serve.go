@@ -13,7 +13,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 
-	"github.com/tidbyt/pixlet/runtime"
+	"tidbyt.dev/pixlet/runtime"
 )
 
 var (
