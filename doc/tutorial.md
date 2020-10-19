@@ -7,16 +7,9 @@ biased.
 
 ## Running Pixlet
 
-To follow along, you need a clone of the Pixlet repository,
-[Go](https://golang.org/),
-[https://developers.google.com/speed/webp/docs/precompiled](WebP) and
-a little bit of programming chops. Python experience helps, but is not
-required.
+You should be able to run the Pixlet CLI like so:
 
-Navigate to your local Pixlet clone and run `go build`. If successful,
-you should be able to run the Pixlet CLI like so:
-
-`$ ./pixlet render examples/clock.star`
+`$ pixlet render examples/clock.star`
 
 This should in turn run `clock.star` and produce a `clock.webp` file.
 
@@ -28,9 +21,9 @@ examples/clock.webp: RIFF (little-endian) data, Web/P image
 For local development, its often convenient to run pixlet in "serve"
 mode:
 
-`$ ./pixlet serve examples/clock.star`
+`$ ./pixlet serve --watch examples/clock.star`
 
-Direct your web browser to `localhost:8080` and your rendered app will
+Direct your web browser to http://localhost:8080, and your rendered app will
 appear.
 
 ## Hello, World!

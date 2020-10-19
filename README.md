@@ -1,18 +1,69 @@
 # Pixlet
 
-A toolkit for developing [Tidbyt](http://www.tidbyt.com/) applets.
+[![Build & test](https://github.com/tidbyt/pixlet/workflows/Build%20&%20test/badge.svg)](https://github.com/tidbyt/pixlet/actions?query=workflow%3A%22Build+%26+test%22+branch%3Amain)
+[![GoDoc](https://godoc.org/github.com/tidbyt/pixlet/runtime?status.svg)](https://godoc.org/github.com/tidbyt/pixlet/runtime)
 
-Tidbyt is a connected display, featuring a 64x32 RGB LED matrix. It
-can do a lot out of the box, such as provide weather information,
-stock tickers, subway times, and more. But part of the fun of Tidbyt
-is building your own integrations. That's where Pixlet comes in.
+Pixlet is an app runtime and UX toolkit for highly-constrained displays.
+We use Pixlet to develop applets for [Tidbyt](https://tidbyt.com/), which has
+a 64x32 RGB LED matrix display:
+
+[![Example of a Tidbyt](doc/img/tidbyt_1.png)](https://tidbyt.com)
+
+Apps developed with Pixlet can be served in a browser, rendered as WebP or
+GIF animations, or pushed to a physical Tidbyt device.
 
 ## Documentation
 
-- [The Tutorial](doc/tutorial.md)
+- [Getting started](#getting-started)
+- [How it works](#how-it-works)
+- [In-depth tutorial](doc/tutorial.md)
 - [Widget reference](doc/widgets.md)
 - [Modules reference](doc/modules.md)
 - [Notes on the available fonts](doc/fonts.md)
+
+## Getting started
+
+### Install on macOS
+
+```
+brew install tidbyt/tidbyt/pixlet
+```
+
+### Install on Linux
+
+Download the `pixlet` binary from [the latest release][1].
+
+Alternatively you can build from source with `go build`.
+Make sure to [install libwebp][2] first.
+
+[1]: https://github.com/tidbyt/pixlet/releases/latest
+[2]: https://developers.google.com/speed/webp/download
+
+### Hello, World!
+
+Pixlet applets are written in a simple, Python-like language called
+Starlark. Here's the venerable Hello World program:
+
+```starlark
+load("render.star", "render")
+def main():
+    return render.Root(
+        child = render.Text("Hello, World!")
+    )
+```
+
+Render and serve it with:
+
+```console
+curl https://raw.githubusercontent.com/tidbyt/pixlet/main/examples/hello_world.star | \
+  pixlet serve /dev/stdin
+```
+
+You can view the result by navigating to [http://localhost:8080][3]:
+
+![](doc/img/tutorial_1.gif)
+
+[3]: http://localhost:8080
 
 ## How it works
 
@@ -22,8 +73,8 @@ retrieve data over HTTP, transform it and use a collection of
 _Widgets_ to describe how the data should be presented visually.
 
 The Pixlet CLI runs these scripts and renders the result as a WebP
-image. You can then push the image straight to your device via the
-[Tidbyt API](https://tidbyt.dev/docs/tidbyt-api/docs/Guide.md).
+or GIF animation. You can view the animation in your browser, save
+it, or even push it to a Tidbyt device with `pixlet push`.
 
 ### Example: A Clock App
 
@@ -60,3 +111,29 @@ def main(config):
 Here's the resulting image:
 
 ![](doc/img/clock.gif)
+
+### Example: A Bitcoin Tracker
+
+Applets can get information from external data sources. For example,
+here is a Bitcoin price tracker:
+
+![](doc/img/tutorial_4.gif)
+
+Read the [in-depth tutorial](doc/tutorial.md) to learn how to
+make an applet like this.
+
+## Push to a Tidbyt
+
+If you have a Tidbyt, `pixlet` can push apps directly to it. For example,
+to show the Bitcoin tracker on your Tidbyt:
+
+```
+pixlet render examples/bitcoin.star
+pixlet push --api-token <YOUR API TOKEN> <YOUR DEVICE ID> examples/bitcoin.webp
+```
+
+To get the ID and API key for a device, open the settings for the device in the Tidbyt app on your phone, and tap **Get API key**.
+
+If all goes well, you should see the Bitcoin tracker appear on your Tidbyt:
+
+![](doc/img/tidbyt_2.jpg)
