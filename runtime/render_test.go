@@ -129,7 +129,7 @@ func TestFile(t *testing.T) {
 	screens, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
 
-	webp, err := screens.Render()
+	webp, err := screens.RenderWebP()
 	assert.NoError(t, err)
 	assert.True(t, len(webp) > 0)
 }

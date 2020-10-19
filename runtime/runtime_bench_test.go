@@ -76,7 +76,7 @@ func BenchmarkRunAndRender(b *testing.B) {
 			b.Error(err)
 		}
 
-		webp, err := screens.Render()
+		webp, err := screens.RenderWebP()
 		if err != nil {
 			b.Error(err)
 		}
