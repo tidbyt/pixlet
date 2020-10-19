@@ -16,7 +16,7 @@ changelog:
 brews:
   - tap:
       owner: tidbyt
-      repo: homebrew-tidbyt
+      name: homebrew-tidbyt
 
     commit_author:
       name: tidbyt-bot
