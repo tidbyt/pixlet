@@ -12,3 +12,22 @@ checksum:
 
 changelog:
   sort: asc
+
+brews:
+  - tap:
+      owner: tidbyt
+      repo: homebrew-tidbyt
+
+    commit_author:
+      name: tidbyt-bot
+      email: bot@tidbyt.com
+
+    homepage: https://github.com/tidbyt/pixlet
+
+    description: App runtime and UX toolkit for pixel-based apps.
+
+    dependencies:
+      - webp
+
+    test: |
+      system "#{bin}/pixlet --version"
