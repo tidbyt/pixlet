@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tidbyt/pixlet/render"
+	"tidbyt.dev/pixlet/render"
 )
 
 var TestDotStar = `

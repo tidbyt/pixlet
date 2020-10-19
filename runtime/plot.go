@@ -3,12 +3,13 @@ package runtime
 import (
 	"fmt"
 
+	gocolor "image/color"
+
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/mitchellh/hashstructure"
 	"go.starlark.net/starlark"
-	gocolor "image/color"
 
-	"github.com/tidbyt/pixlet/render"
+	"tidbyt.dev/pixlet/render"
 )
 
 type Plot struct {

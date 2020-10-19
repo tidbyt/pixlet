@@ -21,7 +21,7 @@ import (
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
-	"github.com/tidbyt/pixlet/render"
+	"tidbyt.dev/pixlet/render"
 )
 
 type ModuleLoader func(*starlark.Thread, string) (starlark.StringDict, error)

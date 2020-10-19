@@ -20,7 +20,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/tidbyt/pixlet/render"
+	"tidbyt.dev/pixlet/render"
 )
 
 const StarlarkHeaderTemplate = "./gen/header.tmpl"
@@ -194,7 +194,7 @@ func attachWidgetDocs(widgets []*StarlarkWidget) {
 	fset := token.NewFileSet()
 	astPkgs, err := parser.ParseDir(fset, RenderDirectory, nil, parser.ParseComments)
 	nilOrPanic(err)
-	pkg := doc.New(astPkgs["render"], "github.com/tidbyt/pixlet/render", 0)
+	pkg := doc.New(astPkgs["render"], "tidbyt.dev/pixlet/render", 0)
 	nilOrPanic(err)
 	docs := map[string]string{}
 	for _, type_ := range pkg.Types {

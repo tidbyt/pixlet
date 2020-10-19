@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/tidbyt/pixlet/runtime"
+	"tidbyt.dev/pixlet/runtime"
 )
 
 const Magnification = 7
