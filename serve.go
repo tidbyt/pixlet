@@ -13,6 +13,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 
+	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -106,13 +107,13 @@ func serve(cmd *cobra.Command, args []string) {
 		mutex.RLock()
 		defer mutex.RUnlock()
 
-		screens, err := applet.Run(config)
+		roots, err := applet.Run(config)
 		if err != nil {
 			log.Printf("Error running script: %s\n", err)
 			return
 		}
 
-		webp, err := screens.RenderWebP()
+		webp, err := encode.ScreensFromRoots(roots).EncodeWebP()
 		if err != nil {
 			fmt.Printf("Error rendering: %s\n", err)
 			return

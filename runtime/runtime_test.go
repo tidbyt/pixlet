@@ -138,9 +138,9 @@ def main():
 	app := &Applet{}
 	err := app.Load("test.star", []byte(src), nil)
 	assert.NoError(t, err)
-	screens, err := app.Run(config)
+	roots, err := app.Run(config)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, len(screens.roots))
+	assert.Equal(t, 1, len(roots))
 
 	// And it can accept a (the) config dict
 	src = `
@@ -151,9 +151,9 @@ def main(config):
 	app = &Applet{}
 	err = app.Load("test.star", []byte(src), nil)
 	assert.NoError(t, err)
-	screens, err = app.Run(config)
+	roots, err = app.Run(config)
 	assert.NoError(t, err)
-	assert.Equal(t, 3, len(screens.roots))
+	assert.Equal(t, 3, len(roots))
 }
 
 func TestModuleLoading(t *testing.T) {
@@ -189,9 +189,9 @@ def main():
 	app := &Applet{}
 	err := app.Load("test.star", []byte(src), nil)
 	assert.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, 1, len(screens.roots))
+	assert.Equal(t, 1, len(roots))
 
 	// An additional module loader can be added
 	loader := func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
@@ -211,9 +211,9 @@ def main():
 	app = &Applet{}
 	err = app.Load("test.star", []byte(src), loader)
 	assert.NoError(t, err)
-	screens, err = app.Run(map[string]string{})
+	roots, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, 1, len(screens.roots))
+	assert.Equal(t, 1, len(roots))
 
 }
 

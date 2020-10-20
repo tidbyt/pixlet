@@ -1,7 +1,9 @@
-package runtime
+package encode
 
 import (
 	"testing"
+
+	"tidbyt.dev/pixlet/runtime"
 )
 
 var BenchmarkDotStar = `
@@ -63,7 +65,7 @@ def main():
 `
 
 func BenchmarkRunAndRender(b *testing.B) {
-	app := &Applet{}
+	app := &runtime.Applet{}
 	err := app.Load("benchmark.star", []byte(BenchmarkDotStar), nil)
 	if err != nil {
 		b.Error(err)
@@ -71,12 +73,12 @@ func BenchmarkRunAndRender(b *testing.B) {
 
 	config := map[string]string{}
 	for i := 0; i < b.N; i++ {
-		screens, err := app.Run(config)
+		roots, err := app.Run(config)
 		if err != nil {
 			b.Error(err)
 		}
 
-		webp, err := screens.RenderWebP()
+		webp, err := ScreensFromRoots(roots).EncodeWebP()
 		if err != nil {
 			b.Error(err)
 		}
