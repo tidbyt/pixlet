@@ -89,9 +89,10 @@ load("time.star", "time")
 def main(config):
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-    return render.Frame(
+
+    return render.Root(
         delay = 500,
-        root = render.Box(
+        child = render.Box(
             child = render.Animation(
                 children = [
                     render.Text(
