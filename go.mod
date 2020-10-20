@@ -2,7 +2,7 @@ module tidbyt.dev/pixlet
 
 go 1.14
 
-replace github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20200918142916-98c7c251dd7a
+replace github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2
 
 require (
 	github.com/fogleman/gg v1.3.0
