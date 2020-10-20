@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -82,11 +83,12 @@ func render(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	screens, err := applet.Run(config)
+	roots, err := applet.Run(config)
 	if err != nil {
 		log.Printf("Error running script: %s\n", err)
 		os.Exit(1)
 	}
+	screens := encode.ScreensFromRoots(roots)
 
 	filter := func(input image.Image) (image.Image, error) {
 		if magnify <= 1 {
@@ -123,9 +125,9 @@ func render(cmd *cobra.Command, args []string) {
 	var buf []byte
 
 	if renderGif {
-		buf, err = screens.RenderGIF(filter)
+		buf, err = screens.EncodeGIF(filter)
 	} else {
-		buf, err = screens.RenderWebP(filter)
+		buf, err = screens.EncodeWebP(filter)
 	}
 	if err != nil {
 		fmt.Printf("Error rendering: %s\n", err)

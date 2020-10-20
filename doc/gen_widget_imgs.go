@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -72,12 +73,12 @@ def main():
 			panic(err)
 		}
 
-		screens, err := app.Run(nil)
+		roots, err := app.Run(nil)
 		if err != nil {
 			panic(err)
 		}
 
-		gif, err := screens.RenderGIF(Magnify)
+		gif, err := encode.ScreensFromRoots(roots).EncodeGIF(Magnify)
 		if err != nil {
 			panic(err)
 		}

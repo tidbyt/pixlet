@@ -35,10 +35,10 @@ def main():
 	app := &Applet{}
 	err := app.Load("test.star", []byte(src), nil)
 	assert.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.NotNil(t, screens)
-	assert.Equal(t, 1+2+3, len(screens.roots))
+	assert.NotNil(t, roots)
+	assert.Equal(t, 1+2+3, len(roots))
 }
 
 func TestCacheSurvivesExecution(t *testing.T) {
@@ -58,16 +58,16 @@ def main():
 	assert.NoError(t, err)
 
 	// first time, i == 1
-	screens, err := app.Run(map[string]string{})
+	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.NotNil(t, screens)
-	assert.Equal(t, 1, len(screens.roots))
+	assert.NotNil(t, roots)
+	assert.Equal(t, 1, len(roots))
 
 	// i == 2
-	screens, err = app.Run(map[string]string{})
+	roots, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.NotNil(t, screens)
-	assert.Equal(t, 2, len(screens.roots))
+	assert.NotNil(t, roots)
+	assert.Equal(t, 2, len(roots))
 
 	// but run the same code using different filename, and cached
 	// data ends up in a different namespace
@@ -75,14 +75,14 @@ def main():
 	err = app.Load("test2.star", []byte(src), nil)
 	assert.NoError(t, err)
 
-	screens, _ = app.Run(map[string]string{})
-	assert.Equal(t, 1, len(screens.roots))
+	roots, _ = app.Run(map[string]string{})
+	assert.Equal(t, 1, len(roots))
 
-	screens, _ = app.Run(map[string]string{})
-	assert.Equal(t, 2, len(screens.roots))
+	roots, _ = app.Run(map[string]string{})
+	assert.Equal(t, 2, len(roots))
 
-	screens, _ = app.Run(map[string]string{})
-	assert.Equal(t, 3, len(screens.roots))
+	roots, _ = app.Run(map[string]string{})
+	assert.Equal(t, 3, len(roots))
 
 }
 

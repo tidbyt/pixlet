@@ -121,19 +121,6 @@ def main():
     return render.Root(child=r1)
 `
 
-func TestFile(t *testing.T) {
-	app := Applet{}
-	err := app.Load("test.star", []byte(TestDotStar), nil)
-	assert.NoError(t, err)
-
-	screens, err := app.Run(map[string]string{})
-	assert.NoError(t, err)
-
-	webp, err := screens.RenderWebP()
-	assert.NoError(t, err)
-	assert.True(t, len(webp) > 0)
-}
-
 func TestBox(t *testing.T) {
 	const (
 		filename = "test_box.star"
