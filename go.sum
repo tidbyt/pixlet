@@ -129,6 +129,8 @@ github.com/tidbyt/go-libwebp v0.0.0-20200918142916-98c7c251dd7a h1:hA1bu4LhvTQyh
 github.com/tidbyt/go-libwebp v0.0.0-20200918142916-98c7c251dd7a/go.mod h1:p1Ify/wlo/z2CCUv0o+4j4lvBvEf1SWO5LYRDmadNY0=
 github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2 h1:T/jkZO+VeoP9QPPAidWR89NWUeT4VluF2vMLgmZtSy8=
 github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2/go.mod h1:p1Ify/wlo/z2CCUv0o+4j4lvBvEf1SWO5LYRDmadNY0=
+github.com/tidbyt/starlib v0.4.2-0.20200729192616-ef2649a4219c h1:QlX1+kdR93ojdsdHJCzyg9mlfOBid3ySH9TXKVz1Nt8=
+github.com/tidbyt/starlib v0.4.2-0.20200729192616-ef2649a4219c/go.mod h1:2xlZ9r2UV4LF4G9mpYPBWo7CtXtdW0h1RoGIkZ8elOE=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
