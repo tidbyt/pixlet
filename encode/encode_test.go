@@ -76,12 +76,12 @@ p = render.Padding(pad=3, child=render.Box(width=1, height=2))
 p2 = render.Padding(pad=(1,2,3,4), child=render.Box(width=1, height=2))
 p3 = render.Padding(pad=1, child=render.Box(width=1, height=2), expanded=True)
 
-# PNG tests
+# Image tests
 png_src = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==")
-png = render.PNG(src = png_src)
-assert(png.src == png_src)
-assert(0 < png.size()[0])
-assert(0 < png.size()[1])
+img = render.Image(src = png_src)
+assert(img.src == png_src)
+assert(0 < img.size()[0])
+assert(0 < img.size()[1])
 
 # Row and Column
 r1 = render.Row(

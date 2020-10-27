@@ -84,12 +84,12 @@ p = render.Padding(pad=3, child=render.Box(width=1, height=2))
 p2 = render.Padding(pad=(1,2,3,4), child=render.Box(width=1, height=2))
 p3 = render.Padding(pad=1, child=render.Box(width=1, height=2), expanded=True)
 
-# PNG tests
+# Image tests
 png_src = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==")
-png = render.PNG(src = png_src)
-assert(png.src == png_src)
-assert(0 < png.size()[0])
-assert(0 < png.size()[1])
+img = render.Image(src = png_src)
+assert(img.src == png_src)
+assert(0 < img.size()[0])
+assert(0 < img.size()[1])
 
 # Row and Column
 r1 = render.Row(
@@ -195,7 +195,7 @@ def main():
 	assert.Equal(t, text.Height, rendered.Bounds().Dy())
 }
 
-func TestPNG(t *testing.T) {
+func TestImage(t *testing.T) {
 	// create a new PNG with a single blue pixel
 	bounds := image.Rect(0, 0, 64, 32)
 	blue := color.NRGBA{0, 0, 255, 255}
@@ -211,9 +211,9 @@ func TestPNG(t *testing.T) {
 load("render.star", "render")
 load("encoding/base64.star", "base64")
 
-p = render.PNG(src = base64.decode("%s"))
+img = render.Image(src = base64.decode("%s"))
 def main():
-    return render.Root(child=p)
+    return render.Root(child=img)
 
 `, base64.StdEncoding.EncodeToString(p.Bytes()))
 
@@ -221,10 +221,10 @@ def main():
 	err := app.Load(filename, []byte(src), nil)
 	assert.NoError(t, err)
 
-	starlarkP := app.Globals["p"]
-	require.IsType(t, &PNG{}, starlarkP)
+	starlarkP := app.Globals["img"]
+	require.IsType(t, &Image{}, starlarkP)
 
-	actualIm := starlarkP.(*PNG).AsRenderWidget().Paint(image.Rect(0, 0, 64, 32), 0)
+	actualIm := starlarkP.(*Image).AsRenderWidget().Paint(image.Rect(0, 0, 64, 32), 0)
 	assert.Equal(t, bounds, actualIm.Bounds())
 	assert.Equal(t, blue, actualIm.At(12, 12))
 }

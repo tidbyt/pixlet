@@ -17,10 +17,11 @@ import (
 )
 
 // Image renders the binary image data passed via `src`. Supported
-// formats include PNG, and presumably a few others.
+// formats include PNG, JPEG and GIF.
 //
 // If `width` or `height` are set, the image will be scaled
-// accordingly. Otherwise the image's original dimensions are used.
+// accordingly, with nearest neighbor interpolation. Otherwise the
+// image's original dimensions are used.
 //
 // DOC(Src): Binary image data
 // DOC(Width): Scale image to this width
