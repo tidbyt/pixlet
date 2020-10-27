@@ -36,17 +36,21 @@ type Plot struct {
 	YLimMin *float64
 	YLimMax *float64
 
-	// If true, also pain surface between line and X-axis
+	// If true, also paint surface between line and X-axis
 	Fill bool
 
 	invThreshold int
 }
 
-// translatePoints() maps the points in X and Y to fit in Width x
-// Height pixels. it sets invThreshold to the height corresponding to
-// Y=0.
-func (p *Plot) translatePoints() []PathPoint {
-	// Find min/max X and Y
+// Computes X and Y limits
+func (p *Plot) computeLimits() (float64, float64, float64, float64) {
+
+	// If all limits are set by user, no computation is required
+	if p.XLimMin != nil && p.XLimMax != nil && p.YLimMin != nil && p.YLimMax != nil {
+		return *p.XLimMin, *p.XLimMax, *p.YLimMin, *p.YLimMax
+	}
+
+	// Otherwise we'll need min/max of X and Y
 	minX, maxX, minY, maxY := p.X[0], p.X[0], p.Y[0], p.Y[0]
 	for i := 1; i < len(p.X); i++ {
 		if p.X[i] < minX {
@@ -63,38 +67,75 @@ func (p *Plot) translatePoints() []PathPoint {
 		}
 	}
 
-	// Xlim and YLim simply overrides actual min/max
+	// Limits not set by user will default to the min/max of the
+	// data, so that it all fits on canvas.
+	xLimMin := minX
+	xLimMax := maxX
+	yLimMin := minY
+	yLimMax := maxY
 	if p.XLimMin != nil {
-		minX = *p.XLimMin
+		xLimMin = *p.XLimMin
 	}
 	if p.XLimMax != nil {
-		maxX = *p.XLimMax
+		xLimMax = *p.XLimMax
 	}
 	if p.YLimMin != nil {
-		minY = *p.YLimMin
+		yLimMin = *p.YLimMin
 	}
 	if p.YLimMax != nil {
-		maxY = *p.YLimMax
+		yLimMax = *p.YLimMax
 	}
 
-	// Add a small epsilon to maxY so normalization interval
-	// becomes half open. This in turn keeps points at the maximum
-	// Y-value from being mapped to p.Height, which would be out
-	// of bounds.
-	epsilon := (maxY - minY) / (float64(p.Height) * 100)
-	maxY += epsilon
+	// The inferred limits can be non-sensical if user provides
+	// only the min or max of a limit. In these cases, we take the
+	// provided limit and add an arbitraty +-0.5 to create limits
+	// that result in all points displayed "off-screen".
+	if xLimMax < xLimMin {
+		if p.XLimMin == nil {
+			xLimMin = xLimMax - 0.5
+		} else {
+			xLimMax = xLimMin + 0.5
+		}
+	}
+	if yLimMax < yLimMin {
+		if p.YLimMin == nil {
+			yLimMin = yLimMax - 0.5
+		} else {
+			yLimMax = yLimMin + 0.5
+		}
+	}
 
-	// Normalize to [0,1) and compute pixel position
+	// If all X or all Y are equal, then the default limits would
+	// have min==max, which is non-sensical.
+	if xLimMin == xLimMax {
+		// Place points furthest left on canvas
+		xLimMin = minX
+		xLimMax = minX + 0.5
+	}
+	if yLimMin == yLimMax {
+		// Place points in vertical center
+		yLimMin = minY - 0.5
+		yLimMax = minY + 0.5
+	}
+
+	return xLimMin, xLimMax, yLimMin, yLimMax
+}
+
+// Maps the points in X and Y to positions on the canvas
+func (p *Plot) translatePoints() []PathPoint {
+	xLimMin, xLimMax, yLimMin, yLimMax := p.computeLimits()
+
+	// Translate
 	points := make([]PathPoint, len(p.X))
 	for i := 0; i < len(p.X); i++ {
-		nX := (p.X[i] - minX) / (maxX - minX)
-		nY := (p.Y[i] - minY) / (maxY - minY)
-		points[i].X = int(math.Floor(nX * float64(p.Width)))
-		points[i].Y = p.Height - 1 - int(math.Floor(nY*float64(p.Height)))
+		nX := (p.X[i] - xLimMin) / (xLimMax - xLimMin)
+		nY := (p.Y[i] - yLimMin) / (yLimMax - yLimMin)
+		points[i] = PathPoint{
+			X: int(math.Round(nX * float64(p.Width-1))),
+			Y: p.Height - 1 - int(math.Round(nY*float64(p.Height-1))),
+		}
 	}
-
-	// In the same way, translate Y=0
-	p.invThreshold = p.Height - 1 - int(math.Floor((0-minY/(maxY-minY))*float64(p.Height)))
+	p.invThreshold = p.Height - 1 - int(math.Round(((0-yLimMin)/(yLimMax-yLimMin))*float64(p.Height-1)))
 
 	return points
 }
