@@ -34,7 +34,6 @@ const DocumentationDirectory = "../doc/"
 var RenderWidgets = []render.Widget{
 	&render.Text{},
 	&render.Image{},
-	&render.PNG{},
 	render.Row{},
 	render.Column{},
 	render.Stack{},

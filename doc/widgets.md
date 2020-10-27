@@ -152,10 +152,11 @@ render.Column(
 
 ## Image
 Image renders the binary image data passed via `src`. Supported
-formats include PNG, and presumably a few others.
+formats include PNG, JPEG and GIF.
 
 If `width` or `height` are set, the image will be scaled
-accordingly. Otherwise the image's original dimensions are used.
+accordingly, with nearest neighbor interpolation. Otherwise the
+image's original dimensions are used.
 
 #### Attributes
 | Name | Type | Description | Required |
@@ -188,21 +189,6 @@ render.Marquee(
 )
 ```
 ![](img/widget_Marquee_0.gif)
-
-
-## PNG
-PNG is a widget for rendering a pre-existing PNG.
-
-WARNING: This widget will likely be removed in the near future. Use
-Image instead.
-
-#### Attributes
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| `src` | `str` |  | **Y** |
-| `width` | `int` |  | N |
-| `height` | `int` |  | N |
-
 
 
 ## Padding
