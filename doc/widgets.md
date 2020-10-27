@@ -152,7 +152,7 @@ render.Column(
 
 ## Image
 Image renders the binary image data passed via `src`. Supported
-formats include PNG, JPEG and GIF.
+formats include PNG, JPEG, GIF and WebP. Animation is not supported.
 
 If `width` or `height` are set, the image will be scaled
 accordingly, with nearest neighbor interpolation. Otherwise the
@@ -342,5 +342,4 @@ render.WrappedText(
 )
 ```
 ![](img/widget_WrappedText_0.gif)
-
 
