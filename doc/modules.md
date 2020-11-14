@@ -45,7 +45,7 @@ In addition to the Starlib modules, Pixlet offers a cache module.
 | `get(key)` | Retrieves a value by its key. Returns `None` if `key` doesn't exist or has expired. |
 
 Keys and values must all be string. Serialization of non-string data
-is the developers responsibility.
+is the developer's responsibility.
 
 Example:
 
