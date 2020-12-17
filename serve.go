@@ -77,8 +77,10 @@ func serve(cmd *cobra.Command, args []string) {
 				if !ok {
 					break
 				}
-
-				if (event.Op & fsnotify.Write) != 0 {
+				if (event.Op & fsnotify.Rename) != 0 {
+					watcher.Remove(event.Name)
+					watcher.Add(args[0])
+				} else if (event.Op & (fsnotify.Write | fsnotify.Chmod)) != 0 {
 					mutex.Lock()
 					err := loadScript(&applet, args[0])
 					mutex.Unlock()
