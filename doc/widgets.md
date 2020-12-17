@@ -168,24 +168,31 @@ image's original dimensions are used.
 
 
 ## Marquee
-Marquee scrolls its child horizontally.
+Marquee scrolls its child horizontally
 
 The height of the Marquee will be that of its child, but its
 `width` must be specified explicitly. If the child's width fits
 fully, it will not scroll. Otherwise, it will be scrolled right to
 left.
 
+The `offset_start` and `offset_end` parameters control the position
+of the child in the beginning and the end of the animation.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
 | `child` | `Widget` | Widget to potentially scroll | **Y** |
 | `width` | `int` | Width of the Marquee | **Y** |
+| `offset_start` | `int` | Position of child at beginning of animation | N |
+| `offset_end` | `int` | Position of child at end of animation | N |
 
 #### Example
 ```
 render.Marquee(
      width=64,
      child=render.Text("this won't fit in 64 pixels"),
+     offset_start=5,
+     offset_end=32,
 )
 ```
 ![](img/widget_Marquee_0.gif)
