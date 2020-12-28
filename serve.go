@@ -77,8 +77,15 @@ func serve(cmd *cobra.Command, args []string) {
 				if !ok {
 					break
 				}
-
-				if (event.Op & fsnotify.Write) != 0 {
+				if (event.Op & fsnotify.Rename) != 0 {
+					// When Vim saves a file, we get a Rename event followed
+					// by silence. Re-adding allows us to capture future
+					// events.
+					watcher.Remove(event.Name)
+					watcher.Add(args[0])
+				} else if (event.Op & (fsnotify.Write | fsnotify.Chmod)) != 0 {
+					// Reloading on Write is sufficient for most editors,
+					// but with Vim we only get Chmod. No clue why.
 					mutex.Lock()
 					err := loadScript(&applet, args[0])
 					mutex.Unlock()
