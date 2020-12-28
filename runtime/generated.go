@@ -740,6 +740,8 @@ func newMarquee(
 	var (
 		
 		width starlark.Int
+		offset_start starlark.Int
+		offset_end starlark.Int
 		
 		
 		
@@ -754,12 +756,16 @@ func newMarquee(
 		args, kwargs,
 		"child", &child,
 		"width", &width,
+		"offset_start?", &offset_start,
+		"offset_end?", &offset_end,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
 
 	w := &Marquee{}
 	w.Width = int(width.BigInt().Int64())
+	w.OffsetStart = int(offset_start.BigInt().Int64())
+	w.OffsetEnd = int(offset_end.BigInt().Int64())
 	
 
 
@@ -793,7 +799,7 @@ func (w *Marquee) AsRenderWidget() render.Widget {
 
 func (w *Marquee) AttrNames() []string {
 	return []string{
-"child","width",
+"child","width","offset_start","offset_end",
 	}
 }
 
@@ -803,6 +809,12 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 
 	case "width":
 		return starlark.MakeInt(w.Width), nil
+
+	case "offset_start":
+		return starlark.MakeInt(w.OffsetStart), nil
+
+	case "offset_end":
+		return starlark.MakeInt(w.OffsetEnd), nil
 
 
 
