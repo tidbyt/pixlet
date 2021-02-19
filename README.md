@@ -39,6 +39,24 @@ Make sure to [install libwebp][2] first.
 [1]: https://github.com/tidbyt/pixlet/releases/latest
 [2]: https://developers.google.com/speed/webp/download
 
+#### Installing libwebp by Building Utilities Yourself
+
+Follow steps from the official [compiling from source guide][3].
+
+On step 3 of 'Building' subsection, ensure that the following option is 
+specified for the configure script:
+
+```bash
+ cd libwebp-1.2.0
+ ./configure --enable-libwebpmux
+ make
+ sudo make install
+```
+
+Finally, be sure to add the correct paths to the `LD_LIBRARY_PATH` environment variable.
+
+[3]: https://developers.google.com/speed/webp/docs/compiling
+
 ### Hello, World!
 
 Pixlet applets are written in a simple, Python-like language called
@@ -59,11 +77,11 @@ curl https://raw.githubusercontent.com/tidbyt/pixlet/main/examples/hello_world.s
   pixlet serve /dev/stdin
 ```
 
-You can view the result by navigating to [http://localhost:8080][3]:
+You can view the result by navigating to [http://localhost:8080][4]:
 
 ![](doc/img/tutorial_1.gif)
 
-[3]: http://localhost:8080
+[4]: http://localhost:8080
 
 ## How it works
 
