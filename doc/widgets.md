@@ -168,7 +168,7 @@ image's original dimensions are used.
 
 
 ## Marquee
-Marquee scrolls its child horizontally
+Marquee scrolls its child horizontally.
 
 The height of the Marquee will be that of its child, but its
 `width` must be specified explicitly. If the child's width fits

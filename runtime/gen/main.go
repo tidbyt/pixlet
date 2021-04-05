@@ -7,8 +7,10 @@ package main
 // docs.
 
 import (
+	"bytes"
 	"fmt"
 	"go/doc"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"image/color"
@@ -255,13 +257,18 @@ func generateCode(widgets []*StarlarkWidget) {
 	nilOrPanic(err)
 	defer outf.Close()
 
-	err = headerTemplate.Execute(outf, widgets)
+	var buf bytes.Buffer
+	err = headerTemplate.Execute(&buf, widgets)
 	nilOrPanic(err)
 
 	for _, data := range widgets {
-		err = widgetTemplate.Execute(outf, data)
+		err = widgetTemplate.Execute(&buf, data)
 		nilOrPanic(err)
 	}
+
+	formatted, err := format.Source(buf.Bytes())
+	nilOrPanic(err)
+	outf.Write(formatted)
 }
 
 func generateDocs(widgets []*StarlarkWidget) {
