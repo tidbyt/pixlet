@@ -86,10 +86,16 @@ p3 = render.Padding(pad=1, child=render.Box(width=1, height=2), expanded=True)
 
 # Image tests
 png_src = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==")
-img = render.Image(src = png_src)
-assert(img.src == png_src)
-assert(0 < img.size()[0])
-assert(0 < img.size()[1])
+imgPng = render.Image(src = png_src)
+assert(imgPng.src == png_src)
+assert(0 < imgPng.size()[0])
+assert(0 < imgPng.size()[1])
+
+gif_src = base64.decode("R0lGODlhBQAEAPAAAAAAAAAAACH5BAF7AAAAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAABQAEAAACBgRiaLmLBQAh+QQBewAAACwAAAAABQAEAAACBYRzpqhXACH5BAF7AAAALAAAAAAFAAQAAAIGDG6Qp8wFACH5BAF7AAAALAAAAAAFAAQAAAIGRIBnyMoFADs=")
+imgGif = render.Image(src = gif_src)
+assert(5 == imgGif.size()[0])
+assert(4 == imgGif.size()[1])
+assert(1230 == imgGif.delay)
 
 # Row and Column
 r1 = render.Row(
@@ -120,6 +126,15 @@ assert(len(r1.children[1].children) == 2)
 def main():
     return render.Root(child=r1)
 `
+
+func TestBigDotStar(t *testing.T) {
+	app := &Applet{}
+	err := app.Load("big.star", []byte(TestDotStar), nil)
+	assert.NoError(t, err)
+	screens, err := app.Run(map[string]string{})
+	assert.NoError(t, err)
+	assert.NotNil(t, screens)
+}
 
 func TestBox(t *testing.T) {
 	const (

@@ -10,6 +10,12 @@ type Widget interface {
 	FrameCount() int
 }
 
+// Widgets can require initialization
+type WidgetWithInit interface {
+	Init() error
+}
+
+// WidgetStaticSize has inherent size and width known before painting.
 type WidgetStaticSize interface {
 	Size() (int, int)
 }

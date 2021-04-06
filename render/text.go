@@ -41,23 +41,16 @@ type Text struct {
 }
 
 func (t *Text) Size() (int, int) {
-	if t.img == nil {
-		t.paint()
-	}
-
 	return t.img.Bounds().Dx(), t.img.Bounds().Dy()
 }
 
 func (t *Text) Paint(
 	bounds image.Rectangle, frameIdx int,
 ) image.Image {
-	if t.img == nil {
-		t.paint()
-	}
 	return t.img
 }
 
-func (t *Text) paint() {
+func (t *Text) Init() {
 	face := Font[DefaultFontFace]
 	if t.Font != "" {
 		face = Font[t.Font]

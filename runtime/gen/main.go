@@ -52,6 +52,7 @@ type Attribute struct {
 	Render        string
 	Starlark      string
 	Required      bool
+	ReadOnly      bool
 	Type          string
 	Documentation string
 }
@@ -68,6 +69,7 @@ type StarlarkWidget struct {
 	AttrInsets    []*Attribute
 	HasSize       bool
 	HasPtrRcvr    bool
+	RequiresInit  bool
 	Documentation string
 	Examples      []string
 }
@@ -102,6 +104,10 @@ func starlarkWidgetFromRenderWidget(w render.Widget) *StarlarkWidget {
 		sw.HasSize = true
 	}
 
+	if _, requiresInit := w.(render.WidgetWithInit); requiresInit {
+		sw.RequiresInit = true
+	}
+
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 
@@ -110,10 +116,12 @@ func starlarkWidgetFromRenderWidget(w render.Widget) *StarlarkWidget {
 			continue
 		}
 
-		// Widget fields can be tagged `starlark:"<name>"` to
-		// control attribute name in starlark, and
-		// `starlark:"<name>,required"` to indicate a required
-		// attribute.
+		// Widget fields can be tagged `starlark:"<name>[<param>...]"` to
+		// control attribute name in starlark.
+		//
+		// Additional supported flags:
+		// "required" - field is required on instantiation
+		// "readonly" - field is read-only, and not passed to constructor
 		attr := &Attribute{
 			Render: field.Name,
 		}
@@ -121,9 +129,12 @@ func starlarkWidgetFromRenderWidget(w render.Widget) *StarlarkWidget {
 		if ok {
 			tag := strings.Split(fieldTag, ",")
 			attr.Starlark = strings.TrimSpace(tag[0])
-			if len(tag) > 1 {
-				if strings.TrimSpace(tag[1]) == "required" {
+			for _, t := range tag[1:] {
+				t = strings.TrimSpace(t)
+				if t == "required" {
 					attr.Required = true
+				} else if t == "readonly" {
+					attr.ReadOnly = true
 				} else {
 					panic(fmt.Sprintf(
 						"%s.%s has unsupported tag: '%s'",
