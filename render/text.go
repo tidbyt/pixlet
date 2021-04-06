@@ -50,7 +50,7 @@ func (t *Text) Paint(
 	return t.img
 }
 
-func (t *Text) Init() {
+func (t *Text) Init() error {
 	face := Font[DefaultFontFace]
 	if t.Font != "" {
 		face = Font[t.Font]
@@ -82,6 +82,8 @@ func (t *Text) Init() {
 	dc.DrawString(t.Content, 0, float64(height-descent-t.Offset))
 
 	t.img = dc.Image()
+
+	return nil
 }
 
 func (t Text) FrameCount() int {

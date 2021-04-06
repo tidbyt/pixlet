@@ -1031,6 +1031,10 @@ func newText(
 
 	w.size = starlark.NewBuiltin("size", textSize)
 
+	if err := w.Init(); err != nil {
+		return nil, err
+	}
+
 	return w, nil
 }
 
