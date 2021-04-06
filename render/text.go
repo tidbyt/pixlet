@@ -41,23 +41,16 @@ type Text struct {
 }
 
 func (t *Text) Size() (int, int) {
-	if t.img == nil {
-		t.paint()
-	}
-
 	return t.img.Bounds().Dx(), t.img.Bounds().Dy()
 }
 
 func (t *Text) Paint(
 	bounds image.Rectangle, frameIdx int,
 ) image.Image {
-	if t.img == nil {
-		t.paint()
-	}
 	return t.img
 }
 
-func (t *Text) paint() {
+func (t *Text) Init() error {
 	face := Font[DefaultFontFace]
 	if t.Font != "" {
 		face = Font[t.Font]
@@ -89,6 +82,8 @@ func (t *Text) paint() {
 	dc.DrawString(t.Content, 0, float64(height-descent-t.Offset))
 
 	t.img = dc.Image()
+
+	return nil
 }
 
 func (t Text) FrameCount() int {

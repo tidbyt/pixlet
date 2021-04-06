@@ -158,12 +158,17 @@ If `width` or `height` are set, the image will be scaled
 accordingly, with nearest neighbor interpolation. Otherwise the
 image's original dimensions are used.
 
+If the image data encodes an animated GIF, the Image instance will
+also be animated. Frame delay (in milliseconds) can be read from
+the `delay` attribute.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
 | `src` | `str` | Binary image data | **Y** |
 | `width` | `int` | Scale image to this width | N |
 | `height` | `int` | Scale image to this height | N |
+| `delay` | `int` | (Read-only) Frame delay in ms, for animated GIFs | N |
 
 
 

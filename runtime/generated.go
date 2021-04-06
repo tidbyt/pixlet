@@ -514,6 +514,10 @@ func newImage(
 
 	w.size = starlark.NewBuiltin("size", imageSize)
 
+	if err := w.Init(); err != nil {
+		return nil, err
+	}
+
 	return w, nil
 }
 
@@ -523,7 +527,7 @@ func (w *Image) AsRenderWidget() render.Widget {
 
 func (w *Image) AttrNames() []string {
 	return []string{
-		"src", "width", "height",
+		"src", "width", "height", "delay",
 	}
 }
 
@@ -538,6 +542,9 @@ func (w *Image) Attr(name string) (starlark.Value, error) {
 
 	case "height":
 		return starlark.MakeInt(w.Height), nil
+
+	case "delay":
+		return starlark.MakeInt(w.Delay), nil
 
 	case "size":
 		return w.size.BindReceiver(w), nil
@@ -1023,6 +1030,10 @@ func newText(
 	}
 
 	w.size = starlark.NewBuiltin("size", textSize)
+
+	if err := w.Init(); err != nil {
+		return nil, err
+	}
 
 	return w, nil
 }

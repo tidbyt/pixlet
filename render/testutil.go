@@ -12,6 +12,7 @@ var DefaultPalette = map[string]color.RGBA{
 	"b": color.RGBA{0, 0, 0xff, 0xff},
 	"w": color.RGBA{0xff, 0xff, 0xff, 0xff},
 	".": color.RGBA{0, 0, 0, 0},
+	"x": color.RGBA{0, 0, 0, 0xff},
 }
 
 type ImageChecker struct {

@@ -23,41 +23,41 @@ func new{{.Name}}(
 ) (starlark.Value, error) {
 
 	var (
-		{{range .AttrString}}{{.Starlark}} starlark.String
+		{{range .AttrString}}{{if not .ReadOnly}}{{.Starlark}} starlark.String{{end}}
 		{{end}}
-		{{range .AttrInt}}{{.Starlark}} starlark.Int
+		{{range .AttrInt}}{{if not .ReadOnly}}{{.Starlark}} starlark.Int{{end}}
 		{{end}}
-		{{range .AttrBool}}{{.Starlark}} starlark.Bool
+		{{range .AttrBool}}{{if not .ReadOnly}}{{.Starlark}} starlark.Bool{{end}}
 		{{end}}
-		{{range .AttrColor}}{{.Starlark}} starlark.String
+		{{range .AttrColor}}{{if not .ReadOnly}}{{.Starlark}} starlark.String{{end}}
 		{{end}}
-		{{range .AttrChild}}{{.Starlark}} starlark.Value
+		{{range .AttrChild}}{{if not .ReadOnly}}{{.Starlark}} starlark.Value{{end}}
 		{{end}}
-		{{range .AttrChildren}}{{.Starlark}} *starlark.List
+		{{range .AttrChildren}}{{if not .ReadOnly}}{{.Starlark}} *starlark.List{{end}}
 		{{end}}
-		{{range .AttrInsets}}{{.Starlark}} starlark.Value
+		{{range .AttrInsets}}{{if not .ReadOnly}}{{.Starlark}} starlark.Value{{end}}
 		{{end}}
 	)
 
 	if err := starlark.UnpackArgs(
 		"{{.Name}}",
 		args, kwargs,
-{{- range .AttrAll}}
+{{- range .AttrAll}}{{if not .ReadOnly}}
 		"{{.Starlark}}{{if not .Required}}?{{end}}", &{{.Starlark}},
-{{- end}}
+{{- end}}{{end}}
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for {{.Name}}: %s", err)
 	}
 
 	w := &{{.Name}}{}
-	{{range .AttrString}}w.{{.Render}} = {{.Starlark}}.GoString()
+	{{range .AttrString}}{{if not .ReadOnly}}w.{{.Render}} = {{.Starlark}}.GoString(){{end}}
 	{{end}}
-	{{- range .AttrBool}}w.{{.Render}} = bool({{.Starlark}})
+	{{- range .AttrBool}}{{if not .ReadOnly}}w.{{.Render}} = bool({{.Starlark}}){{end}}
 	{{end}}
-	{{- range .AttrInt}}w.{{.Render}} = int({{.Starlark}}.BigInt().Int64())
+	{{- range .AttrInt}}{{if not .ReadOnly}}w.{{.Render}} = int({{.Starlark}}.BigInt().Int64()){{end}}
 	{{end}}
 
-{{range .AttrColor}}
+{{range .AttrColor}}{{if not .ReadOnly}}
 	if {{.Starlark}}.Len() > 0 {
 		c, err := colorful.Hex({{.Starlark}}.GoString())
 		if err != nil {
@@ -65,9 +65,9 @@ func new{{.Name}}(
 		}
 		w.{{.Render}} = c
 	}
-{{end}}
+{{end}}{{end}}
 
-{{range .AttrChild}}
+{{range .AttrChild}}{{if not .ReadOnly}}
 	if {{.Starlark}} != nil {
 		{{.Starlark}}Widget, ok := {{.Starlark}}.(Widget)
 		if !ok {
@@ -79,9 +79,9 @@ func new{{.Name}}(
 		w.{{.Render}} = {{.Starlark}}Widget.AsRenderWidget()
 		w.starlark{{.Render}} = {{.Starlark}}
 	}
-{{end}}
+{{end}}{{end}}
 
-{{range .AttrChildren}}
+{{range .AttrChildren}}{{if not .ReadOnly}}
 	var {{.Starlark}}Val starlark.Value
 	{{.Starlark}}Iter := {{.Starlark}}.Iterate()
 	defer {{.Starlark}}Iter.Done()
@@ -102,9 +102,9 @@ func new{{.Name}}(
 		w.{{.Render}} = append(w.{{.Render}}, {{.Starlark}}Child.AsRenderWidget())
 	}
 	w.starlark{{.Render}} = {{.Starlark}}
-{{end}}
+{{end}}{{end}}
 
-{{range .AttrInsets}}
+{{range .AttrInsets}}{{if not .ReadOnly}}
 	w.starlark{{.Render}} = {{.Starlark}}
 	switch {{.Starlark}}Val := {{.Starlark}}.(type) {
 	case starlark.Int:
@@ -136,11 +136,16 @@ func new{{.Name}}(
 	default:
 		return nil, fmt.Errorf("{{.Starlark}} must be int or 4-tuple of int")
 	}
-{{end}}
+{{end}}{{end}}
 
 {{if .HasSize}}
 	w.size = starlark.NewBuiltin("size", {{.Name|ToLower}}Size)
+{{end}}
 
+{{if .RequiresInit}}
+	if err := w.Init(); err != nil {
+		return nil, err
+	}
 {{end}}
 
 	return w, nil
