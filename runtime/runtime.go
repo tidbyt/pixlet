@@ -176,6 +176,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	case "cache.star":
 		return LoadCacheModule()
 
+	case "xpath.star":
+		return LoadXPathModule()
+
 	case "encoding/base64.star":
 		return starlibbase64.LoadModule()
 

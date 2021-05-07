@@ -217,4 +217,41 @@ def main():
 
 }
 
+func TestXPathModule(t *testing.T) {
+	src := `
+load("render.star", r="render")
+load("xpath.star", "xpath")
+
+def main():
+    xml = """
+<foo>
+   <bar>1337</bar>
+   <bar>4711</bar>
+</foo>
+"""
+
+    d = xpath.loads(xml)
+
+    t = d.query("/foo/bar")
+    if t != "1337":
+        fail(t)
+
+    t = d.query_all("/foo/bar")
+    if len(t) != 2:
+        fail(len(t))
+    if t[0] != "1337":
+        fail(t[0])
+    if t[1] != "4711":
+        fail(t[1])
+
+    return [r.Root(child=r.Text(t[0]))]
+`
+	app := &Applet{}
+	err := app.Load("test.star", []byte(src), nil)
+	assert.NoError(t, err)
+	screens, err := app.Run(map[string]string{})
+	assert.NoError(t, err)
+	assert.NotNil(t, screens)
+}
+
 // TODO: test Screens, especially Screens.Render()
