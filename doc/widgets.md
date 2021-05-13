@@ -173,12 +173,17 @@ the `delay` attribute.
 
 
 ## Marquee
-Marquee scrolls its child horizontally.
+Marquee scrolls its child horizontally or vertically.
 
-The height of the Marquee will be that of its child, but its
-`width` must be specified explicitly. If the child's width fits
-fully, it will not scroll. Otherwise, it will be scrolled right to
-left.
+The `scroll_direction` will be 'horizontal' and will scroll from right
+to left if left empty, if specified as 'vertical' the Marquee will
+scroll from bottom to top.
+
+In horizontal mode the height of the Marquee will be that of its child,
+but its `width` must be specified explicitly. In vertical mode the width
+will be that of its child but the `height` must be specified explicitly.
+
+If the child's width fits fully, it will not scroll.
 
 The `offset_start` and `offset_end` parameters control the position
 of the child in the beginning and the end of the animation.
@@ -187,9 +192,11 @@ of the child in the beginning and the end of the animation.
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
 | `child` | `Widget` | Widget to potentially scroll | **Y** |
-| `width` | `int` | Width of the Marquee | **Y** |
+| `width` | `int` | Width of the Marquee, required for horizontal | N |
+| `height` | `int` | Height of the Marquee, required for vertical | N |
 | `offset_start` | `int` | Position of child at beginning of animation | N |
 | `offset_end` | `int` | Position of child at end of animation | N |
+| `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
 
 #### Example
 ```
