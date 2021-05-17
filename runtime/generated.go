@@ -594,7 +594,10 @@ func newMarquee(
 ) (starlark.Value, error) {
 
 	var (
+		scroll_direction starlark.String
+
 		width        starlark.Int
+		height       starlark.Int
 		offset_start starlark.Int
 		offset_end   starlark.Int
 
@@ -605,15 +608,19 @@ func newMarquee(
 		"Marquee",
 		args, kwargs,
 		"child", &child,
-		"width", &width,
+		"width?", &width,
+		"height?", &height,
 		"offset_start?", &offset_start,
 		"offset_end?", &offset_end,
+		"scroll_direction?", &scroll_direction,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
 
 	w := &Marquee{}
+	w.ScrollDirection = scroll_direction.GoString()
 	w.Width = int(width.BigInt().Int64())
+	w.Height = int(height.BigInt().Int64())
 	w.OffsetStart = int(offset_start.BigInt().Int64())
 	w.OffsetEnd = int(offset_end.BigInt().Int64())
 
@@ -638,15 +645,21 @@ func (w *Marquee) AsRenderWidget() render.Widget {
 
 func (w *Marquee) AttrNames() []string {
 	return []string{
-		"child", "width", "offset_start", "offset_end",
+		"child", "width", "height", "offset_start", "offset_end", "scroll_direction",
 	}
 }
 
 func (w *Marquee) Attr(name string) (starlark.Value, error) {
 	switch name {
 
+	case "scroll_direction":
+		return starlark.String(w.ScrollDirection), nil
+
 	case "width":
 		return starlark.MakeInt(w.Width), nil
+
+	case "height":
+		return starlark.MakeInt(w.Height), nil
 
 	case "offset_start":
 		return starlark.MakeInt(w.OffsetStart), nil
