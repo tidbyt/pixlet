@@ -33,11 +33,9 @@ brew install tidbyt/tidbyt/pixlet
 
 Download the `pixlet` binary from [the latest release][1].
 
-Alternatively you can build from source with `go build`.
-Make sure to [install libwebp][2] first.
+Alternatively you can [build from source](BUILD.md).
 
 [1]: https://github.com/tidbyt/pixlet/releases/latest
-[2]: https://developers.google.com/speed/webp/download
 
 ### Hello, World!
 
