@@ -73,17 +73,16 @@ On an xpath object, the following methods are available:
 
 | Method | Description |
 | --- | --- |
-| `query(path)` | Retrieves the text of the first tag matching the path |
-| `query_all(path)` | Retrieves text of all tags matchin the path |
-
-Keys and values must all be string. Serialization of non-string data
-is the developer's responsibility.
+| `query(path)` | Retrieves text of the first tag matching the path |
+| `query_all(path)` | Retrieves text of all tags matching the path |
 
 Example:
 
 ```starlark
 load("xpath.star", "xpath")
-def get_bars(doc = "<foo><bar>bar</bar><bar>baz</bar></foo>"):
+doc = "<foo><bar>bar</bar><bar>baz</bar></foo>"
+
+def get_bars():
     x = xpath.loads(doc)
     return x.query_all("/foo/bar")
 ...
