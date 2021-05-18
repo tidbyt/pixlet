@@ -67,7 +67,7 @@ The xpath module lets you extract data from XML documents using
 
 | Function | Description |
 | --- | --- |
-| `loads(doc) | Parses an XML document and returns an xpath object|
+| `loads(doc)` | Parses an XML document and returns an xpath object|
 
 On an xpath object, the following methods are available:
 
@@ -80,7 +80,13 @@ Example:
 
 ```starlark
 load("xpath.star", "xpath")
-doc = "<foo><bar>bar</bar><bar>baz</bar></foo>"
+
+doc = """
+<foo>
+    <bar>bar</bar>
+    <bar>baz</bar>
+</foo>
+"""
 
 def get_bars():
     x = xpath.loads(doc)
