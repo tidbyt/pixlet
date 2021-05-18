@@ -244,7 +244,15 @@ def main():
     if t[1] != "4711":
         fail(t[1])
 
-    return [r.Root(child=r.Text(t[0]))]
+    t = d.query("/foo/doesntexist")
+    if t != None:
+        fail(t)
+
+    t = d.query_all("/foo/doesntexist")
+    if len(t) != 0:
+        fail(t)
+
+    return [r.Root(child=r.Text("1337"))]
 `
 	app := &Applet{}
 	err := app.Load("test.star", []byte(src), nil)

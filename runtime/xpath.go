@@ -81,6 +81,10 @@ func xPathQuery(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tupl
 		return nil, fmt.Errorf("querying: %v", err)
 	}
 
+	if node == nil {
+		return starlark.None, nil
+	}
+
 	return starlark.String(node.InnerText()), nil
 }
 
