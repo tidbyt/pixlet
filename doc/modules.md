@@ -60,6 +60,41 @@ def get_counter():
 ...
 ```
 
+## Pixlet module: XPath
+
+The xpath module lets you extract data from XML documents using
+[XPath](https://en.wikipedia.org/wiki/XPath) queries.
+
+| Function | Description |
+| --- | --- |
+| `loads(doc)` | Parses an XML document and returns an xpath object|
+
+On an xpath object, the following methods are available:
+
+| Method | Description |
+| --- | --- |
+| `query(path)` | Retrieves text of the first tag matching the path |
+| `query_all(path)` | Retrieves text of all tags matching the path |
+
+Example:
+
+```starlark
+load("xpath.star", "xpath")
+
+doc = """
+<foo>
+    <bar>bar</bar>
+    <bar>baz</bar>
+</foo>
+"""
+
+def get_bars():
+    x = xpath.loads(doc)
+    return x.query_all("/foo/bar")
+...
+```
+
+
 ## Pixlet module: Render
 
 The `render.star` module is where Pixlet's Widgets live. All of them
