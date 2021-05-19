@@ -18,12 +18,14 @@ import (
 )
 
 var (
+	host string
 	port  int
 	watch bool
 )
 
 func init() {
 	rootCmd.AddCommand(serveCmd)
+	serveCmd.Flags().StringVarP(&host, "host", "i", "127.0.0.1", "Host interface for serving rendered images")
 	serveCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port for serving rendered images")
 	serveCmd.Flags().BoolVarP(&watch, "watch", "w", false, "Reload scripts on change")
 }
@@ -130,7 +132,7 @@ func serve(cmd *cobra.Command, args []string) {
 		writePreviewHTML(w, webp)
 	})
 	fmt.Printf("listening on tcp/%d\n", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil))
 }
 
 func writePreviewHTML(w io.Writer, webp []byte) {
