@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	host string
+	host  string
 	port  int
 	watch bool
 )
@@ -131,7 +131,7 @@ func serve(cmd *cobra.Command, args []string) {
 		w.Header().Set("Content-Type", "text/html")
 		writePreviewHTML(w, webp)
 	})
-	fmt.Printf("listening on tcp/%d\n", port)
+	fmt.Printf("listening at http://%s:%d\n", host, port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil))
 }
 
