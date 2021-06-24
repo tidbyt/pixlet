@@ -6,7 +6,7 @@ import (
 	gocolor "image/color"
 
 	"github.com/lucasb-eyer/go-colorful"
-	"github.com/mitchellh/hashstructure"
+	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/render"
@@ -196,6 +196,6 @@ func (p Plot) Freeze()              {}
 func (p Plot) Truth() starlark.Bool { return true }
 
 func (p Plot) Hash() (uint32, error) {
-	sum, err := hashstructure.Hash(p, nil)
+	sum, err := hashstructure.Hash(p, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }

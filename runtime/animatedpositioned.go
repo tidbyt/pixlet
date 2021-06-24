@@ -3,7 +3,7 @@ package runtime
 import (
 	"fmt"
 
-	"github.com/mitchellh/hashstructure"
+	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/render"
@@ -93,6 +93,6 @@ func (ap AnimatedPositioned) Freeze()              {}
 func (ap AnimatedPositioned) Truth() starlark.Bool { return true }
 
 func (ap AnimatedPositioned) Hash() (uint32, error) {
-	sum, err := hashstructure.Hash(ap, nil)
+	sum, err := hashstructure.Hash(ap, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }
