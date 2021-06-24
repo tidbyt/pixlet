@@ -3,7 +3,7 @@ package runtime
 import (
 	"fmt"
 
-	"github.com/mitchellh/hashstructure"
+	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/render"
@@ -73,6 +73,6 @@ func (r Root) Freeze()              {}
 func (r Root) Truth() starlark.Bool { return true }
 
 func (r Root) Hash() (uint32, error) {
-	sum, err := hashstructure.Hash(r, nil)
+	sum, err := hashstructure.Hash(r, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }

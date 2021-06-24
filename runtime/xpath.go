@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/antchfx/xmlquery"
-	"github.com/mitchellh/hashstructure"
+	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
@@ -141,6 +141,6 @@ func (x *XPath) Freeze()              {}
 func (x *XPath) Truth() starlark.Bool { return true }
 
 func (x *XPath) Hash() (uint32, error) {
-	sum, err := hashstructure.Hash(x, nil)
+	sum, err := hashstructure.Hash(x, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }
