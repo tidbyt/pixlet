@@ -51,7 +51,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("loaded %s\n", s.filename)
+	log.Println("loaded", s.filename)
 
 	http.HandleFunc("/", s.serveRoot)
 	http.HandleFunc("/favicon.ico", s.serveFavicon)
