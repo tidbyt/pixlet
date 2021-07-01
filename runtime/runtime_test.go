@@ -217,6 +217,32 @@ def main():
 
 }
 
+func TestThreadInitializer(t *testing.T) {
+	src := `
+load("render.star", "render")
+def main():
+	print('foobar')
+	return render.Root(child=render.Box())
+`
+	// override the print function of the thread
+	var printedText string
+	initializer := func(thread *starlark.Thread) *starlark.Thread {
+		thread.Print = func(thread *starlark.Thread, msg string) {
+			printedText += msg
+		}
+		return thread
+	}
+
+	app := &Applet{}
+	err := app.Load("test.star", []byte(src), nil)
+	assert.NoError(t, err)
+	_, err = app.Run(map[string]string{}, initializer)
+	assert.NoError(t, err)
+
+	// our print function should have been called
+	assert.Equal(t, "foobar", printedText)
+}
+
 func TestXPathModule(t *testing.T) {
 	src := `
 load("render.star", r="render")
