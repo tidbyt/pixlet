@@ -20,6 +20,11 @@ import (
 
 type ModuleLoader func(*starlark.Thread, string) (starlark.StringDict, error)
 
+// ThreadInitializer is called when building a Starlark thread to run an applet
+// on. It can customize the thread by overriding behavior or attaching thread
+// local data.
+type ThreadInitializer func(thread *starlark.Thread) *starlark.Thread
+
 func init() {
 	resolve.AllowFloat = true
 	resolve.AllowLambda = true
@@ -38,14 +43,20 @@ type Applet struct {
 	main        *starlark.Function
 }
 
-func (a *Applet) thread() *starlark.Thread {
-	return &starlark.Thread{
+func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
+	t := &starlark.Thread{
 		Name: a.Id,
 		Load: a.loadModule,
 		Print: func(thread *starlark.Thread, msg string) {
 			fmt.Printf("[%s] %s\n", a.Filename, msg)
 		},
 	}
+
+	for _, init := range initializers {
+		t = init(t)
+	}
+
+	return t
 }
 
 // Loads an applet. The script filename is used as a descriptor only,
@@ -90,7 +101,7 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 
 // Runs the applet's main function, passing it configuration as a
 // starlark dict.
-func (a *Applet) Run(config map[string]string) (roots []render.Root, err error) {
+func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer) (roots []render.Root, err error) {
 	var args starlark.Tuple
 	if a.main.NumParams() > 0 {
 		starlarkConfig := starlark.NewDict(len(config))
@@ -103,7 +114,7 @@ func (a *Applet) Run(config map[string]string) (roots []render.Root, err error) 
 		args = starlark.Tuple{starlarkConfig}
 	}
 
-	returnValue, err := a.Call(a.main, args)
+	returnValue, err := a.Call(a.main, args, initializers...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,14 +148,14 @@ func (a *Applet) Run(config map[string]string) (roots []render.Root, err error) 
 
 // Calls any callable from Applet.Globals. Pass args and receive a
 // starlark Value, or an error if you're unlucky.
-func (a *Applet) Call(callable *starlark.Function, args starlark.Tuple) (val starlark.Value, err error) {
+func (a *Applet) Call(callable *starlark.Function, args starlark.Tuple, initializers ...ThreadInitializer) (val starlark.Value, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic while running %s: %v", a.Filename, r)
 		}
 	}()
 
-	resultVal, err := starlark.Call(a.thread(), callable, args, nil)
+	resultVal, err := starlark.Call(a.thread(initializers...), callable, args, nil)
 	if err != nil {
 		evalErr, ok := err.(*starlark.EvalError)
 		if ok {
