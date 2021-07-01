@@ -23,5 +23,5 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tidbyt/go-bdf v0.0.0-20200807014123-29975f932239
 	go.starlark.net v0.0.0-20210602144842-1cdb82c9e17a
-	golang.org/x/image v0.0.0-20210622092929-e6eecd499c2c
+	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 )
