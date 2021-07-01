@@ -13,8 +13,8 @@ import (
 const DefaultExpirationSeconds = 60
 
 type Cache interface {
-	Set(key string, value []byte, ttl int64) error
-	Get(key string) ([]byte, bool, error)
+	Set(thread *starlark.Thread, key string, value []byte, ttl int64) error
+	Get(thread *starlark.Thread, key string) ([]byte, bool, error)
 }
 
 type InMemoryCacheRecord struct {
@@ -31,7 +31,7 @@ func NewInMemoryCache() *InMemoryCache {
 	return &InMemoryCache{records: map[string]*InMemoryCacheRecord{}}
 }
 
-func (c *InMemoryCache) Get(key string) (value []byte, found bool, err error) {
+func (c *InMemoryCache) Get(_ *starlark.Thread, key string) (value []byte, found bool, err error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
@@ -48,7 +48,7 @@ func (c *InMemoryCache) Get(key string) (value []byte, found bool, err error) {
 	return r.data, true, nil
 }
 
-func (c *InMemoryCache) Set(key string, value []byte, ttl int64) error {
+func (c *InMemoryCache) Set(_ *starlark.Thread, key string, value []byte, ttl int64) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
@@ -108,7 +108,7 @@ func cacheGet(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple,
 		return starlark.None, nil
 	}
 
-	val, found, err := cache.Get(cacheKey)
+	val, found, err := cache.Get(thread, cacheKey)
 
 	if err != nil {
 		// don't fail just because cache is misbehaving
@@ -160,7 +160,7 @@ func cacheSet(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple,
 		return starlark.None, nil
 	}
 
-	err := cache.Set(cacheKey, []byte(val.GoString()), ttl64)
+	err := cache.Set(thread, cacheKey, []byte(val.GoString()), ttl64)
 	if err != nil {
 		log.Printf("setting %s in cache: %v", cacheKey, err)
 	}
