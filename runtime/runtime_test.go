@@ -174,7 +174,7 @@ hello_re = 'he[l]{2}o\\sthere'
 def main():
     if base64.decode(hello_b64) != "hello there":
         fail("base64 broken")
-    if json.loads(hello_json)["hello"] != "there":
+    if json.decode(hello_json)["hello"] != "there":
         fail("json broken")
     if http.get == None:
         fail("http broken")
@@ -182,7 +182,7 @@ def main():
         fail("math broken")
     if re.findall(hello_re, "well hello there friend") != ("hello there",):
         fail("re broken")
-    if time.duration("10s").seconds() != 10:
+    if time.parse_duration("10s").seconds != 10:
         fail("time broken")
     return render.Root(child=render.Box())
 `

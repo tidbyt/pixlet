@@ -6,11 +6,11 @@ import (
 
 	"github.com/pkg/errors"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
-	starlibjson "github.com/qri-io/starlib/encoding/json"
 	starlibhttp "github.com/qri-io/starlib/http"
-	starlibmath "github.com/qri-io/starlib/math"
 	starlibre "github.com/qri-io/starlib/re"
-	starlibtime "github.com/qri-io/starlib/time"
+	starlarkjson "go.starlark.net/lib/json"
+	starlarkmath "go.starlark.net/lib/math"
+	starlarktime "go.starlark.net/lib/time"
 	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -194,19 +194,19 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return starlibbase64.LoadModule()
 
 	case "encoding/json.star":
-		return starlibjson.LoadModule()
+		return starlark.StringDict{"json": starlarkjson.Module}, nil
 
 	case "http.star":
 		return starlibhttp.LoadModule()
 
 	case "math.star":
-		return starlibmath.LoadModule()
+		return starlark.StringDict{"math": starlarkmath.Module}, nil
 
 	case "re.star":
 		return starlibre.LoadModule()
 
 	case "time.star":
-		return starlibtime.LoadModule()
+		return starlark.StringDict{"time": starlarktime.Module}, nil
 
 	default:
 		return nil, fmt.Errorf("invalid module: %s", module)
