@@ -13,9 +13,8 @@ A mock app that returns a widget tree of what is meant to be average
 size.
 """
 
-load("render.star", r = "render")
+load("render.star", "render")
 load("encoding/base64.star", "base64")
-
 
 SUNNY_PNG = """
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
@@ -34,33 +33,40 @@ TDRiZ8GnA5nYmQAmziLDABbM7ApZmFGMXo/mPCJohLMc6AQFeAyyCS44kBlwYCYqSnPQAb
 """
 
 def main(config):
-    return r.Root(
-        delay=80,
-        child=r.Column(children=[
-            r.Marquee(
-                width=50,
-                child = r.Text(
-                    content = "This is a pretty long message to scroll",
-                    color = "#fff",
-                    font = r.fonts["5x8"],
-                    height = 6,
+    return render.Root(
+        delay = 60,
+        child = render.Box(
+            color = "#002b36",
+            child = render.Marquee(
+                height = 32,
+                offset_start = 16,
+                offset_end = 32,
+                scroll_direction = "vertical",
+                child = render.Padding(
+                    pad = 1,
+                    child = render.Box(
+                        height = 250,
+                        child = render.Column(
+                            main_align = "start",
+                            expanded = True,
+                            children = [
+                                render.Row(
+                                    cross_align = "center",
+                                    main_align = "space_around",
+                                    expanded = True,
+                                    children = [
+                                        render.Image(base64.decode(SUNNY_PNG)),
+                                        render.Text("Aug 15", color = "#cb4b16"),
+                                    ],
+                                ),
+                                render.WrappedText("This is a cool title", color = "#b58900"),
+                                render.WrappedText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", color = "#93a1a1"),
+                            ],
+                        ),
+                    ),
                 ),
             ),
-            r.Row(
-                expanded=True,
-                main_align="space_evenly",
-                children=[
-                    r.Box(width=10, height=7, color="#f00"),
-                    r.Box(width=10, height=7, color="#0f0"),
-                ]),
-            r.Row(children=[
-                r.Column(children=[
-                    r.Box(width=10, height=5, color="#00f"),
-                    r.Box(width=10, height=5, color="#f0f"),
-                ]),
-                r.Image(base64.decode(SUNNY_PNG)),
-            ]),
-        ]),
+        ),
     )
 `
 
