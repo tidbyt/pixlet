@@ -33,10 +33,10 @@ TDRiZ8GnA5nYmQAmziLDABbM7ApZmFGMXo/mPCJohLMc6AQFeAyyCS44kBlwYCYqSnPQAb
 5W9EvIXnIQAAAABJRU5ErkJggg==
 """
 
-def main():
-    return [r.Frame(
+def main(config):
+    return r.Root(
         delay=80,
-        root=r.Column(children=[
+        child=r.Column(children=[
             r.Marquee(
                 width=50,
                 child = r.Text(
@@ -58,10 +58,10 @@ def main():
                     r.Box(width=10, height=5, color="#00f"),
                     r.Box(width=10, height=5, color="#f0f"),
                 ]),
-                r.PNG(base64.decode(SUNNY_PNG)),
+                r.Image(base64.decode(SUNNY_PNG)),
             ]),
         ]),
-    )]
+    )
 `
 
 func BenchmarkRunAndRender(b *testing.B) {
