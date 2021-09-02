@@ -1,9 +1,11 @@
 package render
 
 import (
-	"github.com/fogleman/gg"
 	"image"
 	"image/color"
+	"sync"
+
+	"github.com/fogleman/gg"
 )
 
 const (
@@ -33,16 +35,24 @@ func (r Root) Paint(solidBackground bool) []image.Image {
 	numFrames := r.Child.FrameCount()
 	frames := make([]image.Image, numFrames)
 
+	var wg sync.WaitGroup
 	for i := 0; i < numFrames; i++ {
-		dc := gg.NewContext(DefaultFrameWidth, DefaultFrameHeight)
-		if solidBackground {
-			dc.SetColor(color.Black)
-			dc.Clear()
-		}
-		im := r.Child.Paint(image.Rect(0, 0, DefaultFrameWidth, DefaultFrameHeight), i)
-		dc.DrawImage(im, 0, 0)
-		frames[i] = dc.Image()
+		wg.Add(1)
+		go func(i int) {
+			dc := gg.NewContext(DefaultFrameWidth, DefaultFrameHeight)
+			if solidBackground {
+				dc.SetColor(color.Black)
+				dc.Clear()
+			}
+
+			im := r.Child.Paint(image.Rect(0, 0, DefaultFrameWidth, DefaultFrameHeight), i)
+			dc.DrawImage(im, 0, 0)
+			frames[i] = dc.Image()
+			wg.Done()
+		}(i)
 	}
+
+	wg.Wait()
 	return frames
 }
 
