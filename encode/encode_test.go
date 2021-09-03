@@ -1,9 +1,11 @@
 package encode
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -97,6 +99,7 @@ r1 = render.Row(
             children = [
                 render.Box(width=6, height=7),
                 render.Box(width=4, height=5),
+                tw,
             ],
         ),
     ],
@@ -107,7 +110,7 @@ assert(r1.cross_align == "center")
 assert(r1.children[1].main_align == "start")
 assert(r1.children[1].cross_align == "end")
 assert(len(r1.children) == 2)
-assert(len(r1.children[1].children) == 2)
+assert(len(r1.children[1].children) == 3)
 
 def main():
     return render.Root(child=r1)
@@ -124,4 +127,40 @@ func TestFile(t *testing.T) {
 	webp, err := ScreensFromRoots(roots).EncodeWebP()
 	assert.NoError(t, err)
 	assert.True(t, len(webp) > 0)
+}
+
+func TestHash(t *testing.T) {
+	app := runtime.Applet{}
+	err := app.Load("test.star", []byte(TestDotStar), nil)
+	require.NoError(t, err)
+
+	roots, err := app.Run(map[string]string{})
+	require.NoError(t, err)
+
+	// ensure we can calculate a hash
+	hash, err := ScreensFromRoots(roots).Hash()
+	require.NoError(t, err)
+	require.True(t, len(hash) > 0)
+
+	// ensure the hash doesn't change
+	for i := 0; i < 20; i++ {
+		h, err := ScreensFromRoots(roots).Hash()
+		assert.NoError(t, err)
+		assert.Equal(t, hash, h)
+	}
+
+	// change the app slightly
+	modifiedSource := strings.Replace(TestDotStar, "foo bar", "bar foo", 1)
+	app2 := runtime.Applet{}
+	err = app2.Load("test.star", []byte(modifiedSource), nil)
+	require.NoError(t, err)
+
+	roots2, err := app2.Run(map[string]string{})
+	require.NoError(t, err)
+
+	// ensure we can calculate a hash on the new app
+	hash2, err := ScreensFromRoots(roots2).Hash()
+
+	// ensure hashes are different
+	require.NotEqual(t, hash, hash2)
 }
