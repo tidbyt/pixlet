@@ -2,6 +2,7 @@ package encode
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"image"
 	"image/color"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/harukasan/go-libwebp/webp"
+	"github.com/mitchellh/hashstructure/v2"
 	"github.com/pkg/errors"
 	"tidbyt.dev/pixlet/render"
 )
@@ -46,6 +48,32 @@ func ScreensFromImages(images ...image.Image) *Screens {
 		delay:  DefaultScreenDelayMillis,
 	}
 	return &screens
+}
+
+// Hash returns a hash of the render roots for this screen. This can be used for
+// testing whether two render trees are exactly equivalent, without having to
+// do the actual rendering.
+func (s *Screens) Hash() ([]byte, error) {
+	if len(s.roots) == 0 {
+		return nil, errors.New("hash isn't supported for screens without roots")
+	}
+
+	hashable := struct {
+		Roots []render.Root
+		Delay int32
+	}{
+		Roots: s.roots,
+		Delay: s.delay,
+	}
+
+	sum, err := hashstructure.Hash(hashable, hashstructure.FormatV2, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := make([]byte, binary.MaxVarintLen64)
+	n := binary.PutUvarint(buf, sum)
+	return buf[:n], nil
 }
 
 // Renders a screen to WebP. Optionally pass filters for
