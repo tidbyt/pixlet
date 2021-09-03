@@ -54,16 +54,19 @@ func ScreensFromImages(images ...image.Image) *Screens {
 // testing whether two render trees are exactly equivalent, without having to
 // do the actual rendering.
 func (s *Screens) Hash() ([]byte, error) {
-	if len(s.roots) == 0 {
-		return nil, errors.New("hash isn't supported for screens without roots")
-	}
-
 	hashable := struct {
-		Roots []render.Root
-		Delay int32
+		Roots  []render.Root
+		Images []image.Image
+		Delay  int32
 	}{
 		Roots: s.roots,
 		Delay: s.delay,
+	}
+
+	if len(s.roots) == 0 {
+		// there are no roots, so this might have been a screen created directly
+		// from images. if so, consider the images in the hash.
+		hashable.Images = s.images
 	}
 
 	sum, err := hashstructure.Hash(hashable, hashstructure.FormatV2, nil)
