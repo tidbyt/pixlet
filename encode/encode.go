@@ -2,7 +2,8 @@ package encode
 
 import (
 	"bytes"
-	"encoding/binary"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	"github.com/harukasan/go-libwebp/webp"
-	"github.com/mitchellh/hashstructure/v2"
 	"github.com/pkg/errors"
 	"tidbyt.dev/pixlet/render"
 )
@@ -69,14 +69,13 @@ func (s *Screens) Hash() ([]byte, error) {
 		hashable.Images = s.images
 	}
 
-	sum, err := hashstructure.Hash(hashable, hashstructure.FormatV2, nil)
+	j, err := json.Marshal(hashable)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "marshaling render tree to JSON")
 	}
 
-	buf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutUvarint(buf, sum)
-	return buf[:n], nil
+	h := sha256.Sum256(j)
+	return h[:], nil
 }
 
 // Renders a screen to WebP. Optionally pass filters for
