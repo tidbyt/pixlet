@@ -9,8 +9,8 @@ import (
 	"text/template"
 )
 
-const FontDir = "../fonts"
-const OutFile = "fonts_raw.go"
+const FontDir = "./fonts"
+const OutFile = "render/fonts_raw.go"
 
 type Font struct {
 	Name    string
