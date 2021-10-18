@@ -24,6 +24,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidbyt/go-bdf v0.0.0-20200807014123-29975f932239
+	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	go.starlark.net v0.0.0-20210831205850-94adf23ac86a
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect

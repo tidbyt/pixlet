@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"log"
 
-	"github.com/tidbyt/go-bdf"
+	"github.com/zachomedia/go-bdf"
 	"golang.org/x/image/font"
 )
 
