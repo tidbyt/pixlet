@@ -101,9 +101,7 @@ including the runic code block. 4121 code points in total.
 By [Robey Pointer](https://robey.lag.net/2010/01/23/tiny-monospace-font.html)
 
 A very tiny, monospace, bitmap font. It's a 4x6 font (3x5 usable pixels) that's
-great for packing in information on your display. If you're using all uppercase
-characters, you can set the height of the text widget equal to 5 to only occupy
-five pixels on your device!
+great for packing in information on your display.
 
 - Advance: 4
 - Height: 6
