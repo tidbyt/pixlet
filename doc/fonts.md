@@ -97,3 +97,14 @@ including the runic code block. 4121 code points in total.
 - Ascent: 11
 - Descent: 2
 
+### tom-thumb
+By [Robey Pointer](https://robey.lag.net/2010/01/23/tiny-monospace-font.html)
+
+A very tiny, monospace, bitmap font. It's a 4x6 font (3x5 usable pixels) that's
+great for packing in information on your display.
+
+- Advance: 4
+- Height: 6
+- Cap height: 4
+- Ascent: 5
+- Descent: 1
