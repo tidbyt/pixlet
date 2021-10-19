@@ -100,11 +100,36 @@ including the runic code block. 4121 code points in total.
 ### tom-thumb
 By [Robey Pointer](https://robey.lag.net/2010/01/23/tiny-monospace-font.html)
 
-A very tiny, monospace, bitmap font. It's a 4x6 font (3x5 usable pixels) that's
-great for packing in information on your display.
+A very tiny, monospace, bitmap font. It's a 4x6 font with 3x5 usable pixels.
+This font is great for a really tiny font that also supports upper and lower
+cased characters.
 
 - Advance: 4
 - Height: 6
 - Cap height: 4
 - Ascent: 5
 - Descent: 1
+
+### CG-pixel-3x5-mono
+By [Ilmari Karonen](https://vyznev.net/)
+
+This font is a true 3x5 font which only occupies 5 pixels on a display. Check
+out the 4x5 version if you have the width to spare.
+
+- Advance: 4
+- Height: 5
+- Cap height: 4
+- Ascent: 5
+- Descent: 0
+
+### CG-pixel-4x5-mono
+By [Ilmari Karonen](https://vyznev.net/)
+
+This font is a true 4x5 font which only occupies 5 pixels on a display. Check
+out the 3x5 version if you are also constrained on width.
+
+- Advance: 5
+- Height: 5
+- Cap height: 4
+- Ascent: 5
+- Descent: 0
