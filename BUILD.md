@@ -17,7 +17,7 @@ Steps
 	```console
 	cd pixlet
 	```
-- Build in the following directories in order: `/render`, then `/runtime`, then `/encode` and finally `/`:
+- Build the following directories in order: `/render`, then `/runtime`, then `/encode` and finally `/`:
 	```console
 	go build render runtime encode .
 	```
