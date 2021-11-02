@@ -4,7 +4,7 @@ go 1.16
 
 replace (
 	github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2
-	github.com/qri-io/starlib => github.com/tidbyt/starlib v0.4.2-0.20200729192616-ef2649a4219c
+	github.com/qri-io/starlib => github.com/tidbyt/starlib 3fe4d3c11012c6060b12c34e8235ae8666611d84
 )
 
 require (
