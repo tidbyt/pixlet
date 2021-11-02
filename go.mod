@@ -2,10 +2,7 @@ module tidbyt.dev/pixlet
 
 go 1.16
 
-replace (
-	github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2
-	github.com/qri-io/starlib => github.com/tidbyt/starlib 3fe4d3c11012c6060b12c34e8235ae8666611d84
-)
+replace github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2
 
 require (
 	github.com/antchfx/xmlquery v1.3.6
@@ -20,12 +17,12 @@ require (
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pkg/errors v0.9.1
-	github.com/qri-io/starlib v0.5.0
+	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidbyt/go-bdf v0.0.0-20200807014123-29975f932239
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
-	go.starlark.net v0.0.0-20210831205850-94adf23ac86a
+	go.starlark.net v0.0.0-20211013185944-b0039bd2cfe3
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
 	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
