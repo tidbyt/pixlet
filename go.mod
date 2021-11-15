@@ -23,7 +23,7 @@ require (
 	github.com/tidbyt/go-bdf v0.0.0-20200807014123-29975f932239
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	go.starlark.net v0.0.0-20211013185944-b0039bd2cfe3
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
 	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
 	golang.org/x/text v0.3.7 // indirect
