@@ -50,6 +50,8 @@ github.com/andybalholm/cascadia v1.1.0 h1:BuuO6sSfQNFRu1LppgbD25Hr2vLYW25JvxHs5z
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/antchfx/xmlquery v1.3.6 h1:kaEVzH1mNo/2AJZrhZjAaAUTy2Nn2zxGfYYU8jWfXOo=
 github.com/antchfx/xmlquery v1.3.6/go.mod h1:64w0Xesg2sTaawIdNqMB+7qaW/bSqkQm+ssPaCMWNnc=
+github.com/antchfx/xmlquery v1.3.9 h1:Y+zyMdiUZ4fasTQTkDb3DflOXP7+obcYEh80SISBmnQ=
+github.com/antchfx/xmlquery v1.3.9/go.mod h1:wojC/BxjEkjJt6dPiAqUzoXO5nIMWtxHS8PD8TmN4ks=
 github.com/antchfx/xpath v1.1.10/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNYhvtNk=
 github.com/antchfx/xpath v1.2.0 h1:mbwv7co+x0RwgeGAOHdrKy89GvHaGvxxBtPK0uF9Zr8=
 github.com/antchfx/xpath v1.2.0/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=

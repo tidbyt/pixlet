@@ -5,7 +5,7 @@ go 1.16
 replace github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2
 
 require (
-	github.com/antchfx/xmlquery v1.3.6
+	github.com/antchfx/xmlquery v1.3.9
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/fogleman/gg v1.3.0
 	github.com/fsnotify/fsnotify v1.5.1
