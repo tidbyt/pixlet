@@ -7,3 +7,5 @@ examples/*.gif
 
 # Pixlet Binary
 build/out/pixlet
+/dist
+/pixlet
