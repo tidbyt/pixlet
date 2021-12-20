@@ -22,8 +22,9 @@ var (
 )
 
 type TidbytPushJSON struct {
-	DeviceID string `json:"deviceID"`
-	Image    string `json:"image"`
+	DeviceID       string `json:"deviceID"`
+	Image          string `json:"image"`
+	InstallationID string `json:"installationID"`
 }
 
 func init() {
@@ -32,7 +33,7 @@ func init() {
 }
 
 var pushCmd = &cobra.Command{
-	Use:   "push [device ID] [webp image]",
+	Use:   "push [device ID] [webp image] [installationID]",
 	Short: "Pushes a webp image to a Tidbyt device",
 	Args:  cobra.MinimumNArgs(2),
 	Run:   push,
@@ -41,6 +42,11 @@ var pushCmd = &cobra.Command{
 func push(cmd *cobra.Command, args []string) {
 	deviceID := args[0]
 	image := args[1]
+	installationID := ""
+
+	if len(args) == 3 {
+		installationID = args[2]
+	}
 
 	if apiToken == "" {
 		apiToken = os.Getenv(APITokenEnv)
@@ -59,8 +65,9 @@ func push(cmd *cobra.Command, args []string) {
 
 	payload, err := json.Marshal(
 		TidbytPushJSON{
-			DeviceID: deviceID,
-			Image:    base64.StdEncoding.EncodeToString(imageData),
+			DeviceID:       deviceID,
+			Image:          base64.StdEncoding.EncodeToString(imageData),
+			InstallationID: installationID,
 		},
 	)
 	if err != nil {
