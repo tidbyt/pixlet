@@ -128,7 +128,7 @@ to show the Bitcoin tracker on your Tidbyt:
 
 ```
 pixlet render examples/bitcoin.star
-pixlet push --api-token <YOUR API TOKEN> <YOUR DEVICE ID> examples/bitcoin.webp
+pixlet push --api-token <YOUR API TOKEN> <YOUR DEVICE ID> examples/bitcoin.webp [Installation ID]
 ```
 
 To get the ID and API key for a device, open the settings for the device in the Tidbyt app on your phone, and tap **Get API key**.
