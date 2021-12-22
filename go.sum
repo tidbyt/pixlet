@@ -466,6 +466,8 @@ go.starlark.net v0.0.0-20210831205850-94adf23ac86a h1:0xYHqWAWfGxn9uqlgqS7r2E2Tj
 go.starlark.net v0.0.0-20210831205850-94adf23ac86a/go.mod h1:t3mmBBPzAVvK0L0n1drDmrQsJ8FoIx4INCqVMTr/Zo0=
 go.starlark.net v0.0.0-20211013185944-b0039bd2cfe3 h1:oBcONsksxvpeodDrLjiMDaKHXKAVVfAydhe/792CE/o=
 go.starlark.net v0.0.0-20211013185944-b0039bd2cfe3/go.mod h1:t3mmBBPzAVvK0L0n1drDmrQsJ8FoIx4INCqVMTr/Zo0=
+go.starlark.net v0.0.0-20211203141949-70c0e40ae128 h1:bxH+EXOo87zEOwKDdZ8Tevgi6irRbqheRm/fr293c58=
+go.starlark.net v0.0.0-20211203141949-70c0e40ae128/go.mod h1:t3mmBBPzAVvK0L0n1drDmrQsJ8FoIx4INCqVMTr/Zo0=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
