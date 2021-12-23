@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 
 	"tidbyt.dev/pixlet/server"
@@ -25,10 +23,13 @@ var serveCmd = &cobra.Command{
 	Use:   "serve [script]",
 	Short: "Serves a starlark render script over HTTP.",
 	Args:  cobra.ExactArgs(1),
-	Run:   serve,
+	RunE:  serve,
 }
 
-func serve(cmd *cobra.Command, args []string) {
-	s := server.NewServer(host, port, watch, args[0])
-	log.Fatal(s.Run())
+func serve(cmd *cobra.Command, args []string) error {
+	s, err := server.NewServer(host, port, watch, args[0])
+	if err != nil {
+		return err
+	}
+	return s.Run()
 }
