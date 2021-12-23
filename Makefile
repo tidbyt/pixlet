@@ -7,7 +7,7 @@ clean:
 bench:
 	go test -benchmem -benchtime=20s -bench BenchmarkRunAndRender tidbyt.dev/pixlet/encode
 
-build: clean embedfonts
+build: clean
 	go build -o build/out/pixlet tidbyt.dev/pixlet
 
 embedfonts:
