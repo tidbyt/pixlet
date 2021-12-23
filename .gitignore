@@ -6,6 +6,5 @@ examples/*.webp
 examples/*.gif
 
 # Pixlet Binary
-build/out/pixlet
-/dist
-/pixlet
+pixlet
+dist

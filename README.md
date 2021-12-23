@@ -136,3 +136,15 @@ To get the ID and API key for a device, open the settings for the device in the 
 If all goes well, you should see the Bitcoin tracker appear on your Tidbyt:
 
 ![](doc/img/tidbyt_2.jpg)
+
+## Push as an Installation
+Pushing an applet to your Tidbyt without an installation ID simply displays your applet one time. If you would like your applet to continously display as part of the rotation, add an installation ID to the push command:
+
+```
+pixlet render examples/bitcoin.star
+pixlet push --api-token <YOUR API TOKEN> <YOUR DEVICE ID> examples/bitcoin.webp <INSTALLATION ID>
+```
+
+For example, if we set the `installationID` to "Bitcoin", it would appear in the mobile app as follows:
+
+![](doc/img/mobile_1.jpg)
