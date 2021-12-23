@@ -17,9 +17,9 @@ Steps
 	```console
 	cd pixlet
 	```
-- Build the following directories in order: `/render`, then `/runtime`, then `/encode` and finally `/`:
+- Build the binary:
 	```console
-	go build render runtime encode .
+	make build
 	```
 - After that you will have the binary `/pixlet`, which you should copy to your path.
 
