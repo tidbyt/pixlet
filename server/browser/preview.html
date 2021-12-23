@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>{{ .Title }}</title>
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<style type="text/css">
+		img {
+			image-rendering: pixelated;
+			image-rendering: -moz-crisp-edges;
+			image-rendering: crisp-edges;
+			width: 100%;
+			mask-size: contain;
+			-webkit-mask-size: contain;
+			mask-image: url("./preview-mask.png");
+			-webkit-mask-image: url("./preview-mask.png");
+		}
+	</style>
+</head>
+
+<body bgcolor="black">
+	<div style="border: solid 1px white">
+		<img id="render" src="data:image/webp;base64,{{ .WebP }}" />
+	</div>
+
+	{{ if .Watch }}
+	<script>
+		class Watcher {
+			constructor() {
+				this.connect();
+			}
+
+			connect() {
+				this.conn = new WebSocket("ws://" + document.location.host + "/ws");
+				this.conn.open = this.open.bind(this);
+				this.conn.onmessage = this.process.bind(this);
+				this.conn.onclose = this.close.bind(this);
+				setTimeout(this.check.bind(this), 5000)
+			}
+
+			open(e) {
+				console.log("connection established");
+			}
+
+			process(e) {
+				console.log("recieved new message");
+				const data = JSON.parse(e.data);
+
+				switch (data.type) {
+					case "webp":
+						const img = document.getElementById("render");
+						img.src = "data:image/webp;base64," + data.message;
+				}
+			}
+
+			check() {
+				if (this.conn.readyState === WebSocket.CONNECTING) {
+					console.log("connection timed out");
+					this.reconnect();
+				}
+			}
+
+			close(e) {
+				// If the underlying TCP connection is having issues,
+				// refresh the entire page.
+				console.log("connection closed", e.code);
+				if (e.code === 1006) {
+					// If the server is down, the browser has a tough time
+					// refreshing when it actually comes back up. Keep
+					// refreshing until this js is no longer loaded.
+					setInterval(this.refresh.bind(this), 5000)
+					this.refresh();
+					return;
+				}
+
+				this.reconnect();
+			}
+
+			refresh() {
+				console.log("attempting to refresh page");
+				location.reload(true);
+			}
+
+			reconnect() {
+				console.log("reestablishing connection");
+				this.connect();
+			}
+		}
+
+		let watcher = new Watcher();
+	</script>
+	{{ end }}
+</body>
+
+</html>

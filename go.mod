@@ -11,6 +11,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/harukasan/go-libwebp v0.0.0-20190703060927-68562c9c99af
 	github.com/lucasb-eyer/go-colorful v1.2.0
@@ -25,5 +26,6 @@ require (
 	go.starlark.net v0.0.0-20211203141949-70c0e40ae128
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7 // indirect
 )
