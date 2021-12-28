@@ -7,3 +7,6 @@ examples/*.gif
 
 # Pixlet Binary
 pixlet
+
+# Releases
+build/
