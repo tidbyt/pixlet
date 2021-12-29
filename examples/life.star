@@ -337,7 +337,7 @@ def seed_board(board, width, height, num_start):
     Modifies a given board with the desired number of starting live cells, placed randomly.
     """
     current = 0
-    seed = time.now().nanosecond()
+    seed = time.now().nanosecond
 
     while current < num_start:
         x, seed = random(seed)
