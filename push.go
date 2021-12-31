@@ -18,18 +18,21 @@ const (
 )
 
 var (
-	apiToken string
+	apiToken   string
+	background bool
 )
 
 type TidbytPushJSON struct {
 	DeviceID       string `json:"deviceID"`
 	Image          string `json:"image"`
 	InstallationID string `json:"installationID"`
+	Background     bool   `json:"background"`
 }
 
 func init() {
 	rootCmd.AddCommand(pushCmd)
-	pushCmd.Flags().StringVarP(&apiToken, "api-token", "", "", "Tidbyt API token")
+	pushCmd.Flags().StringVarP(&apiToken, "api-token", "t", "", "Tidbyt API token")
+	pushCmd.Flags().BoolVarP(&background, "background", "b", false, "Don't immediately show the image on the device")
 }
 
 var pushCmd = &cobra.Command{
@@ -68,6 +71,7 @@ func push(cmd *cobra.Command, args []string) {
 			DeviceID:       deviceID,
 			Image:          base64.StdEncoding.EncodeToString(imageData),
 			InstallationID: installationID,
+			Background:     background,
 		},
 	)
 	if err != nil {
