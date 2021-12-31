@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -25,6 +26,7 @@ type TidbytPushJSON struct {
 	DeviceID       string `json:"deviceID"`
 	Image          string `json:"image"`
 	InstallationID string `json:"installationID"`
+	Background     bool `json:"background"`
 }
 
 func init() {
@@ -33,7 +35,7 @@ func init() {
 }
 
 var pushCmd = &cobra.Command{
-	Use:   "push [device ID] [webp image] [installationID]",
+	Use:   "push [device ID] [webp image] [installationID] [background]",
 	Short: "Pushes a webp image to a Tidbyt device",
 	Args:  cobra.MinimumNArgs(2),
 	Run:   push,
@@ -43,9 +45,19 @@ func push(cmd *cobra.Command, args []string) {
 	deviceID := args[0]
 	image := args[1]
 	installationID := ""
+	background := false
 
 	if len(args) == 3 {
 		installationID = args[2]
+	}
+	
+	if len(args) == 4 {
+		backgroundT, err := strconv.ParseBool(args[3])
+		if err != nil {
+			fmt.Printf("failed to convert background parameter to bool: %v\n", err)
+			os.Exit(1)
+		}
+		background = backgroundT
 	}
 
 	if apiToken == "" {
@@ -68,8 +80,10 @@ func push(cmd *cobra.Command, args []string) {
 			DeviceID:       deviceID,
 			Image:          base64.StdEncoding.EncodeToString(imageData),
 			InstallationID: installationID,
+			Background:     background,
 		},
 	)
+
 	if err != nil {
 		fmt.Printf("failed to marshal json: %v\n", err)
 		os.Exit(1)
