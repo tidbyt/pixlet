@@ -18,8 +18,9 @@ const (
 )
 
 var (
-	apiToken   string
-	background bool
+	apiToken       string
+	installationID string
+	background     bool
 )
 
 type TidbytPushJSON struct {
@@ -32,6 +33,7 @@ type TidbytPushJSON struct {
 func init() {
 	rootCmd.AddCommand(pushCmd)
 	pushCmd.Flags().StringVarP(&apiToken, "api-token", "t", "", "Tidbyt API token")
+	pushCmd.Flags().StringVarP(&installationID, "installation-id", "i", "", "Give your installation an ID to keep it in the rotation")
 	pushCmd.Flags().BoolVarP(&background, "background", "b", false, "Don't immediately show the image on the device")
 }
 
@@ -45,8 +47,10 @@ var pushCmd = &cobra.Command{
 func push(cmd *cobra.Command, args []string) {
 	deviceID := args[0]
 	image := args[1]
-	installationID := ""
 
+	// TODO (mark): This is better served as a flag, but I don't want to break
+	// folks in the short term. We should consider dropping this as an arguement
+	// in a future release.
 	if len(args) == 3 {
 		installationID = args[2]
 	}
