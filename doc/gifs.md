@@ -1,6 +1,6 @@
 # Creating GIFs for Tidbyt
 
-With the use of Pixlet's image widget, images and GIFs can easily be displayed on pixel constrained displays. 
+By using Pixlet's [image widget](widgets.md), images and GIFs can easily be displayed on pixel constrained displays. 
 
 However, when creating GIFs for use on Tidbyt, there are a few requirements to keep in mind for the best result.
 
