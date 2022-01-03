@@ -142,7 +142,7 @@ Pushing an applet to your Tidbyt without an installation ID simply displays your
 
 ```
 pixlet render examples/bitcoin.star
-pixlet push --api-token <YOUR API TOKEN> <YOUR DEVICE ID> examples/bitcoin.webp <INSTALLATION ID>
+pixlet push --api-token <YOUR API TOKEN> --installation-id <INSTALLATION ID> <YOUR DEVICE ID> examples/bitcoin.webp
 ```
 
 For example, if we set the `installationID` to "Bitcoin", it would appear in the mobile app as follows:
