@@ -1,16 +1,13 @@
-on:
-  push:
-    branches:
-      - main
+name: pixlet
 
+on:
   pull_request:
     branches:
       - '*'
 
-name: Build & test
-
 jobs:
-  test:
+  build-and-test:
+    name: Build and Test
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -28,11 +25,14 @@ jobs:
 
     - name: Install Linux dependencies
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get update && sudo apt-get install -y libwebp-dev
+      run: sudo apt-get install -y libwebp-dev
 
     - name: Install macOS dependencies
       if: matrix.os == 'macos-latest'
       run: brew install webp
 
-    - name: Build & test
-      run: make build && make test
+    - name: Build
+      run: make build
+
+    - name: Test
+      run: make test
