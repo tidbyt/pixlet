@@ -77,7 +77,7 @@ jobs:
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v2
       with:
-        version: ${{github.ref_name}}
+        version: latest
         args: release
       env:
         GITHUB_TOKEN: ${{ secrets.TIDBYT_GITHUB_TOKEN }}
