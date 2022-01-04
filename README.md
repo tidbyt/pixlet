@@ -7,7 +7,7 @@ Pixlet is an app runtime and UX toolkit for highly-constrained displays.
 We use Pixlet to develop applets for [Tidbyt](https://tidbyt.com/), which has
 a 64x32 RGB LED matrix display:
 
-[![Example of a Tidbyt](doc/img/tidbyt_1.png)](https://tidbyt.com)
+[![Example of a Tidbyt](docs/img/tidbyt_1.png)](https://tidbyt.com)
 
 Apps developed with Pixlet can be served in a browser, rendered as WebP or
 GIF animations, or pushed to a physical Tidbyt device.
@@ -16,10 +16,10 @@ GIF animations, or pushed to a physical Tidbyt device.
 
 - [Getting started](#getting-started)
 - [How it works](#how-it-works)
-- [In-depth tutorial](doc/tutorial.md)
-- [Widget reference](doc/widgets.md)
-- [Modules reference](doc/modules.md)
-- [Notes on the available fonts](doc/fonts.md)
+- [In-depth tutorial](docs/tutorial.md)
+- [Widget reference](docs/widgets.md)
+- [Modules reference](docs/modules.md)
+- [Notes on the available fonts](docs/fonts.md)
 
 ## Getting started
 
@@ -59,7 +59,7 @@ curl https://raw.githubusercontent.com/tidbyt/pixlet/main/examples/hello_world.s
 
 You can view the result by navigating to [http://localhost:8080][3]:
 
-![](doc/img/tutorial_1.gif)
+![](docs/img/tutorial_1.gif)
 
 [3]: http://localhost:8080
 
@@ -109,16 +109,16 @@ def main(config):
 
 Here's the resulting image:
 
-![](doc/img/clock.gif)
+![](docs/img/clock.gif)
 
 ### Example: A Bitcoin Tracker
 
 Applets can get information from external data sources. For example,
 here is a Bitcoin price tracker:
 
-![](doc/img/tutorial_4.gif)
+![](docs/img/tutorial_4.gif)
 
-Read the [in-depth tutorial](doc/tutorial.md) to learn how to
+Read the [in-depth tutorial](docs/tutorial.md) to learn how to
 make an applet like this.
 
 ## Push to a Tidbyt
@@ -135,7 +135,7 @@ To get the ID and API key for a device, open the settings for the device in the 
 
 If all goes well, you should see the Bitcoin tracker appear on your Tidbyt:
 
-![](doc/img/tidbyt_2.jpg)
+![](docs/img/tidbyt_2.jpg)
 
 ## Push as an Installation
 Pushing an applet to your Tidbyt without an installation ID simply displays your applet one time. If you would like your applet to continously display as part of the rotation, add an installation ID to the push command:
@@ -147,4 +147,4 @@ pixlet push --api-token <YOUR API TOKEN> --installation-id <INSTALLATION ID> <YO
 
 For example, if we set the `installationID` to "Bitcoin", it would appear in the mobile app as follows:
 
-![](doc/img/mobile_1.jpg)
+![](docs/img/mobile_1.jpg)

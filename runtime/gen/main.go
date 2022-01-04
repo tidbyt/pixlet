@@ -3,7 +3,7 @@ package main
 // Generates starlark bindings for the pixlet/render package.
 //
 // Also produces widget documentation and extracts example snippets
-// that can be run with doc/gen.go to produce images for the widget
+// that can be run with docs/gen.go to produce images for the widget
 // docs.
 
 import (
@@ -30,8 +30,8 @@ const StarlarkWidgetTemplate = "./gen/widget.tmpl"
 const DocumentationTemplate = "./gen/docs.tmpl"
 const RenderDirectory = "../render"
 const CodeOut = "./generated.go"
-const DocumentationOut = "../doc/widgets.md"
-const DocumentationDirectory = "../doc/"
+const DocumentationOut = "../docs/widgets.md"
+const DocumentationDirectory = "../docs/"
 
 var RenderWidgets = []render.Widget{
 	&render.Text{},
