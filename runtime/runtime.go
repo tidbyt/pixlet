@@ -11,6 +11,7 @@ import (
 	starlibjson "go.starlark.net/lib/json"
 	starlibmath "go.starlark.net/lib/math"
 	starlibtime "go.starlark.net/lib/time"
+	starlibhtml "github.com/qri-io/starlib/html"
 	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -200,6 +201,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "http.star":
 		return starlibhttp.LoadModule()
+
+	case "html.star":
+		return starlibhtml.LoadModule()
 
 	case "math.star":
 		return starlark.StringDict{
