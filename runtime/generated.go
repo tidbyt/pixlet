@@ -704,6 +704,8 @@ func newPadding(
 	var (
 		expanded starlark.Bool
 
+		color starlark.String
+
 		child starlark.Value
 
 		pad starlark.Value
@@ -715,12 +717,21 @@ func newPadding(
 		"child", &child,
 		"pad?", &pad,
 		"expanded?", &expanded,
+		"color?", &color,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Padding: %s", err)
 	}
 
 	w := &Padding{}
 	w.Expanded = bool(expanded)
+
+	if color.Len() > 0 {
+		c, err := colorful.Hex(color.GoString())
+		if err != nil {
+			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+		}
+		w.Color = c
+	}
 
 	if child != nil {
 		childWidget, ok := child.(Widget)
@@ -775,12 +786,22 @@ func (w *Padding) AsRenderWidget() render.Widget {
 
 func (w *Padding) AttrNames() []string {
 	return []string{
-		"child", "pad", "expanded",
+		"child", "pad", "expanded", "color",
 	}
 }
 
 func (w *Padding) Attr(name string) (starlark.Value, error) {
 	switch name {
+
+	case "color":
+		if w.Color == nil {
+			return nil, nil
+		}
+		c, ok := colorful.MakeColor(w.Color)
+		if !ok {
+			return nil, nil
+		}
+		return starlark.String(c.Hex()), nil
 
 	case "expanded":
 		return starlark.Bool(w.Expanded), nil

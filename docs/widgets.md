@@ -224,6 +224,7 @@ accordingly.
 | `child` | `Widget` | The Widget to place padding around | **Y** |
 | `pad` | `insets` | Padding around the child | N |
 | `expanded` | `bool` | This is a confusing parameter | N |
+| `color` | `color` | Background color | N |
 
 
 

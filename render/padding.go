@@ -2,6 +2,7 @@ package render
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/fogleman/gg"
 )
@@ -23,12 +24,14 @@ type Insets struct {
 // DOC(Child): The Widget to place padding around
 // DOC(Expanded): This is a confusing parameter
 // DOC(Pad): Padding around the child
+// DOC(Color): Background color
 type Padding struct {
 	Widget
 
 	Child    Widget `starlark:"child,required"`
 	Pad      Insets
 	Expanded bool
+	Color    color.Color
 }
 
 func (p Padding) Paint(bounds image.Rectangle, frameIdx int) image.Image {
@@ -47,6 +50,10 @@ func (p Padding) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	}
 
 	dc := gg.NewContext(width, height)
+	if p.Color != nil {
+		dc.SetColor(p.Color)
+		dc.Clear()
+	}
 	dc.DrawRectangle(
 		float64(p.Pad.Left),
 		float64(p.Pad.Top),
