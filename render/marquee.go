@@ -50,11 +50,11 @@ func (m Marquee) FrameCount() int {
 	var cw int
 	var size int
 	if m.isVertical() {
-		im = m.Child.Paint(image.Rect(0, 0, DefaultFrameWidth, m.Height*2), 0)
+		im = m.Child.Paint(image.Rect(0, 0, DefaultFrameWidth, m.Height*10), 0)
 		cw = im.Bounds().Dy()
 		size = m.Height
 	} else {
-		im = m.Child.Paint(image.Rect(0, 0, m.Width*2, DefaultFrameHeight), 0)
+		im = m.Child.Paint(image.Rect(0, 0, m.Width*10, DefaultFrameHeight), 0)
 		cw = im.Bounds().Dx()
 		size = m.Width
 	}
@@ -83,11 +83,11 @@ func (m Marquee) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	if m.isVertical() {
 		// We'll only scroll frame 0 of the child. Scrolling an
 		// animation would be madness.
-		im = m.Child.Paint(image.Rect(0, 0, bounds.Dx(), m.Height*2), 0)
+		im = m.Child.Paint(image.Rect(0, 0, bounds.Dx(), m.Height*10), 0)
 		cw = im.Bounds().Dy()
 		size = m.Height
 	} else {
-		im = m.Child.Paint(image.Rect(0, 0, m.Width*2, bounds.Dy()), 0)
+		im = m.Child.Paint(image.Rect(0, 0, m.Width*10, bounds.Dy()), 0)
 		cw = im.Bounds().Dx()
 		size = m.Width
 	}
