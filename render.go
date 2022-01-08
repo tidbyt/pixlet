@@ -134,10 +134,10 @@ func render(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-    if outPath == "-" {
-        _, err = os.Stdout.Write(buf)
-    } else  {
-	    err = ioutil.WriteFile(outPath, buf, 0644)
+	if outPath == "-" {
+		_, err = os.Stdout.Write(buf)
+	} else {
+		err = ioutil.WriteFile(outPath, buf, 0644)
 	}
 
 	if err != nil {
