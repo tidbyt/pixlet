@@ -19,6 +19,7 @@ GIF animations, or pushed to a physical Tidbyt device.
 - [In-depth tutorial](docs/tutorial.md)
 - [Widget reference](docs/widgets.md)
 - [Modules reference](docs/modules.md)
+- [Schema reference](docs/schema.md)
 - [Our thoughts on authoring apps](docs/authoring_apps.md)
 - [Notes on the available fonts](docs/fonts.md)
 
