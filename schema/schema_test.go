@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
 )
@@ -137,16 +137,16 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonSchema := app.GetSchema()
 
 	var s schema.Schema
 	json.Unmarshal([]byte(jsonSchema), &s)
 
-	assert.Equal(t, schema.Schema{
+	require.Equal(t, schema.Schema{
 		Version: "1",
-		Schema: []schema.SchemaField{
+		Fields: []schema.SchemaField{
 			{
 				Type:        "location",
 				ID:          "locationid",
@@ -301,17 +301,17 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonSchema, err := app.CallSchemaHandler(context.Background(), "generatedid", "foobar")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	var s schema.Schema
 	json.Unmarshal([]byte(jsonSchema), &s)
 
-	assert.Equal(t, schema.Schema{
+	require.Equal(t, schema.Schema{
 		Version: "1",
-		Schema: []schema.SchemaField{
+		Fields: []schema.SchemaField{
 			{
 				Type:        "text",
 				ID:          "generatedid",
@@ -354,10 +354,10 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = app.CallSchemaHandler(context.Background(), "generatedid", "foobar")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 // Verifies that appruntime.Schemas returned by a generated field's handler is
@@ -383,7 +383,7 @@ def main():
 `
 
 	_, err := loadApp(code)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestSchemaWithGeneratedIconNotAllowed(t *testing.T) {
@@ -416,7 +416,7 @@ def main():
 `
 
 	_, err := loadApp(code)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestSchemaWithLocationBasedHandlerSuccess(t *testing.T) {
@@ -440,11 +440,11 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	stringValue, err := app.CallSchemaHandler(context.Background(), "locationbasedid", "fart")
-	assert.NoError(t, err)
-	assert.Equal(t, "[{\"text\":\"Your only option is\",\"value\":\"fart\"}]", stringValue)
+	require.NoError(t, err)
+	require.Equal(t, "[{\"text\":\"Your only option is\",\"value\":\"fart\"}]", stringValue)
 }
 
 func TestSchemaWithLocationBasedHandlerMalformed(t *testing.T) {
@@ -468,10 +468,10 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = app.CallSchemaHandler(context.Background(), "locationbasedid", "fart")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestSchemaWithTypeaheadHandlerSuccess(t *testing.T) {
@@ -495,11 +495,11 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	stringValue, err := app.CallSchemaHandler(context.Background(), "typeaheadid", "farts")
-	assert.NoError(t, err)
-	assert.Equal(t, "[{\"text\":\"You searched for\",\"value\":\"farts\"}]", stringValue)
+	require.NoError(t, err)
+	require.Equal(t, "[{\"text\":\"You searched for\",\"value\":\"farts\"}]", stringValue)
 }
 
 func TestSchemaWithTypeaheadHandlerMalformed(t *testing.T) {
@@ -523,10 +523,10 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = app.CallSchemaHandler(context.Background(), "typeaheadid", "fart")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestSchemaWithOAuth2HandlerSuccess(t *testing.T) {
@@ -554,11 +554,11 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	stringValue, err := app.CallSchemaHandler(context.Background(), "oauth2id", "farts")
-	assert.NoError(t, err)
-	assert.Equal(t, "a-refresh-token", stringValue)
+	require.NoError(t, err)
+	require.Equal(t, "a-refresh-token", stringValue)
 }
 
 func TestSchemaWithOAuth2HandlerMalformed(t *testing.T) {
@@ -586,8 +586,8 @@ def main():
 `
 
 	app, err := loadApp(code)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = app.CallSchemaHandler(context.Background(), "oauth2id", "farts")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
