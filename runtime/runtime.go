@@ -1,22 +1,25 @@
 package runtime
 
 import (
+	"context"
 	"crypto/md5"
 	"fmt"
 
 	"github.com/pkg/errors"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
+	starlibhtml "github.com/qri-io/starlib/html"
 	starlibhttp "github.com/qri-io/starlib/http"
 	starlibre "github.com/qri-io/starlib/re"
 	starlibjson "go.starlark.net/lib/json"
 	starlibmath "go.starlark.net/lib/math"
 	starlibtime "go.starlark.net/lib/time"
-	starlibhtml "github.com/qri-io/starlib/html"
 	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/schema"
+	"tidbyt.dev/pixlet/starlarkutil"
 )
 
 type ModuleLoader func(*starlark.Thread, string) (starlark.StringDict, error)
@@ -35,13 +38,15 @@ func init() {
 }
 
 type Applet struct {
-	Filename    string
-	Id          string
-	Globals     starlark.StringDict
-	src         []byte
-	loader      ModuleLoader
-	predeclared starlark.StringDict
-	main        *starlark.Function
+	Filename      string
+	Id            string
+	Globals       starlark.StringDict
+	src           []byte
+	loader        ModuleLoader
+	predeclared   starlark.StringDict
+	main          *starlark.Function
+	schema        string
+	schemaHandler map[string]schema.SchemaHandler
 }
 
 func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
@@ -97,6 +102,24 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 	}
 	a.main = main
 
+	var s string
+	var handlers map[string]schema.SchemaHandler
+	schemaFun, _ := a.Globals[schema.SchemaFunctionName].(*starlark.Function)
+	if schemaFun != nil {
+		schemaVal, err := a.Call(schemaFun, nil)
+		if err != nil {
+			return errors.Wrap(err, "calling schema function")
+		}
+
+		s, handlers, err = schema.EncodeSchema(schemaVal, a.Globals)
+		if err != nil {
+			return errors.Wrap(err, "encode schema")
+		}
+	}
+
+	a.schema = s
+	a.schemaHandler = handlers
+
 	return nil
 }
 
@@ -147,6 +170,64 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 	return roots, nil
 }
 
+// CallSchemaHandler calls the schema handler for a field, passing it a single
+// string parameter and returning a single string value.
+func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter string) (result string, err error) {
+	handler, found := app.schemaHandler[fieldId]
+	if !found {
+		return "", fmt.Errorf("no handler exported for field id %s", fieldId)
+	}
+
+	resultVal, err := app.Call(
+		handler.Function,
+		starlark.Tuple{starlark.String(parameter)},
+		attachContext(ctx),
+	)
+	if err != nil {
+		return "", fmt.Errorf("calling schema handler for field %s: %v", fieldId, err)
+	}
+
+	switch handler.ReturnType {
+	case schema.ReturnOptions:
+		options, err := schema.EncodeOptions(resultVal)
+		if err != nil {
+			return "", err
+		}
+		return options, nil
+
+	case schema.ReturnSchema:
+		schema, _, err := schema.EncodeSchema(resultVal, app.Globals)
+		if err != nil {
+			return "", err
+		}
+		return schema, nil
+
+	case schema.ReturnString:
+		str, ok := starlark.AsString(resultVal)
+		if !ok {
+			return "", fmt.Errorf(
+				"expected %s to return a string or string-like value",
+				handler.Function.Name(),
+			)
+		}
+		return str, nil
+	}
+
+	return "", fmt.Errorf("a very unexpected error happened for field \"%s\"", fieldId)
+}
+
+// GetSchema returns the config for the applet.
+func (app *Applet) GetSchema() string {
+	return app.schema
+}
+
+func attachContext(ctx context.Context) ThreadInitializer {
+	return func(thread *starlark.Thread) *starlark.Thread {
+		starlarkutil.AttachThreadContext(ctx, thread)
+		return thread
+	}
+}
+
 // Calls any callable from Applet.Globals. Pass args and receive a
 // starlark Value, or an error if you're unlucky.
 func (a *Applet) Call(callable *starlark.Function, args starlark.Tuple, initializers ...ThreadInitializer) (val starlark.Value, err error) {
@@ -184,6 +265,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	switch module {
 	case "render.star":
 		return LoadModule()
+
+	case "schema.star":
+		return schema.LoadModule()
 
 	case "cache.star":
 		return LoadCacheModule()
