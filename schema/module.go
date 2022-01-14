@@ -29,6 +29,7 @@ func LoadModule() (starlark.StringDict, error) {
 					"Option":   starlark.NewBuiltin("Option", newOption),
 					"Dropdown": starlark.NewBuiltin("Dropdown", newDropdown),
 					"Location": starlark.NewBuiltin("Location", newLocation),
+					"Text":     starlark.NewBuiltin("Text", newText),
 				},
 			},
 		}
