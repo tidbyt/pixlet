@@ -108,3 +108,11 @@ load("render.star", r="render")
 def main():
     return r.Root(child=r.Box(width=12, height=14, color="#ff0"))
 ```
+
+## Pixlet module: Schema
+
+The schema module provides configuration options for your app. See the [schema documentation](schema.md) for more details.
+
+Example:
+
+See [examples/schema_hello_world.star](../examples/schema_hello_world.star) for an example.
