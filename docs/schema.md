@@ -128,3 +128,17 @@ schema.Dropdown(
 )
 ```
 ![dropdown example](img/dropdown.jpg)
+
+### Text
+The `Text` schema option provides a text entry box for a string entered by the user.
+
+```starlark
+schema.Text(
+	id = "screen_name",
+	name = "Screen Name",
+	desc = "A text entry for your screen name.",
+	icon = "user",
+)
+```
+
+![text example](img/text.jpg)
