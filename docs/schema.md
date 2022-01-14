@@ -17,17 +17,16 @@ def main():
 ```
 
 This is a quick start, so let's start with the code and we'll break it down:
+
 ```starlark
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEFAULT = "false"
-
 def main(config):
-    small = config.get("small", DEFAULT)
-    msg = render.Text("Hello, World!")
-    if small == "false":
+    if config.get("small"):
         msg = render.Text("Hello, World!", font = "CG-pixel-3x5-mono")
+    else:
+        msg = render.Text("Hello, World!")
 
     return render.Root(
         child = msg,
@@ -35,16 +34,16 @@ def main(config):
 
 def get_schema():
     return schema.Schema(
-    	version = "1",
-    	fields = [
-    		schema.Toggle(
-    			id = "small",
-    			name = "Display small text",
-    			desc = "A toggle to display smaller text.",
-    			icon = "compress",
-    			default = DEFAULT,
-    		),
-    	],
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "small",
+                name = "Display small text",
+                desc = "A toggle to display smaller text.",
+                icon = "compress",
+                default = False,
+            ),
+        ],
     )
 ```
 
@@ -54,7 +53,7 @@ The `get_schema` method returns a `schema.Schema` object that contains _fields_.
 
 Next up should be more familiar. We're now passing `config` into `main()`. This is the same for current pixlet scripts that take `config` today. In [Community Apps](https://github.com/tidbyt/community), we will populate the config hashmap with values configured from the mobile app. More specifically, `config` is a key/value pair where the key is the `id` of the schema field and the value is determined by the user in the mobile app.
 
-That's about it! One final note - we use the `DEFAULT` constant in two places here. That allows the `Toggle` to have a default value when we call `get_schema` and for the app to be run without `get_schema` being called. This could happen in a few different ways, such as using `pixlet render` or when we render previews for the mobile app listing.
+That's about it!
 
 ## Icons
 Each schema field takes an `icon` value. We use the free icons from [Font Awesome](https://fontawesome.com/) with the names camel cased. For example [users-cog](https://fontawesome.com/v5.15/icons/users-cog?style=solid) should be `usersCog` in the `icon` value.
@@ -63,7 +62,7 @@ Each schema field takes an `icon` value. We use the free icons from [Font Awesom
 These are the current fields we support through schema today. Note that any addition of a field will require changes in our mobile app before we can truly support them.
 
 ### Toggle
-A toggle provides an on/off switch for your app. The values returned in `config` are either `"true"` or `"false"` strings. Note - you have to convert this to a boolean inside of your app. It's not ideal and we hope to fix it in a future version of schema.
+A toggle provides an on/off switch for your app. The values returned in `config` are either `True` or `False`.
 
 The following field will display as follows in the mobile app:
 ```starlark
@@ -72,7 +71,7 @@ schema.Toggle(
 	name = "Display weather",
 	desc = "A toggle to display weather or not.",
 	icon = "cloud",
-	default = "true",
+	default = True,
 )
 ```
 ![toggle example](img/toggle.jpg)
