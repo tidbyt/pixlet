@@ -32,7 +32,3 @@ brews:
 
     test: |
       system "#{bin}/pixlet --version"
-
-announce:
-  discord:
-    enabled: true
