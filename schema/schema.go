@@ -116,7 +116,7 @@ func FromStarlark(
 	}
 
 	for i, schemaField := range schema.Fields {
-		schema.fieldByID[schemaField.ID] = &schemaField
+		schema.fieldByID[schemaField.ID] = &schema.Fields[i]
 		if schemaField.Handler != "" {
 			handlerValue, found := globals[schemaField.Handler]
 			if !found {
