@@ -116,3 +116,16 @@ The schema module provides configuration options for your app. See the [schema d
 Example:
 
 See [examples/schema_hello_world.star](../examples/schema_hello_world.star) for an example.
+
+## Pixlet module: Sunrise
+
+The `sunrise` module calculates sunrise and sunset times for a given set of GPS coordinates and timestamp. 
+
+| Function | Description |
+| --- | --- |
+| `sunrise(lat, lng, date)` | Calculates the sunrise time for a given location and date. |
+| `sunset(lat, lng, date)` | Calculates the sunset time for a given location and date. |
+
+Example:
+
+See [examples/sunrise.star](../examples/sunrise.star) for an example.

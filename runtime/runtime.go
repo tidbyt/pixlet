@@ -20,6 +20,7 @@ import (
 	"go.starlark.net/starlarkstruct"
 
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/runtime/modules/sunrise"
 	"tidbyt.dev/pixlet/schema"
 	"tidbyt.dev/pixlet/starlarkutil"
 )
@@ -320,6 +321,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "re.star":
 		return starlibre.LoadModule()
+
+	case "sunrise.star":
+		return sunrise.LoadModule()
 
 	case "time.star":
 		return starlark.StringDict{
