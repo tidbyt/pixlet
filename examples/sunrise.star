@@ -1,6 +1,7 @@
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("encoding/json.star", "json")
 load("sunrise.star", "sunrise")
 
 DEFAULT_LOCATION = """
@@ -26,9 +27,9 @@ def main(config):
     return render.Root(
         child = render.Column(
             children = [
-                render.Text("Time: %s", now.in_location(loc["timezone"])),
-                render.Text("Sunrise: %s", rise.in_location(loc["timezone"])),
-                render.Text("Sunset: %s", set.in_location(loc["timezone"])),
+                render.Text("Now: %s" % now.in_location(loc["timezone"]).format("3:04 PM")),
+                render.Text("Rise: %s" % rise.in_location(loc["timezone"]).format("3:04 PM")),
+                render.Text("Set: %s" % set.in_location(loc["timezone"]).format("3:04 PM")),
             ],
         ),
     )
