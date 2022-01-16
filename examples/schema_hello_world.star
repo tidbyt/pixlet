@@ -1,47 +1,26 @@
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
-load("sunrise.star", "sunrise")
-
-DEFAULT_LOCATION = """
-{
-	"lat": "40.6781784",
-	"lng": "-73.9441579",
-	"description": "Brooklyn, NY, USA",
-	"locality": "Brooklyn",
-	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-	"timezone": "America/New_York"
-}
-"""
 
 def main(config):
-    location = config.get("location", DEFAULT_LOCATION)
-    loc = json.decode(location)
-    lat, lng = float(loc["lat"]), float(loc["lng"])
-
-    now = time.now()
-    rise = sunrise.sunrise(lat, lng, now)
-    set = sunrise.sunset(lat, lng, now)
+    if config.get("small"):
+        msg = render.Text("Hello, World!", font = "CG-pixel-3x5-mono")
+    else:
+        msg = render.Text("Hello, World!")
 
     return render.Root(
-        child = render.Column(
-            children = [
-                render.Text("Time: %s", now.in_location(loc["timezone"])),
-                render.Text("Sunrise: %s", rise.in_location(loc["timezone"])),
-                render.Text("Sunset: %s", set.in_location(loc["timezone"])),
-            ],
-        ),
+        child = msg,
     )
 
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display time.",
-                icon = "place",
+            schema.Toggle(
+                id = "small",
+                name = "Display small text",
+                desc = "A toggle to display smaller text.",
+                icon = "compress",
+                default = False,
             ),
         ],
     )
