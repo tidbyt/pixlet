@@ -18,6 +18,7 @@ const (
 var (
 	once   sync.Once
 	module starlark.StringDict
+	empty  time.Time
 )
 
 func LoadModule() (starlark.StringDict, error) {
@@ -57,6 +58,9 @@ func sunrise(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, 
 	lng := float64(starLng)
 	date := time.Time(starDate)
 	rise, _ := gosunrise.SunriseSunset(lat, lng, date.Year(), date.Month(), date.Day())
+	if rise == empty {
+		return starlark.None, nil
+	}
 
 	return startime.Time(rise), nil
 }
@@ -82,6 +86,9 @@ func sunset(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, k
 	lng := float64(starLng)
 	date := time.Time(starDate)
 	_, set := gosunrise.SunriseSunset(lat, lng, date.Year(), date.Month(), date.Day())
+	if set == empty {
+		return starlark.None, nil
+	}
 
 	return startime.Time(set), nil
 }
