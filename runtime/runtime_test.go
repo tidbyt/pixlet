@@ -125,6 +125,7 @@ def main():
 
 func TestRunMainAcceptsConfig(t *testing.T) {
 	config := map[string]string{
+		"$tz": "UTC",
 		"one": "1",
 		"two": "2",
 	}
@@ -146,7 +147,13 @@ def main():
 	src = `
 load("render.star", "render")
 def main(config):
-    return [render.Root(child=render.Box()) for _ in range(int(config["one"]) + int(config["two"]))]
+	expected_tz = "UTC"
+	actual_tz = config.get("$tz")
+
+	if actual_tz != expected_tz:
+		fail("$tz - expected", expected_tz, "got", actual_tz)
+
+	return [render.Root(child=render.Box()) for _ in range(int(config["one"]) + int(config["two"]))]
 `
 	app = &Applet{}
 	err = app.Load("test.star", []byte(src), nil)
@@ -154,6 +161,58 @@ def main(config):
 	roots, err = app.Run(config)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(roots))
+}
+func TestRunMainAcceptsConfigWithSchema(t *testing.T) {
+	config := map[string]string{
+		"$tz":           "UTC",
+		"small":         "true",
+		"not_in_schema": "foo",
+	}
+
+	src := `
+load("render.star", "render")
+load("schema.star", "schema")
+
+def main(config):
+	expected_tz = "UTC"
+	actual_tz = config.get("$tz")
+
+	if actual_tz != expected_tz:
+		fail("$tz - expected", expected_tz, "got", actual_tz)
+
+	expected_small = True
+	actual_small = config.get("small")
+
+	if actual_small != expected_small:
+		fail("small - expected", expected_small, "got", actual_small)
+
+	expected_not_in_schema = None
+	actual_not_in_schema = config.get("not_in_schema")
+
+	if actual_not_in_schema != expected_not_in_schema:
+		fail("not_in_schema - expected", expected_not_in_schema, "got", actual_not_in_schema)
+
+	return []
+
+def get_schema():
+	return schema.Schema(
+		version = "1",
+		fields = [
+			schema.Toggle(
+				id = "small",
+				name = "Display small text",
+				desc = "A toggle to display smaller text.",
+				icon = "compress",
+				default = False,
+			),
+		],
+	)
+`
+	app := &Applet{}
+	err := app.Load("test.star", []byte(src), nil)
+	assert.NoError(t, err)
+	_, err = app.Run(config)
+	assert.NoError(t, err)
 }
 
 func TestModuleLoading(t *testing.T) {
