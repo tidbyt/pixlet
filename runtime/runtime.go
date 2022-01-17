@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
@@ -137,14 +138,15 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 			var starlarkVal starlark.Value
 			starlarkVal = starlark.String(v)
 
-			if a.schema != nil {
+			if strings.HasPrefix(k, "$") {
+				// this a special field like "$tz". no need to check the schema
+			} else if a.schema != nil {
 				// app has a schema, so we can provide strongly typed config values
 				field := a.schema.Field(k)
 
 				if field == nil {
 					// we have a value, but it's not part of the app's schema.
 					// drop it entirely.
-					starlarkVal = starlark.String(v)
 					continue
 				} else if field.Type == "onoff" {
 					b, _ := strconv.ParseBool(v)
