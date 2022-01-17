@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -146,8 +147,8 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 
 				if field == nil {
 					// we have a value, but it's not part of the app's schema.
-					// drop it entirely.
-					continue
+					// allow it for now, but we will deprecate it in the future.
+					log.Printf("received config value for '%s', but it is not in the schema for %s", k, a.Filename)
 				} else if field.Type == "onoff" {
 					b, _ := strconv.ParseBool(v)
 					starlarkVal = starlark.Bool(b)
