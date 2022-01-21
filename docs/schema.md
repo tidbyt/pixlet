@@ -25,7 +25,7 @@ load("schema.star", "schema")
 DEFAULT_WHO = "World"
 
 def main(config):
-	message = "Hello, %s!" % config.str("who", DEFAULT_WHO)
+    message = "Hello, %s!" % config.str("who", DEFAULT_WHO)
 
     if config.bool("small"):
         msg = render.Text(message, font = "CG-pixel-3x5-mono")
@@ -41,10 +41,10 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-				id = "who",
-				name = "Who?",
-				desc = "Who to say hello to.",
-				icon = "user",
+                id = "who",
+                name = "Who?",
+                desc = "Who to say hello to.",
+                icon = "user",
             ),
             schema.Toggle(
                 id = "small",
