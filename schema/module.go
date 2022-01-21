@@ -68,7 +68,7 @@ func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple
 
 	s := &StarlarkSchema{}
 	s.Version = version.GoString()
-	s.Schema.Fields = []SchemaField{}
+	s.Schema.Schema = []SchemaField{}
 
 	var fieldVal starlark.Value
 	fieldIter := fields.Iterate()
@@ -87,7 +87,7 @@ func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple
 			)
 		}
 
-		s.Schema.Fields = append(s.Schema.Fields, f.AsSchemaField())
+		s.Schema.Schema = append(s.Schema.Schema, f.AsSchemaField())
 	}
 	s.starlarkFields = fields
 
