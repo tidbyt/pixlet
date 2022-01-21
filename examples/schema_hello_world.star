@@ -1,11 +1,13 @@
 load("render.star", "render")
 load("schema.star", "schema")
 
+DEFAULT = "false"
+
 def main(config):
-    if config.get("small"):
+    small = config.get("small", DEFAULT)
+    msg = render.Text("Hello, World!")
+    if small == "false":
         msg = render.Text("Hello, World!", font = "CG-pixel-3x5-mono")
-    else:
-        msg = render.Text("Hello, World!")
 
     return render.Root(
         child = msg,
@@ -20,7 +22,7 @@ def get_schema():
                 name = "Display small text",
                 desc = "A toggle to display smaller text.",
                 icon = "compress",
-                default = False,
+                default = DEFAULT,
             ),
         ],
     )

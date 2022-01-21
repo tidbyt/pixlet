@@ -19,14 +19,14 @@ t = schema.Toggle(
 	name = "Display Weather",
 	desc = "A toggle to determine if the weather should be displayed.",
 	icon = "cloud",
-	default = True
+	default = "false",
 )
 
 assert(t.id == "display_weather")
 assert(t.name == "Display Weather")
 assert(t.desc == "A toggle to determine if the weather should be displayed.")
 assert(t.icon == "cloud")
-assert(t.default)
+assert(t.default == "false")
 
 def main():
 	return []

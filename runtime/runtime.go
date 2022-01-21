@@ -3,11 +3,7 @@ package runtime
 import (
 	"context"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
-	"log"
-	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
@@ -43,16 +39,15 @@ func init() {
 }
 
 type Applet struct {
-	Filename    string
-	Id          string
-	Globals     starlark.StringDict
-	src         []byte
-	loader      ModuleLoader
-	predeclared starlark.StringDict
-	main        *starlark.Function
-
-	schema     *schema.Schema
-	schemaJSON []byte
+	Filename      string
+	Id            string
+	Globals       starlark.StringDict
+	src           []byte
+	loader        ModuleLoader
+	predeclared   starlark.StringDict
+	main          *starlark.Function
+	schema        string
+	schemaHandler map[string]schema.SchemaHandler
 }
 
 func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
@@ -108,6 +103,8 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 	}
 	a.main = main
 
+	var s string
+	var handlers map[string]schema.SchemaHandler
 	schemaFun, _ := a.Globals[schema.SchemaFunctionName].(*starlark.Function)
 	if schemaFun != nil {
 		schemaVal, err := a.Call(schemaFun, nil)
@@ -115,16 +112,14 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 			return errors.Wrap(err, "calling schema function")
 		}
 
-		a.schema, err = schema.FromStarlark(schemaVal, a.Globals)
+		s, handlers, err = schema.EncodeSchema(schemaVal, a.Globals)
 		if err != nil {
-			return errors.Wrap(err, "parsing Starlark schema")
-		}
-
-		a.schemaJSON, err = json.Marshal(a.schema)
-		if err != nil {
-			return errors.Wrap(err, "serializing schema to JSON")
+			return errors.Wrap(err, "encode schema")
 		}
 	}
+
+	a.schema = s
+	a.schemaHandler = handlers
 
 	return nil
 }
@@ -136,26 +131,10 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 	if a.main.NumParams() > 0 {
 		starlarkConfig := starlark.NewDict(len(config))
 		for k, v := range config {
-			var starlarkVal starlark.Value
-			starlarkVal = starlark.String(v)
-
-			if strings.HasPrefix(k, "$") {
-				// this a special field like "$tz". no need to check the schema
-			} else if a.schema != nil {
-				// app has a schema, so we can provide strongly typed config values
-				field := a.schema.Field(k)
-
-				if field == nil {
-					// we have a value, but it's not part of the app's schema.
-					// allow it for now, but we will deprecate it in the future.
-					log.Printf("received config value for '%s', but it is not in the schema for %s", k, a.Filename)
-				} else if field.Type == "onoff" {
-					b, _ := strconv.ParseBool(v)
-					starlarkVal = starlark.Bool(b)
-				}
-			}
-
-			starlarkConfig.SetKey(starlark.String(k), starlarkVal)
+			starlarkConfig.SetKey(
+				starlark.String(k),
+				starlark.String(v),
+			)
 		}
 		args = starlark.Tuple{starlarkConfig}
 	}
@@ -195,7 +174,7 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 // CallSchemaHandler calls the schema handler for a field, passing it a single
 // string parameter and returning a single string value.
 func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter string) (result string, err error) {
-	handler, found := app.schema.Handlers[fieldId]
+	handler, found := app.schemaHandler[fieldId]
 	if !found {
 		return "", fmt.Errorf("no handler exported for field id %s", fieldId)
 	}
@@ -218,17 +197,11 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter str
 		return options, nil
 
 	case schema.ReturnSchema:
-		sch, err := schema.FromStarlark(resultVal, app.Globals)
+		schema, _, err := schema.EncodeSchema(resultVal, app.Globals)
 		if err != nil {
-			return "", errors.Wrap(err, "parsing Starlark schema")
+			return "", err
 		}
-
-		s, err := json.Marshal(sch)
-		if err != nil {
-			return "", errors.Wrap(err, "serializing schema to JSON")
-		}
-
-		return string(s), nil
+		return schema, nil
 
 	case schema.ReturnString:
 		str, ok := starlark.AsString(resultVal)
@@ -244,9 +217,9 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter str
 	return "", fmt.Errorf("a very unexpected error happened for field \"%s\"", fieldId)
 }
 
-// GetSchema returns the serialized schema for the applet.
+// GetSchema returns the config for the applet.
 func (app *Applet) GetSchema() string {
-	return string(app.schemaJSON)
+	return app.schema
 }
 
 func attachContext(ctx context.Context) ThreadInitializer {
