@@ -6,6 +6,7 @@ import (
 
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.starlark.net/starlark"
 )
 
@@ -125,8 +126,10 @@ def main():
 
 func TestRunMainAcceptsConfig(t *testing.T) {
 	config := map[string]string{
-		"one": "1",
-		"two": "2",
+		"one":     "1",
+		"two":     "2",
+		"toggle1": "true",
+		"toggle2": "false",
 	}
 
 	// It's ok for main() to accept no args at all
@@ -145,14 +148,30 @@ def main():
 	// And it can accept a (the) config dict
 	src = `
 load("render.star", "render")
+
+def assert_eq(message, actual, expected):
+	if not expected == actual:
+		fail(message, "-", "expected", expected, "actual", actual)
+
 def main(config):
-    return [render.Root(child=render.Box()) for _ in range(int(config["one"]) + int(config["two"]))]
+	assert_eq("config.get with fallback", config.get("doesnt_exist", "foo"), "foo")
+
+	assert_eq("config.str with fallback", config.str("doesnt_exist", "foo"), "foo")
+	assert_eq("config.str non-existent value", config.str("doesnt_exist"), None)
+
+	assert_eq("config.bool with fallback", config.bool("doesnt_exist", True), True)
+	assert_eq("config.bool non-existent value", config.bool("doesnt_exist"), None)
+
+	assert_eq("config.bool('toggle1')", config.bool("toggle1"), True)
+	assert_eq("config.bool('toggle2')", config.bool("toggle2"), False)
+
+	return [render.Root(child=render.Box()) for _ in range(int(config["one"]) + int(config["two"]))]
 `
 	app = &Applet{}
 	err = app.Load("test.star", []byte(src), nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	roots, err = app.Run(config)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 3, len(roots))
 }
 

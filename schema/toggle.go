@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
@@ -22,7 +23,7 @@ func newToggle(
 		name starlark.String
 		desc starlark.String
 		icon starlark.String
-		def  starlark.String
+		def  starlark.Bool
 	)
 
 	if err := starlark.UnpackArgs(
@@ -32,7 +33,7 @@ func newToggle(
 		"name", &name,
 		"desc", &desc,
 		"icon", &icon,
-		"default", &def,
+		"default?", &def,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Toggle: %s", err)
 	}
@@ -43,7 +44,7 @@ func newToggle(
 	s.Name = name.GoString()
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
-	s.Default = def.GoString()
+	s.Default = strconv.FormatBool(bool(def))
 
 	return s, nil
 }
@@ -74,7 +75,8 @@ func (s *Toggle) Attr(name string) (starlark.Value, error) {
 		return starlark.String(s.Icon), nil
 
 	case "default":
-		return starlark.String(s.Default), nil
+		b, _ := strconv.ParseBool(s.Default)
+		return starlark.Bool(b), nil
 
 	default:
 		return nil, nil

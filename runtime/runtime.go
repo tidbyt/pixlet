@@ -16,6 +16,7 @@ import (
 	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+	"go.starlark.net/starlarktest"
 
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
@@ -129,13 +130,7 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer) (roots []render.Root, err error) {
 	var args starlark.Tuple
 	if a.main.NumParams() > 0 {
-		starlarkConfig := starlark.NewDict(len(config))
-		for k, v := range config {
-			starlarkConfig.SetKey(
-				starlark.String(k),
-				starlark.String(v),
-			)
-		}
+		starlarkConfig := AppletConfig(config)
 		args = starlark.Tuple{starlarkConfig}
 	}
 
@@ -305,6 +300,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return starlark.StringDict{
 			starlibtime.Module.Name: starlibtime.Module,
 		}, nil
+
+	case "assert.star":
+		return starlarktest.LoadAssertModule()
 
 	default:
 		return nil, fmt.Errorf("invalid module: %s", module)

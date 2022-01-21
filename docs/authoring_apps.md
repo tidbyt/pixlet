@@ -15,12 +15,21 @@ The main thing to keep in mind when working with `cache` is that it's scoped per
 Config is used to configure an app. It's a key/value pair of config values and is passed into `main`. It's exposed through query parameters in the url of `pixlet serve` or through command line args through `pixlet render`. When publishing apps to the Tidbyt [Community](https://github.com/tidbyt/community) repo, the Tidbyt backend will populate the config values from values provided in the mobile app.
 
 The important thing to remember here is that your app should always be able to render even if a config value isn't provided. Providing default values for every config value or checking it for `None` will ensure the app behaves as expected even if config was not provided. For example, the following ensures there will always be a value for `foo`:
-```
+
+```starlark
 DEFAULT_FOO = "bar"
 
 def main(config):
     foo = config.get("foo", DEFAULT_FOO)
 ```
+
+The `config` object also has helpers to convert config values into specific types:
+
+```starlark
+config.str("foo") # returns a string, or None if not found
+config.bool("foo") # returns a boolean (True or False), or None if not found
+```
+
 
 ## Fail
 Using a `fail()` inside of your app should be used incredibly sparingly. It kills the entire execution in an unrecoverable fashion. If your app depends on an external API, it cannot cache the response, and has no means of recovering with a failed response - then a `fail()` is appropriate. Otherwise, using a `print()` and handling the error appropriately is a better approach.

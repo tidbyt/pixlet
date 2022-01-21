@@ -29,7 +29,6 @@ s = schema.Schema(
 			name = "Display Weather",
 			desc = "A toggle to determine if the weather should be displayed.",
 			icon = "cloud",
-			default = "false",
 		),
 	],
 )
