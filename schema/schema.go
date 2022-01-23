@@ -26,8 +26,11 @@ const (
 // Schema holds a configuration object for an applet. It holds a list of fileds
 // that are exported from an applet.
 type Schema struct {
-	Version string        `json:"version" validate:"required"`
-	Schema  []SchemaField `json:"schema" validate:"required,dive"`
+	Version string            `json:"version" validate:"required"`
+	Fields  []SchemaField     `json:"schema" validate:"dive"`
+	Secrets map[string]string `json:"secrets"`
+
+	Handlers map[string]SchemaHandler `json:"-"`
 }
 
 // SchemaField represents an item in the config used to confgure an applet.
@@ -78,38 +81,45 @@ type SchemaHandler struct {
 	ReturnType HandlerReturnType
 }
 
-// Encodes a starlark config schema into validated json and extracts
-// all schema handlers.
-func EncodeSchema(
-	starlarkSchema starlark.Value,
-	globals starlark.StringDict) (string, map[string]SchemaHandler, error) {
+// FromStarlark creates a new Schema from a Starlark schema object.
+func FromStarlark(
+	val starlark.Value,
+	globals starlark.StringDict) (*Schema, error) {
+	var schema *Schema
 
-	schemaTree, err := unmarshalStarlark(starlarkSchema)
+	starlarkSchema, ok := val.(*StarlarkSchema)
+	if ok {
+		schema = &starlarkSchema.Schema
+	} else {
+		schemaTree, err := unmarshalStarlark(val)
+		if err != nil {
+			return nil, err
+		}
+
+		treeJSON, err := json.Marshal(schemaTree)
+		if err != nil {
+			return nil, err
+		}
+
+		schema = &Schema{
+			Version:  "1",
+			Handlers: make(map[string]SchemaHandler),
+		}
+		if err := json.Unmarshal(treeJSON, &schema.Fields); err != nil {
+			return nil, err
+		}
+	}
+
+	err := validateSchema(schema)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
-	treeJSON, err := json.Marshal(schemaTree)
-	if err != nil {
-		return "", nil, err
-	}
-
-	schema := &Schema{Version: "1"}
-	if err := json.Unmarshal(treeJSON, &schema.Schema); err != nil {
-		return "", nil, err
-	}
-
-	err = validateSchema(schema)
-	if err != nil {
-		return "", nil, err
-	}
-
-	handlers := map[string]SchemaHandler{}
-	for i, schemaField := range schema.Schema {
+	for i, schemaField := range schema.Fields {
 		if schemaField.Handler != "" {
 			handlerValue, found := globals[schemaField.Handler]
 			if !found {
-				return "", nil, fmt.Errorf(
+				return nil, fmt.Errorf(
 					"field %d references non-existent handler \"%s\"",
 					i,
 					schemaField.Handler)
@@ -117,7 +127,7 @@ func EncodeSchema(
 
 			handlerFun, ok := handlerValue.(*starlark.Function)
 			if !ok {
-				return "", nil, fmt.Errorf(
+				return nil, fmt.Errorf(
 					"field %d references \"%s\" which is not a function",
 					i, schemaField.Handler)
 			}
@@ -135,21 +145,16 @@ func EncodeSchema(
 			case "oauth1":
 				handlerType = ReturnString
 			default:
-				return "", nil, fmt.Errorf(
+				return nil, fmt.Errorf(
 					"field %d of type \"%s\" can't have a handler function",
 					i, schemaField.Type)
 			}
 
-			handlers[schemaField.ID] = SchemaHandler{Function: handlerFun, ReturnType: handlerType}
+			schema.Handlers[schemaField.ID] = SchemaHandler{Function: handlerFun, ReturnType: handlerType}
 		}
 	}
 
-	schemaJSON, err := json.Marshal(schema)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return string(schemaJSON), handlers, nil
+	return schema, nil
 }
 
 // Encodes a list of schema options into validated json.
@@ -186,9 +191,6 @@ func EncodeOptions(
 // list, dict or string. Or a tree of these.
 func unmarshalStarlark(object starlark.Value) (interface{}, error) {
 	switch v := object.(type) {
-
-	case *StarlarkSchema:
-		return v.Schema.Schema, nil
 
 	case starlark.String:
 		return v.GoString(), nil

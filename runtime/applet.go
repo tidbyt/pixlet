@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -40,15 +41,19 @@ func init() {
 }
 
 type Applet struct {
-	Filename      string
-	Id            string
-	Globals       starlark.StringDict
-	src           []byte
-	loader        ModuleLoader
-	predeclared   starlark.StringDict
-	main          *starlark.Function
-	schema        string
-	schemaHandler map[string]schema.SchemaHandler
+	Filename            string
+	Id                  string
+	Globals             starlark.StringDict
+	SecretDecryptionKey *SecretDecryptionKey
+
+	src         []byte
+	loader      ModuleLoader
+	predeclared starlark.StringDict
+	main        *starlark.Function
+
+	schema           *schema.Schema
+	schemaJSON       []byte
+	decryptedSecrets map[string]string
 }
 
 func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
@@ -104,23 +109,30 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 	}
 	a.main = main
 
-	var s string
-	var handlers map[string]schema.SchemaHandler
 	schemaFun, _ := a.Globals[schema.SchemaFunctionName].(*starlark.Function)
 	if schemaFun != nil {
 		schemaVal, err := a.Call(schemaFun, nil)
 		if err != nil {
-			return errors.Wrap(err, "calling schema function")
+			return errors.Wrapf(err, "calling schema function for %s", a.Filename)
 		}
 
-		s, handlers, err = schema.EncodeSchema(schemaVal, a.Globals)
+		a.schema, err = schema.FromStarlark(schemaVal, a.Globals)
 		if err != nil {
-			return errors.Wrap(err, "encode schema")
+			return errors.Wrapf(err, "parsing schema for %s", a.Filename)
+		}
+
+		a.schemaJSON, err = json.Marshal(a.schema)
+		if err != nil {
+			return errors.Wrapf(err, "serializing schema to JSON for %s", a.Filename)
 		}
 	}
 
-	a.schema = s
-	a.schemaHandler = handlers
+	if a.SecretDecryptionKey != nil {
+		err = a.SecretDecryptionKey.decrypt(a)
+		if err != nil {
+			return errors.Wrapf(err, "decrypting secrets for %s", a.Filename)
+		}
+	}
 
 	return nil
 }
@@ -130,7 +142,15 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer) (roots []render.Root, err error) {
 	var args starlark.Tuple
 	if a.main.NumParams() > 0 {
-		starlarkConfig := AppletConfig(config)
+		mergedConfig := make(map[string]string)
+		for k, v := range a.decryptedSecrets {
+			mergedConfig[k] = v
+		}
+		for k, v := range config {
+			mergedConfig[k] = v
+		}
+
+		starlarkConfig := AppletConfig(mergedConfig)
 		args = starlark.Tuple{starlarkConfig}
 	}
 
@@ -169,7 +189,7 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 // CallSchemaHandler calls the schema handler for a field, passing it a single
 // string parameter and returning a single string value.
 func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter string) (result string, err error) {
-	handler, found := app.schemaHandler[fieldId]
+	handler, found := app.schema.Handlers[fieldId]
 	if !found {
 		return "", fmt.Errorf("no handler exported for field id %s", fieldId)
 	}
@@ -192,11 +212,17 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter str
 		return options, nil
 
 	case schema.ReturnSchema:
-		schema, _, err := schema.EncodeSchema(resultVal, app.Globals)
+		sch, err := schema.FromStarlark(resultVal, app.Globals)
 		if err != nil {
 			return "", err
 		}
-		return schema, nil
+
+		s, err := json.Marshal(sch)
+		if err != nil {
+			return "", errors.Wrap(err, "serializing schema to JSON")
+		}
+
+		return string(s), nil
 
 	case schema.ReturnString:
 		str, ok := starlark.AsString(resultVal)
@@ -214,7 +240,7 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter str
 
 // GetSchema returns the config for the applet.
 func (app *Applet) GetSchema() string {
-	return app.schema
+	return string(app.schemaJSON)
 }
 
 func attachContext(ctx context.Context) ThreadInitializer {
