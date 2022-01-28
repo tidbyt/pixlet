@@ -7,16 +7,25 @@ import (
 
 	"github.com/google/tink/go/hybrid"
 	"github.com/google/tink/go/keyset"
-	"github.com/google/tink/go/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+type dummyAEAD struct{}
+
+func (a *dummyAEAD) Encrypt(plaintext []byte, additionalData []byte) ([]byte, error) {
+	return plaintext, nil
+}
+
+func (a *dummyAEAD) Decrypt(ciphertext []byte, additionalData []byte) ([]byte, error) {
+	return ciphertext, nil
+}
 
 func TestSecretDecrypt(t *testing.T) {
 	plaintext := "h4x0rrszZ!!"
 
 	// make a test decryption key
-	dummyKEK := &testutil.DummyAEAD{}
+	dummyKEK := &dummyAEAD{}
 	khPriv, err := keyset.NewHandle(hybrid.ECIESHKDFAES128CTRHMACSHA256KeyTemplate())
 	require.NoError(t, err)
 
