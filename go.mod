@@ -12,7 +12,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/google/tink/go v1.6.1
+	github.com/google/tink/go v1.4.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/harukasan/go-libwebp v0.0.0-20190703060927-68562c9c99af
