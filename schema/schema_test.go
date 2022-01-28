@@ -146,7 +146,7 @@ def main():
 
 	assert.Equal(t, schema.Schema{
 		Version: "1",
-		Schema: []schema.SchemaField{
+		Fields: []schema.SchemaField{
 			{
 				Type:        "location",
 				ID:          "locationid",
@@ -311,7 +311,7 @@ def main():
 
 	assert.Equal(t, schema.Schema{
 		Version: "1",
-		Schema: []schema.SchemaField{
+		Fields: []schema.SchemaField{
 			{
 				Type:        "text",
 				ID:          "generatedid",
