@@ -31,14 +31,10 @@ s = schema.Schema(
 			icon = "cloud",
 		),
 	],
-	secrets = {
-		"top_secret": "aDR4MHJ6ISEhIQ==",
-	},
 )
 
 assert(s.version == "1")
 assert(s.fields[0].name == "Display Weather")
-assert(s.secrets.keys() == ["top_secret"])
 
 def main():
 	return []
