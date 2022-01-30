@@ -14,6 +14,13 @@ import (
 // provided. Boxes can have a `child`, which will be centered in the
 // box, and the child can be padded (via `padding`).
 //
+// If the `color` attribute is a single string, that string will be
+// interpreted as an HTML-like hexadecimal color code.  If it is a
+// pair of `(string, float)`, the string will be interpreted as
+// an HTML-like hexadecimal color code and the float must be a value
+// between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+// transparency of the color.
+//
 // DOC(Child): Child to center inside box
 // DOC(Width): Limits Box width
 // DOC(Height): Limits Box height

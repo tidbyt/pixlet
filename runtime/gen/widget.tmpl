@@ -1,6 +1,9 @@
 type {{.Name}} struct {
 	Widget
 	render.{{.Name}}
+{{range .AttrColor}}
+	starlark{{.Render}} starlark.Value
+{{end}}
 {{range .AttrChild}}
 	starlark{{.Render}} starlark.Value
 {{end}}
@@ -29,7 +32,7 @@ func new{{.Name}}(
 		{{end}}
 		{{range .AttrBool}}{{if not .ReadOnly}}{{.Starlark}} starlark.Bool{{end}}
 		{{end}}
-		{{range .AttrColor}}{{if not .ReadOnly}}{{.Starlark}} starlark.String{{end}}
+		{{range .AttrColor}}{{if not .ReadOnly}}{{.Starlark}} starlark.Value{{end}}
 		{{end}}
 		{{range .AttrChild}}{{if not .ReadOnly}}{{.Starlark}} starlark.Value{{end}}
 		{{end}}
@@ -58,12 +61,50 @@ func new{{.Name}}(
 	{{end}}
 
 {{range .AttrColor}}{{if not .ReadOnly}}
-	if {{.Starlark}}.Len() > 0 {
-		c, err := colorful.Hex({{.Starlark}}.GoString())
-		if err != nil {
-			return nil, fmt.Errorf("{{.Starlark}} is not a valid hex string: %s", {{.Starlark}}.String())
+	w.starlark{{.Render}} = {{.Starlark}}
+	if {{.Starlark}} != nil {
+		switch {{.Starlark}}Val := {{.Starlark}}.(type) {
+		case starlark.String:
+			if {{.Starlark}}Val.Len() > 0 {
+				c, err := colorful.Hex({{.Starlark}}Val.GoString())
+				if err != nil {
+					return nil, fmt.Errorf("{{.Starlark}} is not a valid hex string: %s", {{.Starlark}}Val.String())
+				}
+				w.{{.Render}} = c
+			}
+		case starlark.Tuple:
+			{{.Starlark}}List := []starlark.Value({{.Starlark}}Val)
+			if len({{.Starlark}}List) != 2 {
+				return nil, fmt.Errorf(
+					"{{.Starlark}} tuple must hold 2 elements (color, alpha), found %d",
+					len({{.Starlark}}List),
+				)
+			}
+			c, err := colorful.Hex({{.Starlark}}List[0].(starlark.String).GoString())
+			if err != nil {
+				return nil, fmt.Errorf("{{.Starlark}} color is not a valid hex string: %s", {{.Starlark}}List[0].String())
+			}
+			a, ok := {{.Starlark}}List[1].(starlark.Float)
+			if !ok {
+				return nil, fmt.Errorf("{{.Starlark}} alpha is not a float")
+			}
+			alpha := float64(a)
+			r, g, b, assertion := c.RGBA()
+			if assertion != 0xffff {
+				return nil, fmt.Errorf("{{.Starlark}} unexpected transparency")
+			}
+			if alpha < 0.0 || alpha > 1.0 {
+				return nil, fmt.Errorf("{{.Starlark}} alpha must be between 0 and 1")
+			}
+			w.{{.Render}} = gocolor.NRGBA64{
+				uint16(math.Round(float64(r))),
+				uint16(math.Round(float64(g))),
+				uint16(math.Round(float64(b))),
+				uint16(math.Round(alpha * 0xffff)),
+			}
+		default:
+			return nil, fmt.Errorf("{{.Starlark}} must be string or tuple of (string, float)")
 		}
-		w.{{.Render}} = c
 	}
 {{end}}{{end}}
 
@@ -175,14 +216,7 @@ func (w *{{.Name}}) Attr(name string) (starlark.Value, error) {
 {{end}}
 {{range .AttrColor}}
 	case "{{.Starlark}}":
-		if w.{{.Render}} == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.{{.Render}})
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlark{{.Render}}, nil
 {{end}}
 {{range .AttrBool}}
 	case "{{.Starlark}}":

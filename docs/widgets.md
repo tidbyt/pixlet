@@ -46,6 +46,13 @@ fill all available space, unless `width` and/or `height` is
 provided. Boxes can have a `child`, which will be centered in the
 box, and the child can be padded (via `padding`).
 
+If the `color` attribute is a single string, that string will be
+interpreted as an HTML-like hexadecimal color code.  If it is a
+pair of `(string, float)`, the string will be interpreted as
+an HTML-like hexadecimal color code and the float must be a value
+between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+transparency of the color.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -73,6 +80,13 @@ render.Box(
 Circle draws a circle with the given `diameter` and `color`. If a
 `child` widget is provided, it is drawn in the center of the
 circle.
+
+If the `color` attribute is a single string, that string will be
+interpreted as an HTML-like hexadecimal color code.  If it is a
+pair of `(string, float)`, the string will be interpreted as
+an HTML-like hexadecimal color code and the float must be a value
+between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+transparency of the color.
 
 #### Attributes
 | Name | Type | Description | Required |
@@ -218,6 +232,13 @@ will be placed on all sides of the child. If it's a 4-tuple `(left,
 top, right, bottom)`, then padding will be placed on the sides
 accordingly.
 
+If the `color` attribute is a single string, that string will be
+interpreted as an HTML-like hexadecimal color code.  If it is a
+pair of `(string, float)`, the string will be interpreted as
+an HTML-like hexadecimal color code and the float must be a value
+between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+transparency of the color.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -320,6 +341,13 @@ parameters allow fine tuning of the vertical layout of the
 string. Take a look at the [font documentation](fonts.md) for more
 information.
 
+If the `color` attribute is a single string, that string will be
+interpreted as an HTML-like hexadecimal color code.  If it is a
+pair of `(string, float)`, the string will be interpreted as
+an HTML-like hexadecimal color code and the float must be a value
+between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+transparency of the color.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -342,6 +370,13 @@ WrappedText draws multi-line text.
 The optional `width` and `height` parameters limit the drawing
 area. If not set, WrappedText will use as much vertical and
 horizontal space as possible to fit the text.
+
+If the `color` attribute is a single string, that string will be
+interpreted as an HTML-like hexadecimal color code.  If it is a
+pair of `(string, float)`, the string will be interpreted as
+an HTML-like hexadecimal color code and the float must be a value
+between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+transparency of the color.
 
 #### Attributes
 | Name | Type | Description | Required |

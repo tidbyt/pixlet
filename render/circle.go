@@ -12,6 +12,13 @@ import (
 // `child` widget is provided, it is drawn in the center of the
 // circle.
 //
+// If the `color` attribute is a single string, that string will be
+// interpreted as an HTML-like hexadecimal color code.  If it is a
+// pair of `(string, float)`, the string will be interpreted as
+// an HTML-like hexadecimal color code and the float must be a value
+// between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+// transparency of the color.
+//
 // DOC(Child): Widget to place in the center of the circle
 // DOC(Color): Fill color
 // DOC(Diameter): Diameter of the circle

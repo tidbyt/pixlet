@@ -20,6 +20,13 @@ var (
 // string. Take a look at the [font documentation](fonts.md) for more
 // information.
 //
+// If the `color` attribute is a single string, that string will be
+// interpreted as an HTML-like hexadecimal color code.  If it is a
+// pair of `(string, float)`, the string will be interpreted as
+// an HTML-like hexadecimal color code and the float must be a value
+// between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+// transparency of the color.
+//
 // DOC(Content): The text string to draw
 // DOC(Font): Desired font face
 // DOC(Height): Limits height of the area on which text is drawn

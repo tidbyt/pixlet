@@ -4,6 +4,8 @@ package runtime
 
 import (
 	"fmt"
+	gocolor "image/color"
+	"math"
 	"sync"
 
 	"github.com/lucasb-eyer/go-colorful"
@@ -161,6 +163,8 @@ type Box struct {
 	Widget
 	render.Box
 
+	starlarkColor starlark.Value
+
 	starlarkChild starlark.Value
 }
 
@@ -176,7 +180,7 @@ func newBox(
 		height  starlark.Int
 		padding starlark.Int
 
-		color starlark.String
+		color starlark.Value
 
 		child starlark.Value
 	)
@@ -198,12 +202,50 @@ func newBox(
 	w.Height = int(height.BigInt().Int64())
 	w.Padding = int(padding.BigInt().Int64())
 
-	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
-		if err != nil {
-			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+	w.starlarkColor = color
+	if color != nil {
+		switch colorVal := color.(type) {
+		case starlark.String:
+			if colorVal.Len() > 0 {
+				c, err := colorful.Hex(colorVal.GoString())
+				if err != nil {
+					return nil, fmt.Errorf("color is not a valid hex string: %s", colorVal.String())
+				}
+				w.Color = c
+			}
+		case starlark.Tuple:
+			colorList := []starlark.Value(colorVal)
+			if len(colorList) != 2 {
+				return nil, fmt.Errorf(
+					"color tuple must hold 2 elements (color, alpha), found %d",
+					len(colorList),
+				)
+			}
+			c, err := colorful.Hex(colorList[0].(starlark.String).GoString())
+			if err != nil {
+				return nil, fmt.Errorf("color color is not a valid hex string: %s", colorList[0].String())
+			}
+			a, ok := colorList[1].(starlark.Float)
+			if !ok {
+				return nil, fmt.Errorf("color alpha is not a float")
+			}
+			alpha := float64(a)
+			r, g, b, assertion := c.RGBA()
+			if assertion != 0xffff {
+				return nil, fmt.Errorf("color unexpected transparency")
+			}
+			if alpha < 0.0 || alpha > 1.0 {
+				return nil, fmt.Errorf("color alpha must be between 0 and 1")
+			}
+			w.Color = gocolor.NRGBA64{
+				uint16(math.Round(float64(r))),
+				uint16(math.Round(float64(g))),
+				uint16(math.Round(float64(b))),
+				uint16(math.Round(alpha * 0xffff)),
+			}
+		default:
+			return nil, fmt.Errorf("color must be string or tuple of (string, float)")
 		}
-		w.Color = c
 	}
 
 	if child != nil {
@@ -244,14 +286,7 @@ func (w *Box) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.Padding), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "child":
 		return w.starlarkChild, nil
@@ -275,6 +310,8 @@ type Circle struct {
 	Widget
 	render.Circle
 
+	starlarkColor starlark.Value
+
 	starlarkChild starlark.Value
 }
 
@@ -288,7 +325,7 @@ func newCircle(
 	var (
 		diameter starlark.Int
 
-		color starlark.String
+		color starlark.Value
 
 		child starlark.Value
 	)
@@ -306,12 +343,50 @@ func newCircle(
 	w := &Circle{}
 	w.Diameter = int(diameter.BigInt().Int64())
 
-	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
-		if err != nil {
-			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+	w.starlarkColor = color
+	if color != nil {
+		switch colorVal := color.(type) {
+		case starlark.String:
+			if colorVal.Len() > 0 {
+				c, err := colorful.Hex(colorVal.GoString())
+				if err != nil {
+					return nil, fmt.Errorf("color is not a valid hex string: %s", colorVal.String())
+				}
+				w.Color = c
+			}
+		case starlark.Tuple:
+			colorList := []starlark.Value(colorVal)
+			if len(colorList) != 2 {
+				return nil, fmt.Errorf(
+					"color tuple must hold 2 elements (color, alpha), found %d",
+					len(colorList),
+				)
+			}
+			c, err := colorful.Hex(colorList[0].(starlark.String).GoString())
+			if err != nil {
+				return nil, fmt.Errorf("color color is not a valid hex string: %s", colorList[0].String())
+			}
+			a, ok := colorList[1].(starlark.Float)
+			if !ok {
+				return nil, fmt.Errorf("color alpha is not a float")
+			}
+			alpha := float64(a)
+			r, g, b, assertion := c.RGBA()
+			if assertion != 0xffff {
+				return nil, fmt.Errorf("color unexpected transparency")
+			}
+			if alpha < 0.0 || alpha > 1.0 {
+				return nil, fmt.Errorf("color alpha must be between 0 and 1")
+			}
+			w.Color = gocolor.NRGBA64{
+				uint16(math.Round(float64(r))),
+				uint16(math.Round(float64(g))),
+				uint16(math.Round(float64(b))),
+				uint16(math.Round(alpha * 0xffff)),
+			}
+		default:
+			return nil, fmt.Errorf("color must be string or tuple of (string, float)")
 		}
-		w.Color = c
 	}
 
 	if child != nil {
@@ -346,14 +421,7 @@ func (w *Circle) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.Diameter), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "child":
 		return w.starlarkChild, nil
@@ -689,6 +757,8 @@ type Padding struct {
 	Widget
 	render.Padding
 
+	starlarkColor starlark.Value
+
 	starlarkChild starlark.Value
 
 	starlarkPad starlark.Value
@@ -704,7 +774,7 @@ func newPadding(
 	var (
 		expanded starlark.Bool
 
-		color starlark.String
+		color starlark.Value
 
 		child starlark.Value
 
@@ -725,12 +795,50 @@ func newPadding(
 	w := &Padding{}
 	w.Expanded = bool(expanded)
 
-	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
-		if err != nil {
-			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+	w.starlarkColor = color
+	if color != nil {
+		switch colorVal := color.(type) {
+		case starlark.String:
+			if colorVal.Len() > 0 {
+				c, err := colorful.Hex(colorVal.GoString())
+				if err != nil {
+					return nil, fmt.Errorf("color is not a valid hex string: %s", colorVal.String())
+				}
+				w.Color = c
+			}
+		case starlark.Tuple:
+			colorList := []starlark.Value(colorVal)
+			if len(colorList) != 2 {
+				return nil, fmt.Errorf(
+					"color tuple must hold 2 elements (color, alpha), found %d",
+					len(colorList),
+				)
+			}
+			c, err := colorful.Hex(colorList[0].(starlark.String).GoString())
+			if err != nil {
+				return nil, fmt.Errorf("color color is not a valid hex string: %s", colorList[0].String())
+			}
+			a, ok := colorList[1].(starlark.Float)
+			if !ok {
+				return nil, fmt.Errorf("color alpha is not a float")
+			}
+			alpha := float64(a)
+			r, g, b, assertion := c.RGBA()
+			if assertion != 0xffff {
+				return nil, fmt.Errorf("color unexpected transparency")
+			}
+			if alpha < 0.0 || alpha > 1.0 {
+				return nil, fmt.Errorf("color alpha must be between 0 and 1")
+			}
+			w.Color = gocolor.NRGBA64{
+				uint16(math.Round(float64(r))),
+				uint16(math.Round(float64(g))),
+				uint16(math.Round(float64(b))),
+				uint16(math.Round(alpha * 0xffff)),
+			}
+		default:
+			return nil, fmt.Errorf("color must be string or tuple of (string, float)")
 		}
-		w.Color = c
 	}
 
 	if child != nil {
@@ -794,14 +902,7 @@ func (w *Padding) Attr(name string) (starlark.Value, error) {
 	switch name {
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "expanded":
 		return starlark.Bool(w.Expanded), nil
@@ -1017,6 +1118,8 @@ type Text struct {
 	Widget
 	render.Text
 
+	starlarkColor starlark.Value
+
 	size *starlark.Builtin
 }
 
@@ -1034,7 +1137,7 @@ func newText(
 		height starlark.Int
 		offset starlark.Int
 
-		color starlark.String
+		color starlark.Value
 	)
 
 	if err := starlark.UnpackArgs(
@@ -1055,12 +1158,50 @@ func newText(
 	w.Height = int(height.BigInt().Int64())
 	w.Offset = int(offset.BigInt().Int64())
 
-	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
-		if err != nil {
-			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+	w.starlarkColor = color
+	if color != nil {
+		switch colorVal := color.(type) {
+		case starlark.String:
+			if colorVal.Len() > 0 {
+				c, err := colorful.Hex(colorVal.GoString())
+				if err != nil {
+					return nil, fmt.Errorf("color is not a valid hex string: %s", colorVal.String())
+				}
+				w.Color = c
+			}
+		case starlark.Tuple:
+			colorList := []starlark.Value(colorVal)
+			if len(colorList) != 2 {
+				return nil, fmt.Errorf(
+					"color tuple must hold 2 elements (color, alpha), found %d",
+					len(colorList),
+				)
+			}
+			c, err := colorful.Hex(colorList[0].(starlark.String).GoString())
+			if err != nil {
+				return nil, fmt.Errorf("color color is not a valid hex string: %s", colorList[0].String())
+			}
+			a, ok := colorList[1].(starlark.Float)
+			if !ok {
+				return nil, fmt.Errorf("color alpha is not a float")
+			}
+			alpha := float64(a)
+			r, g, b, assertion := c.RGBA()
+			if assertion != 0xffff {
+				return nil, fmt.Errorf("color unexpected transparency")
+			}
+			if alpha < 0.0 || alpha > 1.0 {
+				return nil, fmt.Errorf("color alpha must be between 0 and 1")
+			}
+			w.Color = gocolor.NRGBA64{
+				uint16(math.Round(float64(r))),
+				uint16(math.Round(float64(g))),
+				uint16(math.Round(float64(b))),
+				uint16(math.Round(alpha * 0xffff)),
+			}
+		default:
+			return nil, fmt.Errorf("color must be string or tuple of (string, float)")
 		}
-		w.Color = c
 	}
 
 	w.size = starlark.NewBuiltin("size", textSize)
@@ -1098,14 +1239,7 @@ func (w *Text) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.Offset), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "size":
 		return w.size.BindReceiver(w), nil
@@ -1143,6 +1277,8 @@ func textSize(
 type WrappedText struct {
 	Widget
 	render.WrappedText
+
+	starlarkColor starlark.Value
 }
 
 func newWrappedText(
@@ -1160,7 +1296,7 @@ func newWrappedText(
 		width       starlark.Int
 		linespacing starlark.Int
 
-		color starlark.String
+		color starlark.Value
 	)
 
 	if err := starlark.UnpackArgs(
@@ -1183,12 +1319,50 @@ func newWrappedText(
 	w.Width = int(width.BigInt().Int64())
 	w.LineSpacing = int(linespacing.BigInt().Int64())
 
-	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
-		if err != nil {
-			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+	w.starlarkColor = color
+	if color != nil {
+		switch colorVal := color.(type) {
+		case starlark.String:
+			if colorVal.Len() > 0 {
+				c, err := colorful.Hex(colorVal.GoString())
+				if err != nil {
+					return nil, fmt.Errorf("color is not a valid hex string: %s", colorVal.String())
+				}
+				w.Color = c
+			}
+		case starlark.Tuple:
+			colorList := []starlark.Value(colorVal)
+			if len(colorList) != 2 {
+				return nil, fmt.Errorf(
+					"color tuple must hold 2 elements (color, alpha), found %d",
+					len(colorList),
+				)
+			}
+			c, err := colorful.Hex(colorList[0].(starlark.String).GoString())
+			if err != nil {
+				return nil, fmt.Errorf("color color is not a valid hex string: %s", colorList[0].String())
+			}
+			a, ok := colorList[1].(starlark.Float)
+			if !ok {
+				return nil, fmt.Errorf("color alpha is not a float")
+			}
+			alpha := float64(a)
+			r, g, b, assertion := c.RGBA()
+			if assertion != 0xffff {
+				return nil, fmt.Errorf("color unexpected transparency")
+			}
+			if alpha < 0.0 || alpha > 1.0 {
+				return nil, fmt.Errorf("color alpha must be between 0 and 1")
+			}
+			w.Color = gocolor.NRGBA64{
+				uint16(math.Round(float64(r))),
+				uint16(math.Round(float64(g))),
+				uint16(math.Round(float64(b))),
+				uint16(math.Round(alpha * 0xffff)),
+			}
+		default:
+			return nil, fmt.Errorf("color must be string or tuple of (string, float)")
 		}
-		w.Color = c
 	}
 
 	return w, nil
@@ -1223,14 +1397,7 @@ func (w *WrappedText) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.LineSpacing), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	default:
 		return nil, nil

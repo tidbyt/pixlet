@@ -21,6 +21,13 @@ type Insets struct {
 // top, right, bottom)`, then padding will be placed on the sides
 // accordingly.
 //
+// If the `color` attribute is a single string, that string will be
+// interpreted as an HTML-like hexadecimal color code.  If it is a
+// pair of `(string, float)`, the string will be interpreted as
+// an HTML-like hexadecimal color code and the float must be a value
+// between 0.0 (fully transparent) and 1.0 (fully opaque) for the
+// transparency of the color.
+//
 // DOC(Child): The Widget to place padding around
 // DOC(Expanded): This is a confusing parameter
 // DOC(Pad): Padding around the child
