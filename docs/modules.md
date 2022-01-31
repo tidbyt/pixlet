@@ -17,7 +17,7 @@ this example, the `render` module is made available to the script as
 the symbol `r` instead of `render`:
 
 ```starlark
-load("render.star", r="render")
+load("render.star", r = "render")
 ```
 
 ## Starlib modules
@@ -116,6 +116,24 @@ The schema module provides configuration options for your app. See the [schema d
 Example:
 
 See [examples/schema_hello_world.star](../examples/schema_hello_world.star) for an example.
+
+## Pixlet module: Secret
+
+The secret module can decrypt values that were encrypted with `pixlet encrypt`.
+
+| Function | Description |
+| --- | --- |
+| `decrypt(value)` | Decrypts and returns the value when running in Tidbyt cloud. Returns `None` when running locally. Decryption will fail if the name of the app doesn't match the name that was passed to `pixlet encrypt`.  |
+
+Example:
+```starlark
+load("secret.star", "secret")
+
+ENCRYPTED_API_KEY = "AV6+..." . # from `pixlet encyrpt`
+
+def main(config):
+    api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("dev_api_key")
+```
 
 ## Pixlet module: Sunrise
 
