@@ -7,6 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
 )
@@ -590,4 +591,14 @@ def main():
 
 	_, err = app.CallSchemaHandler(context.Background(), "oauth2id", "farts")
 	assert.Error(t, err)
+}
+
+func TestEmptySchemaSerialization(t *testing.T) {
+	s := &schema.Schema{
+		Version: "1",
+	}
+
+	ser, err := json.Marshal(s)
+	require.NoError(t, err)
+	assert.Equal(t, `{"version":"1","schema":[]}`, string(ser))
 }
