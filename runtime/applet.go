@@ -51,9 +51,9 @@ type Applet struct {
 	predeclared starlark.StringDict
 	main        *starlark.Function
 
-	schema           *schema.Schema
-	schemaJSON       []byte
-	decryptedSecrets map[string]string
+	schema     *schema.Schema
+	schemaJSON []byte
+	decrypter  decrypter
 }
 
 func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
@@ -63,6 +63,10 @@ func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 		Print: func(thread *starlark.Thread, msg string) {
 			fmt.Printf("[%s] %s\n", a.Filename, msg)
 		},
+	}
+
+	if a.decrypter != nil {
+		a.decrypter.attachToThread(t)
 	}
 
 	for _, init := range initializers {
@@ -88,6 +92,13 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 	a.src = src
 
 	a.Id = fmt.Sprintf("%s/%x", filename, md5.Sum(src))
+
+	if a.SecretDecryptionKey != nil {
+		a.decrypter, err = a.SecretDecryptionKey.decrypterForApp(a)
+		if err != nil {
+			return errors.Wrapf(err, "preparing secret key for %s", a.Filename)
+		}
+	}
 
 	a.predeclared = starlark.StringDict{
 		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
@@ -127,13 +138,6 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 		}
 	}
 
-	if a.SecretDecryptionKey != nil {
-		err = a.SecretDecryptionKey.decrypt(a)
-		if err != nil {
-			return errors.Wrapf(err, "decrypting secrets for %s", a.Filename)
-		}
-	}
-
 	return nil
 }
 
@@ -142,15 +146,7 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer) (roots []render.Root, err error) {
 	var args starlark.Tuple
 	if a.main.NumParams() > 0 {
-		mergedConfig := make(map[string]string)
-		for k, v := range a.decryptedSecrets {
-			mergedConfig[k] = v
-		}
-		for k, v := range config {
-			mergedConfig[k] = v
-		}
-
-		starlarkConfig := AppletConfig(mergedConfig)
+		starlarkConfig := AppletConfig(config)
 		args = starlark.Tuple{starlarkConfig}
 	}
 
@@ -293,6 +289,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "cache.star":
 		return LoadCacheModule()
+
+	case "secret.star":
+		return LoadSecretModule()
 
 	case "xpath.star":
 		return LoadXPathModule()

@@ -26,9 +26,8 @@ const (
 // Schema holds a configuration object for an applet. It holds a list of fileds
 // that are exported from an applet.
 type Schema struct {
-	Version string            `json:"version" validate:"required"`
-	Fields  []SchemaField     `json:"schema" validate:"dive"`
-	Secrets map[string]string `json:"secrets"`
+	Version string        `json:"version" validate:"required"`
+	Fields  []SchemaField `json:"schema" validate:"dive"`
 
 	Handlers map[string]SchemaHandler `json:"-"`
 }
