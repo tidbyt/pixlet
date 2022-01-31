@@ -24,12 +24,13 @@ func LoadModule() (starlark.StringDict, error) {
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
 				Members: starlark.StringDict{
-					"Schema":   starlark.NewBuiltin("Schema", newSchema),
-					"Toggle":   starlark.NewBuiltin("Toggle", newToggle),
-					"Option":   starlark.NewBuiltin("Option", newOption),
-					"Dropdown": starlark.NewBuiltin("Dropdown", newDropdown),
-					"Location": starlark.NewBuiltin("Location", newLocation),
-					"Text":     starlark.NewBuiltin("Text", newText),
+					"Schema":        starlark.NewBuiltin("Schema", newSchema),
+					"Toggle":        starlark.NewBuiltin("Toggle", newToggle),
+					"Option":        starlark.NewBuiltin("Option", newOption),
+					"Dropdown":      starlark.NewBuiltin("Dropdown", newDropdown),
+					"Location":      starlark.NewBuiltin("Location", newLocation),
+					"Text":          starlark.NewBuiltin("Text", newText),
+					"LocationBased": starlark.NewBuiltin("LocationBased", newLocationBased),
 				},
 			},
 		}
