@@ -80,6 +80,26 @@ type SchemaHandler struct {
 	ReturnType HandlerReturnType
 }
 
+func (s Schema) MarshalJSON() ([]byte, error) {
+	type OriginalSchema Schema
+
+	a := struct {
+		OriginalSchema
+	}{
+		OriginalSchema: (OriginalSchema)(s),
+	}
+
+	// ensure that fields is serialized as "[]" and not "null",
+	// even if there are no fields. otherwise the Tidbyt mobile app breaks
+	if a.Fields == nil {
+		a.Fields = make([]SchemaField, 0)
+	}
+
+	js, err := json.Marshal(a)
+
+	return js, err
+}
+
 // FromStarlark creates a new Schema from a Starlark schema object.
 func FromStarlark(
 	val starlark.Value,
