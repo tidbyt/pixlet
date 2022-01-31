@@ -19,12 +19,14 @@ s = schema.Text(
 	name = "Screen Name",
 	desc = "A text entry for your screen name.",
 	icon = "user",
+	default = "foo",
 )
 
 assert(s.id == "screen_name")
 assert(s.name == "Screen Name")
 assert(s.desc == "A text entry for your screen name.")
 assert(s.icon == "user")
+assert(s.default == "foo")
 
 def main():
 	return []

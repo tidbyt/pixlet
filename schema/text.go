@@ -22,6 +22,7 @@ func newText(
 		name starlark.String
 		desc starlark.String
 		icon starlark.String
+		def  starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -31,6 +32,7 @@ func newText(
 		"name", &name,
 		"desc", &desc,
 		"icon", &icon,
+		"default?", &def,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Text: %s", err)
 	}
@@ -41,6 +43,7 @@ func newText(
 	s.Name = name.GoString()
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
+	s.Default = def.GoString()
 
 	return s, nil
 }
@@ -51,7 +54,7 @@ func (s *Text) AsSchemaField() SchemaField {
 
 func (s *Text) AttrNames() []string {
 	return []string{
-		"id", "name", "desc", "icon",
+		"id", "name", "desc", "icon", "default",
 	}
 }
 
@@ -69,6 +72,9 @@ func (s *Text) Attr(name string) (starlark.Value, error) {
 
 	case "icon":
 		return starlark.String(s.Icon), nil
+
+	case "default":
+		return starlark.String(s.Default), nil
 
 	default:
 		return nil, nil
