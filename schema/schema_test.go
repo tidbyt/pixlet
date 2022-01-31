@@ -21,8 +21,261 @@ func loadApp(code string) (*runtime.Applet, error) {
 	return app, nil
 }
 
-// appruntime.Schema test with all available config types and flags.
 func TestSchemaAllTypesSuccess(t *testing.T) {
+	code := `
+load("schema.star", "schema")
+
+# these won't be called unless GetSchemaHandler() is
+def locationbasedhandler():
+    return None
+
+def generatedhandler():
+    return None
+
+def typeaheadhandler():
+    return ":)"
+
+def oauth2handler():
+    return "a-refresh-token"
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "locationid",
+                name = "Location",
+                desc = "A Location",
+                icon = "place",
+            ),
+            schema.LocationBased(
+                id = "locationbasedid",
+                name = "Locationbased",
+                desc = "A Locationbased",
+                icon = "place",
+                handler = locationbasedhandler,
+            ),
+            schema.Toggle(
+                id = "onoffid",
+                name = "On or off",
+                desc = "An Onoff",
+                icon = "schedule",
+                default = False,
+            ),
+            schema.Text(
+                id = "textid",
+                name = "Text",
+                desc = "A Text",
+                icon = "cog",
+                default = "Default text",
+            ),
+            schema.Dropdown(
+                id = "dropdownid",
+                name = "Dropdown",
+                desc = "A Dropdown",
+                icon = "iconthatdoesntexist",
+                options = [
+                    schema.Option(
+                        display = "dt1",
+                        value = "dv1",
+                    ),
+                    schema.Option(
+                        display = "dt2",
+                        value = "dv2",
+                    ),
+                ],
+                default = "dv2",
+            ),
+            schema.Radio(
+                id = "radioid",
+                name = "Radio",
+                desc = "A Radio",
+                icon = "iconthatdoesntexist",
+                options = [
+                    schema.Option(
+                        display = "rt1",
+                        value = "rv1",
+                    ),
+                    schema.Option(
+                        display = "rt2",
+                        value = "rv2",
+                    ),
+                ],
+                default = "rv1",
+            ),
+            schema.Typeahead(
+                id = "typeaheadid",
+                name = "Typeahead",
+                desc = "A Typeahead",
+                icon = "train",
+                handler = typeaheadhandler,
+            ),
+            schema.OAuth2(
+                id = "oauth2id",
+                name = "OAuth2",
+                desc = "Authentication",
+                icon = "train",
+                handler = oauth2handler,
+                client_id = "oauth2_clientid",
+                authorization_endpoint = "https://example.com/auth",
+                scopes = [
+                    "foo",
+                    "bar",
+                ],
+            ),
+            schema.PhotoSelect(
+            	id = "pngid",
+            	name = "Photo",
+            	desc = "Picture",
+            	icon = "photo_camera",
+            ),
+        ],
+    )
+
+def main():
+    return None
+`
+
+	app, err := loadApp(code)
+	assert.NoError(t, err)
+
+	jsonSchema := app.GetSchema()
+
+	var s schema.Schema
+	json.Unmarshal([]byte(jsonSchema), &s)
+
+	assert.Equal(t, schema.Schema{
+		Version: "1",
+		Fields: []schema.SchemaField{
+			{
+				Type:        "location",
+				ID:          "locationid",
+				Name:        "Location",
+				Description: "A Location",
+				Icon:        "place",
+			},
+			{
+				Type:        "locationbased",
+				ID:          "locationbasedid",
+				Name:        "Locationbased",
+				Description: "A Locationbased",
+				Handler:     "locationbasedhandler",
+				Icon:        "place",
+			},
+			{
+				Type:        "onoff",
+				ID:          "onoffid",
+				Name:        "On or off",
+				Description: "An Onoff",
+				Default:     "false",
+				Icon:        "schedule",
+			},
+			{
+				Type:        "text",
+				ID:          "textid",
+				Name:        "Text",
+				Description: "A Text",
+				Icon:        "cog",
+				Default:     "Default text",
+			},
+			{
+				Type:        "dropdown",
+				ID:          "dropdownid",
+				Name:        "Dropdown",
+				Description: "A Dropdown",
+				Options: []schema.SchemaOption{
+					{
+						Text:  "dt1",
+						Value: "dv1",
+					},
+					{
+						Text:  "dt2",
+						Value: "dv2",
+					},
+				},
+				Default: "dv2",
+				Icon:    "iconthatdoesntexist",
+			},
+			{
+				Type:        "radio",
+				ID:          "radioid",
+				Name:        "Radio",
+				Description: "A Radio",
+				Icon:        "iconthatdoesntexist",
+				Options: []schema.SchemaOption{
+					{
+						Text:  "rt1",
+						Value: "rv1",
+					},
+					{
+						Text:  "rt2",
+						Value: "rv2",
+					},
+				},
+				Default: "rv1",
+			},
+			//{
+			//	Type:        "text",
+			//	ID:          "invisibletext",
+			//	Name:        "Invisible Text",
+			//	Description: "Conditionally visible text",
+			//	Visibility: &schema.SchemaVisibility{
+			//		Type:      "invisible",
+			//		Condition: "equal",
+			//		Variable:  "radio",
+			//		Value:     "rv2",
+			//	},
+			//},
+			//{
+			//	Type:        "text",
+			//	ID:          "invisibletext2",
+			//	Name:        "Invisible Text",
+			//	Description: "Conditionally visible text",
+			//	Visibility: &schema.SchemaVisibility{
+			//		Type:      "invisible",
+			//		Condition: "not_equal",
+			//		Variable:  "radio",
+			//		Value:     "rv2",
+			//	},
+			//},
+			//{
+			//	Type:    "generated",
+			//	ID:      "generatedid",
+			//	Handler: "generatedhandler",
+			//	Source:  "radioid",
+			//},
+			{
+				Type:        "typeahead",
+				ID:          "typeaheadid",
+				Name:        "Typeahead",
+				Description: "A Typeahead",
+				Handler:     "typeaheadhandler",
+				Icon:        "train",
+			},
+			{
+				Type:                  "oauth2",
+				ID:                    "oauth2id",
+				Name:                  "OAuth2",
+				Description:           "Authentication",
+				Handler:               "oauth2handler",
+				Icon:                  "train",
+				ClientID:              "oauth2_clientid",
+				AuthorizationEndpoint: "https://example.com/auth",
+				Scopes:                []string{"foo", "bar"},
+			},
+			{
+				Type:        "png",
+				ID:          "pngid",
+				Name:        "Photo",
+				Description: "Picture",
+				Icon:        "photo_camera",
+			},
+		},
+	}, s)
+}
+
+// appruntime.Schema test with all available config types and flags.
+func TestSchemaAllTypesSuccessLegacy(t *testing.T) {
 	code := `
 def get_schema():
     return [

@@ -89,6 +89,9 @@ func FromStarlark(
 	starlarkSchema, ok := val.(*StarlarkSchema)
 	if ok {
 		schema = &starlarkSchema.Schema
+		if schema.Handlers == nil {
+			schema.Handlers = make(map[string]SchemaHandler)
+		}
 	} else {
 		schemaTree, err := unmarshalStarlark(val)
 		if err != nil {
