@@ -7,11 +7,11 @@ import (
 	"go.starlark.net/starlark"
 )
 
-type Text struct {
+type DateTime struct {
 	SchemaField
 }
 
-func newText(
+func newDateTime(
 	thread *starlark.Thread,
 	_ *starlark.Builtin,
 	args starlark.Tuple,
@@ -22,43 +22,40 @@ func newText(
 		name starlark.String
 		desc starlark.String
 		icon starlark.String
-		def  starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
-		"Text",
+		"DateTime",
 		args, kwargs,
 		"id", &id,
 		"name", &name,
 		"desc", &desc,
 		"icon", &icon,
-		"default?", &def,
 	); err != nil {
-		return nil, fmt.Errorf("unpacking arguments for Text: %s", err)
+		return nil, fmt.Errorf("unpacking arguments for DateTime: %s", err)
 	}
 
-	s := &Text{}
-	s.SchemaField.Type = "text"
+	s := &DateTime{}
+	s.SchemaField.Type = "datetime"
 	s.ID = id.GoString()
 	s.Name = name.GoString()
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
-	s.Default = def.GoString()
 
 	return s, nil
 }
 
-func (s *Text) AsSchemaField() SchemaField {
+func (s *DateTime) AsSchemaField() SchemaField {
 	return s.SchemaField
 }
 
-func (s *Text) AttrNames() []string {
+func (s *DateTime) AttrNames() []string {
 	return []string{
-		"id", "name", "desc", "icon", "default",
+		"id", "name", "desc", "icon",
 	}
 }
 
-func (s *Text) Attr(name string) (starlark.Value, error) {
+func (s *DateTime) Attr(name string) (starlark.Value, error) {
 	switch name {
 
 	case "id":
@@ -73,20 +70,17 @@ func (s *Text) Attr(name string) (starlark.Value, error) {
 	case "icon":
 		return starlark.String(s.Icon), nil
 
-	case "default":
-		return starlark.String(s.Default), nil
-
 	default:
 		return nil, nil
 	}
 }
 
-func (s *Text) String() string       { return "Text(...)" }
-func (s *Text) Type() string         { return "Text" }
-func (s *Text) Freeze()              {}
-func (s *Text) Truth() starlark.Bool { return true }
+func (s *DateTime) String() string       { return "DateTime(...)" }
+func (s *DateTime) Type() string         { return "DateTime" }
+func (s *DateTime) Freeze()              {}
+func (s *DateTime) Truth() starlark.Bool { return true }
 
-func (s *Text) Hash() (uint32, error) {
+func (s *DateTime) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(s, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }
