@@ -37,6 +37,9 @@ Note that all of these are free or public domain fonts created by
 others. Attribution is given for each below.
 
 ### tb-8
+
+![tb-8 example](img/tb-8.gif)
+
 A modified version of 5x8. This font has variable advance (i.e. it's
 not mono-spaced) and slightly tweaked glyphs for improved
 legibility. All digits are monospace with advance 5.
@@ -64,6 +67,8 @@ sign '€' and dollar sign '$' have no descent and fit in 7 pixels.
 ### Dina_r400-6
 By [Jørgen Ibsen](https://www.dcmembers.com/jibsen/download/61/)
 
+![Dina_r400-6 example](img/Dina_r400-6.gif)
+
 Covers Basic Latin and Latin-1 Supplement, but nothing beyond
 that. 256 code points.
 
@@ -75,6 +80,8 @@ that. 256 code points.
 
 ### 5x8
 By [Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/).
+
+![5x8 example](img/5x8.gif)
 
 Covers Basic Latin, Latin-1 Supplement, a ton of other Latin code
 blocks. 1426 code points in total.
@@ -88,6 +95,8 @@ blocks. 1426 code points in total.
 ### 6x13
 By [Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/).
 
+![6x16 example](img/6x13.gif)
+
 Covers Basic Latin, Latin1- Supplement, and a bazillion other glyphs,
 including the runic code block. 4121 code points in total.
 
@@ -99,6 +108,8 @@ including the runic code block. 4121 code points in total.
 
 ### tom-thumb
 By [Robey Pointer](https://robey.lag.net/2010/01/23/tiny-monospace-font.html)
+
+![tom-thumb example](img/tom-thumb.gif)
 
 A very tiny, monospace, bitmap font. It's a 4x6 font with 3x5 usable pixels.
 This font is great for a really tiny font that also supports upper and lower
@@ -113,6 +124,8 @@ cased characters.
 ### CG-pixel-3x5-mono
 By [Ilmari Karonen](https://vyznev.net/)
 
+![CG-pixel-3x5-mono example](img/CG-pixel-3x5-mono.gif)
+
 This font is a true 3x5 font which only occupies 5 pixels on a display. Check
 out the 4x5 version if you have the width to spare.
 
@@ -124,6 +137,8 @@ out the 4x5 version if you have the width to spare.
 
 ### CG-pixel-4x5-mono
 By [Ilmari Karonen](https://vyznev.net/)
+
+![CG-pixel-4x5-mono example](img/CG-pixel-4x5-mono.gif)
 
 This font is a true 4x5 font which only occupies 5 pixels on a display. Check
 out the 3x5 version if you are also constrained on width.
