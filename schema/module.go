@@ -33,7 +33,6 @@ func LoadModule() (starlark.StringDict, error) {
 					"LocationBased": starlark.NewBuiltin("LocationBased", newLocationBased),
 					"DateTime":      starlark.NewBuiltin("DateTime", newDateTime),
 					"OAuth2":        starlark.NewBuiltin("OAuth2", newOAuth2),
-					"Radio":         starlark.NewBuiltin("Radio", newRadio),
 					"PhotoSelect":   starlark.NewBuiltin("PhotoSelect", newPhotoSelect),
 					"Typeahead":     starlark.NewBuiltin("Typeahead", newTypeahead),
 				},
