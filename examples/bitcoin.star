@@ -23,16 +23,16 @@ def main():
         if rep.status_code != 200:
             fail("Coindesk request failed with status %d", rep.status_code)
         rate = rep.json()["bpi"]["USD"]["rate_float"]
-        cache.set("btc_rate", str(int(rate)), ttl_seconds=240)
+        cache.set("btc_rate", str(int(rate)), ttl_seconds = 240)
 
     return render.Root(
         child = render.Box(
             render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
                 children = [
-                    render.Image(src=BTC_ICON),
+                    render.Image(src = BTC_ICON),
                     render.Text("$%d" % rate),
                 ],
             ),
