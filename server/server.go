@@ -23,8 +23,11 @@ func NewServer(host string, port int, watch bool, filename string) (*Server, err
 	fileChanges := make(chan bool, 100)
 	w := watcher.NewWatcher(filename, fileChanges)
 
-	updatesChan := make(chan string, 100)
-	l := loader.NewLoader(filename, watch, fileChanges, updatesChan)
+	updatesChan := make(chan loader.Update, 100)
+	l, err := loader.NewLoader(filename, watch, fileChanges, updatesChan)
+	if err != nil {
+		return nil, err
+	}
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 	b, err := browser.NewBrowser(addr, filename, watch, updatesChan, l)

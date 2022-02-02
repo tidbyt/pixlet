@@ -3,7 +3,7 @@ package fanout
 // Fanout provides a structure for broadcasting messages to registered clients
 // when an update comes in on a go channel.
 type Fanout struct {
-	broadcast  chan string
+	broadcast  chan WebsocketEvent
 	quit       chan bool
 	register   chan *Client
 	unregister chan *Client
@@ -12,7 +12,7 @@ type Fanout struct {
 // NewFanout creates a new Fanout structure and runs the main loop.
 func NewFanout() *Fanout {
 	fo := &Fanout{
-		broadcast:  make(chan string, channelSize),
+		broadcast:  make(chan WebsocketEvent, channelSize),
 		register:   make(chan *Client, channelSize),
 		unregister: make(chan *Client, channelSize),
 		quit:       make(chan bool, 1),
@@ -24,8 +24,8 @@ func NewFanout() *Fanout {
 }
 
 // Broadcast sends a message to all registered clients.
-func (fo *Fanout) Broadcast(msg string) {
-	fo.broadcast <- msg
+func (fo *Fanout) Broadcast(event WebsocketEvent) {
+	fo.broadcast <- event
 }
 
 // RegisterClient registers a client to include in broadcasts.

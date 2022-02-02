@@ -4,6 +4,10 @@ const (
 	// EventTypeWebP is used to signal what type of message we are sending over
 	// the socket.
 	EventTypeWebP = "webp"
+
+	// EventTypeErr is used to signal there was an error encountered rendering
+	// the WebP image.
+	EventTypeErr = "error"
 )
 
 // WebsocketEvent is a structure used to send messages over the socket.

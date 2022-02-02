@@ -21,15 +21,20 @@ type Loader struct {
 	applet           runtime.Applet
 	configChanges    chan map[string]string
 	requestedChanges chan bool
-	updatesChan      chan string
-	resultsChan      chan string
+	updatesChan      chan Update
+	resultsChan      chan Update
+}
+
+type Update struct {
+	WebP string
+	Err  error
 }
 
 // NewLoader instantiates a new loader structure. The loader will read off of
 // fileChanges channel and write updates to the updatesChan. Updates are base64
 // encoded WebP strings. If watch is enabled, both file changes and on demand
 // requests will send updates over the updatesChan.
-func NewLoader(filename string, watch bool, fileChanges chan bool, updatesChan chan string) *Loader {
+func NewLoader(filename string, watch bool, fileChanges chan bool, updatesChan chan Update) (*Loader, error) {
 	l := &Loader{
 		filename:         filename,
 		fileChanges:      fileChanges,
@@ -38,14 +43,17 @@ func NewLoader(filename string, watch bool, fileChanges chan bool, updatesChan c
 		updatesChan:      updatesChan,
 		configChanges:    make(chan map[string]string, 100),
 		requestedChanges: make(chan bool, 100),
-		resultsChan:      make(chan string, 100),
+		resultsChan:      make(chan Update, 100),
 	}
 
 	if !l.watch {
-		loadScript(&l.applet, l.filename)
+		err := loadScript(&l.applet, l.filename)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return l
+	return l, nil
 }
 
 // Run executes the main loop. If there are config changes, those are recorded.
@@ -63,20 +71,29 @@ func (l *Loader) Run() error {
 			webp, err := l.loadApplet(config)
 			if err != nil {
 				log.Printf("error loading applet: %v", err)
-				l.resultsChan <- ""
-				continue
 			}
-			l.updatesChan <- webp
-			l.resultsChan <- webp
+
+			up := Update{
+				WebP: webp,
+				Err:  err,
+			}
+
+			l.updatesChan <- up
+			l.resultsChan <- up
 		case <-l.fileChanges:
 			log.Printf("detected updates for %s, reloading\n", l.filename)
 
 			webp, err := l.loadApplet(config)
 			if err != nil {
 				log.Printf("error reloading applet: %v", err)
-				continue
 			}
-			l.updatesChan <- webp
+
+			up := Update{
+				WebP: webp,
+				Err:  err,
+			}
+
+			l.updatesChan <- up
 		}
 	}
 }
@@ -92,15 +109,15 @@ func (l *Loader) LoadApplet(config map[string]string) (string, error) {
 	l.configChanges <- config
 	l.requestedChanges <- true
 	result := <-l.resultsChan
-	if result == "" {
-		return "", fmt.Errorf("encountered and error loading applet")
-	}
-	return result, nil
+	return result.WebP, result.Err
 }
 
 func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	if l.watch {
-		loadScript(&l.applet, l.filename)
+		err := loadScript(&l.applet, l.filename)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	roots, err := l.applet.Run(config)

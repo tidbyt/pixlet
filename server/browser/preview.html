@@ -22,6 +22,9 @@
 	<div style="border: solid 1px white">
 		<img id="render" src="data:image/webp;base64,{{ .WebP }}" />
 	</div>
+	<div>
+		<p id="errors" style="color: red;">{{ .Err }}</p>
+	</div>
 
 	{{ if .Watch }}
 	<script>
@@ -45,11 +48,19 @@
 			process(e) {
 				console.log("recieved new message");
 				const data = JSON.parse(e.data);
+				const img = document.getElementById("render");
+				const err = document.getElementById("errors");
 
 				switch (data.type) {
 					case "webp":
-						const img = document.getElementById("render");
 						img.src = "data:image/webp;base64," + data.message;
+						err.innerHTML = "";
+						break;
+					case "error":
+						err.innerHTML = data.message;
+						break;
+					default:
+						console.log(`unknown type ${data.type}`);
 				}
 			}
 
