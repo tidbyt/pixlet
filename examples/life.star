@@ -1,13 +1,13 @@
 # Copyright 2020-Present Mark Spicer
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
 # rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
 # Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
@@ -18,14 +18,12 @@ load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("time.star", "time")
 
-
 """
 Config.
 """
-DEV = False                 # Set to true to skip the intro and go straight to game play.
-VICTORY = 1000              # The number of generations to win.
-START_LIVE_CELLS = 400      # The number of starting live cells to populate your society with.
-
+DEV = False  # Set to true to skip the intro and go straight to game play.
+VICTORY = 1000  # The number of generations to win.
+START_LIVE_CELLS = 400  # The number of starting live cells to populate your society with.
 
 """
 Constants.
@@ -39,14 +37,12 @@ BOARD_PADDING = 10
 BOARD_WIDTH = PIXEL_WIDTH + BOARD_PADDING
 BOARD_HEIGHT = PIXEL_HEIGHT + BOARD_PADDING
 
-
 """
 Cache keys.
 """
 KEY_STATE = "state"
 KEY_BOARD = "board"
 KEY_GEN = "generation"
-
 
 """
 State machine.
@@ -62,10 +58,10 @@ STATES = [
     STATE_VICTORY,
 ]
 
-
 """
 Game runtime.
 """
+
 def main():
     """
     Welcome to the Tidbyt rendition of Conway's Game of Life! This app will render generations of life in between your
@@ -86,14 +82,12 @@ def main():
 
     return run_game()
 
-
 def start_game():
     """
     Starts a new game by loading the first board into the cache and rendering the start message.
     """
     setup_game()
     return render_start()
-
 
 def run_game():
     """
@@ -117,7 +111,7 @@ def run_game():
         if state == STATE_GAME_OVER and not loops:
             frames.append(render_frame(board_subset(board)))
             continue
-        
+
         # Add our frame, generate our next board.
         frames.append(render_frame(board_subset(board)))
         board = next_generation(board)
@@ -126,7 +120,7 @@ def run_game():
         if board == empty_board and state != STATE_VICTORY:
             state = set_state(STATE_GAME_OVER)
             continue
-            
+
         # If our board exists in the last 30 frames, we can assume there is a loop. These are called oscillators, and
         # they can exist at of periods 4, 8, 14, 15, 30. Given we are generating 30 frames, we should check all 30 for
         # an oscillating society.
@@ -135,12 +129,12 @@ def run_game():
             loops = True
             state = set_state(STATE_GAME_OVER)
             continue
-        
+
         # Add out board to the list.
         boards.append(encoded)
 
         # Set victory state if we have survived as a society long enough! Generate the rest of the frames anyways to see
-        # extended cuts. 
+        # extended cuts.
         gen += 1
         if gen > VICTORY:
             state = set_state(STATE_VICTORY)
@@ -153,10 +147,9 @@ def run_game():
     return render.Root(
         delay = 500,
         child = render.Animation(
-            children=frames,
+            children = frames,
         ),
     )
-
 
 def end_game(state):
     """
@@ -171,7 +164,6 @@ def end_game(state):
 
     return render_victory(gen)
 
-
 def setup_game():
     """
     Sets up a new game be rendering a board and setting initial cache values.
@@ -182,10 +174,10 @@ def setup_game():
     set_generation(0)
     set_state(STATE_RUNNING)
 
-
 """
 Cache getters/setters.
 """
+
 def get_state():
     """
     Gets the state out of the cache. Returns the starting state if it does not exist.
@@ -197,14 +189,12 @@ def get_state():
 
     return STATE_STARTING
 
-
 def set_state(state):
     """
     Sets the state in the cache and returns it so you can track it in the calling function.
     """
-    cache.set(KEY_STATE, state, ttl_seconds=600)
+    cache.set(KEY_STATE, state, ttl_seconds = 600)
     return state
-
 
 def get_generation():
     """
@@ -216,13 +206,11 @@ def get_generation():
 
     return int(cached_generation)
 
-
 def set_generation(gen):
     """
     Setter for the generation in the cache.
     """
-    cache.set(KEY_GEN, str(gen), ttl_seconds=300)
-
+    cache.set(KEY_GEN, str(gen), ttl_seconds = 300)
 
 def get_board():
     """
@@ -234,13 +222,11 @@ def get_board():
 
     return decode(cached_board)
 
-
 def set_board(board):
     """
     Setter for the board in the cache.
     """
-    cache.set(KEY_BOARD, encode(board), ttl_seconds=300)
-
+    cache.set(KEY_BOARD, encode(board), ttl_seconds = 300)
 
 def encode(board):
     """
@@ -251,7 +237,6 @@ def encode(board):
         for row in board
     ])
 
-
 def decode(cached_board):
     """
     Decodes the board from the cache back into a 2D array from a string.
@@ -261,10 +246,10 @@ def decode(cached_board):
         for line in cached_board.split("\n")
     ]
 
-
 """
 Game mechanics.
 """
+
 def next_generation(board):
     """
     Creates the next generation based off of the existing board.
@@ -274,17 +259,15 @@ def next_generation(board):
         for x, row in enumerate(board)
     ]
 
-
 def board_subset(board):
     """
     Returns a subset of the board to render into frames. This is useful so we can avoid edges in our board.
     """
     pad = int(BOARD_PADDING / 2)
     return [
-        [cell for cell in row[pad:BOARD_WIDTH-pad]]
-        for row in board[pad:BOARD_HEIGHT-pad]
+        [cell for cell in row[pad:BOARD_WIDTH - pad]]
+        for row in board[pad:BOARD_HEIGHT - pad]
     ]
-
 
 def dead_or_alive(board, x, y):
     """
@@ -304,10 +287,9 @@ def dead_or_alive(board, x, y):
     # Reproduce.
     if board[x][y] == DEAD and num_neighbors == 3:
         return ALIVE
-    
+
     # Dies or was already dead.
     return DEAD
-
 
 def calc_num_neighbors(board, x, y):
     """
@@ -315,22 +297,20 @@ def calc_num_neighbors(board, x, y):
     """
     return len([
         1
-        for i in range(max(0, x-1), min(x+2, len(board)))
-        for j in range(max(0, y-1), min(y+2, len(board[i])))
+        for i in range(max(0, x - 1), min(x + 2, len(board)))
+        for j in range(max(0, y - 1), min(y + 2, len(board[i])))
         if x != i or y != j
         if board[i][j] == ALIVE
     ])
-
 
 def create_board(width, height):
     """
     Creates a board using the provided witdth and height.
     """
     return [
-        [DEAD for y in range(width)] 
+        [DEAD for y in range(width)]
         for x in range(height)
-    ] 
-
+    ]
 
 def seed_board(board, width, height, num_start):
     """
@@ -339,7 +319,10 @@ def seed_board(board, width, height, num_start):
     current = 0
     seed = time.now().nanosecond
 
-    while current < num_start:
+    for i in range(999):
+        if i > num_start:
+            break
+
         x, seed = random(seed)
         y, seed = random(seed)
 
@@ -350,63 +333,61 @@ def seed_board(board, width, height, num_start):
             board[x][y] = ALIVE
             current = current + 1
 
-
 """
 Rendering.
 """
+
 def render_victory(gen):
     """
     Renders victory message for the game.
     """
     return render.Root(
-        child=render.Box(
-            child=render.Column(
-                main_align="space_around",
-                cross_align="center",
-                children=[
+        child = render.Box(
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "center",
+                children = [
                     render.Text(
-                        content="Victory!",
-                        font="5x8",
+                        content = "Victory!",
+                        font = "5x8",
                     ),
                     render.Marquee(
-                        child=render.Text(
-                            content="Survived Generations: " + str(gen),
-                            font="5x8",
+                        child = render.Text(
+                            content = "Survived Generations: " + str(gen),
+                            font = "5x8",
                         ),
-                        width=64,
+                        width = 64,
                     ),
                 ],
             ),
-        )
+        ),
     )
-
 
 def render_game_over(gen):
     """
     Renders game over message for the game.
     """
     return render.Root(
-        child=render.Box(
-            child=render.Column(
-                main_align="space_around",
-                cross_align="center",
-                children=[
+        child = render.Box(
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "center",
+                children = [
                     render.Text(
-                        content="Game Over.",
-                        font="5x8",
+                        content = "Game Over.",
+                        font = "5x8",
                     ),
                     render.Marquee(
-                        child=render.Text(
-                            content="Survived Generations: " + str(gen),
-                            font="5x8",
+                        child = render.Text(
+                            content = "Survived Generations: " + str(gen),
+                            font = "5x8",
                         ),
-                        width=64,
+                        width = 64,
                     ),
                 ],
             ),
-        )
+        ),
     )
-
 
 def render_start():
     """
@@ -416,64 +397,61 @@ def render_start():
 
     frames = []
     for x in range(FRAMES_PER_VIEW):
-        frames.append(render_frame(board_subset(board), text="Start"))
+        frames.append(render_frame(board_subset(board), text = "Start"))
         board = next_generation(board)
 
     return render.Root(
         delay = 500,
         child = render.Animation(
-            children=frames,
+            children = frames,
         ),
     )
 
-
-def render_frame(board, text=None):
+def render_frame(board, text = None):
     """
     Renders a frame for a given board. Use this in an animation to display each round.
     """
     children = [
         render.Column(
-            children=[render_row(row) for row in board],
+            children = [render_row(row) for row in board],
         ),
     ]
 
     if text:
         children.append(
             render.Padding(
-                child=render.Text(
-                    content=text,
-                    font="6x13",
+                child = render.Text(
+                    content = text,
+                    font = "6x13",
                 ),
-                pad=(2,19,0,0),
-            )
+                pad = (2, 19, 0, 0),
+            ),
         )
     return render.Stack(
-        children=children,
+        children = children,
     )
-
 
 def render_row(row):
     """
     Helper to render a row.
     """
-    return render.Row(children=[render_cell(cell) for cell in row])
-
+    return render.Row(children = [render_cell(cell) for cell in row])
 
 def render_cell(cell):
     """
     Helper to render a cell.
     """
     color = "#aaa" if cell == ALIVE else "#000"
-    return render.Box(width=1, height=1, color=color)
-
+    return render.Box(width = 1, height = 1, color = color)
 
 """
 Utilities.
 """
+
 def random(seed):
     """
     Returns a random number and the new seed value.
-    
+
     Starlark is meant to be deterministic, so anything that made the language non-deterministic (such as random number
     generators) was removed. This is a Python implementation of a linear congruential generator I found here:
     http://www.cs.wm.edu/~va/software/park/park.html
@@ -483,7 +461,7 @@ def random(seed):
 
     q = modulus / multiplier
     r = modulus % multiplier
-    t = multiplier * (seed % q) - r * (seed / q);
+    t = multiplier * (seed % q) - r * (seed / q)
 
     if t > 0:
         seed = t
@@ -491,7 +469,6 @@ def random(seed):
         seed = t + modulus
 
     return float(seed / modulus), seed
-
 
 def get_seeded_gosper_glider_board():
     """

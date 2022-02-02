@@ -59,9 +59,9 @@ assert.eq(f.root.width, 123)
 assert.eq(f.root.child.content, "hello")
 
 # Padding
-p = render.Padding(pad=3, child=render.Box(width=1, height=2))
-p2 = render.Padding(pad=(1,2,3,4), child=render.Box(width=1, height=2))
-p3 = render.Padding(pad=1, child=render.Box(width=1, height=2), expanded=True)
+p = render.Padding(pad = 3, child = render.Box(width = 1, height = 2))
+p2 = render.Padding(pad = (1, 2, 3, 4), child = render.Box(width = 1, height = 2))
+p3 = render.Padding(pad = 1, child = render.Box(width = 1, height = 2), expanded = True)
 
 # PNG tests
 png_src = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==")
@@ -76,14 +76,14 @@ r1 = render.Row(
     main_align = "space_evenly",
     cross_align = "center",
     children = [
-        render.Box(width=12, height=14),
+        render.Box(width = 12, height = 14),
         render.Column(
             expanded = True,
             main_align = "start",
             cross_align = "end",
             children = [
-                render.Box(width=6, height=7),
-                render.Box(width=4, height=5),
+                render.Box(width = 6, height = 7),
+                render.Box(width = 4, height = 5),
             ],
         ),
     ],
