@@ -87,23 +87,6 @@ def get_schema():
                 ],
                 default = "dv2",
             ),
-            schema.Radio(
-                id = "radioid",
-                name = "Radio",
-                desc = "A Radio",
-                icon = "iconthatdoesntexist",
-                options = [
-                    schema.Option(
-                        display = "rt1",
-                        value = "rv1",
-                    ),
-                    schema.Option(
-                        display = "rt2",
-                        value = "rv2",
-                    ),
-                ],
-                default = "rv1",
-            ),
             schema.Typeahead(
                 id = "typeaheadid",
                 name = "Typeahead",
@@ -196,24 +179,6 @@ def main():
 				},
 				Default: "dv2",
 				Icon:    "iconthatdoesntexist",
-			},
-			{
-				Type:        "radio",
-				ID:          "radioid",
-				Name:        "Radio",
-				Description: "A Radio",
-				Icon:        "iconthatdoesntexist",
-				Options: []schema.SchemaOption{
-					{
-						Text:  "rt1",
-						Value: "rv1",
-					},
-					{
-						Text:  "rt2",
-						Value: "rv2",
-					},
-				},
-				Default: "rv1",
 			},
 			//{
 			//	Type:        "text",
