@@ -169,12 +169,14 @@ def main():
 				Description: "A Dropdown",
 				Options: []schema.SchemaOption{
 					{
-						Text:  "dt1",
-						Value: "dv1",
+						Display: "dt1",
+						Text:    "dt1",
+						Value:   "dv1",
 					},
 					{
-						Text:  "dt2",
-						Value: "dv2",
+						Display: "dt2",
+						Text:    "dt2",
+						Value:   "dv2",
 					},
 				},
 				Default: "dv2",
@@ -663,7 +665,7 @@ def main():
 
 	stringValue, err := app.CallSchemaHandler(context.Background(), "locationbasedid", "fart")
 	assert.NoError(t, err)
-	assert.Equal(t, "[{\"text\":\"Your only option is\",\"value\":\"fart\"}]", stringValue)
+	assert.Equal(t, "[{\"display\":\"\",\"text\":\"Your only option is\",\"value\":\"fart\"}]", stringValue)
 }
 
 func TestSchemaWithLocationBasedHandlerMalformed(t *testing.T) {
@@ -718,7 +720,7 @@ def main():
 
 	stringValue, err := app.CallSchemaHandler(context.Background(), "typeaheadid", "farts")
 	assert.NoError(t, err)
-	assert.Equal(t, "[{\"text\":\"You searched for\",\"value\":\"farts\"}]", stringValue)
+	assert.Equal(t, "[{\"display\":\"\",\"text\":\"You searched for\",\"value\":\"farts\"}]", stringValue)
 }
 
 func TestSchemaWithTypeaheadHandlerMalformed(t *testing.T) {

@@ -55,8 +55,9 @@ type SchemaField struct {
 // SchemaOption represents an option in a field. For example, an item in a drop
 // down menu.
 type SchemaOption struct {
-	Text  string `json:"text" validate:"required"`
-	Value string `json:"value" validate:"required"`
+	Display string `json:"display"`
+	Text    string `json:"text" validate:"required"` // The same as display, for legacy reasons.
+	Value   string `json:"value" validate:"required"`
 }
 
 // SchemaVisibility enables conditional fields inside of the mobile app. For
@@ -199,6 +200,10 @@ func EncodeOptions(
 		if err != nil {
 			return "", err
 		}
+
+		if o.Display == "" {
+			o.Display = o.Text
+		}
 	}
 
 	optionsJson, err := json.Marshal(options)
@@ -252,6 +257,8 @@ func unmarshalStarlark(object starlark.Value) (interface{}, error) {
 			goMap[goKey] = goVal
 		}
 		return goMap, nil
+	case *Option:
+		return v.AsSchemaOption(), nil
 	}
 
 	return nil, fmt.Errorf("type %s not allowed in schema", object.Type())
@@ -274,13 +281,19 @@ func setString(p *string, object interface{}) string {
 func buildOptions(options interface{}) ([]SchemaOption, error) {
 	optionsList, ok := options.([]interface{})
 	if !ok {
-		return nil, fmt.Errorf("must be list of dict")
+		return nil, fmt.Errorf("options must be a list")
 	}
 	schemaOptions := make([]SchemaOption, 0, len(optionsList))
 	for j, o := range optionsList {
+		op, ok := o.(SchemaOption)
+		if ok {
+			schemaOptions = append(schemaOptions, op)
+			continue
+		}
+
 		oMap, ok := o.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("entry %d is not dict", j)
+			return nil, fmt.Errorf("entry %d is not dict or Option", j)
 		}
 
 		sop := SchemaOption{}
