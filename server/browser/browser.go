@@ -4,7 +4,6 @@ package browser
 
 import (
 	_ "embed"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,9 +18,9 @@ import (
 // Browser provides a structure for serving WebP images over websockets to
 // a web browser.
 type Browser struct {
-	addr       string      // The address to listen on.
-	title      string      // The title of the HTML document.
-	updateChan chan string // A channel of base64 encoded WebP images.
+	addr       string             // The address to listen on.
+	title      string             // The title of the HTML document.
+	updateChan chan loader.Update // A channel of base64 encoded WebP images.
 	watch      bool
 	fo         *fanout.Fanout
 	r          *mux.Router
@@ -43,10 +42,11 @@ type previewData struct {
 	Title string
 	WebP  string
 	Watch bool
+	Err   string
 }
 
 // NewBrowser sets up a browser structure. Call Run() to kick off the main loops.
-func NewBrowser(addr string, title string, watch bool, updateChan chan string, l *loader.Loader) (*Browser, error) {
+func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Update, l *loader.Loader) (*Browser, error) {
 	tmpl, err := template.New("preview").Parse(previewHTML)
 	if err != nil {
 		return nil, err
@@ -121,8 +121,20 @@ func (b *Browser) websocketHandler(w http.ResponseWriter, r *http.Request) {
 func (b *Browser) updateWatcher() error {
 	for {
 		select {
-		case webp := <-b.updateChan:
-			b.fo.Broadcast(webp)
+		case up := <-b.updateChan:
+			if up.Err != nil {
+				event := fanout.WebsocketEvent{
+					Type:    fanout.EventTypeErr,
+					Message: up.Err.Error(),
+				}
+				b.fo.Broadcast(event)
+			} else {
+				event := fanout.WebsocketEvent{
+					Type:    fanout.EventTypeWebP,
+					Message: up.WebP,
+				}
+				b.fo.Broadcast(event)
+			}
 		}
 	}
 }
@@ -134,16 +146,15 @@ func (b *Browser) rootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	webp, err := b.loader.LoadApplet(config)
-	if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprintln(w, err)
-		return
-	}
 
 	data := previewData{
 		Title: b.title,
 		Watch: b.watch,
 		WebP:  webp,
+	}
+
+	if err != nil {
+		data.Err = err.Error()
 	}
 
 	w.Header().Set("Content-Type", "text/html")
