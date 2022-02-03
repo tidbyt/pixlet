@@ -19,24 +19,30 @@ const (
 	WebPKMin                 = 0
 	WebPKMax                 = 0
 	DefaultScreenDelayMillis = 50
+	DefaultMaxAgeSeconds     = 0
 )
 
 type Screens struct {
 	roots  []render.Root
 	images []image.Image
 	delay  int32
+	MaxAge int32
 }
 
 type ImageFilter func(image.Image) (image.Image, error)
 
 func ScreensFromRoots(roots []render.Root) *Screens {
 	screens := Screens{
-		roots: roots,
-		delay: DefaultScreenDelayMillis,
+		roots:  roots,
+		delay:  DefaultScreenDelayMillis,
+		MaxAge: DefaultMaxAgeSeconds,
 	}
 	if len(roots) > 0 {
 		if roots[0].Delay > 0 {
 			screens.delay = roots[0].Delay
+		}
+		if roots[0].MaxAge > 0 {
+			screens.MaxAge = roots[0].MaxAge
 		}
 	}
 	return &screens
@@ -46,6 +52,7 @@ func ScreensFromImages(images ...image.Image) *Screens {
 	screens := Screens{
 		images: images,
 		delay:  DefaultScreenDelayMillis,
+		MaxAge: DefaultMaxAgeSeconds,
 	}
 	return &screens
 }

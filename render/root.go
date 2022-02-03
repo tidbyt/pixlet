@@ -24,9 +24,15 @@ const (
 //
 // If the tree contains animated widgets, the resulting animation will
 // run with _delay_ milliseconds per frame.
+//
+// If the tree holds time sensitive information which must never be
+// displayed past a certain point in time, pass _MaxAge_ to specify
+// an expiration time in seconds. Display devices use this to avoid
+// displaying stale data in the event of e.g. connectivity issues.
 type Root struct {
-	Child Widget
-	Delay int32
+	Child  Widget
+	Delay  int32
+	MaxAge int32
 }
 
 // Paint renders the child widget onto the frame. It doesn't do
