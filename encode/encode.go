@@ -19,7 +19,7 @@ const (
 	WebPKMin                 = 0
 	WebPKMax                 = 0
 	DefaultScreenDelayMillis = 50
-	DefaultMaxAgeSeconds     = 0
+	DefaultMaxAgeSeconds     = 0 // 0 => no max age, cache forever!
 )
 
 type Screens struct {
