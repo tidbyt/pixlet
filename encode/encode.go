@@ -65,9 +65,11 @@ func (s *Screens) Hash() ([]byte, error) {
 		Roots  []render.Root
 		Images []image.Image
 		Delay  int32
+		MaxAge int32
 	}{
-		Roots: s.roots,
-		Delay: s.delay,
+		Roots:  s.roots,
+		Delay:  s.delay,
+		MaxAge: s.MaxAge,
 	}
 
 	if len(s.roots) == 0 {

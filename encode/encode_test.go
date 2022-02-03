@@ -166,6 +166,22 @@ func TestHash(t *testing.T) {
 	require.NotEqual(t, hash, hash2)
 }
 
+func TestHashDelayAndMaxAge(t *testing.T) {
+	r := []render.Root{render.Root{Child: &render.Text{Content: "derp"}}}
+
+	h1, err := ScreensFromRoots(r).Hash()
+	assert.NoError(t, err)
+	r[0].MaxAge = 12
+	h2, err := ScreensFromRoots(r).Hash()
+	assert.NoError(t, err)
+	r[0].Delay = 1
+	h3, err := ScreensFromRoots(r).Hash()
+	assert.NoError(t, err)
+
+	assert.NotEqual(t, h1, h2)
+	assert.NotEqual(t, h2, h3)
+}
+
 func TestScreensFromRoots(t *testing.T) {
 	// check that widget trees and params are copied correctly
 	s := ScreensFromRoots([]render.Root{
