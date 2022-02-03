@@ -24,9 +24,6 @@ jobs:
       - name: Run buildifier
         run: buildifier -d -r ./
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-
   build-and-test-release:
     name: Build and Test Release Artifacts
     strategy:
