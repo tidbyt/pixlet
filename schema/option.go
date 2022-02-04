@@ -33,6 +33,7 @@ func newOption(
 
 	s := &Option{}
 	s.SchemaOption.Text = display.GoString()
+	s.SchemaOption.Display = display.GoString()
 	s.SchemaOption.Value = value.GoString()
 
 	return s, nil
