@@ -1,6 +1,9 @@
 type {{.Name}} struct {
 	Widget
 	render.{{.Name}}
+{{range .AttrColor}}
+	starlark{{.Render}} starlark.String
+{{end}}
 {{range .AttrChild}}
 	starlark{{.Render}} starlark.Value
 {{end}}
@@ -58,8 +61,9 @@ func new{{.Name}}(
 	{{end}}
 
 {{range .AttrColor}}{{if not .ReadOnly}}
+	w.starlark{{.Render}} = {{.Starlark}}
 	if {{.Starlark}}.Len() > 0 {
-		c, err := colorful.Hex({{.Starlark}}.GoString())
+		c, err := render.ParseColor({{.Starlark}}.GoString())
 		if err != nil {
 			return nil, fmt.Errorf("{{.Starlark}} is not a valid hex string: %s", {{.Starlark}}.String())
 		}
@@ -175,14 +179,7 @@ func (w *{{.Name}}) Attr(name string) (starlark.Value, error) {
 {{end}}
 {{range .AttrColor}}
 	case "{{.Starlark}}":
-		if w.{{.Render}} == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.{{.Render}})
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlark{{.Render}}, nil
 {{end}}
 {{range .AttrBool}}
 	case "{{.Starlark}}":

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/lucasb-eyer/go-colorful"
 	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -161,6 +160,8 @@ type Box struct {
 	Widget
 	render.Box
 
+	starlarkColor starlark.String
+
 	starlarkChild starlark.Value
 }
 
@@ -198,8 +199,9 @@ func newBox(
 	w.Height = int(height.BigInt().Int64())
 	w.Padding = int(padding.BigInt().Int64())
 
+	w.starlarkColor = color
 	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
+		c, err := render.ParseColor(color.GoString())
 		if err != nil {
 			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
 		}
@@ -244,14 +246,7 @@ func (w *Box) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.Padding), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "child":
 		return w.starlarkChild, nil
@@ -274,6 +269,8 @@ func (w *Box) Hash() (uint32, error) {
 type Circle struct {
 	Widget
 	render.Circle
+
+	starlarkColor starlark.String
 
 	starlarkChild starlark.Value
 }
@@ -306,8 +303,9 @@ func newCircle(
 	w := &Circle{}
 	w.Diameter = int(diameter.BigInt().Int64())
 
+	w.starlarkColor = color
 	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
+		c, err := render.ParseColor(color.GoString())
 		if err != nil {
 			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
 		}
@@ -346,14 +344,7 @@ func (w *Circle) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.Diameter), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "child":
 		return w.starlarkChild, nil
@@ -689,6 +680,8 @@ type Padding struct {
 	Widget
 	render.Padding
 
+	starlarkColor starlark.String
+
 	starlarkChild starlark.Value
 
 	starlarkPad starlark.Value
@@ -725,8 +718,9 @@ func newPadding(
 	w := &Padding{}
 	w.Expanded = bool(expanded)
 
+	w.starlarkColor = color
 	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
+		c, err := render.ParseColor(color.GoString())
 		if err != nil {
 			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
 		}
@@ -794,14 +788,7 @@ func (w *Padding) Attr(name string) (starlark.Value, error) {
 	switch name {
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "expanded":
 		return starlark.Bool(w.Expanded), nil
@@ -1017,6 +1004,8 @@ type Text struct {
 	Widget
 	render.Text
 
+	starlarkColor starlark.String
+
 	size *starlark.Builtin
 }
 
@@ -1055,8 +1044,9 @@ func newText(
 	w.Height = int(height.BigInt().Int64())
 	w.Offset = int(offset.BigInt().Int64())
 
+	w.starlarkColor = color
 	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
+		c, err := render.ParseColor(color.GoString())
 		if err != nil {
 			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
 		}
@@ -1098,14 +1088,7 @@ func (w *Text) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.Offset), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	case "size":
 		return w.size.BindReceiver(w), nil
@@ -1143,6 +1126,8 @@ func textSize(
 type WrappedText struct {
 	Widget
 	render.WrappedText
+
+	starlarkColor starlark.String
 }
 
 func newWrappedText(
@@ -1183,8 +1168,9 @@ func newWrappedText(
 	w.Width = int(width.BigInt().Int64())
 	w.LineSpacing = int(linespacing.BigInt().Int64())
 
+	w.starlarkColor = color
 	if color.Len() > 0 {
-		c, err := colorful.Hex(color.GoString())
+		c, err := render.ParseColor(color.GoString())
 		if err != nil {
 			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
 		}
@@ -1223,14 +1209,7 @@ func (w *WrappedText) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.LineSpacing), nil
 
 	case "color":
-		if w.Color == nil {
-			return nil, nil
-		}
-		c, ok := colorful.MakeColor(w.Color)
-		if !ok {
-			return nil, nil
-		}
-		return starlark.String(c.Hex()), nil
+		return w.starlarkColor, nil
 
 	default:
 		return nil, nil

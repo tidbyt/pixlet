@@ -24,8 +24,8 @@ def assert(success, message=None):
         fail(message or "assertion failed")
 
 # Font tests
-assert(render.fonts["6x13"] == "6x13")
-assert(render.fonts["Dina_r400-6"] == "Dina_r400-6")
+assert(render.fonts["6x13"] == "6x13", 'render.fonts["6x13"] == "6x13"')
+assert(render.fonts["Dina_r400-6"] == "Dina_r400-6", 'render.fonts["Dina_r400-6"] == "Dina_r400-6"')
 
 # Box tests
 b1 = render.Box(
@@ -34,15 +34,17 @@ b1 = render.Box(
     color = "#000",
 )
 
-assert(b1.width == 64)
-assert(b1.height == 32)
-assert(b1.color == "#000000")
+assert(b1.width == 64, "b1.width == 64")
+assert(b1.height == 32, "b1.height == 32")
+assert(b1.color == "#000", 'b1.color == "#000"')
 
 b2 = render.Box(
     child = b1,
+	color = "#0f0d",
 )
 
-assert(b2.child == b1)
+assert(b2.child == b1, "b2.child == b1")
+assert(b2.color == "#0f0d", 'b2.color == "#0f0d"')
 
 # Text tests
 t1 = render.Text(
@@ -51,11 +53,11 @@ t1 = render.Text(
     color = "#fff",
     content = "foo",
 )
-assert(t1.height == 10)
-assert(t1.font == "6x13")
-assert(t1.color == "#ffffff")
-assert(0 < t1.size()[0])
-assert(0 < t1.size()[1])
+assert(t1.height == 10, "t1.height == 10")
+assert(t1.font == "6x13", 't1.font == "6x13"')
+assert(t1.color == "#fff", 't1.color == "#fff"')
+assert(0 < t1.size()[0], "0 < t1.size()[0]")
+assert(0 < t1.size()[1], "0 < t1.size()[1]")
 
 # WrappedText
 tw = render.WrappedText(
@@ -76,8 +78,8 @@ f = render.Root(
     ),
 )
 
-assert(f.child.width == 123)
-assert(f.child.child.content == "hello")
+assert(f.child.width == 123, "f.child.width == 123")
+assert(f.child.child.content == "hello", 'f.child.child.content == "hello"')
 
 # Padding
 p = render.Padding(pad=3, child=render.Box(width=1, height=2))
@@ -87,15 +89,15 @@ p3 = render.Padding(pad=1, child=render.Box(width=1, height=2), expanded=True)
 # Image tests
 png_src = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==")
 imgPng = render.Image(src = png_src)
-assert(imgPng.src == png_src)
-assert(0 < imgPng.size()[0])
-assert(0 < imgPng.size()[1])
+assert(imgPng.src == png_src, "imgPng.src == png_src")
+assert(0 < imgPng.size()[0], "0 < imgPng.size()[0]")
+assert(0 < imgPng.size()[1], "0 < imgPng.size()[1]")
 
 gif_src = base64.decode("R0lGODlhBQAEAPAAAAAAAAAAACH5BAF7AAAAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAABQAEAAACBgRiaLmLBQAh+QQBewAAACwAAAAABQAEAAACBYRzpqhXACH5BAF7AAAALAAAAAAFAAQAAAIGDG6Qp8wFACH5BAF7AAAALAAAAAAFAAQAAAIGRIBnyMoFADs=")
 imgGif = render.Image(src = gif_src)
-assert(5 == imgGif.size()[0])
-assert(4 == imgGif.size()[1])
-assert(1230 == imgGif.delay)
+assert(5 == imgGif.size()[0], "5 == imgGif.size()[0]")
+assert(4 == imgGif.size()[1], "4 == imgGif.size()[1]")
+assert(1230 == imgGif.delay, "1230 == imgGif.delay")
 
 # Row and Column
 r1 = render.Row(
@@ -116,12 +118,12 @@ r1 = render.Row(
     ],
 )
 
-assert(r1.main_align == "space_evenly")
-assert(r1.cross_align == "center")
-assert(r1.children[1].main_align == "start")
-assert(r1.children[1].cross_align == "end")
-assert(len(r1.children) == 2)
-assert(len(r1.children[1].children) == 2)
+assert(r1.main_align == "space_evenly", 'r1.main_align == "space_evenly"')
+assert(r1.cross_align == "center", 'r1.cross_align == "center"')
+assert(r1.children[1].main_align == "start", 'r1.children[1].main_align == "start"')
+assert(r1.children[1].cross_align == "end", 'r1.children[1].cross_align == "end"')
+assert(len(r1.children) == 2, "len(r1.children) == 2")
+assert(len(r1.children[1].children) == 2, "len(r1.children[1].children) == 2")
 
 def main():
     return render.Root(child=r1)
