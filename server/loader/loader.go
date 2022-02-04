@@ -46,6 +46,8 @@ func NewLoader(filename string, watch bool, fileChanges chan bool, updatesChan c
 		resultsChan:      make(chan Update, 100),
 	}
 
+	runtime.InitCache(runtime.NewInMemoryCache())
+
 	if !l.watch {
 		err := loadScript(&l.applet, l.filename)
 		if err != nil {
@@ -138,8 +140,6 @@ func loadScript(applet *runtime.Applet, filename string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", filename, err)
 	}
-
-	runtime.InitCache(runtime.NewInMemoryCache())
 
 	err = applet.Load(filename, src, nil)
 	if err != nil {
