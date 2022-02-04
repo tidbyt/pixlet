@@ -111,7 +111,7 @@ def main():
 
 ## Pixlet module: Schema
 
-The schema module provides configuration options for your app. See the [schema documentation](schema.md) for more details.
+The schema module provides configuration options for your app. See the [schema documentation](schema/schema.md) for more details.
 
 Example:
 
