@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -96,7 +97,8 @@ func (sdk *SecretDecryptionKey) decrypterForApp(a *Applet) (decrypter, error) {
 	context := []byte(strings.TrimSuffix(a.Filename, ".star"))
 
 	return func(s starlark.String) (starlark.String, error) {
-		ciphertext, err := base64.StdEncoding.DecodeString(s.GoString())
+		v := regexp.MustCompile(`\s`).ReplaceAllString(s.GoString(), "")
+		ciphertext, err := base64.StdEncoding.DecodeString(v)
 		if err != nil {
 			return "", errors.Wrapf(err, "base64 decoding of secret: %s", s)
 		}
