@@ -182,12 +182,12 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 	return roots, nil
 }
 
-// CallSchemaHandler calls the schema handler for a field, passing it a single
+// CallSchemaHandler calls a schema handler, passing it a single
 // string parameter and returning a single string value.
-func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter string) (result string, err error) {
-	handler, found := app.schema.Handlers[fieldId]
+func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter string) (result string, err error) {
+	handler, found := app.schema.Handlers[handlerName]
 	if !found {
-		return "", fmt.Errorf("no handler exported for field id %s", fieldId)
+		return "", fmt.Errorf("no exported handler named '%s'", handlerName)
 	}
 
 	resultVal, err := app.Call(
@@ -196,7 +196,7 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter str
 		attachContext(ctx),
 	)
 	if err != nil {
-		return "", fmt.Errorf("calling schema handler for field %s: %v", fieldId, err)
+		return "", fmt.Errorf("calling schema handler %s: %v", handlerName, err)
 	}
 
 	switch handler.ReturnType {
@@ -231,7 +231,7 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, fieldId, parameter str
 		return str, nil
 	}
 
-	return "", fmt.Errorf("a very unexpected error happened for field \"%s\"", fieldId)
+	return "", fmt.Errorf("a very unexpected error happened for handler \"%s\"", handlerName)
 }
 
 // GetSchema returns the config for the applet.

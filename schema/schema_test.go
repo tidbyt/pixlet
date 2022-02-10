@@ -524,7 +524,12 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	jsonSchema, err := app.CallSchemaHandler(context.Background(), "generatedid", "foobar")
+	// Handlers are not identified by ID
+	_, err = app.CallSchemaHandler(context.Background(), "generatedid", "foobar")
+	assert.Error(t, err)
+
+	// They're identified by function name
+	jsonSchema, err := app.CallSchemaHandler(context.Background(), "generate_schema", "foobar")
 	assert.NoError(t, err)
 
 	var s schema.Schema
@@ -563,12 +568,15 @@ def get_schema():
     ]
 
 def generate_schema(param):
-    return [{"type": "text",
-            # this missing field is required:  "id": "generatedid",
+    field = {"type": "text",
              "name": "Generated Text",
              "description": "This Text is generated",
              "default": "-%s-" % param,
-            }]
+            }
+    if param == "win":
+        # this missing field is required
+        field["id"] = "generatedid"
+    return [field]
 
 def main():
     return None
@@ -577,7 +585,10 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	_, err = app.CallSchemaHandler(context.Background(), "generatedid", "foobar")
+	_, err = app.CallSchemaHandler(context.Background(), "generate_schema", "win")
+	assert.NoError(t, err)
+
+	_, err = app.CallSchemaHandler(context.Background(), "generate_schema", "fail")
 	assert.Error(t, err)
 }
 
@@ -663,7 +674,7 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	stringValue, err := app.CallSchemaHandler(context.Background(), "locationbasedid", "fart")
+	stringValue, err := app.CallSchemaHandler(context.Background(), "handle_location", "fart")
 	assert.NoError(t, err)
 	assert.Equal(t, "[{\"display\":\"\",\"text\":\"Your only option is\",\"value\":\"fart\"}]", stringValue)
 }
@@ -691,7 +702,7 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	_, err = app.CallSchemaHandler(context.Background(), "locationbasedid", "fart")
+	_, err = app.CallSchemaHandler(context.Background(), "handle_location", "fart")
 	assert.Error(t, err)
 }
 
@@ -718,7 +729,7 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	stringValue, err := app.CallSchemaHandler(context.Background(), "typeaheadid", "farts")
+	stringValue, err := app.CallSchemaHandler(context.Background(), "handle_typeahead", "farts")
 	assert.NoError(t, err)
 	assert.Equal(t, "[{\"display\":\"\",\"text\":\"You searched for\",\"value\":\"farts\"}]", stringValue)
 }
@@ -746,7 +757,7 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	_, err = app.CallSchemaHandler(context.Background(), "typeaheadid", "fart")
+	_, err = app.CallSchemaHandler(context.Background(), "handle_typeahead", "fart")
 	assert.Error(t, err)
 }
 
@@ -777,7 +788,7 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	stringValue, err := app.CallSchemaHandler(context.Background(), "oauth2id", "farts")
+	stringValue, err := app.CallSchemaHandler(context.Background(), "oauth2handler", "farts")
 	assert.NoError(t, err)
 	assert.Equal(t, "a-refresh-token", stringValue)
 }
@@ -809,7 +820,7 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	_, err = app.CallSchemaHandler(context.Background(), "oauth2id", "farts")
+	_, err = app.CallSchemaHandler(context.Background(), "oauth2handler", "farts")
 	assert.Error(t, err)
 }
 

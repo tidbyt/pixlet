@@ -173,7 +173,7 @@ func FromStarlark(
 					i, schemaField.Type)
 			}
 
-			schema.Handlers[schemaField.ID] = SchemaHandler{Function: handlerFun, ReturnType: handlerType}
+			schema.Handlers[schemaField.Handler] = SchemaHandler{Function: handlerFun, ReturnType: handlerType}
 		}
 	}
 
