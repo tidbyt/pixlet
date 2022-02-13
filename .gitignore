@@ -11,3 +11,6 @@ pixlet
 # Releases
 build/
 dist/
+
+# Dependency directories
+node_modules
