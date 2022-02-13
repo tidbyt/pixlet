@@ -36,6 +36,11 @@ jobs:
       with:
         go-version: '1.16.12'
 
+    - name: Install Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -46,6 +51,12 @@ jobs:
     - name: Install macOS dependencies
       if: matrix.os == 'macos-latest'
       run: brew install webp
+
+    - name: Install frontend dependencies
+      run: npm install
+
+    - name: Build frontend
+      run: npm run build
 
     - name: Build
       run: make build
