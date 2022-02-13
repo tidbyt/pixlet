@@ -3,13 +3,16 @@
 package loader
 
 import (
+	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
+	"tidbyt.dev/pixlet/schema"
 )
 
 // Loader is a structure to provide applet loading when a file changes or on
@@ -26,8 +29,9 @@ type Loader struct {
 }
 
 type Update struct {
-	WebP string
-	Err  error
+	WebP   string
+	Schema string
+	Err    error
 }
 
 // NewLoader instantiates a new loader structure. The loader will read off of
@@ -70,29 +74,29 @@ func (l *Loader) Run() error {
 		case c := <-l.configChanges:
 			config = c
 		case <-l.requestedChanges:
+			up := Update{}
+
 			webp, err := l.loadApplet(config)
 			if err != nil {
 				log.Printf("error loading applet: %v", err)
-			}
-
-			up := Update{
-				WebP: webp,
-				Err:  err,
+				up.Err = err
+			} else {
+				up.WebP = webp
 			}
 
 			l.updatesChan <- up
 			l.resultsChan <- up
 		case <-l.fileChanges:
 			log.Printf("detected updates for %s, reloading\n", l.filename)
+			up := Update{}
 
 			webp, err := l.loadApplet(config)
 			if err != nil {
-				log.Printf("error reloading applet: %v", err)
-			}
-
-			up := Update{
-				WebP: webp,
-				Err:  err,
+				log.Printf("error loading applet: %v", err)
+				up.Err = err
+			} else {
+				up.WebP = webp
+				up.Schema = l.applet.GetSchema()
 			}
 
 			l.updatesChan <- up
@@ -112,6 +116,20 @@ func (l *Loader) LoadApplet(config map[string]string) (string, error) {
 	l.requestedChanges <- true
 	result := <-l.resultsChan
 	return result.WebP, result.Err
+}
+
+func (l *Loader) GetSchema() []byte {
+	s := []byte(l.applet.GetSchema())
+	if len(s) > 0 {
+		return s
+	}
+
+	b, _ := json.Marshal(&schema.Schema{})
+	return b
+}
+
+func (l *Loader) CallSchemaHandler(ctx context.Context, handlerName, parameter string) (string, error) {
+	return l.applet.CallSchemaHandler(ctx, handlerName, parameter)
 }
 
 func (l *Loader) loadApplet(config map[string]string) (string, error) {
