@@ -79,7 +79,7 @@ export default function OAuth2({ field }) {
         <OAuth2Login
             isCrossOrigin={true}
             authorizationUrl={field.authorization_endpoint}
-            responseType="token"
+            responseType="code"
             scope={scope}
             clientId={field.client_id}
             redirectUri={redirectUri}
