@@ -9,7 +9,7 @@ import { theme } from './theme';
 import './styles.css';
 
 
-export default function Theme(props) {
+export default function DevToolsTheme(props) {
     library.add(fas, fab);
 
     return (
