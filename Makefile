@@ -4,6 +4,7 @@ test:
 clean:
 	rm -f pixlet
 	rm -rf ./build
+	rm -rf ./out
 
 bench:
 	go test -benchmem -benchtime=20s -bench BenchmarkRunAndRender tidbyt.dev/pixlet/encode

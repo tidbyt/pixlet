@@ -5,6 +5,7 @@ Prerequisites
 -------------
 
 - Having [go installed].
+- Having [node installed].
 - Having [libwebp installed].
 
 Steps
@@ -17,6 +18,11 @@ Steps
 	```console
 	cd pixlet
 	```
+- Build the frontend:
+	```console
+	npm install
+	npm run build
+	```
 - Build the binary:
 	```console
 	make build
@@ -24,4 +30,5 @@ Steps
 - After that you will have the binary `/pixlet`, which you should copy to your path.
 
 [go installed]: https://golang.org/dl/
+[node installed]: https://nodejs.org/en/download/
 [libwebp installed]: https://developers.google.com/speed/webp/download

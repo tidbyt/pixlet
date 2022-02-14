@@ -5,6 +5,10 @@ const (
 	// the socket.
 	EventTypeWebP = "webp"
 
+	// EventTypeSchema is used to signal that the schema for a given app has
+	// changed.
+	EventTypeSchema = "schema"
+
 	// EventTypeErr is used to signal there was an error encountered rendering
 	// the WebP image.
 	EventTypeErr = "error"

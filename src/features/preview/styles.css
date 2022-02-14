@@ -1,0 +1,14 @@
+.container {
+	background-color: black;
+}
+
+.image {
+	image-rendering: pixelated;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
+	width: 100%;
+	mask-size: contain;
+	-webkit-mask-size: contain;
+	mask-image: url('./mask.png');
+	-webkit-mask-image: url('./mask.png');
+}

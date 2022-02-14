@@ -51,6 +51,7 @@ func (s *Server) Run() error {
 	g.Go(s.browser.Run)
 	if s.watch {
 		g.Go(s.watcher.Run)
+		s.loader.LoadApplet(make(map[string]string))
 	}
 
 	return g.Wait()
