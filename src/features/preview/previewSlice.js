@@ -5,7 +5,7 @@ export const previewSlice = createSlice({
     initialState: {
         loading: false,
         value: {
-            webp: 'UklGRhoAAABXRUJQVlA4TA4AAAAvP8AHAAcQEf0PRET/Aw==',
+            webp: '',
             title: 'Pixlet',
         }
     },
@@ -13,11 +13,11 @@ export const previewSlice = createSlice({
         update: (state = initialState, action) => {
             let up = state;
 
-            if ('webp' in action.payload && action.payload.webp) {
+            if ('webp' in action.payload) {
                 up.value.webp = action.payload.webp;
             }
 
-            if ('title' in action.payload && action.payload.title) {
+            if ('title' in action.payload) {
                 up.value.title = action.payload.title;
             }
 

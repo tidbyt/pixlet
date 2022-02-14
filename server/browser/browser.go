@@ -213,20 +213,18 @@ func (b *Browser) updateWatcher() error {
 	for {
 		select {
 		case up := <-b.updateChan:
+			b.fo.Broadcast(
+				fanout.WebsocketEvent{
+					Type:    fanout.EventTypeWebP,
+					Message: up.WebP,
+				},
+			)
+
 			if up.Err != nil {
 				b.fo.Broadcast(
 					fanout.WebsocketEvent{
 						Type:    fanout.EventTypeErr,
 						Message: up.Err.Error(),
-					},
-				)
-			}
-
-			if up.WebP != "" {
-				b.fo.Broadcast(
-					fanout.WebsocketEvent{
-						Type:    fanout.EventTypeWebP,
-						Message: up.WebP,
 					},
 				)
 			}
