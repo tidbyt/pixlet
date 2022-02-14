@@ -20,7 +20,7 @@ export default function TextInput({ field }) {
     useEffect(() => {
         if (field.id in config) {
             setValue(config[field.id].value);
-        } else {
+        } else if (field.default) {
             setValue(field.default);
             dispatch(set({
                 id: field.id,

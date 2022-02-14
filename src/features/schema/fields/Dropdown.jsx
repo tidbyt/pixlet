@@ -17,7 +17,7 @@ export default function Dropdown({ field }) {
     useEffect(() => {
         if (field.id in config) {
             setValue(config[field.id].value);
-        } else {
+        } else if (field.default) {
             dispatch(set({
                 id: field.id,
                 value: field.default,
