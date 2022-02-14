@@ -74,11 +74,13 @@ export default function OAuth2({ field }) {
         )
     }
 
+    let scope = field.scopes.join(",");
     return (
         <OAuth2Login
             isCrossOrigin={true}
             authorizationUrl={field.authorization_endpoint}
             responseType="token"
+            scope={scope}
             clientId={field.client_id}
             redirectUri={redirectUri}
             render={renderButton}
