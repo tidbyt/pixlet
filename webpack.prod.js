@@ -12,7 +12,7 @@ const htmlPlugin = new HtmlWebPackPlugin({
 
 const copyPlugin = new CopyPlugin({
     patterns: [
-        { from: "src/dist.go", to: "../dist.go" },
+        { from: "src/dist.go.txt", to: "../dist.go" },
     ],
 });
 
