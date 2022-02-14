@@ -13,7 +13,7 @@ export default function Toggle({ field }) {
     useEffect(() => {
         if (field.id in config) {
             setToggle(JSON.parse(config[field.id].value));
-        } else if (field.default) {
+        } else if (JSON.parse(field.default)) {
             dispatch(set({
                 id: field.id,
                 value: field.default,
