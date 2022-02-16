@@ -20,6 +20,16 @@ var (
 
 func LoadModule() (starlark.StringDict, error) {
 	once.Do(func() {
+		handlerType := starlarkstruct.FromStringDict(
+			starlark.String("HandlerType"),
+			map[string]starlark.Value{
+				"Schema":  starlark.MakeInt(int(ReturnSchema)),
+				"Options": starlark.MakeInt(int(ReturnOptions)),
+				"String":  starlark.MakeInt(int(ReturnString)),
+				"Field":   starlark.MakeInt(int(ReturnField)),
+			},
+		)
+
 		module = starlark.StringDict{
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
@@ -35,6 +45,8 @@ func LoadModule() (starlark.StringDict, error) {
 					"OAuth2":        starlark.NewBuiltin("OAuth2", newOAuth2),
 					"PhotoSelect":   starlark.NewBuiltin("PhotoSelect", newPhotoSelect),
 					"Typeahead":     starlark.NewBuiltin("Typeahead", newTypeahead),
+					"Handler":       starlark.NewBuiltin("Handler", newHandler),
+					"HandlerType":   handlerType,
 				},
 			},
 		}
@@ -49,13 +61,16 @@ type Field interface {
 
 type StarlarkSchema struct {
 	Schema
-	starlarkFields *starlark.List
+	Handlers         map[string]SchemaHandler
+	starlarkFields   *starlark.List
+	starlarkHandlers *starlark.List
 }
 
 func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		version starlark.String
-		fields  *starlark.List
+		version  starlark.String
+		fields   *starlark.List
+		handlers *starlark.List
 	)
 
 	if err := starlark.UnpackArgs(
@@ -63,6 +78,7 @@ func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple
 		args, kwargs,
 		"version", &version,
 		"fields", &fields,
+		"handlers?", &handlers,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Schema: %s", err)
 	}
@@ -75,7 +91,9 @@ func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple
 		Schema: Schema{
 			Version: version.GoString(),
 		},
-		starlarkFields: fields,
+		Handlers:         map[string]SchemaHandler{},
+		starlarkFields:   fields,
+		starlarkHandlers: handlers,
 	}
 
 	if s.starlarkFields != nil {
@@ -101,6 +119,24 @@ func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple
 		}
 	}
 
+	if s.starlarkHandlers != nil {
+		handlerIter := s.starlarkHandlers.Iterate()
+		defer handlerIter.Done()
+
+		var handlerVal starlark.Value
+		for i := 0; handlerIter.Next(&handlerVal); {
+			handler, ok := handlerVal.(*Handler)
+			if !ok {
+				return nil, fmt.Errorf(
+					"expected handlers to hold Handler but found: %s (at index %d)",
+					handlerVal.Type(),
+					i,
+				)
+			}
+			s.Handlers[handler.Function.Name()] = handler.SchemaHandler
+		}
+	}
+
 	return s, nil
 }
 
@@ -108,6 +144,7 @@ func (s StarlarkSchema) AttrNames() []string {
 	return []string{
 		"version",
 		"fields",
+		"handlers",
 	}
 }
 
@@ -118,6 +155,9 @@ func (s StarlarkSchema) Attr(name string) (starlark.Value, error) {
 
 	case "fields":
 		return s.starlarkFields, nil
+
+	case "handlers":
+		return s.starlarkHandlers, nil
 
 	default:
 		return nil, nil

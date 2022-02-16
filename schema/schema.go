@@ -23,7 +23,7 @@ const (
 	SchemaFunctionName = "get_schema"
 )
 
-// Schema holds a configuration object for an applet. It holds a list of fileds
+// Schema holds a configuration object for an applet. It holds a list of fields
 // that are exported from an applet.
 type Schema struct {
 	Version string        `json:"version" validate:"required"`
@@ -112,6 +112,9 @@ func FromStarlark(
 		schema = &starlarkSchema.Schema
 		if schema.Handlers == nil {
 			schema.Handlers = make(map[string]SchemaHandler)
+			for name, schemaHandler := range starlarkSchema.Handlers {
+				schema.Handlers[name] = schemaHandler
+			}
 		}
 	} else {
 		schemaTree, err := unmarshalStarlark(val)
