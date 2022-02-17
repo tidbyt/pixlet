@@ -242,7 +242,7 @@ def main():
 	}, s)
 }
 
-// appruntime.Schema test with all available config types and flags.
+// test with all available config types and flags.
 func TestSchemaAllTypesSuccessLegacy(t *testing.T) {
 	code := `
 def get_schema():
@@ -549,7 +549,7 @@ def main():
 	}, s)
 }
 
-// Verifies that appruntime.Schemas returned by a generated field's handler is
+// Verifies that schema returned by a generated field's handler is
 // validated
 func TestSchemaWithGeneratedHandlerMalformed(t *testing.T) {
 	code := `
@@ -592,7 +592,7 @@ def main():
 	assert.Error(t, err)
 }
 
-// Verifies that appruntime.Schemas returned by a generated field's handler is
+// Verifies that schema returned by a generated field's handler is
 // validated
 func TestSchemaWithGeneratedHandlerMissing(t *testing.T) {
 	code := `
@@ -832,4 +832,60 @@ func TestEmptySchemaSerialization(t *testing.T) {
 	ser, err := json.Marshal(s)
 	require.NoError(t, err)
 	assert.Equal(t, `{"version":"1","schema":[]}`, string(ser))
+}
+
+func TestSchemaExtraHandlers(t *testing.T) {
+	code := `
+load("schema.star", "schema")
+
+def get_restaurants(param):
+    return [schema.Option(display = "McDonalds", value = "mcd")]
+
+def get_somethingelse(param):
+    if param == "win":
+        return [schema.Option(display = "hey", value = "ho")]
+    else:
+        return "this handler shouldn't return string"
+
+def not_exposed(param):
+    return get_somethingelse("win")
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.LocationBased(
+                id = "restaurant",
+                name = "Restaurant",
+                desc = "Restaurant to track",
+                icon = "food",
+                handler = get_restaurants,
+            ),
+        ],
+        handlers = [
+            schema.Handler(
+                handler = get_somethingelse,
+                type = schema.HandlerType.Options,
+            ),
+        ],
+    )
+
+def main():
+    return None
+`
+
+	app, err := loadApp(code)
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+
+	data, err := app.CallSchemaHandler(context.Background(), "get_somethingelse", "win")
+	assert.NoError(t, err)
+	var options []map[string]string
+	assert.NoError(t, json.Unmarshal([]byte(data), &options))
+	assert.Equal(t, 1, len(options))
+	assert.Equal(t, "hey", options[0]["display"])
+	assert.Equal(t, "ho", options[0]["value"])
+
+	_, err = app.CallSchemaHandler(context.Background(), "get_somethingelse", "fail")
+	assert.Error(t, err)
 }
