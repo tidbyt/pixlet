@@ -92,19 +92,28 @@ func relativeTime(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 
 func bytes(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starBytes  starlark.Int
+		starBytes starlark.Int
+		starIEC   starlark.Bool
 	)
 
 	if err := starlark.UnpackArgs(
 		"bytes",
 		args, kwargs,
 		"size", &starBytes,
+		"iec?", &starIEC,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for bytes: %s", err)
 	}
 
 	bytes := uint64(starBytes.BigInt().Uint64())
-	val := gohumanize.Bytes(bytes)
+	iec := bool(starIEC)
+
+	var val string
+	if iec {
+		val = gohumanize.IBytes(bytes)
+	} else {
+		val = gohumanize.Bytes(bytes)
+	}
 	return starlark.String(val), nil
 }
 
