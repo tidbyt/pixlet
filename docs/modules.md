@@ -70,6 +70,8 @@ The `humanize` module has formatters for units to human friendly sizes.
 | `bytes(size)` | Lets you take numbers like `82854982` and convert them to useful strings like, `83 MB`. |
 | `parse_bytes(formatted_size)` | Lets you take strings like `83 MB` and convert them to the number of bytes it represents like, `82854982`. |
 | `comma(num)` | Lets you take numbers like `123456` or `123456.78` and convert them to comma-separated numbers like `123,456` or `123,456.78`. |
+| `float(format, num)` | Returns a formatted number as string with options. Examples: given n = 12345.6789:  `#,###.##` => `12,345.67`, `#,###.` => `12,345`|
+| `int(format, num)` | Returns a formatted number as string with options. Examples: given n = 12345: `#,###.` => `12,345`|
 | `ordinal(num)` | Lets you take numbers like `1` or `2` and convert them to a rank/ordinal format strings like, `1st` or `2nd`. |
 | `ftoa(num)` | Converts a float to a string with no trailing zeros. |
 | `plural(quantity, singular, plural)` | Formats an integer and a string into a single pluralized string. The simple English rules of regular pluralization will be used if the plural form is an empty string (i.e. not explicitly given).. |

@@ -33,6 +33,8 @@ func LoadModule() (starlark.StringDict, error) {
 					"bytes":              starlark.NewBuiltin("bytes", bytes),
 					"parse_bytes":        starlark.NewBuiltin("parse_bytes", parseBytes),
 					"comma":              starlark.NewBuiltin("comma", comma),
+					"float":              starlark.NewBuiltin("float", formatFloat),
+					"int":                starlark.NewBuiltin("int", formatInt),
 					"ordinal":            starlark.NewBuiltin("ordinal", ordinal),
 					"ftoa":               starlark.NewBuiltin("ftoa", ftoa),
 					"plural":             starlark.NewBuiltin("plural", plural),
@@ -219,6 +221,44 @@ func ftoa(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwa
 	if val == "" {
 		val = gohumanize.Ftoa(num)
 	}
+	return starlark.String(val), nil
+}
+
+func formatFloat(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starFormat starlark.String
+		starNum    starlark.Float
+	)
+
+	if err := starlark.UnpackArgs(
+		"float",
+		args, kwargs,
+		"format", &starFormat,
+		"num", &starNum,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for formatFloat: %s", err)
+	}
+
+	val := gohumanize.FormatFloat(starFormat.GoString(), float64(starNum))
+	return starlark.String(val), nil
+}
+
+func formatInt(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starFormat starlark.String
+		starNum    starlark.Int
+	)
+
+	if err := starlark.UnpackArgs(
+		"float",
+		args, kwargs,
+		"format", &starFormat,
+		"num", &starNum,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for formatFloat: %s", err)
+	}
+
+	val := gohumanize.FormatInteger(starFormat.GoString(), int(starNum.BigInt().Int64()))
 	return starlark.String(val), nil
 }
 
