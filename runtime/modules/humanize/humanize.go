@@ -8,6 +8,7 @@ import (
 
 	gohumanize "github.com/dustin/go-humanize"
 	gohumanizeEnglish "github.com/dustin/go-humanize/english"
+	godfe "github.com/newm4n/go-dfe"
 	startime "go.starlark.net/lib/time"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -18,18 +19,22 @@ const (
 )
 
 var (
-	once   sync.Once
-	module starlark.StringDict
+	once        sync.Once
+	module      starlark.StringDict
+	empty       time.Time
+	translation *godfe.PatternTranslation
 )
 
 func LoadModule() (starlark.StringDict, error) {
 	once.Do(func() {
+		translation = godfe.NewPatternTranslation()
 		module = starlark.StringDict{
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
 				Members: starlark.StringDict{
 					"time":               starlark.NewBuiltin("time", times),
 					"relative_time":      starlark.NewBuiltin("relative_time", relativeTime),
+					"time_format":        starlark.NewBuiltin("time_format", convertTimeFormatter),
 					"bytes":              starlark.NewBuiltin("bytes", bytes),
 					"parse_bytes":        starlark.NewBuiltin("parse_bytes", parseBytes),
 					"comma":              starlark.NewBuiltin("comma", comma),
@@ -66,6 +71,31 @@ func times(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kw
 	val := gohumanize.Time(date)
 
 	return starlark.String(val), nil
+}
+
+func convertTimeFormatter(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starFormat starlark.String
+		starDate   startime.Time
+	)
+
+	if err := starlark.UnpackArgs(
+		"time_format",
+		args, kwargs,
+		"format", &starFormat,
+		"date?", &starDate,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for bytes: %s", err)
+	}
+
+	formatted := translation.JavaToGoFormat(starFormat.GoString())
+	date := time.Time(starDate)
+
+	if date != empty {
+		formatted = date.Format(formatted)
+	}
+
+	return starlark.String(formatted), nil
 }
 
 func relativeTime(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {

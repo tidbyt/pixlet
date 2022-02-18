@@ -15,10 +15,16 @@ def assert(success, message=None):
     if not success:
         fail(message or "assertion failed")
 
+# Set up
+now = time.now()
+tomorrow = now + time.parse_duration("26h")
+
 # Call methods.
-humanized_time_past = humanize.time(time.now() - time.parse_duration("48h"))
-humanized_time_future = humanize.time(time.now() + time.parse_duration("26h"))
-humanized_rel_time = humanize.relative_time(time.now(), time.now() + time.parse_duration("26h"))
+humanized_time_past = humanize.time(now - time.parse_duration("48h"))
+humanized_time_future = humanize.time(tomorrow)
+humanized_rel_time = humanize.relative_time(now, tomorrow)
+humanized_date_format = humanize.time_format("yyyy-MM-dd")
+humanized_date_format_date = humanize.time_format("yyyy-MM-dd", now)
 humanized_size = humanize.bytes(1401946112)
 humanized_size_iec = humanize.bytes(1401946112, True)
 humanized_size_parsed = humanize.parse_bytes("42 MB")
@@ -35,11 +41,14 @@ humanized_plural_test = humanize.plural(1, "star", "")
 humanized_plural_word = humanize.plural_word(1, "star", "")
 humanized_word_series = humanize.word_series(["foo", "bar", "baz"], "and")
 humanized_word_series_oxford = humanize.oxford_word_series(["foo", "bar", "baz"], "and")
+iso_date = now.format(humanized_date_format)
 
 # Assert.
 assert(humanized_time_past == "2 days ago")
 assert(humanized_time_future == "1 day from now")
 assert(humanized_rel_time == "1 day ")
+assert(humanized_date_format == "2006-01-02")
+assert(humanized_date_format_date == iso_date)
 assert(humanized_size == "1.4 GB")
 assert(humanized_size_iec == "1.3 GiB")
 assert(humanized_size_parsed == 42000000)
