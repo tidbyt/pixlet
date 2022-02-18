@@ -31,6 +31,7 @@ func LoadModule() (starlark.StringDict, error) {
 					"time":               starlark.NewBuiltin("time", times),
 					"relative_time":      starlark.NewBuiltin("relative_time", relativeTime),
 					"bytes":              starlark.NewBuiltin("bytes", bytes),
+					"parse_bytes":        starlark.NewBuiltin("parse_bytes", parseBytes),
 					"comma":              starlark.NewBuiltin("comma", comma),
 					"ordinal":            starlark.NewBuiltin("ordinal", ordinal),
 					"ftoa":               starlark.NewBuiltin("ftoa", ftoa),
@@ -115,6 +116,28 @@ func bytes(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kw
 		val = gohumanize.Bytes(bytes)
 	}
 	return starlark.String(val), nil
+}
+
+func parseBytes(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starSize starlark.String
+	)
+
+	if err := starlark.UnpackArgs(
+		"parse_bytes",
+		args, kwargs,
+		"size", &starSize,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for bytes: %s", err)
+	}
+
+	formatted, err := gohumanize.ParseBytes(starSize.GoString())
+
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse bytes: %s: %s", starSize.GoString(), err)
+	}
+
+	return starlark.MakeUint64(formatted), nil
 }
 
 func comma(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
