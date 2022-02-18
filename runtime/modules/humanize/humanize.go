@@ -168,19 +168,34 @@ func ordinal(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, 
 
 func ftoa(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starNum  starlark.Float
+		starNum    starlark.Float
+		starDigits starlark.Value
 	)
 
 	if err := starlark.UnpackArgs(
 		"ftoa",
 		args, kwargs,
 		"num", &starNum,
+		"digits?", &starDigits,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for ftoa: %s", err)
 	}
 
+	var val string
 	num := float64(starNum)
-	val := gohumanize.Ftoa(num)
+
+	switch starDigits := starDigits.(type) {
+	case starlark.Int:
+		digits := int(starDigits.BigInt().Int64())
+		val = gohumanize.FtoaWithDigits(num, digits)
+	case starlark.Float:
+		digits := int(starDigits)
+		val = gohumanize.FtoaWithDigits(num, digits)
+	}
+
+	if val == "" {
+		val = gohumanize.Ftoa(num)
+	}
 	return starlark.String(val), nil
 }
 
