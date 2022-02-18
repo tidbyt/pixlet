@@ -28,15 +28,15 @@ func LoadModule() (starlark.StringDict, error) {
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
 				Members: starlark.StringDict{
-					"time": starlark.NewBuiltin("time", times),
-					"relative_time": starlark.NewBuiltin("relative_time", relativeTime),
-					"bytes": starlark.NewBuiltin("bytes", bytes),
-					"comma": starlark.NewBuiltin("comma", comma),
-					"ordinal": starlark.NewBuiltin("ordinal", ordinal),
-					"ftoa": starlark.NewBuiltin("ftoa", ftoa),
-					"plural": starlark.NewBuiltin("plural", plural),
-					"plural_word": starlark.NewBuiltin("plural_word", pluralWord),
-					"word_series": starlark.NewBuiltin("word_series", wordSeries),
+					"time":               starlark.NewBuiltin("time", times),
+					"relative_time":      starlark.NewBuiltin("relative_time", relativeTime),
+					"bytes":              starlark.NewBuiltin("bytes", bytes),
+					"comma":              starlark.NewBuiltin("comma", comma),
+					"ordinal":            starlark.NewBuiltin("ordinal", ordinal),
+					"ftoa":               starlark.NewBuiltin("ftoa", ftoa),
+					"plural":             starlark.NewBuiltin("plural", plural),
+					"plural_word":        starlark.NewBuiltin("plural_word", pluralWord),
+					"word_series":        starlark.NewBuiltin("word_series", wordSeries),
 					"oxford_word_series": starlark.NewBuiltin("oxford_word_series", oxfordWordSeries),
 				},
 			},
@@ -67,8 +67,8 @@ func times(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kw
 
 func relativeTime(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starDateA startime.Time
-		starDateB startime.Time
+		starDateA  startime.Time
+		starDateB  startime.Time
 		starLabelA starlark.String
 		starLabelB starlark.String
 	)
@@ -119,7 +119,7 @@ func bytes(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kw
 
 func comma(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starNum  starlark.Value
+		starNum starlark.Value
 	)
 
 	if err := starlark.UnpackArgs(
@@ -150,7 +150,7 @@ func comma(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kw
 
 func ordinal(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starNum  starlark.Int
+		starNum starlark.Int
 	)
 
 	if err := starlark.UnpackArgs(
@@ -203,7 +203,7 @@ func plural(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, k
 	var (
 		starQuantity starlark.Int
 		starSingular starlark.String
-		starPlural starlark.String
+		starPlural   starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -224,7 +224,7 @@ func pluralWord(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tupl
 	var (
 		starQuantity starlark.Int
 		starSingular starlark.String
-		starPlural starlark.String
+		starPlural   starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -263,7 +263,7 @@ func getWordList(words *starlark.List) ([]string, error) {
 
 func wordSeries(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starWords *starlark.List
+		starWords       *starlark.List
 		starConjunction starlark.String
 	)
 
@@ -281,14 +281,14 @@ func wordSeries(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tupl
 	if err != nil {
 		return nil, fmt.Errorf("failed to get word list: %s", err)
 	}
-	
+
 	val := gohumanizeEnglish.WordSeries(words, starConjunction.GoString())
 	return starlark.String(val), nil
 }
 
 func oxfordWordSeries(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		starWords *starlark.List
+		starWords       *starlark.List
 		starConjunction starlark.String
 	)
 
