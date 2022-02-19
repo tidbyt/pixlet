@@ -20,6 +20,7 @@ import (
 	"go.starlark.net/starlarktest"
 
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/runtime/modules/humanize"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
 	"tidbyt.dev/pixlet/schema"
 	"tidbyt.dev/pixlet/starlarkutil"
@@ -309,6 +310,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "html.star":
 		return starlibhtml.LoadModule()
+
+	case "humanize.star":
+		return humanize.LoadModule()
 
 	case "math.star":
 		return starlark.StringDict{

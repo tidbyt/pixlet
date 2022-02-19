@@ -30,6 +30,7 @@ individual modules, please refer to the Starlib documentation.
 | --- | --- |
 | [`encoding/base64.star`](https://github.com/qri-io/starlib/tree/master/encoding/base64) | Base 64 encoding and decoding |
 | [`encoding/json.star`](https://github.com/qri-io/starlib/tree/master/encoding/json) | JSON encoding and decoding |
+| [`html.star`](https://github.com/qri-io/starlib/tree/master/html) | jQuery-like functions for HTML  |
 | [`http.star`](https://github.com/qri-io/starlib/tree/master/http) | HTTP client |
 | [`math.star`](https://github.com/qri-io/starlib/tree/master/math) | Mathematical functions and constants |
 | [`re.star`](https://github.com/qri-io/starlib/tree/master/re) | Regular expressions |
@@ -59,6 +60,30 @@ def get_counter():
     return i + 1
 ...
 ```
+## Pixlet module: Humanize
+
+The `humanize` module has formatters for units to human friendly sizes. 
+
+| Function | Description |
+| --- | --- |
+| `time(date)` | Lets you take a `time.Time` and spit it out in relative terms. For example, `12 seconds ago` or `3 days from now`. |
+| `relative_time(date1, date2, label1?, label2?)` | Formats a time into a relative string. It takes two `time.Time`s and two labels. In addition to the generic time delta string (e.g. 5 minutes), the labels are used applied so that the label corresponding to the smaller time is applied. |
+| `time_format(format, date?)` | Takes a [Java SimpleDateFormat](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html) and returns a [Go layout string](https://programming.guide/go/format-parse-string-time-date-example.html). If you pass it a `date`, it will apply the format using the converted layout string and return the formatted date. |
+| `bytes(size, iec?)` | Lets you take numbers like `82854982` and convert them to useful strings like, `83 MB`. You can optionally format using IEC sizes like, `83 MiB`. |
+| `parse_bytes(formatted_size)` | Lets you take strings like `83 MB` and convert them to the number of bytes it represents like, `82854982`. |
+| `comma(num)` | Lets you take numbers like `123456` or `123456.78` and convert them to comma-separated numbers like `123,456` or `123,456.78`. |
+| `float(format, num)` | Returns a formatted number as string with options. Examples: given n = 12345.6789:  `#,###.##` => `12,345.67`, `#,###.` => `12,345`|
+| `int(format, num)` | Returns a formatted number as string with options. Examples: given n = 12345: `#,###.` => `12,345`|
+| `ordinal(num)` | Lets you take numbers like `1` or `2` and convert them to a rank/ordinal format strings like, `1st` or `2nd`. |
+| `ftoa(num, digits?)` | Converts a float to a string with no trailing zeros. |
+| `plural(quantity, singular, plural?)` | Formats an integer and a string into a single pluralized string. The simple English rules of regular pluralization will be used if the plural form is an empty string (i.e. not explicitly given).. |
+| `plural_word(quantity, singular, plural?)` | Builds the plural form of an English word. The simple English rules of regular pluralization will be used if the plural form is an empty string (i.e. not explicitly given). |
+| `word_series(words, conjunction)` | Converts a list of words into a word series in English. It returns a string containing all the given words separated by commas, the coordinating conjunction, and a serial comma, as appropriate. |
+| `oxford_word_series(words, conjunction)` | Converts a list of words into a word series in English, using an [Oxford comma](https://en.wikipedia.org/wiki/Serial_comma). It returns a string containing all the given words separated by commas, the coordinating conjunction, and a serial comma, as appropriate. |
+
+Example:
+
+See [examples/humanize.star](../examples/humanize.star) for an example.
 
 ## Pixlet module: XPath
 
