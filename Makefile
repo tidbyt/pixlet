@@ -1,8 +1,15 @@
+ifeq ($(OS),Windows_NT)
+	BINARY = pixlet.exe
+	LDFLAGS = -ldflags="-s -extldflags=-static"
+else
+	BINARY = pixlet
+endif
+
 test:
 	go test -v -cover ./...
 
 clean:
-	rm -f pixlet
+	rm -f $(BINARY)
 	rm -rf ./build
 	rm -rf ./out
 
@@ -10,7 +17,7 @@ bench:
 	go test -benchmem -benchtime=20s -bench BenchmarkRunAndRender tidbyt.dev/pixlet/encode
 
 build: clean
-	go build -o pixlet tidbyt.dev/pixlet
+	go build $(LDFLAGS) -o $(BINARY) tidbyt.dev/pixlet
 
 embedfonts:
 	go run render/gen/embedfonts.go
