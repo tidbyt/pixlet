@@ -18,7 +18,7 @@ type Watcher struct {
 // channel.
 func NewWatcher(filename string, fileChanges chan bool) *Watcher {
 	return &Watcher{
-		filename:    filename,
+		filename:    filepath.FromSlash(filename),
 		fileChanges: fileChanges,
 	}
 }
