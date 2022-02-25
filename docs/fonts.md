@@ -106,6 +106,20 @@ including the runic code block. 4121 code points in total.
 - Ascent: 11
 - Descent: 2
 
+### 10x20
+By [Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/).
+
+![10x20 example](img/10x20.gif)
+
+Covers Basic Latin, Latin1- Supplement, and a bazillion other glyphs,
+including the runic code block. 4121 code points in total.
+
+- Advance: 10
+- Height: 20
+- Cap height: 13
+- Ascent: 16
+- Descent: 4
+
 ### tom-thumb
 By [Robey Pointer](https://robey.lag.net/2010/01/23/tiny-monospace-font.html)
 
