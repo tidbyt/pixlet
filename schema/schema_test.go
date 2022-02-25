@@ -889,3 +889,141 @@ def main():
 	_, err = app.CallSchemaHandler(context.Background(), "get_somethingelse", "fail")
 	assert.Error(t, err)
 }
+
+func TestSchemaGeneratedV2OrWhatever(t *testing.T) {
+	code := `
+load("schema.star", "schema")
+
+def build_boroughs(param):
+    if param != "true":
+        return []
+    return [
+        schema.Dropdown(
+            id = "borough",
+            name = "Borough",
+            desc = "Pick a borough!",
+            icon = "football",
+            options = [
+                schema.Option(display = "Brooklyn", value = "BK"),
+                schema.Option(display = "Shaolin", value = "WU"),
+            ],
+            default = "BK",
+        ),
+    ]
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "with_borough",
+                name = "Limit to borough",
+                desc = "Optionally limit app to a certain borough",
+                default = False,
+                icon = "football",
+            ),
+            schema.Generated(
+                id = "generated shouldnt need id, but still does",
+                source = "with_borough",
+                handler = build_boroughs,
+            ),
+        ],
+    )
+
+def main():
+    return None
+`
+
+	app, err := loadApp(code)
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+
+	data, err := app.CallSchemaHandler(context.Background(), "build_boroughs", "false")
+	assert.NoError(t, err)
+	var schema schema.Schema
+	assert.NoError(t, json.Unmarshal([]byte(data), &schema))
+	assert.Equal(t, "1", schema.Version)
+	assert.Equal(t, 0, len(schema.Fields))
+
+	data, err = app.CallSchemaHandler(context.Background(), "build_boroughs", "true")
+	assert.NoError(t, err)
+	assert.NoError(t, json.Unmarshal([]byte(data), &schema))
+	assert.Equal(t, 1, len(schema.Fields))
+}
+
+func TestSchemaGeneratedFieldWithHandler(t *testing.T) {
+	code := `
+load("schema.star", "schema")
+
+def get_station_selector(param):
+    if param != "true":
+        return []
+    return [
+        schema.LocationBased(
+            id = "station",
+            name = "Station",
+            desc = "Pick a station!",
+            icon = "train",
+            handler = get_stations,
+        ),
+    ]
+
+def get_stations(loc):
+    return [
+        schema.Option(display="Bedford (L)", value = "L08"),
+        schema.Option(display="3rd Ave (L)", value = "3rd"),
+    ]
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "select_station",
+                name = "Select a station",
+                desc = "Optionally select a station",
+                default = False,
+                icon = "football",
+            ),
+            schema.Generated(
+                id = "generated shouldnt need id, but still does",
+                source = "select_station",
+                handler = get_station_selector,
+            ),
+        ],
+        # since get_stations isn't referenced in the actual schema (only by
+        # the generated field handler) it must be explicitly exported
+        handlers = [
+            schema.Handler(
+                handler = get_stations,
+                type = schema.HandlerType.Options,
+            ),
+        ],
+    )
+
+def main():
+    return None
+`
+
+	app, err := loadApp(code)
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+
+	data, err := app.CallSchemaHandler(context.Background(), "get_station_selector", "true")
+	assert.NoError(t, err)
+	var s schema.Schema
+	assert.NoError(t, json.Unmarshal([]byte(data), &s))
+	assert.Equal(t, "1", s.Version)
+	assert.Equal(t, 1, len(s.Fields))
+	assert.Equal(t, "locationbased", s.Fields[0].Type)
+	assert.Equal(t, "get_stations", s.Fields[0].Handler)
+
+	data, err = app.CallSchemaHandler(context.Background(), "get_stations", "locationdata")
+	var options []schema.SchemaOption
+	assert.NoError(t, err)
+	assert.NoError(t, json.Unmarshal([]byte(data), &options))
+	assert.Equal(t, 2, len(options))
+	assert.Equal(t, "L08", options[0].Value)
+	assert.Equal(t, "3rd", options[1].Value)
+
+}

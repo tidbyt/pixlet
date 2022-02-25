@@ -262,6 +262,8 @@ func unmarshalStarlark(object starlark.Value) (interface{}, error) {
 		return goMap, nil
 	case *Option:
 		return v.AsSchemaOption(), nil
+	case Field:
+		return v.AsSchemaField(), nil
 	}
 
 	return nil, fmt.Errorf("type %s not allowed in schema", object.Type())

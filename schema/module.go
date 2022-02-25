@@ -47,6 +47,7 @@ func LoadModule() (starlark.StringDict, error) {
 					"Typeahead":     starlark.NewBuiltin("Typeahead", newTypeahead),
 					"Handler":       starlark.NewBuiltin("Handler", newHandler),
 					"HandlerType":   handlerType,
+					"Generated":     starlark.NewBuiltin("Generated", newGenerated),
 				},
 			},
 		}
