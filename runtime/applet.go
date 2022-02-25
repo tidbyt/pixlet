@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
+	starlibcsv "github.com/qri-io/starlib/encoding/csv"
 	starlibhash "github.com/qri-io/starlib/hash"
 	starlibhtml "github.com/qri-io/starlib/html"
 	starlibhttp "github.com/qri-io/starlib/http"
@@ -300,6 +301,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "encoding/base64.star":
 		return starlibbase64.LoadModule()
+
+	case "encoding/csv.star":
+		return starlibcsv.LoadModule()
 
 	case "encoding/json.star":
 		return starlark.StringDict{
