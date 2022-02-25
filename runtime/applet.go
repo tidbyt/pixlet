@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
+	starlibhash "github.com/qri-io/starlib/hash"
 	starlibhtml "github.com/qri-io/starlib/html"
 	starlibhttp "github.com/qri-io/starlib/http"
 	starlibre "github.com/qri-io/starlib/re"
@@ -304,6 +305,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return starlark.StringDict{
 			starlibjson.Module.Name: starlibjson.Module,
 		}, nil
+
+	case "hash.star":
+		return starlibhash.LoadModule()
 
 	case "http.star":
 		return starlibhttp.LoadModule()
