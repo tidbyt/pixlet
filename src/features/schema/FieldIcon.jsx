@@ -9,6 +9,11 @@ import styles from './styles.css';
 
 export default function FieldIcon(props) {
     const iconName = props.icon;
+
+    if (!iconName) {
+        return null;
+    }
+
     const faIconName = iconName.replace(/[A-Z]/g, m => "-" + m.toLowerCase());
 
     let icoDef = findIconDefinition({ prefix: 'fas', iconName: faIconName });
