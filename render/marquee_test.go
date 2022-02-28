@@ -292,6 +292,30 @@ func TestMarqueeOffsetEnd(t *testing.T) {
 
 }
 
+func TestMarqueeHorizontalScrollAlways(t *testing.T) {
+	child := Row{
+		Children: []Widget{
+			Box{Width: 1, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
+		},
+	}
+	m := Marquee{
+		Width: 6,
+		Child: child,
+		ScrollAlways: true,
+	}
+	im := image.Rect(0, 0, 100, 100)
+
+	assert.Equal(t, 8, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"r....."}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"....r."}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"...r.."}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"..r..."}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{".r...."}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"r....."}, m.Paint(im, 7)))
+}
+
 func TestMarqueeVerticalScroll(t *testing.T) {
 	child := Column{
 		Children: []Widget{
@@ -480,4 +504,191 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 8)))
 	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 9)))
 	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 1024)))
+}
+
+func TestMarqueeHorizontalAlternate(t *testing.T) {
+	child := Row{
+		Children: []Widget{
+			Box{Width: 4, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
+			Box{Width: 4, Height: 1, Color: color.RGBA{0, 0xff, 0, 0xff}},
+			Box{Width: 4, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+		},
+	}
+	m := Marquee{
+		Width: 6,
+		Child: child,
+		Behavior: "alternate",
+	}
+	im := image.Rect(0, 0, 100, 100)
+
+	assert.Equal(t, 12, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"rrrrgg"}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"rrrggg"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"rrgggg"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"rggggb"}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"ggggbb"}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"gggbbb"}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"gggbbb"}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"ggggbb"}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"rggggb"}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"rrgggg"}, m.Paint(im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"rrrggg"}, m.Paint(im, 11)))
+}
+
+func TestMarqueeVerticalAlternate(t *testing.T) {
+	child := Column{
+		Children: []Widget{
+			Box{Width: 1, Height: 4, Color: color.RGBA{0xff, 0, 0, 0xff}},
+			Box{Width: 1, Height: 4, Color: color.RGBA{0, 0xff, 0, 0xff}},
+			Box{Width: 1, Height: 4, Color: color.RGBA{0, 0, 0xff, 0xff}},
+		},
+	}
+	m := Marquee{
+		Height: 6,
+		Child: child,
+		Behavior: "alternate",
+		ScrollDirection: "vertical",
+	}
+	im := image.Rect(0, 0, 100, 100)
+
+	assert.Equal(t, 12, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","r","g","g"}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","g","g","g"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","g","g","g","g"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"r","g","g","g","g","b"}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","g","b","b"}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","b","b","b"}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","b","b","b","b"}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","b","b","b"}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","g","b","b"}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"r","g","g","g","g","b"}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","g","g","g","g"}, m.Paint(im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","g","g","g"}, m.Paint(im, 11)))
+}
+
+func TestMarqueeHorizontalAlternateAlways(t *testing.T) {
+	child := Row{
+		Children: []Widget{
+			Box{Width: 1, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
+		},
+	}
+	m := Marquee{
+		Width: 6,
+		Child: child,
+		Behavior: "alternate",
+		ScrollAlways: true,
+	}
+	im := image.Rect(0, 0, 100, 100)
+
+	assert.Equal(t, 10, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"r....."}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".r...."}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"..r..."}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"...r.."}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"....r."}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"....r."}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"...r.."}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"..r..."}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{".r...."}, m.Paint(im, 9)))
+}
+
+func TestMarqueeVerticalAlternateAlways(t *testing.T) {
+	child := Column{
+		Children: []Widget{
+			Box{Width: 1, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
+		},
+	}
+	m := Marquee{
+		Height: 6,
+		Child: child,
+		Behavior: "alternate",
+		ScrollDirection: "vertical",
+		ScrollAlways: true,
+	}
+	im := image.Rect(0, 0, 100, 100)
+
+	assert.Equal(t, 10, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"r",".",".",".",".","."}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".","r",".",".",".","."}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".",".","r",".",".","."}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{".",".",".","r",".","."}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{".",".",".",".","r","."}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{".",".",".",".",".","r"}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{".",".",".",".","r","."}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{".",".",".","r",".","."}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{".",".","r",".",".","."}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{".","r",".",".",".","."}, m.Paint(im, 9)))
+}
+
+func TestMarqueeHorizontalAlternatePause(t *testing.T) {
+	child := Row{
+		Children: []Widget{
+			Box{Width: 4, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
+			Box{Width: 4, Height: 1, Color: color.RGBA{0, 0xff, 0, 0xff}},
+			Box{Width: 4, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+		},
+	}
+	m := Marquee{
+		Width: 6,
+		Child: child,
+		Behavior: "alternate",
+		PauseStart: 3,
+		PauseMidway: 3,
+	}
+	im := image.Rect(0, 0, 100, 100)
+	assert.Equal(t, 16, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"rrrrgg"}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"rrrrgg"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"rrrrgg"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"rrrggg"}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"rrgggg"}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"rggggb"}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"ggggbb"}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"gggbbb"}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"gggbbb"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"ggggbb"}, m.Paint(im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"rggggb"}, m.Paint(im, 13)))
+	assert.Equal(t, nil, checkImage([]string{"rrgggg"}, m.Paint(im, 14)))
+	assert.Equal(t, nil, checkImage([]string{"rrrggg"}, m.Paint(im, 15)))
+}
+
+func TestMarqueeVerticalAlternatePause(t *testing.T) {
+	child := Column{
+		Children: []Widget{
+			Box{Width: 1, Height: 4, Color: color.RGBA{0xff, 0, 0, 0xff}},
+			Box{Width: 1, Height: 4, Color: color.RGBA{0, 0xff, 0, 0xff}},
+			Box{Width: 1, Height: 4, Color: color.RGBA{0, 0, 0xff, 0xff}},
+		},
+	}
+	m := Marquee{
+		Height: 6,
+		Child: child,
+		Behavior: "alternate",
+		ScrollDirection: "vertical",
+		PauseStart: 3,
+		PauseMidway: 3,
+	}
+	im := image.Rect(0, 0, 100, 100)
+	assert.Equal(t, 16, m.FrameCount())
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","r","g","g"}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","r","g","g"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","r","g","g"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","g","g","g"}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","g","g","g","g"}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"r","g","g","g","g","b"}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","g","b","b"}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","b","b","b"}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","b","b","b","b"}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","b","b","b","b"}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","b","b","b","b"}, m.Paint(im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","b","b","b"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"g","g","g","g","b","b"}, m.Paint(im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"r","g","g","g","g","b"}, m.Paint(im, 13)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","g","g","g","g"}, m.Paint(im, 14)))
+	assert.Equal(t, nil, checkImage([]string{"r","r","r","g","g","g"}, m.Paint(im, 15)))
 }

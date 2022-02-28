@@ -585,12 +585,17 @@ func newMarquee(
 ) (starlark.Value, error) {
 
 	var (
+		behavior         starlark.String
 		scroll_direction starlark.String
 
 		width        starlark.Int
 		height       starlark.Int
 		offset_start starlark.Int
 		offset_end   starlark.Int
+		pause_start  starlark.Int
+		pause_midway starlark.Int
+
+		scroll_always starlark.Bool
 
 		child starlark.Value
 	)
@@ -603,17 +608,25 @@ func newMarquee(
 		"height?", &height,
 		"offset_start?", &offset_start,
 		"offset_end?", &offset_end,
+		"behavior?", &behavior,
 		"scroll_direction?", &scroll_direction,
+		"scroll_always?", &scroll_always,
+		"pause_start?", &pause_start,
+		"pause_midway?", &pause_midway,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
 
 	w := &Marquee{}
+	w.Behavior = behavior.GoString()
 	w.ScrollDirection = scroll_direction.GoString()
+	w.ScrollAlways = bool(scroll_always)
 	w.Width = int(width.BigInt().Int64())
 	w.Height = int(height.BigInt().Int64())
 	w.OffsetStart = int(offset_start.BigInt().Int64())
 	w.OffsetEnd = int(offset_end.BigInt().Int64())
+	w.PauseStart = int(pause_start.BigInt().Int64())
+	w.PauseMidway = int(pause_midway.BigInt().Int64())
 
 	if child != nil {
 		childWidget, ok := child.(Widget)
@@ -636,12 +649,15 @@ func (w *Marquee) AsRenderWidget() render.Widget {
 
 func (w *Marquee) AttrNames() []string {
 	return []string{
-		"child", "width", "height", "offset_start", "offset_end", "scroll_direction",
+		"child", "width", "height", "offset_start", "offset_end", "behavior", "scroll_direction", "scroll_always", "pause_start", "pause_midway",
 	}
 }
 
 func (w *Marquee) Attr(name string) (starlark.Value, error) {
 	switch name {
+
+	case "behavior":
+		return starlark.String(w.Behavior), nil
 
 	case "scroll_direction":
 		return starlark.String(w.ScrollDirection), nil
@@ -657,6 +673,15 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 
 	case "offset_end":
 		return starlark.MakeInt(w.OffsetEnd), nil
+
+	case "pause_start":
+		return starlark.MakeInt(w.PauseStart), nil
+
+	case "pause_midway":
+		return starlark.MakeInt(w.PauseMidway), nil
+
+	case "scroll_always":
+		return starlark.Bool(w.ScrollAlways), nil
 
 	case "child":
 		return w.starlarkChild, nil

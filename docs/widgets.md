@@ -183,14 +183,25 @@ The `scroll_direction` will be 'horizontal' and will scroll from right
 to left if left empty, if specified as 'vertical' the Marquee will
 scroll from bottom to top.
 
+The `behavior` will be 'scroll' and will scroll the child out of view
+and back into the view if left empty, if specified as 'alternate' the
+Marquee will scroll the child out of the view until it reaches its end,
+then switch directions.
+
 In horizontal mode the height of the Marquee will be that of its child,
 but its `width` must be specified explicitly. In vertical mode the width
 will be that of its child but the `height` must be specified explicitly.
 
-If the child's width fits fully, it will not scroll.
+If the child's width fits fully, it will only scroll if `scroll_always`
+is set.
 
 The `offset_start` and `offset_end` parameters control the position
 of the child in the beginning and the end of the animation.
+This is only supported if `behavior` is set to `scroll`.
+
+The `pause_start` and `pause_midway` parameters control the number of
+frames to pause at the beginning and at the midway point of the animation.
+This is only supported if `behavior` is set to `alternate`.
 
 #### Attributes
 | Name | Type | Description | Required |
@@ -200,7 +211,11 @@ of the child in the beginning and the end of the animation.
 | `height` | `int` | Height of the Marquee, required for vertical | N |
 | `offset_start` | `int` | Position of child at beginning of animation | N |
 | `offset_end` | `int` | Position of child at end of animation | N |
+| `behavior` | `str` | Behavior of scrolling, 'scroll' or 'alternate', default is scroll | N |
 | `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
+| `scroll_always` | `bool` | Scroll child, even if it fits entirely | N |
+| `pause_start` | `int` | Pause at beginning of animation, default and minumum is 1 | N |
+| `pause_midway` | `int` | Pause at midway point of animation, default and minumum is 1 | N |
 
 #### Example
 ```
