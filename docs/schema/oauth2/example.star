@@ -26,7 +26,7 @@ def main(config):
     )
 
 def oauth_handler(params):
-    # deserialize oauth2 parameters, see example aboce.
+    # deserialize oauth2 parameters, see example above.
     params = json.decode(params)
 
     # exchange parameters and client secret for an access token
