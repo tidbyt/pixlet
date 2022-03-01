@@ -11,8 +11,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	_ "golang.org/x/image/webp"
-
+	"github.com/harukasan/go-libwebp/webp"
 	"github.com/nfnt/resize"
 )
 
@@ -52,29 +51,78 @@ func (p *Image) FrameCount() int {
 	return len(p.imgs)
 }
 
-func (p *Image) Init() error {
-	var w, h int
-
-	gifImg, err := gif.DecodeAll(bytes.NewReader([]byte(p.Src)))
-	if err == nil {
-		p.Delay = gifImg.Delay[0] * 10
-		for _, im := range gifImg.Image {
-			imRGBA := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), im.Bounds().Dy()))
-			draw.Draw(imRGBA, imRGBA.Bounds(), im, image.Point{0, 0}, draw.Src)
-			p.imgs = append(p.imgs, imRGBA)
-		}
-		w = p.imgs[0].Bounds().Dx()
-		h = p.imgs[0].Bounds().Dy()
-	} else {
-		im, _, err := image.Decode(bytes.NewReader([]byte(p.Src)))
-		if err != nil {
-			return fmt.Errorf("decoding image data: %v", err)
-		}
-
-		p.imgs = []image.Image{im}
-		w = im.Bounds().Dx()
-		h = im.Bounds().Dy()
+func (p *Image) InitFromWebP(data []byte) error {
+	decoder, err := webp.NewAnimationDecoder(data)
+	if err != nil {
+		return fmt.Errorf("creating animation decoder: %v", err)
 	}
+
+	img, err := decoder.Decode()
+	if err != nil {
+		return fmt.Errorf("decoding image data: %v", err)
+	}
+
+	p.Delay = img.Timestamp[0]
+	for _, im := range img.Image {
+		p.imgs = append(p.imgs, im)
+	}
+
+	return nil
+}
+
+func (p *Image) InitFromGIF(data []byte) error {
+	// GIF support is quite limited and can't handle different
+	// positioned and sized frames, as well as disposal types.
+	//
+	// This means that many more optimized GIFs will not render
+	// correctly, with frame contents jumping around and previous
+	// frame contents always getting disposed, instead of kept.
+	//
+	// Unfortunatley the 'image/gif' package does not even expose
+	// frame positions, making it hard to implement these features.
+	//
+	// Consider using WebP instead.
+	img, err := gif.DecodeAll(bytes.NewReader(data))
+	if err != nil {
+		return fmt.Errorf("decoding image data: %v", err)
+	}
+
+	p.Delay = img.Delay[0] * 10
+	for _, im := range img.Image {
+		imRGBA := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), im.Bounds().Dy()))
+		draw.Draw(imRGBA, imRGBA.Bounds(), im, image.Point{0, 0}, draw.Src)
+		p.imgs = append(p.imgs, imRGBA)
+	}
+
+	return nil
+}
+
+func (p *Image) InitFromImage(data []byte) error {
+	im, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return fmt.Errorf("decoding image data: %v", err)
+	}
+
+	p.imgs = []image.Image{im}
+
+	return nil
+}
+
+func (p *Image) Init() error {
+	err := p.InitFromWebP([]byte(p.Src))
+	if err != nil {
+		err = p.InitFromGIF([]byte(p.Src))
+		if err != nil {
+			err = p.InitFromImage([]byte(p.Src))
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	w := p.imgs[0].Bounds().Dx()
+	h := p.imgs[0].Bounds().Dy()
 
 	if p.Width != 0 || p.Height != 0 {
 		nw, nh := p.Width, p.Height
