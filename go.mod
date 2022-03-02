@@ -2,8 +2,6 @@ module tidbyt.dev/pixlet
 
 go 1.16
 
-replace github.com/harukasan/go-libwebp => github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2
-
 require (
 	github.com/antchfx/xmlquery v1.3.9
 	github.com/dustin/go-humanize v1.0.0
@@ -14,7 +12,6 @@ require (
 	github.com/google/tink/go v1.4.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/harukasan/go-libwebp v0.0.0-20190703060927-68562c9c99af
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/nathan-osman/go-sunrise v1.0.0
@@ -24,6 +21,7 @@ require (
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
+	github.com/tidbyt/go-libwebp v0.0.0-20220302033350-dd1cead28df2
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	go.starlark.net v0.0.0-20220223235035-243c74974e97
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
