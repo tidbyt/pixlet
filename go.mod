@@ -21,7 +21,7 @@ require (
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
-	github.com/tidbyt/go-libwebp v0.0.0-20220302033350-dd1cead28df2
+	github.com/tidbyt/go-libwebp 6042ce446e9c
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	go.starlark.net v0.0.0-20220223235035-243c74974e97
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
