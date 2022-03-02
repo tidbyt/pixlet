@@ -153,4 +153,4 @@ For example, if we set the `installationID` to "Bitcoin", it would appear in the
 
 ![](docs/img/mobile_1.jpg)
 
-**Note:** `pixlet render` executes your Starlark code and generates a webp image. `pixlet push` deploys the webp image to your device. You'll need to repeat this process if you want to keep the app updated. You can also create [Community Apps](https://github.com/tidbyt/community) that run on Tidbyt’s servers and update automatically.
+**Note:** `pixlet render` executes your Starlark code and generates a WebP image. `pixlet push` deploys the generated WebP image to your device. You'll need to repeat this process if you want to keep the app updated. You can also create [Community Apps](https://github.com/tidbyt/community) that run on Tidbyt’s servers and update automatically.
