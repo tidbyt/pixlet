@@ -11,8 +11,8 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	"github.com/harukasan/go-libwebp/webp"
 	"github.com/nfnt/resize"
+	"github.com/tidbyt/go-libwebp/webp"
 )
 
 // Image renders the binary image data passed via `src`. Supported

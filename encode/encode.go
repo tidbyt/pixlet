@@ -10,8 +10,8 @@ import (
 	"image/gif"
 	"time"
 
-	"github.com/harukasan/go-libwebp/webp"
 	"github.com/pkg/errors"
+	"github.com/tidbyt/go-libwebp/webp"
 	"tidbyt.dev/pixlet/render"
 )
 
