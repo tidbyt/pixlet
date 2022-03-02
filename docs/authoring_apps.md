@@ -54,10 +54,11 @@ A good strategy is to create cache keys based on the config parameters or inform
 
 Many apps need secret values like API keys. When publishing your app to the [Tidbyt community repo][3], encrypt sensitive values so that only the Tidbyt cloud servers can decrypt them.
 
-To encrypt values, use the `pixlet encrypt` command. For exmaple:
+To encrypt values, use the `pixlet encrypt` command. For example:
 
-```
-$ pixlet encrypt my-app-name top_secret_api_key_123456
+```shell
+# replace "googletraffic" with the folder name of your app in the community repo
+$ pixlet encrypt googletraffic top_secret_google_api_key_123456
 "AV6+...."  # encrypted value
 ```
 
