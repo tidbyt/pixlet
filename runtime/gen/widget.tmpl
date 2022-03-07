@@ -4,6 +4,9 @@ type {{.Name}} struct {
 {{range .AttrColor}}
 	starlark{{.Render}} starlark.String
 {{end}}
+{{range .AttrCurve}}
+	starlark{{.Render}} starlark.String
+{{end}}
 {{range .AttrChild}}
 	starlark{{.Render}} starlark.Value
 {{end}}
@@ -33,6 +36,8 @@ func new{{.Name}}(
 		{{range .AttrBool}}{{if not .ReadOnly}}{{.Starlark}} starlark.Bool{{end}}
 		{{end}}
 		{{range .AttrColor}}{{if not .ReadOnly}}{{.Starlark}} starlark.String{{end}}
+		{{end}}
+		{{range .AttrCurve}}{{if not .ReadOnly}}{{.Starlark}} starlark.String{{end}}
 		{{end}}
 		{{range .AttrChild}}{{if not .ReadOnly}}{{.Starlark}} starlark.Value{{end}}
 		{{end}}
@@ -68,6 +73,19 @@ func new{{.Name}}(
 			return nil, fmt.Errorf("{{.Starlark}} is not a valid hex string: %s", {{.Starlark}}.String())
 		}
 		w.{{.Render}} = c
+	}
+{{end}}{{end}}
+
+{{range .AttrCurve}}{{if not .ReadOnly}}
+	w.starlark{{.Render}} = {{.Starlark}}
+	if {{.Starlark}}.Len() > 0 {
+		c, err := animation.ParseCurve({{.Starlark}}.GoString())
+		if err != nil {
+			return nil, fmt.Errorf("{{.Starlark}} is not a valid curve string: %s", {{.Starlark}}.String())
+		}
+		w.{{.Render}} = c
+	} else {
+		w.{{.Render}} = animation.LinearCurve{}
 	}
 {{end}}{{end}}
 
@@ -178,6 +196,10 @@ func (w *{{.Name}}) Attr(name string) (starlark.Value, error) {
 		return starlark.MakeInt(w.{{.Render}}), nil
 {{end}}
 {{range .AttrColor}}
+	case "{{.Starlark}}":
+		return w.starlark{{.Render}}, nil
+{{end}}
+{{range .AttrCurve}}
 	case "{{.Starlark}}":
 		return w.starlark{{.Render}}, nil
 {{end}}
