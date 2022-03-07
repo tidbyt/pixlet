@@ -46,6 +46,7 @@ var RenderWidgets = []render.Widget{
 	render.Marquee{},
 	render.Animation{},
 	render.WrappedText{},
+	animation.Bounce{},
 	animation.AnimatedPositioned{},
 }
 
