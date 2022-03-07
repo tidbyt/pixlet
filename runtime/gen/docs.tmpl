@@ -15,6 +15,7 @@ hexdecimal color specification.  Pixlet supports "#rgb", "#rrggbb",
 "#rgba", and "#rrggbbaa" color specifications.
 
 {{range .}}{{$widgetName := .Name}}
+{{if .Documentation}}
 ## {{.Name}}
 {{.Documentation}}
 
@@ -30,5 +31,6 @@ hexdecimal color specification.  Pixlet supports "#rgb", "#rrggbb",
 {{$code}}
 ```
 ![](img/widget_{{$widgetName}}_{{$i}}.gif)
+{{end}}
 {{end}}
 {{end}}

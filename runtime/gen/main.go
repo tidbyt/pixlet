@@ -23,6 +23,7 @@ import (
 	"text/template"
 
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/render/animation"
 )
 
 const StarlarkHeaderTemplate = "./gen/header.tmpl"
@@ -45,6 +46,7 @@ var RenderWidgets = []render.Widget{
 	render.Marquee{},
 	render.Animation{},
 	render.WrappedText{},
+	animation.AnimatedPositioned{},
 }
 
 // Defines the starlark version of a render.Widget
@@ -59,6 +61,7 @@ type Attribute struct {
 
 type StarlarkWidget struct {
 	Name          string
+	FullName      string
 	AttrAll       []*Attribute
 	AttrString    []*Attribute
 	AttrInt       []*Attribute
@@ -100,6 +103,7 @@ func starlarkWidgetFromRenderWidget(w render.Widget) *StarlarkWidget {
 	typ := val.Type()
 
 	sw.Name = typ.Name()
+	sw.FullName = typ.String()
 
 	if _, hasSize := w.(render.WidgetStaticSize); hasSize {
 		sw.HasSize = true

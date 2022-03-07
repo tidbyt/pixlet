@@ -37,10 +37,6 @@ func LoadModule() (starlark.StringDict, error) {
 				Members: starlark.StringDict{
 					"Root":       starlark.NewBuiltin("Root", newRoot),
 					"Plot":        starlark.NewBuiltin("Plot", newPlot),
-					"AnimatedPositioned": starlark.NewBuiltin(
-						"AnimatedPositioned",
-						newAnimatedPositioned,
-					),
 					"fonts": fnt,
 {{range .}}
 					"{{.Name}}":  starlark.NewBuiltin("{{.Name}}", new{{.Name}}),

@@ -1,6 +1,6 @@
 type {{.Name}} struct {
 	Widget
-	render.{{.Name}}
+	{{.FullName}}
 {{range .AttrColor}}
 	starlark{{.Render}} starlark.String
 {{end}}
