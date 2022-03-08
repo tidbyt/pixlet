@@ -4,6 +4,13 @@ import { update, loading } from './handlerSlice';
 import { set as setError } from '../errors/errorSlice';
 import store from "../../store";
 
+function parseErrorMessage(handler, error) {
+    let msg = `could not call handler ${handler}: ${error.message}`;
+    if ("response" in error && "data" in error.response) {
+        msg = error.response.data;
+    }
+    return msg;
+}
 
 export function callHandler(id, handler, param) {
     let data = {
@@ -18,7 +25,7 @@ export function callHandler(id, handler, param) {
         })
         .catch(err => {
             // TODO: make sure this clears.
-            let msg = `could not call handler ${handler} with param ${param}`
+            const msg = parseErrorMessage(handler, err);
             store.dispatch(setError({ id: msg, message: msg }));
             console.log(err);
         })
@@ -41,9 +48,8 @@ export function callHandlerSetValue(id, handler, param, valueHandler) {
         })
         .catch(err => {
             // TODO: make sure this clears.
-            let msg = `could not call handler ${handler} with param ${param}`
+            const msg = parseErrorMessage(handler, err);
             store.dispatch(setError({ id: msg, message: msg }));
-            console.log(err);
         })
         .then(() => {
             store.dispatch(loading(false));
