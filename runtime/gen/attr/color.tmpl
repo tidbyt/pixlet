@@ -1,0 +1,10 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	if {{.StarlarkName}}.Len() > 0 {
+		c, err := render.ParseColor({{.StarlarkName}}.GoString())
+		if err != nil {
+			return nil, fmt.Errorf("{{.StarlarkName}} is not a valid hex string: %s", {{.StarlarkName}}.String())
+		}
+		w.{{.GoName}} = c
+	}
+{{end}}

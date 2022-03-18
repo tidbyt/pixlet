@@ -1,0 +1,13 @@
+{{if not .IsReadOnly}}
+	if {{.StarlarkName}} != nil {
+		{{.StarlarkName}}Widget, ok := {{.StarlarkName}}.({{.GoWidgetName}})
+		if !ok {
+			return nil, fmt.Errorf(
+				"invalid type for {{.StarlarkName}}: %s (expected Widget)",
+				{{.StarlarkName}}.Type(),
+			)
+		}
+		w.{{.GoName}} = {{.StarlarkName}}Widget.AsRenderWidget()
+		w.starlark{{.GoName}} = {{.StarlarkName}}
+	}
+{{end}}

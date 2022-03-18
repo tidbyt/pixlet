@@ -9,17 +9,29 @@ import (
 	"tidbyt.dev/pixlet/render"
 )
 
+// Animate a widget from start to end coordinates.
+//
+// DOC(Child): Widget to animate
+// DOC(XStart): Horizontal start coordinate
+// DOC(XEnd): Horizontal end coordinate
+// DOC(YStart): Vertical start coordinate
+// DOC(YEnd): Vertical end coordinate
+// DOC(Duration): Duration of animation in frames
+// DOC(Curve): Easing curve to use, default is 'linear'
+// DOC(Delay): Delay before animation in frames
+// DOC(Hold): Delay after animation in frames
+//
 type AnimatedPositioned struct {
 	render.Widget
-	Child    render.Widget
-	XStart   int
-	XEnd     int
-	YStart   int
-	YEnd     int
-	Duration int
-	Curve    Curve
-	Delay    int
-	Hold     int
+	Child    render.Widget `starlark:"child,required"`
+	XStart   int           `starlark:"x_start"`
+	XEnd     int           `starlark:"x_end"`
+	YStart   int           `starlark:"y_start"`
+	YEnd     int           `starlark:"y_end"`
+	Duration int           `starlark:"duration,required"`
+	Curve    Curve         `starlark:"curve,required"`
+	Delay    int           `starlark:"delay"`
+	Hold     int           `starlark:"hold"`
 }
 
 func (o AnimatedPositioned) Paint(bounds image.Rectangle, frameIdx int) image.Image {

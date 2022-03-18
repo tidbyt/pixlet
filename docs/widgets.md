@@ -25,7 +25,7 @@ weird. Think and fix.
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Children to use as frames in the animation | N |
+| `children` | `[Widget]` | Children to use as frames in the animation | N |
 
 #### Example
 ```
@@ -122,7 +122,7 @@ one of the following `cross_align` values:
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Child widgets to lay out | **Y** |
+| `children` | `[Widget]` | Child widgets to lay out | **Y** |
 | `main_align` | `str` | Alignment along vertical main axis | N |
 | `cross_align` | `str` | Alignment along horizontal cross axis | N |
 | `expanded` | `bool` | Column should expand to fill all available vertical space | N |
@@ -226,9 +226,33 @@ accordingly.
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
 | `child` | `Widget` | The Widget to place padding around | **Y** |
-| `pad` | `insets` | Padding around the child | N |
+| `pad` | `int / (int, int, int, int)` | Padding around the child | N |
 | `expanded` | `bool` | This is a confusing parameter | N |
 | `color` | `color` | Background color | N |
+
+
+
+## Root
+Every Widget tree has a Root.
+
+The child widget, and all its descendants, will be drawn on a 64x32
+canvas. Root places its child in the upper left corner of the
+canvas.
+
+If the tree contains animated widgets, the resulting animation will
+run with _delay_ milliseconds per frame.
+
+If the tree holds time sensitive information which must never be
+displayed past a certain point in time, pass _MaxAge_ to specify
+an expiration time in seconds. Display devices use this to avoid
+displaying stale data in the event of e.g. connectivity issues.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `child` | `Widget` | Widget to render | **Y** |
+| `delay` | `int` | Frame delay in milliseconds | N |
+| `max_age` | `int` | Expiration time in seconds | N |
 
 
 
@@ -258,7 +282,7 @@ one of the following `cross_align` values:
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Child widgets to lay out | **Y** |
+| `children` | `[Widget]` | Child widgets to lay out | **Y** |
 | `main_align` | `str` | Alignment along horizontal main axis | N |
 | `cross_align` | `str` | Alignment along vertical cross axis | N |
 | `expanded` | `bool` | Row should expand to fill all available horizontal space | N |
@@ -300,7 +324,7 @@ fit all its children.
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Widgets to stack | **Y** |
+| `children` | `[Widget]` | Widgets to stack | **Y** |
 
 #### Example
 ```

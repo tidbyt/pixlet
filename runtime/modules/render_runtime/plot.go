@@ -1,4 +1,4 @@
-package runtime
+package render_runtime
 
 import (
 	"fmt"
