@@ -70,17 +70,18 @@ var Packages = []Package{
 		GoRootName:     "Root",
 		GoWidgetName:   "Widget",
 		Types: []reflect.Value{
-			reflect.ValueOf(new(render.Root)),
-			reflect.ValueOf(new(render.Text)),
-			reflect.ValueOf(new(render.Image)),
-			reflect.ValueOf(new(render.Row)),
-			reflect.ValueOf(new(render.Column)),
-			reflect.ValueOf(new(render.Stack)),
-			reflect.ValueOf(new(render.Padding)),
+			reflect.ValueOf(new(render.Animation)),
 			reflect.ValueOf(new(render.Box)),
 			reflect.ValueOf(new(render.Circle)),
+			reflect.ValueOf(new(render.Column)),
+			reflect.ValueOf(new(render.Image)),
 			reflect.ValueOf(new(render.Marquee)),
-			reflect.ValueOf(new(render.Animation)),
+			reflect.ValueOf(new(render.Padding)),
+			reflect.ValueOf(new(render.Plot)),
+			reflect.ValueOf(new(render.Root)),
+			reflect.ValueOf(new(render.Row)),
+			reflect.ValueOf(new(render.Stack)),
+			reflect.ValueOf(new(render.Text)),
 			reflect.ValueOf(new(render.WrappedText)),
 		},
 	},
@@ -159,6 +160,18 @@ var TypeMap = map[reflect.Type]Type{
 		DocType:       `color`,
 		TemplatePath:  "./gen/attr/color.tmpl",
 		GenerateField: true,
+	},
+
+	// Render `Plot` types`
+	toDecayedType(new([2]float64)): {
+		GoType:       "starlark.Tuple",
+		DocType:      "(float, float)",
+		TemplatePath: "./gen/attr/datapoint.tmpl",
+	},
+	toDecayedType(new([][2]float64)): {
+		GoType:       "*starlark.List",
+		DocType:      "[(float, float)]",
+		TemplatePath: "./gen/attr/dataseries.tmpl",
 	},
 
 	// Animation types

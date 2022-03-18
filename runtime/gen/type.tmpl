@@ -4,7 +4,7 @@ type {{.GoName}} struct {
 {{end}}
 	{{.GoNameWithPackage}}
 {{range .Attributes}}
-{{if or .GenerateField (eq .GoType "starlark.Value") (eq .GoType "*starlark.List")}}
+{{if or .GenerateField (eq .GoType "starlark.Value") (eq .GoType "starlark.Tuple") (eq .GoType "*starlark.List")}}
 	starlark{{.GoName}} {{.GoType}}
 {{end}}
 {{end}}

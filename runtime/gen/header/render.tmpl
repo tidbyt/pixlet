@@ -33,7 +33,6 @@ func LoadRenderModule() (starlark.StringDict, error) {
 			"render": &starlarkstruct.Module{
 				Name: "render",
 				Members: starlark.StringDict{
-					"Plot":     starlark.NewBuiltin("Plot", newPlot),
 					"fonts":    fnt,
 {{range .}}
 					"{{.GoName}}":  starlark.NewBuiltin("{{.GoName}}", new{{.GoName}}),

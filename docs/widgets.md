@@ -232,6 +232,48 @@ accordingly.
 
 
 
+## Plot
+Plot is a widget that draws a data series.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `data` | `[(float, float)]` | A list of 2-tuples of numbers | **Y** |
+| `width` | `int` | Limits Plot width | **Y** |
+| `height` | `int` | Limits Plot height | **Y** |
+| `color` | `color` | Line color, default is '#fff' | N |
+| `color_inverted` | `color` | Line color for Y-values below 0 | N |
+| `x_lim` | `(float, float)` | Limit X-axis to a range | N |
+| `y_lim` | `(float, float)` | Limit Y-axis to a range | N |
+| `fill` | `bool` | Paint surface between line and X-axis | N |
+
+#### Example
+```
+render.Plot(
+  data = [
+    (0, 3.35),
+    (1, 2.15),
+    (2, 2.37),
+    (3, -0.31),
+    (4, -3.53),
+    (5, 1.31),
+    (6, -1.3),
+    (7, 4.60),
+    (8, 3.33),
+    (9, 5.92),
+  ],
+  width = 64,
+  height = 32,
+  color = "#0f0",
+  color_inverted = "#f00",
+  x_lim = (0, 9),
+  y_lim = (-5, 7),
+  fill = True,
+),
+```
+![](img/widget_Plot_0.gif)
+
+
 ## Root
 Every Widget tree has a Root.
 

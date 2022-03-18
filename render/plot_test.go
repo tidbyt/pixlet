@@ -3,15 +3,23 @@ package render
 import (
 	"image"
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+var Empty = [2]float64{math.NaN(), math.NaN()}
+
 func TestPlotComputeLimits(t *testing.T) {
 	p := Plot{
-		X: []float64{3.14, 3.56, 3.9},
-		Y: []float64{1.62, 2.7, 2.9},
+		Data: [][2]float64{
+			{3.14, 1.62},
+			{3.56, 2.7},
+			{3.9, 2.9},
+		},
+		XLim: Empty,
+		YLim: Empty,
 	}
 
 	check := func(xMin, xMax, yMin, yMax float64) {
@@ -22,76 +30,79 @@ func TestPlotComputeLimits(t *testing.T) {
 		assert.Equal(t, yMax, yB)
 	}
 
+	reset := func() {
+		p.XLim = Empty
+		p.YLim = Empty
+	}
+
 	// Without any limits set, data's min and max are used
 	check(3.14, 3.9, 1.62, 2.9)
 
-	// XLimMin below, within and above data
-	p.XLimMin = new(float64)
-	*p.XLimMin = 3.0
+	// XLim min below, within and above data
+	reset()
+	p.XLim[0] = 3.0
 	check(3.0, 3.9, 1.62, 2.9)
-	*p.XLimMin = 3.2
+	p.XLim[0] = 3.2
 	check(3.2, 3.9, 1.62, 2.9)
-	*p.XLimMin = 4.0
+	p.XLim[0] = 4.0
 	check(4.0, 4.5, 1.62, 2.9)
 
-	// XLimMax above, within and below data
-	p.XLimMin = nil
-	p.XLimMax = new(float64)
-	*p.XLimMax = 4.1
+	// XLim max above, within and below data
+	reset()
+	p.XLim[1] = 4.1
 	check(3.14, 4.1, 1.62, 2.9)
-	*p.XLimMax = 3.2
+	p.XLim[1] = 3.2
 	check(3.14, 3.2, 1.62, 2.9)
-	*p.XLimMax = -17
+	p.XLim[1] = -17
 	check(-17.5, -17, 1.62, 2.9)
 
-	// YLimMin below, within and above data
-	p.XLimMax = nil
-	p.YLimMin = new(float64)
-	*p.YLimMin = 1.0
+	// YLim min below, within and above data
+	reset()
+	p.YLim[0] = 1.0
 	check(3.14, 3.9, 1, 2.9)
-	*p.YLimMin = 2.0
+	p.YLim[0] = 2.0
 	check(3.14, 3.9, 2.0, 2.9)
-	p.YLimMin = new(float64)
-	*p.YLimMin = 3.0
+	p.YLim[0] = 3.0
 	check(3.14, 3.9, 3.0, 3.5)
 
-	// YLimMax above, within and below data
-	p.YLimMin = nil
-	p.YLimMax = new(float64)
-	*p.YLimMax = 3.14
+	// YLim max above, within and below data
+	reset()
+	p.YLim[1] = 3.14
 	check(3.14, 3.9, 1.62, 3.14)
-	*p.YLimMax = 2.0
+	p.YLim[1] = 2.0
 	check(3.14, 3.9, 1.62, 2.0)
-	*p.YLimMax = 1.0
+	p.YLim[1] = 1.0
 	check(3.14, 3.9, 0.5, 1.0)
 
 	// All limits in conjunction
-	p.XLimMin = new(float64)
-	p.XLimMax = new(float64)
-	p.YLimMin = new(float64)
-	p.YLimMax = new(float64)
-	*p.XLimMin = 3.0
-	*p.XLimMax = 4.0
-	*p.YLimMin = 1.0
-	*p.YLimMax = 3.0
+	p.XLim[0] = 3.0
+	p.XLim[1] = 4.0
+	p.YLim[0] = 1.0
+	p.YLim[1] = 3.0
 	check(3.0, 4.0, 1.0, 3.0)
-	*p.XLimMin = 3.3
-	*p.XLimMax = 3.4
-	*p.YLimMin = 2.1
-	*p.YLimMax = 2.2
+	p.XLim[0] = 3.3
+	p.XLim[1] = 3.4
+	p.YLim[0] = 2.1
+	p.YLim[1] = 2.2
 	check(3.3, 3.4, 2.1, 2.2)
 
 	// No limits with single Y value centers vertically
-	p.XLimMin = nil
-	p.XLimMax = nil
-	p.YLimMin = nil
-	p.YLimMax = nil
-	p.Y = []float64{3.14, 3.14, 3.14}
+	reset()
+	p.Data = [][2]float64{
+		{3.14, 3.14},
+		{3.56, 3.14},
+		{3.9, 3.14},
+	}
 	check(3.14, 3.9, 3.14-0.5, 3.14+0.5)
 
 	// No limits with single X value places points on left hand
 	// side
-	p.X = []float64{2, 2, 2}
+	reset()
+	p.Data = [][2]float64{
+		{2, 3.14},
+		{2, 3.14},
+		{2, 3.14},
+	}
 	check(2, 2.5, 3.14-0.5, 3.14+0.5)
 
 }
@@ -101,49 +112,57 @@ func TestPlotTranslatePoints(t *testing.T) {
 	p := Plot{
 		Width:  10,
 		Height: 10,
+		XLim:   Empty,
+		YLim:   Empty,
 	}
 
-	p.X = []float64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-	p.Y = []float64{0, 2, 4, 6, 8, 10, 12, 14, 16, 18}
+	p.Data = [][2]float64{
+		{0, 0},
+		{1, 2},
+		{2, 4},
+		{3, 6},
+		{4, 8},
+		{5, 10},
+		{6, 12},
+		{7, 14},
+		{8, 16},
+		{9, 18},
+	}
 	assert.Equal(t, []PathPoint{
-		PathPoint{0, 9},
-		PathPoint{1, 8},
-		PathPoint{2, 7},
-		PathPoint{3, 6},
-		PathPoint{4, 5},
-		PathPoint{5, 4},
-		PathPoint{6, 3},
-		PathPoint{7, 2},
-		PathPoint{8, 1},
-		PathPoint{9, 0},
+		{0, 9},
+		{1, 8},
+		{2, 7},
+		{3, 6},
+		{4, 5},
+		{5, 4},
+		{6, 3},
+		{7, 2},
+		{8, 1},
+		{9, 0},
 	}, p.translatePoints())
 	assert.Equal(t, 9, p.invThreshold)
 
 	// Zoom in with XLim/YLim so that half the points fall outside
 	// of view.
-	p.XLimMin = new(float64)
-	*p.XLimMin = 2
-	p.XLimMax = new(float64)
-	*p.XLimMax = 6
-	p.YLimMin = new(float64)
-	*p.YLimMin = 4
-	p.YLimMax = new(float64)
-	*p.YLimMax = 12
+	p.XLim[0] = 2
+	p.XLim[1] = 6
+	p.YLim[0] = 4
+	p.YLim[1] = 12
 
 	// The points with X=2,3,4,5,6 will be mapped onto the 10x10
 	// canvas. The lowest falls on 0 and the highest on 9. Since
 	// they're equidistant, the stride between them must be 9/4 = 2.25.
 	assert.Equal(t, []PathPoint{
-		PathPoint{-5, 14}, // -4.5
-		PathPoint{-2, 11}, // -2.25
-		PathPoint{0, 9},   // 0
-		PathPoint{2, 7},   // 2.25
-		PathPoint{5, 4},   // 4.5
-		PathPoint{7, 2},   // 6.75
-		PathPoint{9, 0},   // 9
-		PathPoint{11, -2}, // 11.25
-		PathPoint{14, -5}, // 13.5
-		PathPoint{16, -7}, // 15.75
+		{-5, 14}, // -4.5
+		{-2, 11}, // -2.25
+		{0, 9},   // 0
+		{2, 7},   // 2.25
+		{5, 4},   // 4.5
+		{7, 2},   // 6.75
+		{9, 0},   // 9
+		{11, -2}, // 11.25
+		{14, -5}, // 13.5
+		{16, -7}, // 15.75
 	}, p.translatePoints())
 	assert.Equal(t, 14, p.invThreshold)
 }
@@ -151,8 +170,8 @@ func TestPlotTranslatePoints(t *testing.T) {
 func TestPlotFlatLine(t *testing.T) {
 	ic := ImageChecker{
 		palette: map[string]color.RGBA{
-			"1": color.RGBA{0xff, 0xff, 0xff, 0xff},
-			".": color.RGBA{0, 0, 0, 0},
+			"1": {0xff, 0xff, 0xff, 0xff},
+			".": {0, 0, 0, 0},
 		},
 	}
 
@@ -160,8 +179,9 @@ func TestPlotFlatLine(t *testing.T) {
 	p := Plot{
 		Width:  10,
 		Height: 5,
-		X:      []float64{0, 9},
-		Y:      []float64{47, 47},
+		Data:   [][2]float64{{0, 47}, {9, 47}},
+		XLim:   Empty,
+		YLim:   Empty,
 	}
 	assert.Equal(t, nil, ic.Check([]string{
 		"..........",
@@ -171,9 +191,8 @@ func TestPlotFlatLine(t *testing.T) {
 		"..........",
 	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
 
-	// Extend view to the eft
-	p.XLimMin = new(float64)
-	*p.XLimMin = -10
+	// Extend view to the left
+	p.XLim[0] = -10
 	assert.Equal(t, nil, ic.Check([]string{
 		"..........",
 		"..........",
@@ -196,8 +215,9 @@ func TestPlotVerticalLine(t *testing.T) {
 	p := Plot{
 		Width:  10,
 		Height: 5,
-		X:      []float64{37, 37},
-		Y:      []float64{1, -3},
+		Data:   [][2]float64{{37, 1}, {37, -3}},
+		XLim:   Empty,
+		YLim:   Empty,
 	}
 
 	assert.Equal(t, nil, ic.Check([]string{
@@ -212,16 +232,28 @@ func TestPlotVerticalLine(t *testing.T) {
 func TestPlotJaggedLine(t *testing.T) {
 	ic := ImageChecker{
 		palette: map[string]color.RGBA{
-			"1": color.RGBA{0xff, 0xff, 0xff, 0xff},
-			".": color.RGBA{0, 0, 0, 0},
+			"1": {0xff, 0xff, 0xff, 0xff},
+			".": {0, 0, 0, 0},
 		},
 	}
 
 	p := Plot{
 		Width:  10,
 		Height: 5,
-		X:      []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-		Y:      []float64{1, 2, 3, 4, 5, 1, 2, 3, 4, 5},
+		Data: [][2]float64{
+			{1, 1},
+			{2, 2},
+			{3, 3},
+			{4, 4},
+			{5, 5},
+			{6, 1},
+			{7, 2},
+			{8, 3},
+			{9, 4},
+			{10, 5},
+		},
+		XLim: Empty,
+		YLim: Empty,
 	}
 
 	assert.Equal(t, nil, ic.Check([]string{
@@ -249,14 +281,10 @@ func TestPlotJaggedLine(t *testing.T) {
 	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
 
 	// Zoom in on the second valley
-	p.XLimMin = new(float64)
-	p.XLimMax = new(float64)
-	p.YLimMin = new(float64)
-	p.YLimMax = new(float64)
-	*p.XLimMin = 5
-	*p.XLimMax = 7
-	*p.YLimMin = 1
-	*p.YLimMax = 5
+	p.XLim[0] = 5
+	p.XLim[1] = 7
+	p.YLim[0] = 1
+	p.YLim[1] = 5
 
 	assert.Equal(t, nil, ic.Check([]string{
 		"1...................",
@@ -276,16 +304,26 @@ func TestPlotJaggedLine(t *testing.T) {
 func TestPlotFewPoints(t *testing.T) {
 	ic := ImageChecker{
 		palette: map[string]color.RGBA{
-			"1": color.RGBA{0xff, 0xff, 0xff, 0xff},
-			".": color.RGBA{0, 0, 0, 0},
+			"1": {0xff, 0xff, 0xff, 0xff},
+			".": {0, 0, 0, 0},
 		},
 	}
 
 	p := Plot{
 		Width:  10,
 		Height: 10,
-		X:      []float64{100, 200, 200, 100, 100, 200, 200, 100},
-		Y:      []float64{-10, -10, -20, -20, -10, -20, -10, -20},
+		Data: [][2]float64{
+			{100, -10},
+			{200, -10},
+			{200, -20},
+			{100, -20},
+			{100, -10},
+			{200, -20},
+			{200, -10},
+			{100, -20},
+		},
+		XLim: Empty,
+		YLim: Empty,
 	}
 
 	assert.Equal(t, nil, ic.Check([]string{
@@ -306,17 +344,29 @@ func TestPlotFewPoints(t *testing.T) {
 func TestPlotInvertedColor(t *testing.T) {
 	ic := ImageChecker{
 		palette: map[string]color.RGBA{
-			"1": color.RGBA{0x0, 0xff, 0x0, 0xff},
-			"2": color.RGBA{0xff, 0, 0, 0xff},
-			".": color.RGBA{0, 0, 0, 0},
+			"1": {0x0, 0xff, 0x0, 0xff},
+			"2": {0xff, 0, 0, 0xff},
+			".": {0, 0, 0, 0},
 		},
 	}
 
 	p := Plot{
-		Width:         10,
-		Height:        5,
-		X:             []float64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
-		Y:             []float64{1, 1, 0, 0, -1, -1, 1, 1, 0, 0},
+		Width:  10,
+		Height: 5,
+		Data: [][2]float64{
+			{0, 1},
+			{1, 1},
+			{2, 0},
+			{3, 0},
+			{4, -1},
+			{5, -1},
+			{6, 1},
+			{7, 1},
+			{8, 0},
+			{9, 0},
+		},
+		XLim:          Empty,
+		YLim:          Empty,
 		Color:         &color.RGBA{0, 0xff, 0, 0xff},
 		ColorInverted: &color.RGBA{0xff, 0, 0, 0xff},
 	}
@@ -348,11 +398,11 @@ func TestPlotInvertedColor(t *testing.T) {
 func TestPlotSurfaceFill(t *testing.T) {
 	ic := ImageChecker{
 		palette: map[string]color.RGBA{
-			"1": color.RGBA{0x0, 0xff, 0x0, 0xff},
-			",": color.RGBA{0x0, 0xff, 0x0, 0x55},
-			"2": color.RGBA{0xff, 0, 0, 0xff},
-			":": color.RGBA{0xff, 0, 0, 0x55},
-			".": color.RGBA{0, 0, 0, 0},
+			"1": {0x0, 0xff, 0x0, 0xff},
+			",": {0x0, 0xff, 0x0, 0x55},
+			"2": {0xff, 0, 0, 0xff},
+			":": {0xff, 0, 0, 0x55},
+			".": {0, 0, 0, 0},
 		},
 	}
 
@@ -360,10 +410,17 @@ func TestPlotSurfaceFill(t *testing.T) {
 	p := Plot{
 		Width:  20,
 		Height: 10,
-		X:      []float64{0, 1, 2, 3, 4},
-		Y:      []float64{5, 5, -1, -1, 2},
-		Color:  &color.RGBA{0, 0xff, 0, 0xff},
-		Fill:   true,
+		Data: [][2]float64{
+			{0, 5},
+			{1, 5},
+			{2, -1},
+			{3, -1},
+			{4, 2},
+		},
+		XLim:  Empty,
+		YLim:  Empty,
+		Color: &color.RGBA{0, 0xff, 0, 0xff},
+		Fill:  true,
 	}
 	assert.Equal(t, nil, ic.Check([]string{
 		"111111..............",
@@ -397,27 +454,37 @@ func TestPlotSurfaceFill(t *testing.T) {
 func TestPlotXLim(t *testing.T) {
 	ic := ImageChecker{
 		palette: map[string]color.RGBA{
-			"1": color.RGBA{0xff, 0xff, 0xff, 0xff},
-			".": color.RGBA{0, 0, 0, 0},
+			"1": {0xff, 0xff, 0xff, 0xff},
+			".": {0, 0, 0, 0},
 		},
 	}
 
 	p := Plot{
-		Width:   20,
-		Height:  10,
-		X:       []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-		Y:       []float64{1, 2, 3, 4, 5, 1, 2, 3, 4, 5},
-		XLimMin: new(float64),
-		XLimMax: new(float64),
+		Width:  20,
+		Height: 10,
+		Data: [][2]float64{
+			{1, 1},
+			{2, 2},
+			{3, 3},
+			{4, 4},
+			{5, 5},
+			{6, 1},
+			{7, 2},
+			{8, 3},
+			{9, 4},
+			{10, 5},
+		},
+		XLim: Empty,
+		YLim: Empty,
 	}
 
 	// No change when min/max matches that of data
-	*p.XLimMin = 1
-	*p.XLimMax = 10
+	p.XLim[0] = 1
+	p.XLim[1] = 10
 
 	// More space on the right
-	*p.XLimMin = 1
-	*p.XLimMax = 15
+	p.XLim[0] = 1
+	p.XLim[1] = 15
 	assert.Equal(t, nil, ic.Check([]string{
 		".....1......1.......",
 		".....1......1.......",
@@ -432,8 +499,8 @@ func TestPlotXLim(t *testing.T) {
 	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
 
 	// And on the left
-	*p.XLimMin = -4
-	*p.XLimMax = 15
+	p.XLim[0] = -4
+	p.XLim[1] = 15
 	assert.Equal(t, nil, ic.Check([]string{
 		".........1....1.....",
 		".........1....1.....",
@@ -448,8 +515,8 @@ func TestPlotXLim(t *testing.T) {
 	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
 
 	// And then do the opposite to "zoom in"
-	*p.XLimMin = 3
-	*p.XLimMax = 8
+	p.XLim[0] = 3
+	p.XLim[1] = 8
 	assert.Equal(t, nil, ic.Check([]string{
 		".......11...........",
 		".....11.1...........",

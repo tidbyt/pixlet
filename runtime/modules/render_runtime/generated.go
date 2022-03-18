@@ -32,7 +32,6 @@ func LoadRenderModule() (starlark.StringDict, error) {
 			"render": &starlarkstruct.Module{
 				Name: "render",
 				Members: starlark.StringDict{
-					"Plot":  starlark.NewBuiltin("Plot", newPlot),
 					"fonts": fnt,
 
 					"Animation": starlark.NewBuiltin("Animation", newAnimation),
@@ -48,6 +47,8 @@ func LoadRenderModule() (starlark.StringDict, error) {
 					"Marquee": starlark.NewBuiltin("Marquee", newMarquee),
 
 					"Padding": starlark.NewBuiltin("Padding", newPadding),
+
+					"Plot": starlark.NewBuiltin("Plot", newPlot),
 
 					"Root": starlark.NewBuiltin("Root", newRoot),
 
@@ -848,6 +849,165 @@ func (w *Padding) Freeze()              {}
 func (w *Padding) Truth() starlark.Bool { return true }
 
 func (w *Padding) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
+	return uint32(sum), err
+}
+
+type Plot struct {
+	Widget
+
+	render.Plot
+
+	starlarkData *starlark.List
+
+	starlarkColor starlark.String
+
+	starlarkColorInverted starlark.String
+
+	starlarkXLim starlark.Tuple
+
+	starlarkYLim starlark.Tuple
+}
+
+func newPlot(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		data           *starlark.List
+		width          starlark.Int
+		height         starlark.Int
+		color          starlark.String
+		color_inverted starlark.String
+		x_lim          starlark.Tuple
+		y_lim          starlark.Tuple
+		fill           starlark.Bool
+	)
+
+	if err := starlark.UnpackArgs(
+		"Plot",
+		args, kwargs,
+		"data", &data,
+		"width", &width,
+		"height", &height,
+		"color?", &color,
+		"color_inverted?", &color_inverted,
+		"x_lim?", &x_lim,
+		"y_lim?", &y_lim,
+		"fill?", &fill,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for Plot: %s", err)
+	}
+
+	w := &Plot{}
+
+	w.starlarkData = data
+	if val, err := DataSeriesFromStarlark(data); err == nil {
+		w.Data = val
+	} else {
+		return nil, err
+	}
+
+	w.Width = int(width.BigInt().Int64())
+
+	w.Height = int(height.BigInt().Int64())
+
+	w.starlarkColor = color
+	if color.Len() > 0 {
+		c, err := render.ParseColor(color.GoString())
+		if err != nil {
+			return nil, fmt.Errorf("color is not a valid hex string: %s", color.String())
+		}
+		w.Color = c
+	}
+
+	w.starlarkColorInverted = color_inverted
+	if color_inverted.Len() > 0 {
+		c, err := render.ParseColor(color_inverted.GoString())
+		if err != nil {
+			return nil, fmt.Errorf("color_inverted is not a valid hex string: %s", color_inverted.String())
+		}
+		w.ColorInverted = c
+	}
+
+	w.starlarkXLim = x_lim
+	if val, err := DataPointFromStarlark(x_lim); err == nil {
+		w.XLim = val
+	} else {
+		return nil, err
+	}
+
+	w.starlarkYLim = y_lim
+	if val, err := DataPointFromStarlark(y_lim); err == nil {
+		w.YLim = val
+	} else {
+		return nil, err
+	}
+
+	w.Fill = bool(fill)
+
+	return w, nil
+}
+
+func (w *Plot) AsRenderWidget() render.Widget {
+	return &w.Plot
+}
+
+func (w *Plot) AttrNames() []string {
+	return []string{
+		"data", "width", "height", "color", "color_inverted", "x_lim", "y_lim", "fill",
+	}
+}
+
+func (w *Plot) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "data":
+
+		return w.starlarkData, nil
+
+	case "width":
+
+		return starlark.MakeInt(int(w.Width)), nil
+
+	case "height":
+
+		return starlark.MakeInt(int(w.Height)), nil
+
+	case "color":
+
+		return w.starlarkColor, nil
+
+	case "color_inverted":
+
+		return w.starlarkColorInverted, nil
+
+	case "x_lim":
+
+		return w.starlarkXLim, nil
+
+	case "y_lim":
+
+		return w.starlarkYLim, nil
+
+	case "fill":
+
+		return starlark.Bool(w.Fill), nil
+
+	default:
+		return nil, nil
+	}
+}
+
+func (w *Plot) String() string       { return "Plot(...)" }
+func (w *Plot) Type() string         { return "Plot" }
+func (w *Plot) Freeze()              {}
+func (w *Plot) Truth() starlark.Bool { return true }
+
+func (w *Plot) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }
