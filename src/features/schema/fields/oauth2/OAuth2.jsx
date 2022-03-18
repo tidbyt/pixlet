@@ -13,7 +13,7 @@ export default function OAuth2({ field }) {
     const [loggedIn, setLoggedIn] = useState("");
     const dispatch = useDispatch();
     const config = useSelector(state => state.config);
-    const redirectUri =  document.location.protocol + "//" + document.location.host + "/oauth-callback"
+    const redirectUri = document.location.protocol + "//" + document.location.host + "/oauth-callback"
 
     useEffect(() => {
         if (field.id in config) {
@@ -74,7 +74,7 @@ export default function OAuth2({ field }) {
         )
     }
 
-    let scope = field.scopes.join(",");
+    let scope = field.scopes.join(" ");
     return (
         <OAuth2Login
             isCrossOrigin={true}
