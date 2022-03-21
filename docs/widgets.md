@@ -25,7 +25,7 @@ weird. Think and fix.
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Children to use as frames in the animation | N |
+| `children` | `[Widget]` | Children to use as frames in the animation | N |
 
 #### Example
 ```
@@ -122,7 +122,7 @@ one of the following `cross_align` values:
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Child widgets to lay out | **Y** |
+| `children` | `[Widget]` | Child widgets to lay out | **Y** |
 | `main_align` | `str` | Alignment along vertical main axis | N |
 | `cross_align` | `str` | Alignment along horizontal cross axis | N |
 | `expanded` | `bool` | Column should expand to fill all available vertical space | N |
@@ -226,9 +226,75 @@ accordingly.
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
 | `child` | `Widget` | The Widget to place padding around | **Y** |
-| `pad` | `insets` | Padding around the child | N |
+| `pad` | `int / (int, int, int, int)` | Padding around the child | N |
 | `expanded` | `bool` | This is a confusing parameter | N |
 | `color` | `color` | Background color | N |
+
+
+
+## Plot
+Plot is a widget that draws a data series.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `data` | `[(float, float)]` | A list of 2-tuples of numbers | **Y** |
+| `width` | `int` | Limits Plot width | **Y** |
+| `height` | `int` | Limits Plot height | **Y** |
+| `color` | `color` | Line color, default is '#fff' | N |
+| `color_inverted` | `color` | Line color for Y-values below 0 | N |
+| `x_lim` | `(float, float)` | Limit X-axis to a range | N |
+| `y_lim` | `(float, float)` | Limit Y-axis to a range | N |
+| `fill` | `bool` | Paint surface between line and X-axis | N |
+
+#### Example
+```
+render.Plot(
+  data = [
+    (0, 3.35),
+    (1, 2.15),
+    (2, 2.37),
+    (3, -0.31),
+    (4, -3.53),
+    (5, 1.31),
+    (6, -1.3),
+    (7, 4.60),
+    (8, 3.33),
+    (9, 5.92),
+  ],
+  width = 64,
+  height = 32,
+  color = "#0f0",
+  color_inverted = "#f00",
+  x_lim = (0, 9),
+  y_lim = (-5, 7),
+  fill = True,
+),
+```
+![](img/widget_Plot_0.gif)
+
+
+## Root
+Every Widget tree has a Root.
+
+The child widget, and all its descendants, will be drawn on a 64x32
+canvas. Root places its child in the upper left corner of the
+canvas.
+
+If the tree contains animated widgets, the resulting animation will
+run with _delay_ milliseconds per frame.
+
+If the tree holds time sensitive information which must never be
+displayed past a certain point in time, pass _MaxAge_ to specify
+an expiration time in seconds. Display devices use this to avoid
+displaying stale data in the event of e.g. connectivity issues.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `child` | `Widget` | Widget to render | **Y** |
+| `delay` | `int` | Frame delay in milliseconds | N |
+| `max_age` | `int` | Expiration time in seconds | N |
 
 
 
@@ -258,7 +324,7 @@ one of the following `cross_align` values:
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Child widgets to lay out | **Y** |
+| `children` | `[Widget]` | Child widgets to lay out | **Y** |
 | `main_align` | `str` | Alignment along horizontal main axis | N |
 | `cross_align` | `str` | Alignment along vertical cross axis | N |
 | `expanded` | `bool` | Row should expand to fill all available horizontal space | N |
@@ -300,7 +366,7 @@ fit all its children.
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `children` | `list` | Widgets to stack | **Y** |
+| `children` | `[Widget]` | Widgets to stack | **Y** |
 
 #### Example
 ```

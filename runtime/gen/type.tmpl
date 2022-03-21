@@ -1,0 +1,128 @@
+type {{.GoName}} struct {
+{{if .GoWidgetName}}
+	{{.GoWidgetName}}
+{{end}}
+	{{.GoNameWithPackage}}
+{{range .Attributes}}
+{{if or .GenerateField (eq .GoType "starlark.Value") (eq .GoType "starlark.Tuple") (eq .GoType "*starlark.List")}}
+	starlark{{.GoName}} {{.GoType}}
+{{end}}
+{{end}}
+{{if .HasSize}}
+	size *starlark.Builtin
+{{end}}
+}
+
+func new{{.GoName}}(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		{{range .Attributes}}{{if not .IsReadOnly}}{{.StarlarkName}} {{.GoType}}{{end}}
+		{{end}}
+	)
+
+	if err := starlark.UnpackArgs(
+		"{{.GoName}}",
+		args, kwargs,
+{{- range .Attributes}}{{if not .IsReadOnly}}
+		"{{.StarlarkName}}{{if not .IsRequired}}?{{end}}", &{{.StarlarkName}},
+{{- end}}{{end}}
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for {{.GoName}}: %s", err)
+	}
+
+	w := &{{.GoName}}{}
+
+{{range .Attributes}}
+{{.Code}}
+{{end}}
+
+{{if .HasSize}}
+	w.size = starlark.NewBuiltin("size", {{.GoName|ToLower}}Size)
+{{end}}
+
+{{if .HasInit}}
+	if err := w.Init(); err != nil {
+		return nil, err
+	}
+{{end}}
+
+	return w, nil
+}
+
+{{if .GoRootName }}
+func (w *{{.GoName}}) AsRenderRoot() render.Root {
+	return w.{{.GoName}}
+}
+{{end}}
+
+{{if .GoWidgetName }}
+func (w *{{.GoName}}) AsRenderWidget() render.Widget {
+	return &w.{{.GoName}}
+}
+{{end}}
+
+func (w *{{.GoName}}) AttrNames() []string {
+	return []string{
+{{range .Attributes -}}
+		"{{.StarlarkName}}",
+{{- end}}
+	}
+}
+
+func (w *{{.GoName}}) Attr(name string) (starlark.Value, error) {
+	switch name {
+{{range .Attributes}}
+	case "{{.StarlarkName}}":
+{{if .GenerateField}}
+		return w.starlark{{.GoName}}, nil
+{{else if eq .GoType "starlark.String"}}
+		return starlark.String(w.{{.GoName}}), nil
+{{else if eq .GoType "starlark.Int"}}
+		return starlark.MakeInt(int(w.{{.GoName}})), nil
+{{else if eq .GoType "starlark.Bool"}}
+		return starlark.Bool(w.{{.GoName}}), nil
+{{else}}
+		return w.starlark{{.GoName}}, nil
+{{end}}
+{{end}}
+{{if .HasSize}}
+	case "size":
+		return w.size.BindReceiver(w), nil
+{{end}}
+	default:
+		return nil, nil
+	}
+}
+
+func (w *{{.GoName}}) String() string       { return "{{.GoName}}(...)" }
+func (w *{{.GoName}}) Type() string         { return "{{.GoName}}" }
+func (w *{{.GoName}}) Freeze()              {}
+func (w *{{.GoName}}) Truth() starlark.Bool { return true }
+
+func (w *{{.GoName}}) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
+	return uint32(sum), err
+}
+
+{{if .HasSize}}
+func {{.GoName|ToLower}}Size(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*{{.GoName}})
+	width, height := w.Size()
+
+	return starlark.Tuple([]starlark.Value{
+		starlark.MakeInt(width),
+		starlark.MakeInt(height),
+	}), nil
+}
+
+{{end}}

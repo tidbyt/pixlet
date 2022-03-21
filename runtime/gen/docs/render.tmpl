@@ -14,21 +14,21 @@ A quick note about colors.  When specifying colors, use a CSS-like
 hexdecimal color specification.  Pixlet supports "#rgb", "#rrggbb",
 "#rgba", and "#rrggbbaa" color specifications.
 
-{{range .}}{{$widgetName := .Name}}
-## {{.Name}}
+{{range .}}{{if .Documentation}}{{$name := .GoName}}
+## {{.GoName}}
 {{.Documentation}}
 
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-{{range .AttrAll -}}
-| `{{.Starlark}}` | `{{.Type}}` | {{.Documentation}} | {{if .Required}}**Y**{{else}}N{{end}} |
+{{range .Attributes -}}
+| `{{.StarlarkName}}` | `{{.DocType}}` | {{.Documentation}} | {{if .IsRequired}}**Y**{{else}}N{{end}} |
 {{end}}
 {{range $i, $code := .Examples -}}
 #### Example
 ```
 {{$code}}
 ```
-![](img/widget_{{$widgetName}}_{{$i}}.gif)
+![](img/widget_{{$name}}_{{$i}}.gif)
 {{end}}
-{{end}}
+{{end}}{{end}}

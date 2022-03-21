@@ -29,10 +29,15 @@ const (
 // displayed past a certain point in time, pass _MaxAge_ to specify
 // an expiration time in seconds. Display devices use this to avoid
 // displaying stale data in the event of e.g. connectivity issues.
+//
+// DOC(Child): Widget to render
+// DOC(Delay): Frame delay in milliseconds
+// DOC(MaxAge): Expiration time in seconds
+//
 type Root struct {
-	Child  Widget
-	Delay  int32
-	MaxAge int32
+	Child  Widget `starlark:"child,required"`
+	Delay  int32  `starlark:"delay"`
+	MaxAge int32  `starlark:"max_age"`
 }
 
 // Paint renders the child widget onto the frame. It doesn't do

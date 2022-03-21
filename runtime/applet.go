@@ -22,7 +22,9 @@ import (
 	"go.starlark.net/starlarktest"
 
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/humanize"
+	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
 	"tidbyt.dev/pixlet/schema"
 	"tidbyt.dev/pixlet/starlarkutil"
@@ -158,7 +160,7 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 		return nil, err
 	}
 
-	if returnRoot, ok := returnValue.(Root); ok {
+	if returnRoot, ok := returnValue.(render_runtime.Rootable); ok {
 		roots = []render.Root{returnRoot.AsRenderRoot()}
 	} else if returnList, ok := returnValue.(*starlark.List); ok {
 		roots = make([]render.Root, returnList.Len())
@@ -167,7 +169,7 @@ func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer
 		i := 0
 		var listVal starlark.Value
 		for iter.Next(&listVal) {
-			if listValRoot, ok := listVal.(Root); ok {
+			if listValRoot, ok := listVal.(render_runtime.Rootable); ok {
 				roots[i] = listValRoot.AsRenderRoot()
 			} else {
 				return nil, fmt.Errorf(
@@ -285,7 +287,10 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	switch module {
 	case "render.star":
-		return LoadModule()
+		return render_runtime.LoadRenderModule()
+
+	case "animation.star":
+		return animation_runtime.LoadAnimationModule()
 
 	case "schema.star":
 		return schema.LoadModule()

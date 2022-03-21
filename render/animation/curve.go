@@ -1,9 +1,14 @@
 package animation
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 var EaseIn = CubicBezierCurve{0.3, 0, 1, 1}
 var EaseOut = CubicBezierCurve{0, 0, 0, 1}
+
+var DefaultCurve = LinearCurve{}
 
 // TODO: figure out if what curve to use here. unless we're going back
 // to Ivo's curve (0.3, 0, 0, 1), make sure to update the unit tests
@@ -49,4 +54,19 @@ func (cb CubicBezierCurve) Transform(t float64) float64 {
 
 func (cb CubicBezierCurve) computeBezier(t, e, f float64) float64 {
 	return 3*e*(1-t)*(1-t)*t + 3*f*(1-t)*t*t + t*t*t
+}
+
+func ParseCurve(str string) (Curve, error) {
+	switch str {
+	case "linear":
+		return LinearCurve{}, nil
+	case "ease_in":
+		return EaseIn, nil
+	case "ease_out":
+		return EaseOut, nil
+	case "ease_in_out":
+		return EaseInOut, nil
+	default:
+		return LinearCurve{}, fmt.Errorf("%s is not a valid curve string", str)
+	}
 }

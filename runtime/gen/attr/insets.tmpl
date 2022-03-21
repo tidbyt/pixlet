@@ -1,0 +1,33 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	switch {{.StarlarkName}}Val := {{.StarlarkName}}.(type) {
+	case starlark.Int:
+		{{.StarlarkName}}Int := int({{.StarlarkName}}Val.BigInt().Int64())
+		w.{{.GoName}}.Left = {{.StarlarkName}}Int
+		w.{{.GoName}}.Top = {{.StarlarkName}}Int
+		w.{{.GoName}}.Right = {{.StarlarkName}}Int
+		w.{{.GoName}}.Bottom = {{.StarlarkName}}Int
+	case starlark.Tuple:
+		{{.StarlarkName}}List := []starlark.Value({{.StarlarkName}}Val)
+		if len({{.StarlarkName}}List) != 4 {
+			return nil, fmt.Errorf(
+				"{{.StarlarkName}} tuple must hold 4 elements (left, top, right, bottom), found %d",
+				len({{.StarlarkName}}List),
+			)
+		}
+		{{.StarlarkName}}ListInt := make([]starlark.Int, 4)
+		for i := 0; i < 4; i++ {
+			pi, ok := {{.StarlarkName}}List[i].(starlark.Int)
+			if !ok {
+				return nil, fmt.Errorf("{{.StarlarkName}} element %d is not int", i)
+			}
+			{{.StarlarkName}}ListInt[i] = pi
+		}
+		w.{{.GoName}}.Left = int({{.StarlarkName}}ListInt[0].BigInt().Int64())
+		w.{{.GoName}}.Top = int({{.StarlarkName}}ListInt[1].BigInt().Int64())
+		w.{{.GoName}}.Right = int({{.StarlarkName}}ListInt[2].BigInt().Int64())
+		w.{{.GoName}}.Bottom = int({{.StarlarkName}}ListInt[3].BigInt().Int64())
+	default:
+		return nil, fmt.Errorf("{{.StarlarkName}} must be int or 4-tuple of int")
+	}
+{{end}}

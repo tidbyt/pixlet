@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
 )
 
 var TestDotStar = `
@@ -158,9 +159,9 @@ def main():
 	assert.NoError(t, err)
 
 	b := app.Globals["b"]
-	assert.IsType(t, &Box{}, b)
+	assert.IsType(t, &render_runtime.Box{}, b)
 
-	widget := b.(*Box).AsRenderWidget()
+	widget := b.(*render_runtime.Box).AsRenderWidget()
 	assert.IsType(t, &render.Box{}, widget)
 
 	box := widget.(*render.Box)
@@ -194,9 +195,9 @@ def main():
 	assert.NoError(t, err)
 
 	txt := app.Globals["t"]
-	assert.IsType(t, &Text{}, txt)
+	assert.IsType(t, &render_runtime.Text{}, txt)
 
-	widget := txt.(*Text).AsRenderWidget()
+	widget := txt.(*render_runtime.Text).AsRenderWidget()
 	assert.IsType(t, &render.Text{}, widget)
 
 	text := widget.(*render.Text)
@@ -239,9 +240,9 @@ def main():
 	assert.NoError(t, err)
 
 	starlarkP := app.Globals["img"]
-	require.IsType(t, &Image{}, starlarkP)
+	require.IsType(t, &render_runtime.Image{}, starlarkP)
 
-	actualIm := starlarkP.(*Image).AsRenderWidget().Paint(image.Rect(0, 0, 64, 32), 0)
+	actualIm := starlarkP.(*render_runtime.Image).AsRenderWidget().Paint(image.Rect(0, 0, 64, 32), 0)
 	assert.Equal(t, bounds, actualIm.Bounds())
 	assert.Equal(t, blue, actualIm.At(12, 12))
 }
