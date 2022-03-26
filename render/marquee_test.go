@@ -50,7 +50,7 @@ func TestMarqueeNoScrollHorizontal(t *testing.T) {
 }
 
 // The addition of OffsetStart and OffsetEnd changes the default
-// behaviour of Marquee. Passing start==width ann end==0 mimics the
+// behaviour of Marquee. Passing start==width and end==0 mimics the
 // old default.
 func TestMarqueeOldBehavior(t *testing.T) {
 	m := Marquee{
@@ -143,6 +143,55 @@ func TestMarqueeOldBehavior(t *testing.T) {
 		"rrrggg",
 		"rrr...",
 	}, m.Paint(image.Rect(0, 0, 100, 100), 100000)))
+}
+
+func TestMarqueeOffsetIdentical(t *testing.T) {
+	child := Row{
+		Children: []Widget{
+			Box{Width: 1, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
+			Box{Width: 2, Height: 1, Color: color.RGBA{0, 0xff, 0, 0xff}},
+			Box{Width: 4, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+		},
+	}
+	m := Marquee{
+		Width: 6,
+		Child: child,
+	}
+	im := image.Rect(0, 0, 100, 100)
+
+	// Check that identical frames are not repeated after
+	// another, if start and end offset are identical.
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 12)))
+	assert.Equal(t, 13, m.FrameCount())
+
+	m.OffsetStart = 3
+	m.OffsetEnd = 3
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 10)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 12)))
+	assert.Equal(t, 13, m.FrameCount())
 }
 
 func TestMarqueeOffsetStart(t *testing.T) {
