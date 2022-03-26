@@ -75,6 +75,38 @@ func TestImageScale(t *testing.T) {
 	assert.Equal(t, 6, im.Bounds().Dy())
 }
 
+// Check that scaled image is scaled
+// maintaining aspect ratio when only width is provided
+// but don't bother checking individual pixels.
+func TestImageScaleAspectRatioWidth(t *testing.T) {
+	raw, _ := base64.StdEncoding.DecodeString(testPNG)
+	img := &Image{Src: string(raw), Width: 5}
+	img.Init()
+
+	w, h := img.Size()
+	assert.Equal(t, 5, w)
+	assert.Equal(t, 6, h)
+	im := img.Paint(image.Rect(0, 0, 0, 0), 0)
+	assert.Equal(t, 5, im.Bounds().Dx())
+	assert.Equal(t, 6, im.Bounds().Dy())
+}
+
+// Check that scaled image is scaled
+// maintaining aspect ratio when only height is provided
+// but don't bother checking individual pixels.
+func TestImageScaleAspectRatioHeight(t *testing.T) {
+	raw, _ := base64.StdEncoding.DecodeString(testPNG)
+	img := &Image{Src: string(raw), Height: 6}
+	img.Init()
+
+	w, h := img.Size()
+	assert.Equal(t, 5, w)
+	assert.Equal(t, 6, h)
+	im := img.Paint(image.Rect(0, 0, 0, 0), 0)
+	assert.Equal(t, 5, im.Bounds().Dx())
+	assert.Equal(t, 6, im.Bounds().Dy())
+}
+
 func TestImageAnimatedGif(t *testing.T) {
 	raw, _ := base64.StdEncoding.DecodeString(testGIF)
 	img := &Image{Src: string(raw)}
