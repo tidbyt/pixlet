@@ -7,7 +7,7 @@
 			continue
 		}
 
-		{{.StarlarkName}}Child, ok := {{.StarlarkName}}Val.(Widget)
+		{{.StarlarkName}}Child, ok := {{.StarlarkName}}Val.({{.GoWidgetName}})
 		if !ok {
 			return nil, fmt.Errorf(
 				"expected {{.StarlarkName}} to be a list of Widget but found: %s (at index %d)",

@@ -98,6 +98,14 @@ var Packages = []Package{
 		GoRootName:     "render_runtime.Root",
 		GoWidgetName:   "render_runtime.Widget",
 		Types: []reflect.Value{
+			reflect.ValueOf(new(animation.Animate)),
+			reflect.ValueOf(new(animation.Keyframe)),
+			reflect.ValueOf(new(animation.Origin)),
+			reflect.ValueOf(new(animation.Rotate)),
+			reflect.ValueOf(new(animation.Scale)),
+			reflect.ValueOf(new(animation.Translate)),
+
+			// Legacy
 			reflect.ValueOf(new(animation.AnimatedPositioned)),
 		},
 	},
@@ -176,10 +184,53 @@ var TypeMap = map[reflect.Type]Type{
 	},
 
 	// Animation types
+	toDecayedType(new(animation.Origin)): {
+		GoType:       "starlark.Value",
+		DocType:      "Origin",
+		TemplatePath: "./gen/attr/origin.tmpl",
+	},
 	toDecayedType(new(animation.Curve)): {
 		GoType:       "starlark.Value",
 		DocType:      `str / function`,
 		TemplatePath: "./gen/attr/curve.tmpl",
+	},
+	toDecayedType(new(animation.Direction)): {
+		GoType:        "starlark.String",
+		DocType:       `str`,
+		TemplatePath:  "./gen/attr/direction.tmpl",
+		GenerateField: true,
+	},
+	toDecayedType(new(animation.FillMode)): {
+		GoType:        "starlark.String",
+		DocType:       `str`,
+		TemplatePath:  "./gen/attr/fill_mode.tmpl",
+		GenerateField: true,
+	},
+	toDecayedType(new(animation.Rounding)): {
+		GoType:        "starlark.String",
+		DocType:       `str`,
+		TemplatePath:  "./gen/attr/rounding.tmpl",
+		GenerateField: true,
+	},
+	toDecayedType(new(animation.Percentage)): {
+		GoType:       "starlark.Value",
+		DocType:      `float / str`,
+		TemplatePath: "./gen/attr/pct.tmpl",
+	},
+	toDecayedType(new(animation.NumberOrPercentage)): {
+		GoType:       "starlark.Value",
+		DocType:      `float / int / str`,
+		TemplatePath: "./gen/attr/num_pct.tmpl",
+	},
+	toDecayedType(new([]animation.Keyframe)): {
+		GoType:       "*starlark.List",
+		DocType:      "[Keyframe]",
+		TemplatePath: "./gen/attr/keyframes.tmpl",
+	},
+	toDecayedType(new([]animation.Transform)): {
+		GoType:       "*starlark.List",
+		DocType:      "[Transform]",
+		TemplatePath: "./gen/attr/transforms.tmpl",
 	},
 }
 

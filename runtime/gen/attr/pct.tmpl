@@ -1,0 +1,10 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	{
+		if val, err := PercentageFromStarlark({{.StarlarkName}}, map[string]float64{"from": 0.0, "to": 1.0}); err == nil {
+			w.{{.GoName}} = val
+		} else {
+			return nil, err
+		}
+	}
+{{end}}
