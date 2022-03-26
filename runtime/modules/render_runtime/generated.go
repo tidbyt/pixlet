@@ -54,6 +54,8 @@ func LoadRenderModule() (starlark.StringDict, error) {
 
 					"Row": starlark.NewBuiltin("Row", newRow),
 
+					"Sequence": starlark.NewBuiltin("Sequence", newSequence),
+
 					"Stack": starlark.NewBuiltin("Stack", newStack),
 
 					"Text": starlark.NewBuiltin("Text", newText),
@@ -1215,6 +1217,91 @@ func (w *Row) Freeze()              {}
 func (w *Row) Truth() starlark.Bool { return true }
 
 func (w *Row) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
+	return uint32(sum), err
+}
+
+type Sequence struct {
+	Widget
+
+	render.Sequence
+
+	starlarkChildren *starlark.List
+}
+
+func newSequence(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		children *starlark.List
+	)
+
+	if err := starlark.UnpackArgs(
+		"Sequence",
+		args, kwargs,
+		"children", &children,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for Sequence: %s", err)
+	}
+
+	w := &Sequence{}
+
+	var childrenVal starlark.Value
+	childrenIter := children.Iterate()
+	defer childrenIter.Done()
+	for i := 0; childrenIter.Next(&childrenVal); {
+		if _, isNone := childrenVal.(starlark.NoneType); isNone {
+			continue
+		}
+
+		childrenChild, ok := childrenVal.(Widget)
+		if !ok {
+			return nil, fmt.Errorf(
+				"expected children to be a list of Widget but found: %s (at index %d)",
+				childrenVal.Type(),
+				i,
+			)
+		}
+
+		w.Children = append(w.Children, childrenChild.AsRenderWidget())
+	}
+	w.starlarkChildren = children
+
+	return w, nil
+}
+
+func (w *Sequence) AsRenderWidget() render.Widget {
+	return &w.Sequence
+}
+
+func (w *Sequence) AttrNames() []string {
+	return []string{
+		"children",
+	}
+}
+
+func (w *Sequence) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "children":
+
+		return w.starlarkChildren, nil
+
+	default:
+		return nil, nil
+	}
+}
+
+func (w *Sequence) String() string       { return "Sequence(...)" }
+func (w *Sequence) Type() string         { return "Sequence" }
+func (w *Sequence) Freeze()              {}
+func (w *Sequence) Truth() starlark.Bool { return true }
+
+func (w *Sequence) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }

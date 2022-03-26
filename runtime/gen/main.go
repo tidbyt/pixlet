@@ -80,6 +80,7 @@ var Packages = []Package{
 			reflect.ValueOf(new(render.Plot)),
 			reflect.ValueOf(new(render.Root)),
 			reflect.ValueOf(new(render.Row)),
+			reflect.ValueOf(new(render.Sequence)),
 			reflect.ValueOf(new(render.Stack)),
 			reflect.ValueOf(new(render.Text)),
 			reflect.ValueOf(new(render.WrappedText)),
