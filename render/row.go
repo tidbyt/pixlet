@@ -74,12 +74,5 @@ func (r Row) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 }
 
 func (r Row) FrameCount() int {
-	n := 1
-	for _, child := range r.Children {
-		cn := child.FrameCount()
-		if cn > n {
-			n = cn
-		}
-	}
-	return n
+	return MaxFrameCount(r.Children)
 }

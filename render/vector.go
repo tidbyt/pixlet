@@ -1,8 +1,9 @@
 package render
 
 import (
-	"github.com/fogleman/gg"
 	"image"
+
+	"github.com/fogleman/gg"
 )
 
 // A vector draws its children either vertically or horizontally (like
@@ -155,12 +156,5 @@ func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 }
 
 func (v Vector) FrameCount() int {
-	n := 1
-	for _, child := range v.Children {
-		cn := child.FrameCount()
-		if cn > n {
-			n = cn
-		}
-	}
-	return n
+	return MaxFrameCount(v.Children)
 }
