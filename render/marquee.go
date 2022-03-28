@@ -1,8 +1,9 @@
 package render
 
 import (
-	"github.com/fogleman/gg"
 	"image"
+
+	"github.com/fogleman/gg"
 )
 
 // Marquee scrolls its child horizontally or vertically.
@@ -73,7 +74,13 @@ func (m Marquee) FrameCount() int {
 		offend = -cw
 	}
 
-	return cw + offstart + size - offend + 1
+	// If start and end offsets are identical, do not
+	// repeat these identical frames after another.
+	if offstart == offend {
+		return cw + offstart + size - offend
+	} else {
+		return cw + offstart + size - offend + 1
+	}
 }
 
 func (m Marquee) Paint(bounds image.Rectangle, frameIdx int) image.Image {
