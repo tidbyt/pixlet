@@ -29,3 +29,16 @@ func ModInt(a, m int) int {
 	}
 	return a
 }
+
+// Computes the maximum frame count of a slice of widgets.
+func MaxFrameCount(widgets []Widget) int {
+	m := 1
+
+	for _, w := range widgets {
+		if c := w.FrameCount(); c > m {
+			m = c
+		}
+	}
+
+	return m
+}
