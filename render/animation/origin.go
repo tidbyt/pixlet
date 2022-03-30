@@ -4,20 +4,20 @@ import (
 	"image"
 )
 
-// An anchor point to use for scaling and rotation transforms.
+// An relative anchor point to use for scaling and rotation transforms.
 //
 // DOC(X): Horizontal anchor point
 // DOC(Y): Vertical anchor point
 //
 type Origin struct {
-	X NumberOrPercentage `starlark:"x,required"`
-	Y NumberOrPercentage `starlark:"y,required"`
+	X Percentage `starlark:"x,required"`
+	Y Percentage `starlark:"y,required"`
 }
 
 func (self Origin) Transform(bounds image.Rectangle) Vec2f {
 	return Vec2f{
-		self.X.Transform(bounds.Dx()),
-		self.Y.Transform(bounds.Dy()),
+		self.X.Value * float64(bounds.Dx()),
+		self.Y.Value * float64(bounds.Dy()),
 	}
 }
 

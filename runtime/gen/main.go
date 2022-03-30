@@ -214,13 +214,8 @@ var TypeMap = map[reflect.Type]Type{
 	},
 	toDecayedType(new(animation.Percentage)): {
 		GoType:       "starlark.Value",
-		DocType:      `float / str`,
-		TemplatePath: "./gen/attr/pct.tmpl",
-	},
-	toDecayedType(new(animation.NumberOrPercentage)): {
-		GoType:       "starlark.Value",
-		DocType:      `float / int / str`,
-		TemplatePath: "./gen/attr/num_pct.tmpl",
+		DocType:      `float`,
+		TemplatePath: "./gen/attr/percentage.tmpl",
 	},
 	toDecayedType(new([]animation.Keyframe)): {
 		GoType:       "*starlark.List",

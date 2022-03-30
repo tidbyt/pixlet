@@ -4,7 +4,6 @@ package animation_runtime
 
 import (
 	"fmt"
-	"math"
 	"sync"
 
 	"github.com/mitchellh/hashstructure/v2"
@@ -458,12 +457,10 @@ func newKeyframe(
 	w := &Keyframe{}
 
 	w.starlarkPercentage = percentage
-	{
-		if val, err := PercentageFromStarlark(percentage, map[string]float64{"from": 0.0, "to": 1.0}); err == nil {
-			w.Percentage = val
-		} else {
-			return nil, err
-		}
+	if val, err := PercentageFromStarlark(percentage); err == nil {
+		w.Percentage = val
+	} else {
+		return nil, err
 	}
 
 	w.starlarkTransforms = transforms
@@ -560,25 +557,17 @@ func newOrigin(
 	w := &Origin{}
 
 	w.starlarkX = x
-	{
-
-		if val, err := NumberOrPercentageFromStarlark(x, -math.MaxFloat64, math.MaxFloat64, map[string]float64{"left": 0.0, "center": 0.5, "right": 1.0}); err == nil {
-
-			w.X = val
-		} else {
-			return nil, err
-		}
+	if val, err := PercentageFromStarlark(x); err == nil {
+		w.X = val
+	} else {
+		return nil, err
 	}
 
 	w.starlarkY = y
-	{
-
-		if val, err := NumberOrPercentageFromStarlark(y, -math.MaxFloat64, math.MaxFloat64, map[string]float64{"top": 0.0, "center": 0.5, "bottom": 1.0}); err == nil {
-
-			w.Y = val
-		} else {
-			return nil, err
-		}
+	if val, err := PercentageFromStarlark(y); err == nil {
+		w.Y = val
+	} else {
+		return nil, err
 	}
 
 	return w, nil

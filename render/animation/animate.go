@@ -88,10 +88,8 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 //
 // A keyframe is created via `animation.Keyframe(percentage, transforms, curve)`.
 //
-// The `percentage` specifies its point in time and can be expressed as a
-// percentage string (e.g. `"20%"`), a floating point number in the range
-// `0.0` to `1.0` or via the special values `"from"` or `"to"`, mapping to
-// `"0%"` and `"100%"` respectively.
+// The `percentage` specifies its point in time and can be expressed as
+// a floating point number in the range `0.0` to `1.0`.
 //
 // In case a keyframe at percentage 0% or 100% is missing, a default
 // keyframe without transforms and with a "linear" easing curve is inserted.
@@ -103,9 +101,10 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 // The `duration` and `delay` of the animation are expressed as a number
 // of frames.
 //
-// By default a transform `origin` of `animation.Origin("50%"", "50%")`
-// is used, which defines the anchor point for scaling and rotation.
-// A different `origin` can be specified by providing an `animation.Origin`.
+// By default a transform `origin` of `animation.Origin(0.5, 0.5)` is used,
+// which defines the anchor point for scaling and rotation to be exactly the
+// center of the child widget. A different `origin` can be specified by
+// providing a custom `animation.Origin`.
 //
 // The animation `direction` defaults to `normal`, playing the animation
 // forwards. Other possible values are `reverse` to play it backwards,
@@ -146,17 +145,17 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 //   child = render.Box(render.Circle(diameter = 6, color = "#0f0")),
 //   duration = 100,
 //   delay = 0,
-//   origin = animation.Origin("50%", "50%"),
+//   origin = animation.Origin(0.5, 0.5),
 //   direction = "alternate",
 //   fill_mode = "forwards",
 //   keyframes = [
 //     animation.Keyframe(
-//       percentage = "from",
+//       percentage = 0.0,
 //       transforms = [animation.Rotate(0), animation.Translate(-10, 0), animation.Rotate(0)],
 //       curve = "ease_in_out",
 //     ),
 //     animation.Keyframe(
-//       percentage = "to",
+//       percentage = 1.0,
 //       transforms = [animation.Rotate(360), animation.Translate(-10, 0), animation.Rotate(-360)],
 //     ),
 //   ],
