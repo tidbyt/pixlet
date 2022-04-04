@@ -3,6 +3,10 @@ package animation
 import (
 	"fmt"
 	"math"
+	"regexp"
+	"strconv"
+
+	"go.starlark.net/starlark"
 )
 
 var EaseIn = CubicBezierCurve{0.3, 0, 1, 1}
@@ -56,7 +60,54 @@ func (cb CubicBezierCurve) computeBezier(t, e, f float64) float64 {
 	return 3*e*(1-t)*(1-t)*t + 3*f*(1-t)*t*t + t*t*t
 }
 
+// Custom curve implemented as a starlark function
+type CustomCurve struct {
+	Function *starlark.Function
+}
+
+func (cc CustomCurve) Transform(t float64) float64 {
+	r, err := starlark.Call(&starlark.Thread{}, cc.Function, starlark.Tuple{starlark.Float(t)}, nil)
+	if err != nil {
+		fmt.Printf("Error calling curve function %s: %s\n", cc.Function.String(), err.Error())
+		return math.NaN()
+	}
+
+	f, ok := starlark.AsFloat(r)
+	if !ok {
+		fmt.Printf("Curve function did not return a floating point value!\n")
+		return math.NaN()
+	}
+
+	return f
+}
+
+var cubicBezierRe = regexp.MustCompile(
+	`^cubic-bezier\(` +
+		`(?P<a>[+-]?([0-9]*\.)?[0-9]+), ` +
+		`(?P<b>[+-]?([0-9]*\.)?[0-9]+), ` +
+		`(?P<c>[+-]?([0-9]*\.)?[0-9]+), ` +
+		`(?P<d>[+-]?([0-9]*\.)?[0-9]+)` +
+		`\)$`)
+
 func ParseCurve(str string) (Curve, error) {
+	match := cubicBezierRe.FindStringSubmatch(str)
+	if match != nil {
+		result := make(map[string]string)
+
+		for i, name := range cubicBezierRe.SubexpNames() {
+			if i != 0 && name != "" {
+				result[name] = match[i]
+			}
+		}
+
+		a, _ := strconv.ParseFloat(result["a"], 64)
+		b, _ := strconv.ParseFloat(result["b"], 64)
+		c, _ := strconv.ParseFloat(result["c"], 64)
+		d, _ := strconv.ParseFloat(result["d"], 64)
+
+		return CubicBezierCurve{a, b, c, d}, nil
+	}
+
 	switch str {
 	case "linear":
 		return LinearCurve{}, nil

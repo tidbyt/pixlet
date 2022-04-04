@@ -39,3 +39,23 @@ func TestEaseCurves(t *testing.T) {
 	assert.InDelta(t, 0.896000, EaseOut.Transform(0.512000), 0.01)
 	assert.InDelta(t, 1.000000, EaseOut.Transform(1.000000), 0.01)
 }
+
+func ParseAndAssertCurve(
+	t *testing.T,
+	scurve string,
+	ecurve Curve,
+) {
+	curve, err := ParseCurve(scurve)
+	assert.Nil(t, err)
+	assert.Equal(t, ecurve, curve)
+}
+
+func TestParseCurve(t *testing.T) {
+	ParseAndAssertCurve(t, "linear", LinearCurve{})
+	ParseAndAssertCurve(t, "ease_in", EaseIn)
+	ParseAndAssertCurve(t, "ease_out", EaseOut)
+	ParseAndAssertCurve(t, "ease_in_out", EaseInOut)
+	ParseAndAssertCurve(t, "cubic-bezier(0, 0, 0, 0)", CubicBezierCurve{0, 0, 0, 0})
+	ParseAndAssertCurve(t, "cubic-bezier(0.68, -0.6, 0.32, 1.6)", CubicBezierCurve{0.68, -0.6, 0.32, 1.6})
+	ParseAndAssertCurve(t, "cubic-bezier(.68, -.6, .32, 1.6)", CubicBezierCurve{0.68, -0.6, 0.32, 1.6})
+}
