@@ -14,7 +14,7 @@ def main(config):
                 children = [
                     render.Text(
                         content = now.format("3:04 PM"),
-                        font = "6x13",
+                        font = "16x32",
                     ),
                     render.Text(
                         content = now.format("3 04 PM"),
