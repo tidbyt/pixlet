@@ -127,10 +127,12 @@ func (p *Image) Init() error {
 	if p.Width != 0 || p.Height != 0 {
 		nw, nh := p.Width, p.Height
 		if nw == 0 {
-			nw = w
+			// scale width, maintaining original aspect ratio
+			nw = int(float64(nh)*(float64(w)/float64(h)))
 		}
 		if nh == 0 {
-			nh = h
+			// scale height, maintaining original aspect ratio
+			nh = int(float64(nw)*(float64(h)/float64(w)))
 		}
 
 		for i := 0; i < len(p.imgs); i++ {
