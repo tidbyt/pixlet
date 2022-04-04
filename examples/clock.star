@@ -18,7 +18,7 @@ def main(config):
                     ),
                     render.Text(
                         content = now.format("3 04 PM"),
-                        font = "6x13",
+                        font = "16x32",
                     ),
                 ],
             ),
