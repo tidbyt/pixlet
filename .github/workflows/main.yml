@@ -75,7 +75,7 @@ jobs:
       run: make release-macos
 
     - name: Upload Release Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: release-artifacts
         path: build
