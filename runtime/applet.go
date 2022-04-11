@@ -24,6 +24,7 @@ import (
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/humanize"
+	"tidbyt.dev/pixlet/runtime/modules/random"
 	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
 	"tidbyt.dev/pixlet/schema"
@@ -342,6 +343,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return starlark.StringDict{
 			starlibtime.Module.Name: starlibtime.Module,
 		}, nil
+
+	case "random.star":
+		return random.LoadModule()
 
 	case "assert.star":
 		return starlarktest.LoadAssertModule()
