@@ -21,7 +21,7 @@ var (
 
 func LoadModule() (starlark.StringDict, error) {
 	once.Do(func() {
-		rand.Seed(time.Now().UnixMilli())
+		rand.Seed(time.Now().UnixNano())
 		module = starlark.StringDict{
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
