@@ -174,3 +174,23 @@ The `sunrise` module calculates sunrise and sunset times for a given set of GPS 
 Example:
 
 See [examples/sunrise.star](../examples/sunrise.star) for an example.
+
+## Pixlet module: Random
+
+The `random` module provides a pseudorandom number generator for pixlet.
+
+| Function | Description |
+| --- | --- |
+| `number(min, max)` | Returns a random number between the min and max. The min has to be 0 or greater. The min has to be less then the max. |
+
+Example:
+```starlark
+load("random.star", "random")
+
+def main(config):
+    num = random.number(0, 100)
+    if num > 50:
+        print("You win!")
+    else:
+        print("Better luck next time!")
+```
