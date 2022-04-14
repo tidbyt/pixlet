@@ -1,6 +1,8 @@
 Building Pixlet
 ===============
 
+Note - if you're trying to build for windows, check out the [windows build instructions](BUILD_WINDOWS.md).
+
 Prerequisites
 -------------
 
