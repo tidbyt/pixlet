@@ -28,6 +28,9 @@ release-macos: clean
 release-linux: clean
 	./scripts/release-linux.sh
 
+docker: release-linux
+	docker build -t pixlet .
+
 install-buildifier:
 	go install github.com/bazelbuild/buildtools/buildifier@latest
 
