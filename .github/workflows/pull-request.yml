@@ -46,7 +46,7 @@ jobs:
 
       - name: Install Linux dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y libwebp-dev
+        run: sudo ./scripts/setup-linux.sh
 
       - name: Install macOS dependencies
         if: matrix.os == 'macos-latest'
