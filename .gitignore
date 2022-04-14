@@ -10,7 +10,6 @@ pixlet
 
 # Releases
 build/
-dist/
 out/
 
 # Dependency directories
