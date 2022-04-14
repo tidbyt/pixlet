@@ -10,7 +10,7 @@
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "clean": "rm -rf dist/",
+    "clean": "rm -rf dist/static/ && git restore dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,7 +31,6 @@
     "@svgr/webpack": "6.2.1",
     "babel-loader": "8.2.4",
     "babel-preset-react": "6.24.1",
-    "copy-webpack-plugin": "10.2.4",
     "css-loader": "6.7.1",
     "file-loader": "6.2.0",
     "html-webpack-plugin": "5.5.0",
