@@ -90,6 +90,7 @@ func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Up
 
 	// API endpoints to support the React frontend.
 	r.HandleFunc("/api/v1/preview", b.previewHandler)
+	r.HandleFunc("/api/v1/push", b.pushHandler)
 	r.HandleFunc("/api/v1/schema", b.schemaHandler).Methods("GET")
 	r.HandleFunc("/api/v1/handlers/{handler}", b.schemaHandlerHandler).Methods("POST")
 	r.HandleFunc("/api/v1/ws", b.websocketHandler)
