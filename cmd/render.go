@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -21,10 +21,9 @@ var (
 )
 
 func init() {
-	rootCmd.AddCommand(renderCmd)
-	renderCmd.Flags().StringVarP(&output, "output", "o", "", "Path for rendered image")
-	renderCmd.Flags().BoolVarP(&renderGif, "gif", "", false, "Generate GIF instead of WebP")
-	renderCmd.Flags().IntVarP(
+	RenderCmd.Flags().StringVarP(&output, "output", "o", "", "Path for rendered image")
+	RenderCmd.Flags().BoolVarP(&renderGif, "gif", "", false, "Generate GIF instead of WebP")
+	RenderCmd.Flags().IntVarP(
 		&magnify,
 		"magnify",
 		"m",
@@ -33,7 +32,7 @@ func init() {
 	)
 }
 
-var renderCmd = &cobra.Command{
+var RenderCmd = &cobra.Command{
 	Use:   "render [script] [<key>=value>]...",
 	Short: "Runs script with provided config parameters.",
 	Args:  cobra.MinimumNArgs(1),
