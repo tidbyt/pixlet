@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"github.com/spf13/cobra"
@@ -13,13 +13,12 @@ var (
 )
 
 func init() {
-	rootCmd.AddCommand(serveCmd)
-	serveCmd.Flags().StringVarP(&host, "host", "i", "127.0.0.1", "Host interface for serving rendered images")
-	serveCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port for serving rendered images")
-	serveCmd.Flags().BoolVarP(&watch, "watch", "w", false, "Reload scripts on change")
+	ServeCmd.Flags().StringVarP(&host, "host", "i", "127.0.0.1", "Host interface for serving rendered images")
+	ServeCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port for serving rendered images")
+	ServeCmd.Flags().BoolVarP(&watch, "watch", "w", false, "Reload scripts on change")
 }
 
-var serveCmd = &cobra.Command{
+var ServeCmd = &cobra.Command{
 	Use:   "serve [script]",
 	Short: "Serves a starlark render script over HTTP.",
 	Args:  cobra.ExactArgs(1),

@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"bytes"
@@ -31,13 +31,12 @@ type TidbytPushJSON struct {
 }
 
 func init() {
-	rootCmd.AddCommand(pushCmd)
-	pushCmd.Flags().StringVarP(&apiToken, "api-token", "t", "", "Tidbyt API token")
-	pushCmd.Flags().StringVarP(&installationID, "installation-id", "i", "", "Give your installation an ID to keep it in the rotation")
-	pushCmd.Flags().BoolVarP(&background, "background", "b", false, "Don't immediately show the image on the device")
+	PushCmd.Flags().StringVarP(&apiToken, "api-token", "t", "", "Tidbyt API token")
+	PushCmd.Flags().StringVarP(&installationID, "installation-id", "i", "", "Give your installation an ID to keep it in the rotation")
+	PushCmd.Flags().BoolVarP(&background, "background", "b", false, "Don't immediately show the image on the device")
 }
 
-var pushCmd = &cobra.Command{
+var PushCmd = &cobra.Command{
 	Use:   "push [device ID] [webp image] [installationID]",
 	Short: "Pushes a webp image to a Tidbyt device",
 	Args:  cobra.MinimumNArgs(2),
