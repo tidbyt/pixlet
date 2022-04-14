@@ -19,6 +19,7 @@ func init() {
 	rootCmd.AddCommand(cmd.RenderCmd)
 	rootCmd.AddCommand(cmd.PushCmd)
 	rootCmd.AddCommand(cmd.EncryptCmd)
+	rootCmd.AddCommand(cmd.VersionCmd)
 }
 
 func main() {

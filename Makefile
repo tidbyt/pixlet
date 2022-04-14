@@ -1,8 +1,11 @@
+GIT_COMMIT = $(shell git rev-list -1 HEAD)
+
 ifeq ($(OS),Windows_NT)
 	BINARY = pixlet.exe
-	LDFLAGS = -ldflags="-s -extldflags=-static"
+	LDFLAGS = -ldflags="-s -extldflags=-static -X 'tidbyt.dev/pixlet/cmd.Version=$(GIT_COMMIT)'"
 else
 	BINARY = pixlet
+	LDFLAGS = -ldflags="-X 'tidbyt.dev/pixlet/cmd.Version=$(GIT_COMMIT)'"
 endif
 
 test:
@@ -17,7 +20,7 @@ bench:
 	go test -benchmem -benchtime=20s -bench BenchmarkRunAndRender tidbyt.dev/pixlet/encode
 
 build: clean
-	go build $(LDFLAGS) -o $(BINARY) tidbyt.dev/pixlet
+	 go build $(LDFLAGS) -o $(BINARY) tidbyt.dev/pixlet
 
 embedfonts:
 	go run render/gen/embedfonts.go
