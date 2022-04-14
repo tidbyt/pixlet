@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   lint:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.16.12'
+          go-version: "1.16.12"
 
       - name: Install buildifier
         run: make install-buildifier
@@ -33,52 +33,60 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: '1.16.12'
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.16.12"
 
-    - name: Install Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
 
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
-      run: sudo ./scripts/setup-linux.sh
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo ./scripts/setup-linux.sh
 
-    - name: Install macOS dependencies
-      if: matrix.os == 'macos-latest'
-      run: ./scripts/setup-macos.sh
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: ./scripts/setup-macos.sh
 
-    - name: Install frontend dependencies
-      run: npm install
+      - name: Install frontend dependencies
+        run: npm install
 
-    - name: Build frontend
-      run: npm run build
+      - name: Build frontend
+        run: npm run build
 
-    - name: Build
-      run: make build
+      - name: Build
+        run: make build
 
-    - name: Test
-      run: make test
+      - name: Test
+        run: make test
 
-    - name: Build Release Linux
-      if: matrix.os == 'ubuntu-latest'
-      run: make release-linux
+      - name: Set pixlet version
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
-    - name: Build Release macOS
-      if: matrix.os == 'macos-latest'
-      run: make release-macos
+      - name: Build Release Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: make release-linux
+        env:
+          PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
 
-    - name: Upload Release Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-artifacts
-        path: build
+      - name: Build Release macOS
+        if: matrix.os == 'macos-latest'
+        run: make release-macos
+        env:
+          PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-artifacts
+          path: build
 
   create-release:
     name: Create Github Release
@@ -88,25 +96,25 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Install Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: '1.16.12'
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.16.12"
 
-    - name: Fetch Release Artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: release-artifacts
+      - name: Fetch Release Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: release-artifacts
 
-    - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v2
-      with:
-        version: latest
-        args: release
-      env:
-        GITHUB_TOKEN: ${{ secrets.TIDBYT_GITHUB_TOKEN }}
-        DISCORD_WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
-        DISCORD_WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.TIDBYT_GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          DISCORD_WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
