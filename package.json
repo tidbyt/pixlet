@@ -53,7 +53,7 @@
     "@mui/lab": "5.0.0-alpha.77",
     "@mui/material": "5.6.1",
     "@reduxjs/toolkit": "1.8.1",
-    "axios": "0.26.1",
+    "axios": "0.27.2",
     "date-fns": "2.28.0",
     "notistack": "2.0.4",
     "react": "17.0.2",
