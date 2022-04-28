@@ -105,6 +105,27 @@ r1 = render.Row(
                 tw,
             ],
         ),
+        render.Plot(
+            data = [
+                (0, 3.35),
+                (1, 2.15),
+                (2, 2.37),
+                (3, -0.31),
+                (4, -3.53),
+                (5, 1.31),
+                (6, -1.3),
+                (7, 4.60),
+                (8, 3.33),
+                (9, 5.92),
+            ],
+            width = 64,
+            height = 17,
+            x_lim = (None, 10),
+            y_lim = (0, 10),
+            color = "#0f0",
+            color_inverted = "#f00",
+            fill = True,
+        ),
     ],
 )
 
@@ -112,7 +133,7 @@ assert(r1.main_align == "space_evenly", 'r1.main_align == "space_evenly"')
 assert(r1.cross_align == "center", 'r1.cross_align == "center"')
 assert(r1.children[1].main_align == "start", 'r1.children[1].main_align == "start"')
 assert(r1.children[1].cross_align == "end", 'r1.children[1].cross_align == "end"')
-assert(len(r1.children) == 2, "len(r1.children) == 2")
+assert(len(r1.children) == 3, "len(r1.children) == 3")
 assert(len(r1.children[1].children) == 3, "len(r1.children[1].children) == 3")
 
 def main():

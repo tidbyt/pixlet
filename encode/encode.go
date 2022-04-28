@@ -3,7 +3,6 @@ package encode
 import (
 	"bytes"
 	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -12,6 +11,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/tidbyt/go-libwebp/webp"
+	"github.com/vmihailenco/msgpack/v5"
+
 	"tidbyt.dev/pixlet/render"
 )
 
@@ -78,7 +79,7 @@ func (s *Screens) Hash() ([]byte, error) {
 		hashable.Images = s.images
 	}
 
-	j, err := json.Marshal(hashable)
+	j, err := msgpack.Marshal(hashable)
 	if err != nil {
 		return nil, errors.Wrap(err, "marshaling render tree to JSON")
 	}

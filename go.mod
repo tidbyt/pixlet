@@ -22,6 +22,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c
+	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
