@@ -67,7 +67,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		if lw > w {
 			w = lw
 		}
-		h += lh
+		h += lh+float64(tw.LineSpacing)
 	}
 
 	// Size of drawing context

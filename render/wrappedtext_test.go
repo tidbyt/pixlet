@@ -115,7 +115,7 @@ func TestWrappedTextLineSpacing(t *testing.T) {
 
 	// Single pixel line space
 	text := WrappedText{Content: "AB CD.", LineSpacing: 1}
-	im := text.Paint(image.Rect(0, 0, 21, 17), 0)
+	im := text.Paint(image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + ".......",
 		".ww.." + "www....",
@@ -137,7 +137,7 @@ func TestWrappedTextLineSpacing(t *testing.T) {
 
 	// Add another one
 	text = WrappedText{Content: "AB CD.", LineSpacing: 2}
-	im = text.Paint(image.Rect(0, 0, 21, 17), 0)
+	im = text.Paint(image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + ".......",
 		".ww.." + "www....",
@@ -154,6 +154,6 @@ func TestWrappedTextLineSpacing(t *testing.T) {
 		"w..w." + "w..w...",
 		"w...." + "w..w...",
 		"w...." + "w..w...",
-		"w..w." + "w..w...", // truncation here
+		"w..w." + "w..w...",
 	}, im))
 }
