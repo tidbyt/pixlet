@@ -50,6 +50,8 @@ In addition to the Starlib modules, Pixlet offers a cache module.
 Keys and values must all be string. Serialization of non-string data
 is the developer's responsibility.
 
+It's important to note that the cache is shared when running on Pixlet crowd.  So if your cache key can collide with other apps running.  So if your key is comming such as `counter`, it would be best practice to namespace your cache to something like `app_name_counter`.
+
 Example:
 
 ```starlark
