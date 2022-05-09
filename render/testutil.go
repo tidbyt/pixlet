@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"strings"
 )
 
 var DefaultPalette = map[string]color.RGBA{
@@ -20,17 +21,23 @@ type ImageChecker struct {
 }
 
 func (ic ImageChecker) Check(expected []string, actual image.Image) error {
+	var runes [][]string
+
+	for _, str := range expected {
+		runes = append(runes, strings.Split(str, ""))
+	}
+
 	if len(expected) != actual.Bounds().Dy() {
 		ic.PrintDiff(expected, actual)
 		return fmt.Errorf("expected %d rows, found %d", len(expected), actual.Bounds().Dy())
 	}
 
 	for y := 0; y < actual.Bounds().Dy(); y++ {
-		if len(expected[y]) != actual.Bounds().Dx() {
+		if len(runes[y]) != actual.Bounds().Dx() {
 			ic.PrintDiff(expected, actual)
 			return fmt.Errorf(
 				"row %d: expected %d columns, found %d",
-				y, len(expected[0]), actual.Bounds().Dx())
+				y, len(runes[0]), actual.Bounds().Dx())
 		}
 		for x := 0; x < actual.Bounds().Dx(); x++ {
 			var actualColorRGBA color.RGBA
@@ -42,7 +49,7 @@ func (ic ImageChecker) Check(expected []string, actual image.Image) error {
 				actualColorRGBA = actualColor.(color.RGBA)
 			}
 
-			if actualColorRGBA != ic.palette[string(expected[y][x])] {
+			if actualColorRGBA != ic.Palette[string(runes[y][x])] {
 				ic.PrintDiff(expected, actual)
 				return fmt.Errorf("color differs at %d,%d", x, y)
 			}
