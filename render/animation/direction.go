@@ -27,11 +27,11 @@ func (self DirectionImpl) Progress(delay, duration int, fill float64, frameIdx i
 	if frameIdx < idx1 {
 		progress = 0.0
 	} else if frameIdx < idx2 {
-		progress = float64(frameIdx-idx1) / float64(duration)
+		progress = float64(frameIdx-idx1) / float64(duration-1)
 	} else if frameIdx < idx3 {
 		progress = 1.0
 	} else if self.Alternate && frameIdx < idx4 {
-		progress = float64(frameIdx-idx3) / float64(duration)
+		progress = float64(frameIdx-idx3) / float64(duration-1)
 		progress = 1.0 - progress
 	} else {
 		progress = fill
