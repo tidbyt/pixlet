@@ -7,16 +7,16 @@ import (
 )
 
 var DefaultPalette = map[string]color.RGBA{
-	"r": color.RGBA{0xff, 0, 0, 0xff},
-	"g": color.RGBA{0, 0xff, 0, 0xff},
-	"b": color.RGBA{0, 0, 0xff, 0xff},
-	"w": color.RGBA{0xff, 0xff, 0xff, 0xff},
-	".": color.RGBA{0, 0, 0, 0},
-	"x": color.RGBA{0, 0, 0, 0xff},
+	"r": {0xff, 0, 0, 0xff},
+	"g": {0, 0xff, 0, 0xff},
+	"b": {0, 0, 0xff, 0xff},
+	"w": {0xff, 0xff, 0xff, 0xff},
+	".": {0, 0, 0, 0},
+	"x": {0, 0, 0, 0xff},
 }
 
 type ImageChecker struct {
-	palette map[string]color.RGBA
+	Palette map[string]color.RGBA
 }
 
 func (ic ImageChecker) Check(expected []string, actual image.Image) error {
@@ -64,7 +64,7 @@ func (ic ImageChecker) PrintDiff(expected []string, actual image.Image) {
 
 func (ic ImageChecker) PrintImage(im image.Image) {
 	color2Ascii := map[color.RGBA]string{}
-	for t, rgba := range ic.palette {
+	for t, rgba := range ic.Palette {
 		color2Ascii[rgba] = t
 	}
 
@@ -81,16 +81,16 @@ func (ic ImageChecker) PrintImage(im image.Image) {
 }
 
 func printExpectedActual(expected []string, actual image.Image) {
-	ic := ImageChecker{palette: DefaultPalette}
+	ic := ImageChecker{Palette: DefaultPalette}
 	ic.PrintDiff(expected, actual)
 }
 
 func checkImage(expected []string, actual image.Image) error {
-	ic := ImageChecker{palette: DefaultPalette}
+	ic := ImageChecker{Palette: DefaultPalette}
 	return ic.Check(expected, actual)
 }
 
 func CheckImage(expected []string, actual image.Image) error {
-	ic := ImageChecker{palette: DefaultPalette}
+	ic := ImageChecker{Palette: DefaultPalette}
 	return ic.Check(expected, actual)
 }

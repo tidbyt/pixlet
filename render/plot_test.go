@@ -169,7 +169,7 @@ func TestPlotTranslatePoints(t *testing.T) {
 
 func TestPlotFlatLine(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": {0xff, 0xff, 0xff, 0xff},
 			".": {0, 0, 0, 0},
 		},
@@ -205,7 +205,7 @@ func TestPlotFlatLine(t *testing.T) {
 
 func TestPlotVerticalLine(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": color.RGBA{0xff, 0xff, 0xff, 0xff},
 			".": color.RGBA{0, 0, 0, 0},
 		},
@@ -231,7 +231,7 @@ func TestPlotVerticalLine(t *testing.T) {
 
 func TestPlotJaggedLine(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": {0xff, 0xff, 0xff, 0xff},
 			".": {0, 0, 0, 0},
 		},
@@ -303,7 +303,7 @@ func TestPlotJaggedLine(t *testing.T) {
 
 func TestPlotFewPoints(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": {0xff, 0xff, 0xff, 0xff},
 			".": {0, 0, 0, 0},
 		},
@@ -343,7 +343,7 @@ func TestPlotFewPoints(t *testing.T) {
 
 func TestPlotInvertedColor(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": {0x0, 0xff, 0x0, 0xff},
 			"2": {0xff, 0, 0, 0xff},
 			".": {0, 0, 0, 0},
@@ -397,7 +397,7 @@ func TestPlotInvertedColor(t *testing.T) {
 
 func TestPlotSurfaceFill(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": {0x0, 0xff, 0x0, 0xff},
 			",": {0x0, 0xff, 0x0, 0x55},
 			"2": {0xff, 0, 0, 0xff},
@@ -453,7 +453,7 @@ func TestPlotSurfaceFill(t *testing.T) {
 
 func TestPlotXLim(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": {0xff, 0xff, 0xff, 0xff},
 			".": {0, 0, 0, 0},
 		},

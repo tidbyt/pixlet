@@ -10,7 +10,7 @@ import (
 
 func TestTracerCircularPath(t *testing.T) {
 	ic := ImageChecker{
-		palette: map[string]color.RGBA{
+		Palette: map[string]color.RGBA{
 			"1": color.RGBA{0xff, 0xff, 0xff, 0xff},
 			".": color.RGBA{0, 0, 0, 0},
 		},
