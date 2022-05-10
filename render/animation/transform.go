@@ -27,9 +27,9 @@ func ExtendTransforms(lhs []Transform, rhs []Transform) []Transform {
 }
 
 // See: https://www.w3.org/TR/css-transforms-1/#interpolation-of-transforms
-func InterpolateTransforms(lhs, rhs []Transform, progress float64) (result []Transform) {
+func InterpolateTransforms(lhs, rhs []Transform, progress float64) (result []Transform, ok bool) {
 	if len(lhs) == 0 && len(rhs) == 0 {
-		return make([]Transform, 0)
+		return make([]Transform, 0), true
 	}
 
 	if len(lhs) < len(rhs) {
@@ -44,14 +44,11 @@ func InterpolateTransforms(lhs, rhs []Transform, progress float64) (result []Tra
 		if t, ok := lhs[i].Interpolate(rhs[i], progress); ok {
 			result = append(result, t)
 		} else {
-			m0, m1 :=
-				Matrix{matrix: ComposeMatrix(lhs[i:])},
-				Matrix{matrix: ComposeMatrix(rhs[i:])}
-			m2, _ := m0.Interpolate(m1, progress)
-			result = append(result, m2)
-			break
+			// This is the point where remaining transforms would be composed into matrices
+			// and interpolated on the matrix level, but for simplicity is not supported.
+			return make([]Transform, 0), false
 		}
 	}
 
-	return result
+	return result, true
 }

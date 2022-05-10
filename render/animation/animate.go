@@ -228,8 +228,10 @@ func (self *Animate) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		progress = from.Curve.Transform(progress)
 
 		// Interpolate between transforms and apply them in order.
-		for _, transform := range InterpolateTransforms(from.Transforms, to.Transforms, progress) {
-			transform.Apply(ctx, origin, self.Rounding)
+		if transforms, ok := InterpolateTransforms(from.Transforms, to.Transforms, progress); ok {
+			for _, transform := range transforms {
+				transform.Apply(ctx, origin, self.Rounding)
+			}
 		}
 	}
 
