@@ -1457,6 +1457,7 @@ func newWrappedText(
 		width       starlark.Int
 		linespacing starlark.Int
 		color       starlark.String
+		alignment   starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -1468,6 +1469,7 @@ func newWrappedText(
 		"width?", &width,
 		"linespacing?", &linespacing,
 		"color?", &color,
+		"alignment?", &alignment,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for WrappedText: %s", err)
 	}
@@ -1492,6 +1494,7 @@ func newWrappedText(
 		}
 		w.Color = c
 	}
+	w.Alignment = alignment.GoString()
 
 	return w, nil
 }
@@ -1502,7 +1505,7 @@ func (w *WrappedText) AsRenderWidget() render.Widget {
 
 func (w *WrappedText) AttrNames() []string {
 	return []string{
-		"content", "font", "height", "width", "linespacing", "color",
+		"content", "font", "height", "width", "linespacing", "color", "alignment",
 	}
 }
 

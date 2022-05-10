@@ -413,6 +413,11 @@ The optional `width` and `height` parameters limit the drawing
 area. If not set, WrappedText will use as much vertical and
 horizontal space as possible to fit the text.
 
+Alignment of the text is controlled by passing one of the following `alignment` values:
+one of the following `cross_align` values:
+- `"left"`: align text to the left
+- `"center"`: align text in the center
+- `"right"`: align text to the right
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -422,6 +427,7 @@ horizontal space as possible to fit the text.
 | `width` | `int` | Limits width of the area on which text may be drawn | N |
 | `linespacing` | `int` | Controls spacing between lines | N |
 | `color` | `color` | Desired font color | N |
+| `alignment` | `str` | Text Alignment | N |
 
 #### Example
 ```
