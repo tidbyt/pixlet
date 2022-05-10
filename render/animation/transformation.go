@@ -75,8 +75,8 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 		fmt.Errorf("failed to find adjacent keyframes for percentage: %f (this should be unreachable!?)", p)
 }
 
-// Animate makes it possible to animate a child widget by transitioning
-// between transforms which are applied to the child wiget.
+// Transformation makes it possible to animate a child widget by
+// transitioning between transforms which are applied to the child wiget.
 //
 // It supports animating translation, scale and rotation of its child.
 //
@@ -141,7 +141,7 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 // DOC(WaitForChild): Wait for all child frames to play after finishing
 //
 // EXAMPLE BEGIN
-// animation.Animate(
+// animation.Transformation(
 //   child = render.Box(render.Circle(diameter = 6, color = "#0f0")),
 //   duration = 100,
 //   delay = 0,
@@ -161,7 +161,7 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 //   ],
 // ),
 // EXAMPLE END
-type Animate struct {
+type Transformation struct {
 	render.Widget
 
 	Child        render.Widget `starlark:"child,required"`
@@ -177,13 +177,13 @@ type Animate struct {
 	WaitForChild bool          `starlark:"wait_for_child"`
 }
 
-func (self *Animate) Init() error {
+func (self *Transformation) Init() error {
 	self.Keyframes = processKeyframes(self.Keyframes)
 
 	return nil
 }
 
-func (self *Animate) FrameCount() int {
+func (self *Transformation) FrameCount() int {
 	fc := self.Direction.FrameCount(self.Delay, self.Duration)
 	cfc := self.Child.FrameCount()
 
@@ -194,7 +194,7 @@ func (self *Animate) FrameCount() int {
 	return fc
 }
 
-func (self *Animate) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (self *Transformation) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	w, h := self.Width, self.Height
 
 	if w == 0 {

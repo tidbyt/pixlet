@@ -372,8 +372,8 @@ be rendered and so on.
 ```
 render.Sequence(
   children = [
-    animation.Animate(...),
-    animation.Animate(...),
+    animation.Transformation(...),
+    animation.Transformation(...),
     ...
   ],
 ),

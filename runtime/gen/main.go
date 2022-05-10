@@ -98,11 +98,11 @@ var Packages = []Package{
 		GoRootName:     "render_runtime.Root",
 		GoWidgetName:   "render_runtime.Widget",
 		Types: []reflect.Value{
-			reflect.ValueOf(new(animation.Animate)),
 			reflect.ValueOf(new(animation.Keyframe)),
 			reflect.ValueOf(new(animation.Origin)),
 			reflect.ValueOf(new(animation.Rotate)),
 			reflect.ValueOf(new(animation.Scale)),
+			reflect.ValueOf(new(animation.Transformation)),
 			reflect.ValueOf(new(animation.Translate)),
 
 			// Legacy

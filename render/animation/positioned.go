@@ -11,7 +11,7 @@ import (
 
 // Animate a widget from start to end coordinates.
 //
-// **DEPRECATED**: Please use `animation.Animate` instead.
+// **DEPRECATED**: Please use `animation.Transformation` instead.
 //
 // DOC(Child): Widget to animate
 // DOC(XStart): Horizontal start coordinate

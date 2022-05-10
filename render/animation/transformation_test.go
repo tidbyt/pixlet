@@ -9,8 +9,8 @@ import (
 	"tidbyt.dev/pixlet/render"
 )
 
-func TestAnimateTranslate(t *testing.T) {
-	o := Animate{
+func TestTransformationTranslate(t *testing.T) {
+	o := Transformation{
 		Child: render.Column{
 			Children: []render.Widget{
 				render.Box{Width: 3, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
@@ -103,8 +103,8 @@ func TestAnimateTranslate(t *testing.T) {
 	}, im))
 }
 
-func TestAnimateScale(t *testing.T) {
-	o := Animate{
+func TestTransformationScale(t *testing.T) {
+	o := Transformation{
 		// Choosing only red, as scaling will interpolate between colors...
 		Child: render.Box{Width: 3, Height: 3, Color: color.RGBA{0xff, 0, 0, 0xff}},
 		Keyframes: []Keyframe{
@@ -185,8 +185,8 @@ func TestAnimateScale(t *testing.T) {
 
 }
 
-func TestAnimateRotate(t *testing.T) {
-	o := Animate{
+func TestTransformationRotate(t *testing.T) {
+	o := Transformation{
 		Child: render.Column{
 			Children: []render.Widget{
 				render.Box{Width: 3, Height: 1, Color: color.RGBA{0xff, 0, 0, 0xff}},
@@ -260,7 +260,7 @@ func TestAnimateRotate(t *testing.T) {
 	}, im))
 }
 
-func TestAnimateAll(t *testing.T) {
+func TestTransformationAll(t *testing.T) {
 	// Checking colors with anti-aliasing (when scaling) is more complex.
 	ic := render.ImageChecker{Palette: map[string]color.RGBA{
 		"█": {0xff, 0xff, 0xff, 0xff},
@@ -274,7 +274,7 @@ func TestAnimateAll(t *testing.T) {
 		"○": {0, 0, 0, 0x40},
 	}}
 
-	o := Animate{
+	o := Transformation{
 		// █.●
 		// ...
 		// ●.█

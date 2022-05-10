@@ -17,8 +17,8 @@ import (
 // EXAMPLE BEGIN
 // render.Sequence(
 //   children = [
-//     animation.Animate(...),
-//     animation.Animate(...),
+//     animation.Transformation(...),
+//     animation.Transformation(...),
 //     ...
 //   ],
 // ),

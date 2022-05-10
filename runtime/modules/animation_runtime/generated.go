@@ -29,8 +29,6 @@ func LoadAnimationModule() (starlark.StringDict, error) {
 				Name: "render",
 				Members: starlark.StringDict{
 
-					"Animate": starlark.NewBuiltin("Animate", newAnimate),
-
 					"AnimatedPositioned": starlark.NewBuiltin("AnimatedPositioned", newAnimatedPositioned),
 
 					"Keyframe": starlark.NewBuiltin("Keyframe", newKeyframe),
@@ -41,6 +39,8 @@ func LoadAnimationModule() (starlark.StringDict, error) {
 
 					"Scale": starlark.NewBuiltin("Scale", newScale),
 
+					"Transformation": starlark.NewBuiltin("Transformation", newTransformation),
+
 					"Translate": starlark.NewBuiltin("Translate", newTranslate),
 				},
 			},
@@ -48,228 +48,6 @@ func LoadAnimationModule() (starlark.StringDict, error) {
 	})
 
 	return animationModule.module, nil
-}
-
-type Animate struct {
-	render_runtime.Widget
-
-	animation.Animate
-
-	starlarkChild starlark.Value
-
-	starlarkKeyframes *starlark.List
-
-	starlarkOrigin starlark.Value
-
-	starlarkDirection starlark.String
-
-	starlarkFillMode starlark.String
-
-	starlarkRounding starlark.String
-}
-
-func newAnimate(
-	thread *starlark.Thread,
-	_ *starlark.Builtin,
-	args starlark.Tuple,
-	kwargs []starlark.Tuple,
-) (starlark.Value, error) {
-
-	var (
-		child          starlark.Value
-		keyframes      *starlark.List
-		duration       starlark.Int
-		delay          starlark.Int
-		width          starlark.Int
-		height         starlark.Int
-		origin         starlark.Value
-		direction      starlark.String
-		fill_mode      starlark.String
-		rounding       starlark.String
-		wait_for_child starlark.Bool
-	)
-
-	if err := starlark.UnpackArgs(
-		"Animate",
-		args, kwargs,
-		"child", &child,
-		"keyframes", &keyframes,
-		"duration", &duration,
-		"delay?", &delay,
-		"width?", &width,
-		"height?", &height,
-		"origin?", &origin,
-		"direction?", &direction,
-		"fill_mode?", &fill_mode,
-		"rounding?", &rounding,
-		"wait_for_child?", &wait_for_child,
-	); err != nil {
-		return nil, fmt.Errorf("unpacking arguments for Animate: %s", err)
-	}
-
-	w := &Animate{}
-
-	if child != nil {
-		childWidget, ok := child.(render_runtime.Widget)
-		if !ok {
-			return nil, fmt.Errorf(
-				"invalid type for child: %s (expected Widget)",
-				child.Type(),
-			)
-		}
-		w.Child = childWidget.AsRenderWidget()
-		w.starlarkChild = child
-	}
-
-	w.starlarkKeyframes = keyframes
-	for i := 0; i < keyframes.Len(); i++ {
-		if val, ok := keyframes.Index(i).(*Keyframe); ok {
-			w.Keyframes = append(w.Keyframes, val.Keyframe)
-		} else {
-			return nil, fmt.Errorf("invalid type for keyframes: %s (expected Keyframe)", keyframes.Type())
-		}
-	}
-
-	w.Duration = int(duration.BigInt().Int64())
-
-	w.Delay = int(delay.BigInt().Int64())
-
-	w.Width = int(width.BigInt().Int64())
-
-	w.Height = int(height.BigInt().Int64())
-
-	w.starlarkOrigin = origin
-	if origin == nil {
-		w.Origin = animation.DefaultOrigin
-	} else if val, ok := origin.(*Origin); ok {
-		w.Origin = val.Origin
-	} else {
-		return nil, fmt.Errorf("invalid type for origin: %s (expected Origin)", origin.Type())
-	}
-
-	w.starlarkDirection = direction
-	switch direction {
-	case "normal":
-		w.Direction = animation.DirectionNormal
-	case "reverse":
-		w.Direction = animation.DirectionReverse
-	case "alternate":
-		w.Direction = animation.DirectionAlternate
-	case "alternate-reverse":
-		w.Direction = animation.DirectionAlternateReverse
-	case "":
-		w.Direction = animation.DefaultDirection
-	default:
-		return nil, fmt.Errorf("invalid type for direction: %s (expected 'normal', 'reverse', 'alternate' or 'alternate-reverse')", direction.Type())
-	}
-
-	w.starlarkFillMode = fill_mode
-	switch fill_mode {
-	case "forwards":
-		w.FillMode = animation.FillModeForwards{}
-	case "backwards":
-		w.FillMode = animation.FillModeBackwards{}
-	case "":
-		w.FillMode = animation.DefaultFillMode
-	default:
-		return nil, fmt.Errorf("invalid type for fill_mode: %s (expected 'forwards' or 'backwards')", fill_mode.Type())
-	}
-
-	w.starlarkRounding = rounding
-	switch rounding {
-	case "round":
-		w.Rounding = animation.Round{}
-	case "floor":
-		w.Rounding = animation.RoundFloor{}
-	case "ceil":
-		w.Rounding = animation.RoundCeil{}
-	case "none":
-		w.Rounding = animation.RoundNone{}
-	case "":
-		w.Rounding = animation.DefaultRounding
-	default:
-		return nil, fmt.Errorf("invalid type for rounding: %s (expected 'round', 'floor', 'ceil' or 'none')", rounding.Type())
-	}
-
-	w.WaitForChild = bool(wait_for_child)
-
-	if err := w.Init(); err != nil {
-		return nil, err
-	}
-
-	return w, nil
-}
-
-func (w *Animate) AsRenderWidget() render.Widget {
-	return &w.Animate
-}
-
-func (w *Animate) AttrNames() []string {
-	return []string{
-		"child", "keyframes", "duration", "delay", "width", "height", "origin", "direction", "fill_mode", "rounding", "wait_for_child",
-	}
-}
-
-func (w *Animate) Attr(name string) (starlark.Value, error) {
-	switch name {
-
-	case "child":
-
-		return w.starlarkChild, nil
-
-	case "keyframes":
-
-		return w.starlarkKeyframes, nil
-
-	case "duration":
-
-		return starlark.MakeInt(int(w.Duration)), nil
-
-	case "delay":
-
-		return starlark.MakeInt(int(w.Delay)), nil
-
-	case "width":
-
-		return starlark.MakeInt(int(w.Width)), nil
-
-	case "height":
-
-		return starlark.MakeInt(int(w.Height)), nil
-
-	case "origin":
-
-		return w.starlarkOrigin, nil
-
-	case "direction":
-
-		return w.starlarkDirection, nil
-
-	case "fill_mode":
-
-		return w.starlarkFillMode, nil
-
-	case "rounding":
-
-		return w.starlarkRounding, nil
-
-	case "wait_for_child":
-
-		return starlark.Bool(w.WaitForChild), nil
-
-	default:
-		return nil, nil
-	}
-}
-
-func (w *Animate) String() string       { return "Animate(...)" }
-func (w *Animate) Type() string         { return "Animate" }
-func (w *Animate) Freeze()              {}
-func (w *Animate) Truth() starlark.Bool { return true }
-
-func (w *Animate) Hash() (uint32, error) {
-	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
-	return uint32(sum), err
 }
 
 type AnimatedPositioned struct {
@@ -746,6 +524,228 @@ func (w *Scale) Freeze()              {}
 func (w *Scale) Truth() starlark.Bool { return true }
 
 func (w *Scale) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
+	return uint32(sum), err
+}
+
+type Transformation struct {
+	render_runtime.Widget
+
+	animation.Transformation
+
+	starlarkChild starlark.Value
+
+	starlarkKeyframes *starlark.List
+
+	starlarkOrigin starlark.Value
+
+	starlarkDirection starlark.String
+
+	starlarkFillMode starlark.String
+
+	starlarkRounding starlark.String
+}
+
+func newTransformation(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		child          starlark.Value
+		keyframes      *starlark.List
+		duration       starlark.Int
+		delay          starlark.Int
+		width          starlark.Int
+		height         starlark.Int
+		origin         starlark.Value
+		direction      starlark.String
+		fill_mode      starlark.String
+		rounding       starlark.String
+		wait_for_child starlark.Bool
+	)
+
+	if err := starlark.UnpackArgs(
+		"Transformation",
+		args, kwargs,
+		"child", &child,
+		"keyframes", &keyframes,
+		"duration", &duration,
+		"delay?", &delay,
+		"width?", &width,
+		"height?", &height,
+		"origin?", &origin,
+		"direction?", &direction,
+		"fill_mode?", &fill_mode,
+		"rounding?", &rounding,
+		"wait_for_child?", &wait_for_child,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for Transformation: %s", err)
+	}
+
+	w := &Transformation{}
+
+	if child != nil {
+		childWidget, ok := child.(render_runtime.Widget)
+		if !ok {
+			return nil, fmt.Errorf(
+				"invalid type for child: %s (expected Widget)",
+				child.Type(),
+			)
+		}
+		w.Child = childWidget.AsRenderWidget()
+		w.starlarkChild = child
+	}
+
+	w.starlarkKeyframes = keyframes
+	for i := 0; i < keyframes.Len(); i++ {
+		if val, ok := keyframes.Index(i).(*Keyframe); ok {
+			w.Keyframes = append(w.Keyframes, val.Keyframe)
+		} else {
+			return nil, fmt.Errorf("invalid type for keyframes: %s (expected Keyframe)", keyframes.Type())
+		}
+	}
+
+	w.Duration = int(duration.BigInt().Int64())
+
+	w.Delay = int(delay.BigInt().Int64())
+
+	w.Width = int(width.BigInt().Int64())
+
+	w.Height = int(height.BigInt().Int64())
+
+	w.starlarkOrigin = origin
+	if origin == nil {
+		w.Origin = animation.DefaultOrigin
+	} else if val, ok := origin.(*Origin); ok {
+		w.Origin = val.Origin
+	} else {
+		return nil, fmt.Errorf("invalid type for origin: %s (expected Origin)", origin.Type())
+	}
+
+	w.starlarkDirection = direction
+	switch direction {
+	case "normal":
+		w.Direction = animation.DirectionNormal
+	case "reverse":
+		w.Direction = animation.DirectionReverse
+	case "alternate":
+		w.Direction = animation.DirectionAlternate
+	case "alternate-reverse":
+		w.Direction = animation.DirectionAlternateReverse
+	case "":
+		w.Direction = animation.DefaultDirection
+	default:
+		return nil, fmt.Errorf("invalid type for direction: %s (expected 'normal', 'reverse', 'alternate' or 'alternate-reverse')", direction.Type())
+	}
+
+	w.starlarkFillMode = fill_mode
+	switch fill_mode {
+	case "forwards":
+		w.FillMode = animation.FillModeForwards{}
+	case "backwards":
+		w.FillMode = animation.FillModeBackwards{}
+	case "":
+		w.FillMode = animation.DefaultFillMode
+	default:
+		return nil, fmt.Errorf("invalid type for fill_mode: %s (expected 'forwards' or 'backwards')", fill_mode.Type())
+	}
+
+	w.starlarkRounding = rounding
+	switch rounding {
+	case "round":
+		w.Rounding = animation.Round{}
+	case "floor":
+		w.Rounding = animation.RoundFloor{}
+	case "ceil":
+		w.Rounding = animation.RoundCeil{}
+	case "none":
+		w.Rounding = animation.RoundNone{}
+	case "":
+		w.Rounding = animation.DefaultRounding
+	default:
+		return nil, fmt.Errorf("invalid type for rounding: %s (expected 'round', 'floor', 'ceil' or 'none')", rounding.Type())
+	}
+
+	w.WaitForChild = bool(wait_for_child)
+
+	if err := w.Init(); err != nil {
+		return nil, err
+	}
+
+	return w, nil
+}
+
+func (w *Transformation) AsRenderWidget() render.Widget {
+	return &w.Transformation
+}
+
+func (w *Transformation) AttrNames() []string {
+	return []string{
+		"child", "keyframes", "duration", "delay", "width", "height", "origin", "direction", "fill_mode", "rounding", "wait_for_child",
+	}
+}
+
+func (w *Transformation) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "child":
+
+		return w.starlarkChild, nil
+
+	case "keyframes":
+
+		return w.starlarkKeyframes, nil
+
+	case "duration":
+
+		return starlark.MakeInt(int(w.Duration)), nil
+
+	case "delay":
+
+		return starlark.MakeInt(int(w.Delay)), nil
+
+	case "width":
+
+		return starlark.MakeInt(int(w.Width)), nil
+
+	case "height":
+
+		return starlark.MakeInt(int(w.Height)), nil
+
+	case "origin":
+
+		return w.starlarkOrigin, nil
+
+	case "direction":
+
+		return w.starlarkDirection, nil
+
+	case "fill_mode":
+
+		return w.starlarkFillMode, nil
+
+	case "rounding":
+
+		return w.starlarkRounding, nil
+
+	case "wait_for_child":
+
+		return starlark.Bool(w.WaitForChild), nil
+
+	default:
+		return nil, nil
+	}
+}
+
+func (w *Transformation) String() string       { return "Transformation(...)" }
+func (w *Transformation) Type() string         { return "Transformation" }
+func (w *Transformation) Freeze()              {}
+func (w *Transformation) Truth() starlark.Bool { return true }
+
+func (w *Transformation) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }

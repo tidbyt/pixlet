@@ -11,9 +11,75 @@ a custom cubic bézier curve in the form "cubic-bezier(a, b, c, d)" or a
 custom easing function.
 
 
-## Animate
-Animate makes it possible to animate a child widget by transitioning
-between transforms which are applied to the child wiget.
+## AnimatedPositioned
+Animate a widget from start to end coordinates.
+
+**DEPRECATED**: Please use `animation.Transformation` instead.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `child` | `Widget` | Widget to animate | **Y** |
+| `duration` | `int` | Duration of animation in frames | **Y** |
+| `curve` | `str / function` | Easing curve to use, default is 'linear' | **Y** |
+| `x_start` | `int` | Horizontal start coordinate | N |
+| `x_end` | `int` | Horizontal end coordinate | N |
+| `y_start` | `int` | Vertical start coordinate | N |
+| `y_end` | `int` | Vertical end coordinate | N |
+| `delay` | `int` | Delay before animation in frames | N |
+| `hold` | `int` | Delay after animation in frames | N |
+
+
+
+## Keyframe
+A keyframe defining specific point in time in the animation.
+
+The keyframe _percentage_ can is expressed as a floating point value between `0.0` and `1.0`.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `percentage` | `float` | Percentage of the time at which this keyframe occurs through the animation. | **Y** |
+| `transforms` | `[Transform]` | List of transforms at this keyframe to interpolate to or from. | **Y** |
+| `curve` | `str / function` | Easing curve to use, default is 'linear' | N |
+
+
+
+## Origin
+An relative anchor point to use for scaling and rotation transforms.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `x` | `float` | Horizontal anchor point | **Y** |
+| `y` | `float` | Vertical anchor point | **Y** |
+
+
+
+## Rotate
+Transform by rotating by a given angle in degrees.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `angle` | `float / int` | Angle to rotate by in degrees | **Y** |
+
+
+
+## Scale
+Transform by scaling by a given factor.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `x` | `float / int` | Horizontal scale factor | **Y** |
+| `y` | `float / int` | Vertical scale factor | **Y** |
+
+
+
+## Transformation
+Transformation makes it possible to animate a child widget by
+transitioning between transforms which are applied to the child wiget.
 
 It supports animating translation, scale and rotation of its child.
 
@@ -82,7 +148,7 @@ to `False`, it will not wait.
 
 #### Example
 ```
-animation.Animate(
+animation.Transformation(
   child = render.Box(render.Circle(diameter = 6, color = "#0f0")),
   duration = 100,
   delay = 0,
@@ -102,73 +168,7 @@ animation.Animate(
   ],
 ),
 ```
-![](img/widget_Animate_0.gif)
-
-
-## AnimatedPositioned
-Animate a widget from start to end coordinates.
-
-**DEPRECATED**: Please use `animation.Animate` instead.
-
-#### Attributes
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| `child` | `Widget` | Widget to animate | **Y** |
-| `duration` | `int` | Duration of animation in frames | **Y** |
-| `curve` | `str / function` | Easing curve to use, default is 'linear' | **Y** |
-| `x_start` | `int` | Horizontal start coordinate | N |
-| `x_end` | `int` | Horizontal end coordinate | N |
-| `y_start` | `int` | Vertical start coordinate | N |
-| `y_end` | `int` | Vertical end coordinate | N |
-| `delay` | `int` | Delay before animation in frames | N |
-| `hold` | `int` | Delay after animation in frames | N |
-
-
-
-## Keyframe
-A keyframe defining specific point in time in the animation.
-
-The keyframe _percentage_ can is expressed as a floating point value between `0.0` and `1.0`.
-
-#### Attributes
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| `percentage` | `float` | Percentage of the time at which this keyframe occurs through the animation. | **Y** |
-| `transforms` | `[Transform]` | List of transforms at this keyframe to interpolate to or from. | **Y** |
-| `curve` | `str / function` | Easing curve to use, default is 'linear' | N |
-
-
-
-## Origin
-An relative anchor point to use for scaling and rotation transforms.
-
-#### Attributes
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| `x` | `float` | Horizontal anchor point | **Y** |
-| `y` | `float` | Vertical anchor point | **Y** |
-
-
-
-## Rotate
-Transform by rotating by a given angle in degrees.
-
-#### Attributes
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| `angle` | `float / int` | Angle to rotate by in degrees | **Y** |
-
-
-
-## Scale
-Transform by scaling by a given factor.
-
-#### Attributes
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| `x` | `float / int` | Horizontal scale factor | **Y** |
-| `y` | `float / int` | Vertical scale factor | **Y** |
-
+![](img/widget_Transformation_0.gif)
 
 
 ## Translate
