@@ -19,7 +19,7 @@ import (
 // DOC(Width): Limits width of the area on which text may be drawn
 // DOC(LineSpacing): Controls spacing between lines
 // DOC(Color): Desired font color
-// DOC(Alignment): Text Alignment
+// DOC(Align): Text Alignment
 // EXAMPLE BEGIN
 // render.WrappedText(
 //       content="this is a multi-line text string",
@@ -36,7 +36,7 @@ type WrappedText struct {
 	Width       int
 	LineSpacing int
 	Color       color.Color
-	Alignment   string
+	Align   	string
 }
 
 func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
@@ -45,13 +45,13 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		face = Font[tw.Font]
 	}
 	// Text alignment
-	alignment := gg.AlignLeft
-	if tw.Alignment == "center" {
-		alignment = gg.AlignCenter
-	} else if tw.Alignment == "right" {
-		alignment = gg.AlignRight
+	align := gg.AlignLeft
+	if tw.Align == "center" {
+		align = gg.AlignCenter
+	} else if tw.Align == "right" {
+		align = gg.AlignRight
 	} else {
-		alignment = gg.AlignLeft
+		align = gg.AlignLeft
 	}
 	// The bounds provided by user or parent widget
 	width := tw.Width
@@ -116,7 +116,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		0,
 		float64(width),
 		(float64(tw.LineSpacing)+dc.FontHeight())/dc.FontHeight(),
-		alignment,
+		align,
 	)
 
 	return dc.Image()
