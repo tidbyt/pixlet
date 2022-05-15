@@ -50,8 +50,6 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		align = gg.AlignCenter
 	} else if tw.Align == "right" {
 		align = gg.AlignRight
-	} else {
-		align = gg.AlignLeft
 	}
 	// The bounds provided by user or parent widget
 	width := tw.Width
