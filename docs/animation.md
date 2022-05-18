@@ -10,6 +10,11 @@ of the built-in "linear", "ease_in", "ease_out" or "ease_in_out" curves,
 a custom cubic bézier curve in the form "cubic-bezier(a, b, c, d)" or a
 custom easing function.
 
+**Warning**: The animation module is in a state of flux. Especially
+`Transformation` and related classes are likely to change in the near
+term. Please be on the lookout for bugs, issues and potential
+improvements!
+
 
 ## AnimatedPositioned
 Animate a widget from start to end coordinates.
