@@ -4,33 +4,40 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"strings"
 )
 
 var DefaultPalette = map[string]color.RGBA{
-	"r": color.RGBA{0xff, 0, 0, 0xff},
-	"g": color.RGBA{0, 0xff, 0, 0xff},
-	"b": color.RGBA{0, 0, 0xff, 0xff},
-	"w": color.RGBA{0xff, 0xff, 0xff, 0xff},
-	".": color.RGBA{0, 0, 0, 0},
-	"x": color.RGBA{0, 0, 0, 0xff},
+	"r": {0xff, 0, 0, 0xff},
+	"g": {0, 0xff, 0, 0xff},
+	"b": {0, 0, 0xff, 0xff},
+	"w": {0xff, 0xff, 0xff, 0xff},
+	".": {0, 0, 0, 0},
+	"x": {0, 0, 0, 0xff},
 }
 
 type ImageChecker struct {
-	palette map[string]color.RGBA
+	Palette map[string]color.RGBA
 }
 
 func (ic ImageChecker) Check(expected []string, actual image.Image) error {
+	var runes [][]string
+
+	for _, str := range expected {
+		runes = append(runes, strings.Split(str, ""))
+	}
+
 	if len(expected) != actual.Bounds().Dy() {
 		ic.PrintDiff(expected, actual)
 		return fmt.Errorf("expected %d rows, found %d", len(expected), actual.Bounds().Dy())
 	}
 
 	for y := 0; y < actual.Bounds().Dy(); y++ {
-		if len(expected[y]) != actual.Bounds().Dx() {
+		if len(runes[y]) != actual.Bounds().Dx() {
 			ic.PrintDiff(expected, actual)
 			return fmt.Errorf(
 				"row %d: expected %d columns, found %d",
-				y, len(expected[0]), actual.Bounds().Dx())
+				y, len(runes[0]), actual.Bounds().Dx())
 		}
 		for x := 0; x < actual.Bounds().Dx(); x++ {
 			var actualColorRGBA color.RGBA
@@ -42,7 +49,7 @@ func (ic ImageChecker) Check(expected []string, actual image.Image) error {
 				actualColorRGBA = actualColor.(color.RGBA)
 			}
 
-			if actualColorRGBA != ic.palette[string(expected[y][x])] {
+			if actualColorRGBA != ic.Palette[string(runes[y][x])] {
 				ic.PrintDiff(expected, actual)
 				return fmt.Errorf("color differs at %d,%d", x, y)
 			}
@@ -64,7 +71,7 @@ func (ic ImageChecker) PrintDiff(expected []string, actual image.Image) {
 
 func (ic ImageChecker) PrintImage(im image.Image) {
 	color2Ascii := map[color.RGBA]string{}
-	for t, rgba := range ic.palette {
+	for t, rgba := range ic.Palette {
 		color2Ascii[rgba] = t
 	}
 
@@ -81,16 +88,16 @@ func (ic ImageChecker) PrintImage(im image.Image) {
 }
 
 func printExpectedActual(expected []string, actual image.Image) {
-	ic := ImageChecker{palette: DefaultPalette}
+	ic := ImageChecker{Palette: DefaultPalette}
 	ic.PrintDiff(expected, actual)
 }
 
 func checkImage(expected []string, actual image.Image) error {
-	ic := ImageChecker{palette: DefaultPalette}
+	ic := ImageChecker{Palette: DefaultPalette}
 	return ic.Check(expected, actual)
 }
 
 func CheckImage(expected []string, actual image.Image) error {
-	ic := ImageChecker{palette: DefaultPalette}
+	ic := ImageChecker{Palette: DefaultPalette}
 	return ic.Check(expected, actual)
 }

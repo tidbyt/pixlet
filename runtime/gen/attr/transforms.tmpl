@@ -1,0 +1,15 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	for i := 0; i < {{.StarlarkName}}.Len(); i++ {
+		switch {{.StarlarkName}}Val := {{.StarlarkName}}.Index(i).(type) {
+		case *Translate:
+			w.{{.GoName}} = append(w.{{.GoName}}, {{.StarlarkName}}Val.Translate)
+		case *Scale:
+			w.{{.GoName}} = append(w.{{.GoName}}, {{.StarlarkName}}Val.Scale)
+		case *Rotate:
+			w.{{.GoName}} = append(w.{{.GoName}}, {{.StarlarkName}}Val.Rotate)
+		default:
+			return nil, fmt.Errorf("expected transform, but got '%s'", {{.StarlarkName}}Val.Type())
+		}
+	}
+{{end}}

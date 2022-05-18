@@ -1,0 +1,10 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	for i := 0; i < {{.StarlarkName}}.Len(); i++ {
+		if val, ok := {{.StarlarkName}}.Index(i).(*Keyframe); ok {
+			w.{{.GoName}} = append(w.{{.GoName}}, val.Keyframe)
+		} else {
+			return nil, fmt.Errorf("invalid type for keyframes: %s (expected Keyframe)", {{.StarlarkName}}.Type())
+		}
+	}
+{{end}}

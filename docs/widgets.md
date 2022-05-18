@@ -356,6 +356,31 @@ render.Row(
 ![](img/widget_Row_1.gif)
 
 
+## Sequence
+Sequence renders a list of child widgets in sequence.
+
+Each child widget is rendered for the duration of its
+frame count, then the next child wiget in the list will
+be rendered and so on.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `children` | `[Widget]` | List of child widgets | **Y** |
+
+#### Example
+```
+render.Sequence(
+  children = [
+    animation.Transformation(...),
+    animation.Transformation(...),
+    ...
+  ],
+),
+```
+![](img/widget_Sequence_0.gif)
+
+
 ## Stack
 Stack draws its children on top of each other.
 

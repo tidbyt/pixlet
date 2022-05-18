@@ -1,0 +1,17 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	switch {{.StarlarkName}} {
+	case "round":
+		w.{{.GoName}} = animation.Round{}
+	case "floor":
+		w.{{.GoName}} = animation.RoundFloor{}
+	case "ceil":
+		w.{{.GoName}} = animation.RoundCeil{}
+	case "none":
+		w.{{.GoName}} = animation.RoundNone{}
+	case "":
+		w.{{.GoName}} = animation.DefaultRounding
+	default:
+		return nil, fmt.Errorf("invalid type for rounding: %s (expected 'round', 'floor', 'ceil' or 'none')", {{.StarlarkName}}.Type())
+	}
+{{end}}
