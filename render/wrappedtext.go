@@ -60,7 +60,10 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	if height == 0 {
 		height = bounds.Dy()
 	}
-
+	linespace := float64(tw.LineSpacing)
+	if linespace <=0{ 
+		linespace = 0
+	}
 	// Compute size of multi line string
 	//
 	// NOTE: Can't use dc.MeasureMultilineString() here. It only
@@ -74,7 +77,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		if lw > w {
 			w = lw
 		}
-		h += lh+float64(tw.LineSpacing)
+		h += lh+linespace
 	}
 
 	// Size of drawing context
