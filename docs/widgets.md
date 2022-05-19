@@ -363,6 +363,10 @@ Each child widget is rendered for the duration of its
 frame count, then the next child wiget in the list will
 be rendered and so on.
 
+It comes in quite useful when chaining animations.
+If you want to know more about that, go check
+out the [animation](animation.md) documentation.
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
