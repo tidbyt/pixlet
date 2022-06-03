@@ -3,7 +3,7 @@ module tidbyt.dev/pixlet
 go 1.16
 
 require (
-	github.com/antchfx/xmlquery v1.3.10
+	github.com/antchfx/xmlquery v1.3.11
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fogleman/gg v1.3.0
 	github.com/fsnotify/fsnotify v1.5.4
