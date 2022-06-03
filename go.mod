@@ -26,5 +26,5 @@ require (
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 )
