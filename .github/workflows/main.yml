@@ -112,7 +112,7 @@ jobs:
           name: release-artifacts
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v3
         with:
           version: v1.7.0
           args: release
