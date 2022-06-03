@@ -12,6 +12,10 @@ import (
 // frame count, then the next child wiget in the list will
 // be rendered and so on.
 //
+// It comes in quite useful when chaining animations.
+// If you want to know more about that, go check
+// out the [animation](animation.md) documentation.
+//
 // DOC(Children): List of child widgets
 //
 // EXAMPLE BEGIN
