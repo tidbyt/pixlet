@@ -20,7 +20,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41
 	github.com/spf13/cobra v1.4.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
