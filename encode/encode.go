@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/gif"
 	"time"
 
+	"github.com/ericpauley/go-quantize/quantize"
 	"github.com/pkg/errors"
 	"github.com/tidbyt/go-libwebp/webp"
 	"github.com/vmihailenco/msgpack/v5"
@@ -147,33 +149,9 @@ func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
 			return nil, fmt.Errorf("image %d is %T, require RGBA", imIdx, im)
 		}
 
-		palette := color.Palette{}
-		idxByColor := map[color.RGBA]int{}
-
-		// Create the palette
-		for x := 0; x < imRGBA.Bounds().Dx(); x++ {
-			for y := 0; y < imRGBA.Bounds().Dy(); y++ {
-				c := imRGBA.RGBAAt(x, y)
-				if _, found := idxByColor[c]; !found {
-					idxByColor[c] = len(palette)
-					palette = append(palette, c)
-				}
-			}
-		}
-		if len(palette) > 256 {
-			return nil, fmt.Errorf(
-				"require <=256 colors, found %d in image %d",
-				len(palette), imIdx,
-			)
-		}
-
-		// Construct the paletted image
+		palette := quantize.MedianCutQuantizer{}.Quantize(make([]color.Color, 0, 256), im)
 		imPaletted := image.NewPaletted(imRGBA.Bounds(), palette)
-		for x := 0; x < imRGBA.Bounds().Dx(); x++ {
-			for y := 0; y < imRGBA.Bounds().Dy(); y++ {
-				imPaletted.SetColorIndex(x, y, uint8(idxByColor[imRGBA.RGBAAt(x, y)]))
-			}
-		}
+		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.Point{0, 0}, draw.Src)
 
 		g.Image = append(g.Image, imPaletted)
 		g.Delay = append(g.Delay, int(s.delay/10)) // in 100ths of a second
