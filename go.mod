@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/antchfx/xmlquery v1.3.11
 	github.com/dustin/go-humanize v1.0.0
+	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/fogleman/gg v1.3.0
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-playground/validator/v10 v10.11.0
