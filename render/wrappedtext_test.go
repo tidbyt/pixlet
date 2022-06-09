@@ -157,3 +157,71 @@ func TestWrappedTextLineSpacing(t *testing.T) {
 		"w..w." + "w..w...",
 	}, im))
 }
+
+func TestWrappedTextAlignment(t *testing.T) {
+	// Default to left align.
+	text := WrappedText{Content: "AB CD."}
+	im := text.Paint(image.Rect(0, 0, 21, 16), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		"......." + ".....",
+		".ww..ww" + "w....",
+		"w..w.w." + ".w...",
+		"w..w.ww" + "w....",
+		"wwww.w." + ".w...",
+		"w..w.w." + ".w...",
+		"w..w.ww" + "w....",
+		"......." + ".....",
+		"......." + ".....",
+		".ww..ww" + "w....",
+		"w..w.w." + ".w...",
+		"w....w." + ".w...",
+		"w....w." + ".w...",
+		"w..w.w." + ".w...",
+		".ww..ww" + "w..w.",
+		"......." + ".....",
+	}, im))
+
+	// Right alignment.
+	text = WrappedText{Content: "AB CD.", Align: "right"}
+	im = text.Paint(image.Rect(0, 0, 21, 16), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		"......." + ".....",
+		"...ww.." + "www..",
+		"..w..w." + "w..w.",
+		"..w..w." + "www..",
+		"..wwww." + "w..w.",
+		"..w..w." + "w..w.",
+		"..w..w." + "www..",
+		"......." + ".....",
+		"......." + ".....",
+		".ww..ww" + "w....",
+		"w..w.w." + ".w...",
+		"w....w." + ".w...",
+		"w....w." + ".w...",
+		"w..w.w." + ".w...",
+		".ww..ww" + "w..w.",
+		"......." + ".....",
+	}, im))
+
+	// Center alignment.
+	text = WrappedText{Content: "AB CD.", Align: "center"}
+	im = text.Paint(image.Rect(0, 0, 21, 16), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		"......." + ".....",
+		"..ww..w" + "ww...",
+		".w..w.w" + "..w..",
+		".w..w.w" + "ww...",
+		".wwww.w" + "..w..",
+		".w..w.w" + "..w..",
+		".w..w.w" + "ww...",
+		"......." + ".....",
+		"......." + ".....",
+		".ww..ww" + "w....",
+		"w..w.w." + ".w...",
+		"w....w." + ".w...",
+		"w....w." + ".w...",
+		"w..w.w." + ".w...",
+		".ww..ww" + "w..w.",
+		"......." + ".....",
+	}, im))
+}
