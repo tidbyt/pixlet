@@ -19,7 +19,7 @@ import (
 // DOC(Width): Limits width of the area on which text may be drawn
 // DOC(LineSpacing): Controls spacing between lines
 // DOC(Color): Desired font color
-//
+// DOC(Align): Text Alignment
 // EXAMPLE BEGIN
 // render.WrappedText(
 //       content="this is a multi-line text string",
@@ -36,6 +36,7 @@ type WrappedText struct {
 	Width       int
 	LineSpacing int
 	Color       color.Color
+	Align   	string
 }
 
 func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
@@ -43,7 +44,13 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	if tw.Font != "" {
 		face = Font[tw.Font]
 	}
-
+	// Text alignment
+	align := gg.AlignLeft
+	if tw.Align == "center" {
+		align = gg.AlignCenter
+	} else if tw.Align == "right" {
+		align = gg.AlignRight
+	}
 	// The bounds provided by user or parent widget
 	width := tw.Width
 	if width == 0 {
@@ -53,7 +60,10 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	if height == 0 {
 		height = bounds.Dy()
 	}
-
+	linespace := float64(tw.LineSpacing)
+	if linespace <=0{ 
+		linespace = 0
+	}
 	// Compute size of multi line string
 	//
 	// NOTE: Can't use dc.MeasureMultilineString() here. It only
@@ -67,7 +77,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		if lw > w {
 			w = lw
 		}
-		h += lh+float64(tw.LineSpacing)
+		h += lh+linespace
 	}
 
 	// Size of drawing context
@@ -107,7 +117,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		0,
 		float64(width),
 		(float64(tw.LineSpacing)+dc.FontHeight())/dc.FontHeight(),
-		gg.AlignLeft,
+		align,
 	)
 
 	return dc.Image()
