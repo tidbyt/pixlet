@@ -89,7 +89,7 @@ func (p *Image) InitFromGIF(data []byte) error {
 
 		// Note: We're not really handling all disposal
 		// methods here, but this seems to be good enough.
-		draw.Draw(last, last.Bounds(), src, image.Point{0, 0}, draw.Over)
+		draw.Draw(last, last.Bounds(), src, image.ZP, draw.Over)
 		frame := *last
 		frame.Pix = make([]uint8, len(last.Pix))
 		copy(frame.Pix, last.Pix)
