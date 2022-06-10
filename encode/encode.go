@@ -151,7 +151,7 @@ func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
 
 		palette := quantize.MedianCutQuantizer{}.Quantize(make([]color.Color, 0, 256), im)
 		imPaletted := image.NewPaletted(imRGBA.Bounds(), palette)
-		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.Point{0, 0}, draw.Src)
+		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.ZP, draw.Src)
 
 		g.Image = append(g.Image, imPaletted)
 		g.Delay = append(g.Delay, int(s.delay/10)) // in 100ths of a second
