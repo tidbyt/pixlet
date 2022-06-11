@@ -27,6 +27,7 @@ import (
 // DOC(OffsetStart): Position of child at beginning of animation
 // DOC(OffsetEnd): Position of child at end of animation
 // DOC(ScrollDirection): Direction to scroll, 'vertical' or 'horizontal', default is horizontal
+// DOC(Align): alignment when contents fit on screen, 'start', 'center' or 'end', default is start
 //
 // EXAMPLE BEGIN
 // render.Marquee(
@@ -44,6 +45,7 @@ type Marquee struct {
 	OffsetStart     int    `starlark:"offset_start"`
 	OffsetEnd       int    `starlark:"offset_end"`
 	ScrollDirection string `starlark:"scroll_direction"`
+	Align			string `starlark:"align"`
 }
 
 func (m Marquee) FrameCount() int {
@@ -112,10 +114,20 @@ func (m Marquee) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	loopIdx := cw + offstart
 	endIdx := cw + offstart + size - offend
 
+	align := 0.0 //default is align="start"
 	var offset int
 	if cw <= size {
 		// child fits entirely and we don't want to scroll it anyway
 		offset = 0
+
+		//modify alignment 
+		if m.Align=="center" {
+			align = 0.5
+			offset = size/2
+		} else if m.Align=="end" {
+			align = 1.0
+			offset = size
+		}
 	} else if frameIdx <= loopIdx {
 		// first scroll child out of view
 		offset = offstart - frameIdx
@@ -131,10 +143,10 @@ func (m Marquee) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	var dc *gg.Context
 	if m.isVertical() {
 		dc = gg.NewContext(im.Bounds().Dx(), m.Height)
-		dc.DrawImage(im, 0, offset)
+		dc.DrawImageAnchored(im,0,offset,0,align)
 	} else {
 		dc = gg.NewContext(m.Width, im.Bounds().Dy())
-		dc.DrawImage(im, offset, 0)
+		dc.DrawImageAnchored(im,offset,0,align,0)
 	}
 
 	return dc.Image()
