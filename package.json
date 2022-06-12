@@ -41,8 +41,8 @@
     "webpack-merge": "5.8.0"
   },
   "dependencies": {
-    "@emotion/react": "11.9.0",
-    "@emotion/styled": "11.8.1",
+    "@emotion/react": "11.9.3",
+    "@emotion/styled": "11.9.3",
     "@fontsource/barlow": "4.5.7",
     "@fontsource/material-icons": "4.5.4",
     "@fortawesome/fontawesome-svg-core": "6.1.1",
