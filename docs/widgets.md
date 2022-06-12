@@ -208,6 +208,7 @@ one of the following `align` values:
 | `offset_end` | `int` | Position of child at end of animation | N |
 | `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
 | `align` | `str` | Alignment of child that fits fully, default is 'start' | N |
+
 #### Example
 ```
 render.Marquee(

@@ -21,6 +21,12 @@ import (
 // The `offset_start` and `offset_end` parameters control the position
 // of the child in the beginning and the end of the animation.
 //
+// Alignment for a child that fits fully along the horizontal/vertical axis is controlled by passing
+// one of the following `align` values:
+// - `"start"`: place child at the left/top
+// - `"end"`: place child at the right/bottom
+// - `"center"`: place child at the center
+
 // DOC(Child): Widget to potentially scroll
 // DOC(Width): Width of the Marquee, required for horizontal
 // DOC(Height): Height of the Marquee, required for vertical
