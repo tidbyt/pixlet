@@ -246,6 +246,8 @@ Plot is a widget that draws a data series.
 | `x_lim` | `(float, float)` | Limit X-axis to a range | N |
 | `y_lim` | `(float, float)` | Limit Y-axis to a range | N |
 | `fill` | `bool` | Paint surface between line and X-axis | N |
+| `fill_color` | `color` |  | N |
+| `fill_color_inverted` | `color` |  | N |
 
 #### Example
 ```

@@ -19,6 +19,7 @@ var FillAlpha uint8 = 0x55
 // DOC(Width): Limits Plot width
 // DOC(Height): Limits Plot height
 // DOC(Color): Line color, default is '#fff'
+// DOC(ColorFill): Line color for Y-values above 0
 // DOC(ColorInverted): Line color for Y-values below 0
 // DOC(XLim): Limit X-axis to a range
 // DOC(YLim): Limit Y-axis to a range
@@ -69,6 +70,12 @@ type Plot struct {
 
 	// If true, also paint surface between line and X-axis
 	Fill bool `starlark:"fill"`
+
+	// Optional fill color for Y-values above 0
+	FillColor color.Color `starlark:"fill_color"`
+
+	// Optional fill color for Y-values below 0
+	FillColorInverted color.Color `starlark:"fill_color_inverted"`
 
 	invThreshold int
 }
@@ -193,8 +200,16 @@ func (p Plot) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	if p.ColorInverted != nil {
 		colInv = p.ColorInverted
 	}
+
 	fillCol := colorWithAlpha(col, FillAlpha)
+	if p.FillColor != nil {
+		fillCol = p.FillColor
+	}
+
 	fillColInv := colorWithAlpha(colInv, FillAlpha)
+	if p.FillColorInverted != nil {
+		fillColInv = p.FillColorInverted
+	}
 
 	pl := &PolyLine{Vertices: p.translatePoints()}
 
