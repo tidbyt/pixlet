@@ -19,11 +19,12 @@ var FillAlpha uint8 = 0x55
 // DOC(Width): Limits Plot width
 // DOC(Height): Limits Plot height
 // DOC(Color): Line color, default is '#fff'
-// DOC(ColorFill): Line color for Y-values above 0
 // DOC(ColorInverted): Line color for Y-values below 0
 // DOC(XLim): Limit X-axis to a range
 // DOC(YLim): Limit Y-axis to a range
 // DOC(Fill): Paint surface between line and X-axis
+// DOC(FillColor): Fill color for Y-values above 0
+// DOC(FillColorInverted): Fill color for Y-values below 0
 //
 // EXAMPLE BEGIN
 // render.Plot(
