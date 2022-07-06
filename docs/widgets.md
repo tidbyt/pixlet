@@ -192,6 +192,12 @@ If the child's width fits fully, it will not scroll.
 The `offset_start` and `offset_end` parameters control the position
 of the child in the beginning and the end of the animation.
 
+Alignment for a child that fits fully along the horizontal/vertical axis is controlled by passing
+one of the following `align` values:
+- `"start"`: place child at the left/top
+- `"end"`: place child at the right/bottom
+- `"center"`: place child at the center
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -201,6 +207,7 @@ of the child in the beginning and the end of the animation.
 | `offset_start` | `int` | Position of child at beginning of animation | N |
 | `offset_end` | `int` | Position of child at end of animation | N |
 | `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
+| `align` | `str` | Alignment of child that fits fully, default is 'start' | N |
 
 #### Example
 ```

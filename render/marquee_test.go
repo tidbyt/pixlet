@@ -49,6 +49,96 @@ func TestMarqueeNoScrollHorizontal(t *testing.T) {
 	}, imv))
 }
 
+func TestMarqueeNoScrollAlignCenter(t *testing.T) {
+	m := Marquee{
+		Width: 8,
+		Child: Row{
+			Children: []Widget{
+				Box{Width: 3, Height: 3, Color: color.RGBA{0xff, 0, 0, 0xff}},
+				Box{Width: 2, Height: 2, Color: color.RGBA{0, 0xff, 0, 0xff}},
+				Box{Width: 1, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+			},
+		},
+		Align: "center",
+	}
+
+	mv := Marquee{
+		Height: 5,
+		Child: Row{
+			Children: []Widget{
+				Box{Width: 3, Height: 3, Color: color.RGBA{0xff, 0, 0, 0xff}},
+				Box{Width: 2, Height: 2, Color: color.RGBA{0, 0xff, 0, 0xff}},
+				Box{Width: 1, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+			},
+		},
+		ScrollDirection: "vertical",
+		Align: "center",
+	}
+
+	// Child fits so there's just 1 single frame
+	assert.Equal(t, 1, m.FrameCount())
+	assert.Equal(t, 1, mv.FrameCount())
+	im := m.Paint(image.Rect(0, 0, 100, 100), 0)
+	imv := mv.Paint(image.Rect(0, 0, 100, 100), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		".rrrggb.",
+		".rrrgg..",
+		".rrr....",
+	}, im))
+	assert.Equal(t, nil, checkImage([]string{
+		"......",
+		"rrrggb",
+		"rrrgg.",
+		"rrr...",
+		"......",
+	}, imv))
+}
+
+func TestMarqueeNoScrollAlignEnd(t *testing.T) {
+	m := Marquee{
+		Width: 8,
+		Child: Row{
+			Children: []Widget{
+				Box{Width: 3, Height: 3, Color: color.RGBA{0xff, 0, 0, 0xff}},
+				Box{Width: 2, Height: 2, Color: color.RGBA{0, 0xff, 0, 0xff}},
+				Box{Width: 1, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+			},
+		},
+		Align: "end",
+	}
+
+	mv := Marquee{
+		Height: 5,
+		Child: Row{
+			Children: []Widget{
+				Box{Width: 3, Height: 3, Color: color.RGBA{0xff, 0, 0, 0xff}},
+				Box{Width: 2, Height: 2, Color: color.RGBA{0, 0xff, 0, 0xff}},
+				Box{Width: 1, Height: 1, Color: color.RGBA{0, 0, 0xff, 0xff}},
+			},
+		},
+		ScrollDirection: "vertical",
+		Align: "end",
+	}
+
+	// Child fits so there's just 1 single frame
+	assert.Equal(t, 1, m.FrameCount())
+	assert.Equal(t, 1, mv.FrameCount())
+	im := m.Paint(image.Rect(0, 0, 100, 100), 0)
+	imv := mv.Paint(image.Rect(0, 0, 100, 100), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		"..rrrggb",
+		"..rrrgg.",
+		"..rrr...",
+	}, im))
+	assert.Equal(t, nil, checkImage([]string{
+		"......",
+		"......",
+		"rrrggb",
+		"rrrgg.",
+		"rrr...",
+	}, imv))
+}
+
 // The addition of OffsetStart and OffsetEnd changes the default
 // behaviour of Marquee. Passing start==width and end==0 mimics the
 // old default.
