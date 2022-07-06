@@ -71,15 +71,8 @@ func (p *Image) InitFromWebP(data []byte) error {
 }
 
 func (p *Image) InitFromGIF(data []byte) error {
-	// GIF support is quite limited and can't handle different
-	// positioned and sized frames, as well as disposal types.
-	//
-	// This means that many more optimized GIFs will not render
-	// correctly, with frame contents jumping around and previous
-	// frame contents always getting disposed, instead of kept.
-	//
-	// Unfortunatley the 'image/gif' package does not even expose
-	// frame positions, making it hard to implement these features.
+	// GIF support is a bit limited. Some optimized GIFs will not
+	// render correctly.
 	//
 	// Consider using WebP instead.
 	img, err := gif.DecodeAll(bytes.NewReader(data))
@@ -88,10 +81,20 @@ func (p *Image) InitFromGIF(data []byte) error {
 	}
 
 	p.Delay = img.Delay[0] * 10
-	for _, im := range img.Image {
-		imRGBA := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), im.Bounds().Dy()))
-		draw.Draw(imRGBA, imRGBA.Bounds(), im, image.Point{0, 0}, draw.Src)
-		p.imgs = append(p.imgs, imRGBA)
+
+	last := image.NewRGBA(image.Rect(0, 0, img.Image[0].Bounds().Dx(), img.Image[0].Bounds().Dy()))
+	draw.Draw(last, last.Bounds(), img.Image[0], image.ZP, draw.Src)
+
+	for _, src := range img.Image {
+
+		// Note: We're not really handling all disposal
+		// methods here, but this seems to be good enough.
+		draw.Draw(last, last.Bounds(), src, image.ZP, draw.Over)
+		frame := *last
+		frame.Pix = make([]uint8, len(last.Pix))
+		copy(frame.Pix, last.Pix)
+
+		p.imgs = append(p.imgs, &frame)
 	}
 
 	return nil
@@ -128,11 +131,11 @@ func (p *Image) Init() error {
 		nw, nh := p.Width, p.Height
 		if nw == 0 {
 			// scale width, maintaining original aspect ratio
-			nw = int(float64(nh)*(float64(w)/float64(h)))
+			nw = int(float64(nh) * (float64(w) / float64(h)))
 		}
 		if nh == 0 {
 			// scale height, maintaining original aspect ratio
-			nh = int(float64(nw)*(float64(h)/float64(w)))
+			nh = int(float64(nw) * (float64(h) / float64(w)))
 		}
 
 		for i := 0; i < len(p.imgs); i++ {
