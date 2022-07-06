@@ -72,7 +72,7 @@ func TestMarqueeNoScrollAlignCenter(t *testing.T) {
 			},
 		},
 		ScrollDirection: "vertical",
-		Align: "center",
+		Align:           "center",
 	}
 
 	// Child fits so there's just 1 single frame
@@ -117,7 +117,7 @@ func TestMarqueeNoScrollAlignEnd(t *testing.T) {
 			},
 		},
 		ScrollDirection: "vertical",
-		Align: "end",
+		Align:           "end",
 	}
 
 	// Child fits so there's just 1 single frame

@@ -51,7 +51,7 @@ type Marquee struct {
 	OffsetStart     int    `starlark:"offset_start"`
 	OffsetEnd       int    `starlark:"offset_end"`
 	ScrollDirection string `starlark:"scroll_direction"`
-	Align			string `starlark:"align"`
+	Align           string `starlark:"align"`
 }
 
 func (m Marquee) FrameCount() int {
@@ -126,11 +126,11 @@ func (m Marquee) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		// child fits entirely and we don't want to scroll it anyway
 		offset = 0
 
-		//modify alignment 
-		if m.Align=="center" {
+		//modify alignment
+		if m.Align == "center" {
 			align = 0.5
-			offset = size/2
-		} else if m.Align=="end" {
+			offset = size / 2
+		} else if m.Align == "end" {
 			align = 1.0
 			offset = size
 		}
@@ -149,10 +149,10 @@ func (m Marquee) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	var dc *gg.Context
 	if m.isVertical() {
 		dc = gg.NewContext(im.Bounds().Dx(), m.Height)
-		dc.DrawImageAnchored(im,0,offset,0,align)
+		dc.DrawImageAnchored(im, 0, offset, 0, align)
 	} else {
 		dc = gg.NewContext(m.Width, im.Bounds().Dy())
-		dc.DrawImageAnchored(im,offset,0,align,0)
+		dc.DrawImageAnchored(im, offset, 0, align, 0)
 	}
 
 	return dc.Image()
