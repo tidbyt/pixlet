@@ -20,6 +20,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pkg/errors v0.9.1
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c

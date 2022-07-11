@@ -194,3 +194,43 @@ def main(config):
     else:
         print("Better luck next time!")
 ```
+
+## Pixlet module: QRCode
+
+The `qrcode` module provides a QR code generator for pixlet!
+
+| Function | Description |
+| --- | --- |
+| `generate(url, size, color?, background?)` | Returns a QR code as an image that can be passed into the image widget. |
+
+Sizing works as follows:
+- `small`: 21x21 pixels
+- `medium`: 25x25 pixels
+- `large`: 29x29 pixels
+
+Note: we're working with some of the smallest possible QR codes in this module, so the amount of data that can be used for the URL is extremely limited.
+
+Example:
+```starlark
+load("cache.star", "cache")
+load("render.star", "render")
+load("qrcode.star", "qrcode")
+
+def main(config):
+    url = "https://tidbyt.com?utm_source=pixlet_example"
+    code = cache.get(url)
+    if code == None:
+        code = qrcode.generate(
+            url = url,
+            size = "large",
+            color = "#fff",
+            background = "#000",
+        )
+
+    return render.Root(
+        child = render.Padding(
+            child = render.Image(src = code),
+            pad = 1,
+        ),
+    )
+```
