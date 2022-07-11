@@ -3,10 +3,8 @@ package qrcode
 import (
 	"fmt"
 	"image/color"
-	"math/rand"
 	"strings"
 	"sync"
-	"time"
 
 	goqrcode "github.com/skip2/go-qrcode"
 	"go.starlark.net/starlark"
@@ -25,7 +23,6 @@ var (
 
 func LoadModule() (starlark.StringDict, error) {
 	once.Do(func() {
-		rand.Seed(time.Now().UnixNano())
 		module = starlark.StringDict{
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
