@@ -24,6 +24,7 @@ import (
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/humanize"
+	"tidbyt.dev/pixlet/runtime/modules/qrcode"
 	"tidbyt.dev/pixlet/runtime/modules/random"
 	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
@@ -346,6 +347,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "random.star":
 		return random.LoadModule()
+
+	case "qrcode.star":
+		return qrcode.LoadModule()
 
 	case "assert.star":
 		return starlarktest.LoadAssertModule()
