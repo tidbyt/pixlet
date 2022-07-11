@@ -71,7 +71,7 @@ func generateQRCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.
 		return nil, fmt.Errorf("size must be small, medium, or large")
 	}
 
-	url := starUrl.String()
+	url := starUrl.GoString()
 	code, err := goqrcode.NewWithForcedVersion(url, version, goqrcode.Low)
 	if err != nil {
 		return nil, err
