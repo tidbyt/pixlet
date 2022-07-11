@@ -3,7 +3,6 @@ package qrcode
 import (
 	"fmt"
 	"image/color"
-	"strings"
 	"sync"
 
 	goqrcode "github.com/skip2/go-qrcode"
@@ -55,11 +54,6 @@ func generateQRCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.
 		return nil, fmt.Errorf("unpacking arguments for generate: %w", err)
 	}
 
-	// Validate size.
-	if !contains([]string{"small", "medium", "large"}, starSize.GoString()) {
-		return nil, fmt.Errorf("size must be small, medium, or large")
-	}
-
 	// Determine QRCode sizing information.
 	version := 0
 	imgSize := 0
@@ -73,6 +67,8 @@ func generateQRCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.
 	case "large":
 		version = 3
 		imgSize = 29
+	default:
+		return nil, fmt.Errorf("size must be small, medium, or large")
 	}
 
 	url := starUrl.String()
@@ -110,14 +106,4 @@ func generateQRCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.
 	}
 
 	return starlark.String(string(png)), nil
-}
-
-func contains(slice []string, str string) bool {
-	for _, item := range slice {
-		if strings.Compare(item, str) == 0 {
-			return true
-		}
-	}
-
-	return false
 }
