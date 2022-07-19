@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import { update, loading } from './handlerSlice';
+import { updateGenerated } from '../schema/schemaSlice';
 import { set as setError } from '../errors/errorSlice';
 import store from "../../store";
 
@@ -22,6 +23,28 @@ export function callHandler(id, handler, param) {
     axios.post('/api/v1/handlers/' + handler, JSON.stringify(data))
         .then(res => {
             store.dispatch(update({ id: id, value: res.data }));
+        })
+        .catch(err => {
+            // TODO: make sure this clears.
+            const msg = parseErrorMessage(handler, err);
+            store.dispatch(setError({ id: msg, message: msg }));
+            console.log(err);
+        })
+        .then(() => {
+            store.dispatch(loading(false));
+        })
+}
+
+export function callGeneratedHandler(id, handler, param) {
+    let data = {
+        id: id,
+        param: param
+    }
+
+    store.dispatch(loading(true));
+    axios.post('/api/v1/handlers/' + handler, JSON.stringify(data))
+        .then(res => {
+            store.dispatch(updateGenerated(res.data));
         })
         .catch(err => {
             // TODO: make sure this clears.
