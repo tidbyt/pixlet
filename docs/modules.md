@@ -83,6 +83,9 @@ The `humanize` module has formatters for units to human friendly sizes.
 | `word_series(words, conjunction)` | Converts a list of words into a word series in English. It returns a string containing all the given words separated by commas, the coordinating conjunction, and a serial comma, as appropriate. |
 | `oxford_word_series(words, conjunction)` | Converts a list of words into a word series in English, using an [Oxford comma](https://en.wikipedia.org/wiki/Serial_comma). It returns a string containing all the given words separated by commas, the coordinating conjunction, and a serial comma, as appropriate. |
 
+| `url_encode(str)` | Escapes the string so it can be safely placed inside a URL query. |
+| `url_decode(str)` | The inverse of `url_encode`. Converts each 3-byte encoded substring of the form "%AB" into the hex-decoded byte 0xAB |
+
 Example:
 
 See [examples/humanize.star](../examples/humanize.star) for an example.

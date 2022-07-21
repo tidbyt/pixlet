@@ -42,6 +42,8 @@ humanized_plural_word = humanize.plural_word(1, "star", "")
 humanized_word_series = humanize.word_series(["foo", "bar", "baz"], "and")
 humanized_word_series_oxford = humanize.oxford_word_series(["foo", "bar", "baz"], "and")
 iso_date = now.format(humanized_date_format)
+humanized_url_encode = humanize.url_encode("bar baz")
+humanized_url_decode = humanize.url_decode("http://example.com/foo=bar+baz")
 
 # Assert.
 assert(humanized_time_past == "2 days ago")
@@ -65,6 +67,8 @@ assert(humanized_plural_test == "1 star")
 assert(humanized_plural_word == "star")
 assert(humanized_word_series == "foo, bar and baz")
 assert(humanized_word_series_oxford == "foo, bar, and baz")
+assert(humanized_url_encode == "bar+baz")
+assert(humanized_url_decode == "http://example.com/foo=bar baz")
 
 def main():
 	return []
