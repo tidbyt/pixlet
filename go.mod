@@ -1,6 +1,6 @@
 module tidbyt.dev/pixlet
 
-go 1.16
+go 1.18
 
 require (
 	github.com/antchfx/xmlquery v1.3.11
