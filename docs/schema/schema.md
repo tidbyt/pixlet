@@ -118,6 +118,55 @@ schema.Dropdown(
 )
 ```
 
+### Generated
+> [Example App](generated/example.star)
+
+The generated field allows for a schema field to generate additional schema
+fields 🤯. User beware - this field is both not user friendly and our tooling
+likely has a fair number of bugs. The benefit though is the ability to ask the
+user for additional fields depending on their input. 
+
+
+In this example, `source` is the `id` of the field that will be passed to the
+`handler`. So if there is a text field with `id = pet`, the value of the pet
+text field will be passed to `more_options`:
+```starlark
+schema.Generated(
+    id = "generated",
+    source = "pet",
+    handler = more_options,
+)
+```
+
+Note - the value that is passed to the handler is dependent on the source field
+type. A handler might look as follows:
+
+```starlark
+def more_options(pet):
+    if pet == "dog":
+        return [
+            schema.Toggle(
+                id = "leash",
+                name = "Leash",
+                desc = "A toggle to enable a dog leash.",
+                icon = "cog",
+                default = False,
+            ),
+        ]
+    elif pet == "cat":
+        return [
+            schema.Toggle(
+                id = "litter-box",
+                name = "Litter Box",
+                desc = "A toggle to enable a litter box.",
+                icon = "cog",
+                default = False,
+            ),
+        ]
+    else:
+        return []
+```
+
 ### Location
 ![location example](location/location.gif)
 > [Example App](location/example.star)

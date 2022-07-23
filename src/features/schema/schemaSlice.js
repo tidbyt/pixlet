@@ -9,10 +9,17 @@ export const schemaSlice = createSlice({
             version: '1',
             schema: []
         },
+        generated: {
+            version: '1',
+            schema: []
+        }
     },
     reducers: {
         update: (state = initialState, action) => {
             return { ...state, value: action.payload, loading: false, error: '' }
+        },
+        updateGenerated: (state = initialState, action) => {
+            return { ...state, generated: action.payload, loading: false, error: '' }
         },
         loading: (state = initialState, action) => {
             return { ...state, loading: action.payload }
@@ -23,5 +30,5 @@ export const schemaSlice = createSlice({
     },
 });
 
-export const { update, loading, error } = schemaSlice.actions;
+export const { update, updateGenerated, loading, error } = schemaSlice.actions;
 export default schemaSlice.reducer;

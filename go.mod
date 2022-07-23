@@ -1,6 +1,6 @@
 module tidbyt.dev/pixlet
 
-go 1.16
+go 1.18
 
 require (
 	github.com/antchfx/xmlquery v1.3.11
@@ -20,13 +20,13 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pkg/errors v0.9.1
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41
-	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
-	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
+	go.starlark.net v0.0.0-20220714194419-4cadf0a12139
 	golang.org/x/image v0.0.0-20220617043117-41969df76e82
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 )
