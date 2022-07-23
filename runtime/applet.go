@@ -308,7 +308,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return LoadXPathModule()
 
 	case "compress/gzip.star":
-		return starlibgzip.LoadModule()
+		return starlark.StringDict{
+			starlibgzip.Module.Name: starlibgzip.Module,
+		}, nil
 
 	case "encoding/base64.star":
 		return starlibbase64.LoadModule()
