@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	starlibgzip "github.com/qri-io/starlib/compress/gzip"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
 	starlibcsv "github.com/qri-io/starlib/encoding/csv"
 	starlibhash "github.com/qri-io/starlib/hash"
@@ -305,6 +306,11 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "xpath.star":
 		return LoadXPathModule()
+
+	case "compress/gzip.star":
+		return starlark.StringDict{
+			starlibgzip.Module.Name: starlibgzip.Module,
+		}, nil
 
 	case "encoding/base64.star":
 		return starlibbase64.LoadModule()
