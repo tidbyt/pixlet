@@ -41,7 +41,7 @@ def more_options(pet):
                 id = "leash",
                 name = "Leash",
                 desc = "A toggle to enable a dog leash.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ]
@@ -51,7 +51,7 @@ def more_options(pet):
                 id = "litter-box",
                 name = "Litter Box",
                 desc = "A toggle to enable a litter box.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ]
@@ -66,7 +66,7 @@ def get_schema():
                 id = "pet",
                 name = "Pet Type",
                 desc = "What type of pet do you have?",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.Generated(
                 id = "generated",

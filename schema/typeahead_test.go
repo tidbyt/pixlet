@@ -30,14 +30,14 @@ t = schema.Typeahead(
     id = "search",
     name = "Search",
     desc = "A list of items that match search.",
-    icon = "cog",
+    icon = "gear",
     handler = search,
 )
 
 assert(t.id == "search")
 assert(t.name == "Search")
 assert(t.desc == "A list of items that match search.")
-assert(t.icon == "cog")
+assert(t.icon == "gear")
 assert(t.handler("")[0].display == "Grand Central")
 
 def main():

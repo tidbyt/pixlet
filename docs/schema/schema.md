@@ -83,7 +83,7 @@ schema.DateTime(
     id = "event_time",
     name = "Event Time",
     desc = "The time of the event.",
-    icon = "cog",
+    icon = "gear",
 )
 ```
 
@@ -149,7 +149,7 @@ def more_options(pet):
                 id = "leash",
                 name = "Leash",
                 desc = "A toggle to enable a dog leash.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ]
@@ -159,7 +159,7 @@ def more_options(pet):
                 id = "litter-box",
                 name = "Litter Box",
                 desc = "A toggle to enable a litter box.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ]
@@ -178,7 +178,7 @@ schema.Location(
     id = "location",
     name = "Location",
     desc = "Location for which to display time.",
-    icon = "place",
+    icon = "locationDot",
 )
 ```
 
@@ -290,7 +290,7 @@ schema.PhotoSelect(
     id = "photo",
     name = "Add Photo",
     desc = "A photo to display.",
-    icon = "cog",
+    icon = "gear",
 )
 ```
 
@@ -311,7 +311,7 @@ schema.Text(
     id = "msg",
     name = "Message",
     desc = "A message to display.",
-    icon = "cog",
+    icon = "gear",
     default = "Hello",
 )
 ```
@@ -327,7 +327,7 @@ schema.Toggle(
     id = "party_mode",
     name = "Party Mode",
     desc = "A toggle to enable party mode.",
-    icon = "cog",
+    icon = "gear",
     default = False,
 )
 ```
@@ -348,7 +348,7 @@ schema.Typeahead(
     id = "search",
     name = "Search",
     desc = "A list of items that match search.",
-    icon = "cog",
+    icon = "gear",
     handler = search,
 )
 ```

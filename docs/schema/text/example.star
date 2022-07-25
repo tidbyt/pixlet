@@ -18,7 +18,7 @@ def get_schema():
                 id = "msg",
                 name = "Message",
                 desc = "A message to display.",
-                icon = "cog",
+                icon = "gear",
                 default = "Hello",
             ),
         ],

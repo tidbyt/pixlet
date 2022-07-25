@@ -23,7 +23,7 @@ def get_schema():
                 id = "party_mode",
                 name = "Party Mode",
                 desc = "A toggle to enable party mode.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ],
