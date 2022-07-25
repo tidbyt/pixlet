@@ -64,7 +64,7 @@ The `get_schema` method returns a `schema.Schema` object that contains _fields_.
 Next up should be more familiar. We're now passing `config` into `main()`. This is the same for current pixlet scripts that take `config` today. In [Community Apps](https://github.com/tidbyt/community), we will populate the config hashmap with values configured from the mobile app.
 
 ## Icons
-Each schema field takes an `icon` value. We use the free icons from [Font Awesome](https://fontawesome.com/) with the names camel cased. For example [users-cog](https://fontawesome.com/v5.15/icons/users-cog?style=solid) should be `usersCog` in the `icon` value.
+Each schema field takes an `icon` value. We use the free icons from [Font Awesome](https://fontawesome.com/v6/search?s=solid%2Cbrands) at version 6.1.1 with the names camel cased. For example [users-cog](https://fontawesome.com/v6/icons/users-cog?style=solid&s=solid) should be `usersCog` in the `icon` value. When submitting to the community repo, the icon names are validated against this [icon map](https://github.com/tidbyt/community/blob/main/apps/icons.go).
 
 ## Dynamic Fields
 Pixlet offers two types of fields: basic fields like `Toggle` or `Text` and dynamic fields that take a `handler` method like `LocationBased` or `Typeahead`. For dynamic fields, the `handler` will get called with user inputs. What the handler returns is specific to the field.
