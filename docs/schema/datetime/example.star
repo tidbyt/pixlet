@@ -21,7 +21,7 @@ def get_schema():
                 id = "event_time",
                 name = "Event Time",
                 desc = "The time of the event.",
-                icon = "cog",
+                icon = "gear",
             ),
         ],
     )

@@ -17,7 +17,7 @@ def get_schema():
                 id = "photo",
                 name = "Add Photo",
                 desc = "A photo to display.",
-                icon = "cog",
+                icon = "gear",
             ),
         ],
     )

@@ -18,13 +18,13 @@ t = schema.PhotoSelect(
 	id = "photo",
 	name = "Add Photo",
 	desc = "A photo.",
-	icon = "cog",
+	icon = "gear",
 )
 
 assert(t.id == "photo")
 assert(t.name == "Add Photo")
 assert(t.desc == "A photo.")
-assert(t.icon == "cog")
+assert(t.icon == "gear")
 
 def main():
 	return []

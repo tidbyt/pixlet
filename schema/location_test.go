@@ -18,13 +18,13 @@ s = schema.Location(
 	id = "location",
 	name = "Location",
 	desc = "Location for which to display time.",
-	icon = "place",
+	icon = "locationDot",
 )
 
 assert(s.id == "location")
 assert(s.name == "Location")
 assert(s.desc == "Location for which to display time.")
-assert(s.icon == "place")
+assert(s.icon == "locationDot")
 
 def main():
 	return []

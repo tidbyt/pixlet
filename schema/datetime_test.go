@@ -18,13 +18,13 @@ t = schema.DateTime(
 	id = "event_name",
 	name = "Event Name",
 	desc = "The time of the event.",
-	icon = "cog",
+	icon = "gear",
 )
 
 assert(t.id == "event_name")
 assert(t.name == "Event Name")
 assert(t.desc == "The time of the event.")
-assert(t.icon == "cog")
+assert(t.icon == "gear")
 
 def main():
 	return []

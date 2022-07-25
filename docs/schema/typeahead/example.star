@@ -36,7 +36,7 @@ def get_schema():
                 id = "search",
                 name = "Search",
                 desc = "A list of items that match search.",
-                icon = "cog",
+                icon = "gear",
                 handler = search,
             ),
         ],
