@@ -466,6 +466,8 @@ github.com/tidbyt/go-libwebp v0.0.0-20220302033350-dd1cead28df2 h1:X0FYTOmj5qBsr
 github.com/tidbyt/go-libwebp v0.0.0-20220302033350-dd1cead28df2/go.mod h1:JU6yp7mldR7lmftjHPtaDs+Q8xn7l2tMR1XYx5iJELg=
 github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c h1:yKzIVyxRJg7f7cUzux/w/VLr5DjFoqyWtI4PwfKyLeo=
 github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c/go.mod h1:JU6yp7mldR7lmftjHPtaDs+Q8xn7l2tMR1XYx5iJELg=
+github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601 h1:W7xhAgRtepnWBTmbzb0R+5ikjEYCX1c55SN8HJv5FcI=
+github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601/go.mod h1:JU6yp7mldR7lmftjHPtaDs+Q8xn7l2tMR1XYx5iJELg=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
