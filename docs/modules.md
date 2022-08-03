@@ -28,7 +28,7 @@ individual modules, please refer to the Starlib documentation.
 
 | Module | Description |
 | --- | --- |
-| [`compress/gzip.star`](https://github.com/qri-io/starlib/blob/master/compress/gzip/gzip) | gzip decompressing |
+| [`compress/gzip.star`](https://github.com/qri-io/starlib/blob/master/compress/gzip) | gzip decompressing |
 | [`encoding/base64.star`](https://github.com/qri-io/starlib/tree/master/encoding/base64) | Base 64 encoding and decoding |
 | [`encoding/csv.star`](https://github.com/qri-io/starlib/tree/master/encoding/csv) | CSV decoding |
 | [`encoding/json.star`](https://github.com/qri-io/starlib/tree/master/encoding/json) | JSON encoding and decoding |
