@@ -2,6 +2,8 @@ module tidbyt.dev/pixlet
 
 go 1.19
 
+replace github.com/fogleman/gg => github.com/tidbyt/gg v0.0.0-20220804144917-ec82497a6952
+
 require (
 	github.com/antchfx/xmlquery v1.3.12
 	github.com/dustin/go-humanize v1.0.0
