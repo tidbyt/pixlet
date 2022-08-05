@@ -20,6 +20,7 @@ func init() {
 	rootCmd.AddCommand(cmd.PushCmd)
 	rootCmd.AddCommand(cmd.EncryptCmd)
 	rootCmd.AddCommand(cmd.VersionCmd)
+	rootCmd.AddCommand(cmd.ProfileCmd)
 }
 
 func main() {
