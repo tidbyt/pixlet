@@ -11,6 +11,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
+	"github.com/fogleman/gg"
 	"github.com/nfnt/resize"
 	"github.com/tidbyt/go-libwebp/webp"
 )
@@ -39,8 +40,12 @@ type Image struct {
 	imgs []image.Image
 }
 
-func (p *Image) Paint(bounds image.Rectangle, frameIdx int) image.Image {
-	return p.imgs[ModInt(frameIdx, len(p.imgs))]
+func (p *Image) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	return p.imgs[ModInt(frameIdx, len(p.imgs))].Bounds()
+}
+
+func (p *Image) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	dc.DrawImage(p.imgs[ModInt(frameIdx, len(p.imgs))], 0, 0)
 }
 
 func (p *Image) Size() (int, int) {

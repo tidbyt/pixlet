@@ -23,7 +23,7 @@ type Vector struct {
 	Vertical   bool
 }
 
-func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (v Vector) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	// (dx, dy) determines the orientation of this Vector
 	dx, dy := 1, 0
 	if v.Vertical {
@@ -37,12 +37,11 @@ func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	// total width and height as we go along.
 	maxW, maxH := 0, 0
 	sumW, sumH := 0, 0
-	images := make([]image.Image, 0, len(v.Children))
 	for _, child := range v.Children {
-		im := child.Paint(image.Rect(0, 0, boundsW-dx*sumW, boundsH-dy*sumH), frameIdx)
+		cb := child.PaintBounds(image.Rect(0, 0, boundsW-dx*sumW, boundsH-dy*sumH), frameIdx)
 
-		imW := im.Bounds().Dx()
-		imH := im.Bounds().Dy()
+		imW := cb.Dx()
+		imH := cb.Dy()
 
 		sumW += imW
 		if imW > maxW {
@@ -53,7 +52,65 @@ func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 			maxH = imH
 		}
 
-		images = append(images, im)
+		// This checks if we've overflowed the main axis
+		if sumW*dx >= boundsW || sumH*dy >= boundsH {
+			break
+		}
+	}
+
+	// Compute the final dimensions of the vector. If the vector
+	// is expanded, then it will span the full bounds along the
+	// main axis. Otherwise, it will be the size of its children.
+	// Along the cross axis, size will be the max of the
+	// children. However, in both cases, total size can never
+	// exceed the available bounds.
+	width := dx*sumW + dy*maxW
+	height := dx*maxH + dy*sumH
+	if v.Expanded {
+		width = dx*boundsW + dy*maxW
+		height = dx*maxH + dy*boundsH
+	}
+	if height > boundsH {
+		height = boundsH
+	}
+	if width > boundsW {
+		width = boundsW
+	}
+
+	return image.Rect(0, 0, width, height)
+}
+
+func (v Vector) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	// (dx, dy) determines the orientation of this Vector
+	dx, dy := 1, 0
+	if v.Vertical {
+		dx, dy = 0, 1
+	}
+
+	boundsW := bounds.Dx()
+	boundsH := bounds.Dy()
+
+	// Paint as many children as we can fit. Compute their max and
+	// total width and height as we go along.
+	maxW, maxH := 0, 0
+	sumW, sumH := 0, 0
+	childrenBounds := make([]image.Rectangle, 0, len(v.Children))
+	for _, child := range v.Children {
+		cb := child.PaintBounds(image.Rect(0, 0, boundsW-dx*sumW, boundsH-dy*sumH), frameIdx)
+
+		imW := cb.Dx()
+		imH := cb.Dy()
+
+		sumW += imW
+		if imW > maxW {
+			maxW = imW
+		}
+		sumH += imH
+		if imH > maxH {
+			maxH = imH
+		}
+
+		childrenBounds = append(childrenBounds, cb)
 
 		// This checks if we've overflowed the main axis
 		if sumW*dx >= boundsW || sumH*dy >= boundsH {
@@ -100,17 +157,17 @@ func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 			offset = 0
 		}
 	case "space_evenly":
-		spacing = remaining / (len(images) + 1)
-		spacingResidual = remaining % (len(images) + 1)
+		spacing = remaining / (len(childrenBounds) + 1)
+		spacingResidual = remaining % (len(childrenBounds) + 1)
 		offset = spacing
 	case "space_around":
-		spacing = remaining / len(images)
-		spacingResidual = remaining % len(images)
+		spacing = remaining / len(childrenBounds)
+		spacingResidual = remaining % len(childrenBounds)
 		offset = spacing / 2
 	case "center":
 		offset = remaining / 2
 	case "space_between":
-		n := len(images)
+		n := len(childrenBounds)
 		if n > 1 {
 			spacing = remaining / (n - 1)
 			spacingResidual = remaining % (n - 1)
@@ -121,11 +178,14 @@ func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		}
 	}
 
+	maxW, maxH = 0, 0
+	sumW, sumH = 0, 0
+
 	// Draw the children
-	dc := gg.NewContext(width, height)
-	for _, im := range images {
-		imW := im.Bounds().Dx()
-		imH := im.Bounds().Dy()
+	for i, cb := range childrenBounds {
+		imW := cb.Dx()
+		imH := cb.Dy()
+		child := v.Children[i]
 
 		// Residual space gets distributed 1 pixel at a time
 		if spacingResidual > 0 {
@@ -144,15 +204,35 @@ func (v Vector) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 			crossOffset = dx*(height-imH) + dy*(width-imW)
 		}
 
-		dc.DrawImage(im, dx*offset+dy*crossOffset, dx*crossOffset+dy*offset)
+		dc.Push()
+		dc.Translate(float64(dx*offset+dy*crossOffset), float64(dx*crossOffset+dy*offset))
+
+		dc.DrawRectangle(
+			float64(0),
+			float64(0),
+			float64(cb.Dx()),
+			float64(cb.Dy()),
+		)
+		dc.Clip()
+
+		child.Paint(dc, image.Rect(0, 0, boundsW-dx*sumW, boundsH-dy*sumH), frameIdx)
+		dc.Pop()
+
+		sumW += imW
+		if imW > maxW {
+			maxW = imW
+		}
+		sumH += imH
+		if imH > maxH {
+			maxH = imH
+		}
+
 		offset += dx*imW + dy*imH + spacing
 
 		if offset >= dx*boundsW+dy*boundsH {
 			break
 		}
 	}
-
-	return dc.Image()
 }
 
 func (v Vector) FrameCount() int {

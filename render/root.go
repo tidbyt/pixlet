@@ -56,8 +56,9 @@ func (r Root) Paint(solidBackground bool) []image.Image {
 				dc.Clear()
 			}
 
-			im := r.Child.Paint(image.Rect(0, 0, DefaultFrameWidth, DefaultFrameHeight), i)
-			dc.DrawImage(im, 0, 0)
+			dc.Push()
+			r.Child.Paint(dc, image.Rect(0, 0, DefaultFrameWidth, DefaultFrameHeight), i)
+			dc.Pop()
 			frames[i] = dc.Image()
 			wg.Done()
 		}(i)

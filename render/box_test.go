@@ -13,7 +13,7 @@ func TestBoxNoChild(t *testing.T) {
 
 	// Transparent by default
 	box := Box{}
-	im := box.Paint(image.Rect(0, 0, 5, 5), 0)
+	im := PaintWidget(box, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".....",
 		".....",
@@ -24,7 +24,7 @@ func TestBoxNoChild(t *testing.T) {
 
 	// Color can be set
 	box = Box{Color: color.RGBA{0xff, 0, 0, 0xff}}
-	im = box.Paint(image.Rect(0, 0, 5, 5), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrrr",
 		"rrrrr",
@@ -35,7 +35,7 @@ func TestBoxNoChild(t *testing.T) {
 
 	// Specify Width and the box fills height bounds
 	box = Box{Color: color.RGBA{0xff, 0, 0, 0xff}, Width: 3}
-	im = box.Paint(image.Rect(0, 0, 5, 5), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrr",
 		"rrr",
@@ -46,7 +46,7 @@ func TestBoxNoChild(t *testing.T) {
 
 	// Specify Height and it fills width bounds
 	box = Box{Color: color.RGBA{0xff, 0, 0, 0xff}, Height: 3}
-	im = box.Paint(image.Rect(0, 0, 5, 5), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrrr",
 		"rrrrr",
@@ -55,7 +55,7 @@ func TestBoxNoChild(t *testing.T) {
 
 	// Specify both and it ignores the bounds entirely
 	box = Box{Color: color.RGBA{0xff, 0, 0, 0xff}, Width: 2, Height: 3}
-	im = box.Paint(image.Rect(0, 0, 5, 5), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rr",
 		"rr",
@@ -73,7 +73,7 @@ func TestBoxChildCenter(t *testing.T) {
 			Height: 2,
 		},
 	}
-	im := box.Paint(image.Rect(0, 0, 4, 4), 0)
+	im := PaintWidget(box, image.Rect(0, 0, 4, 4), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....",
 		".rr.",
@@ -83,7 +83,7 @@ func TestBoxChildCenter(t *testing.T) {
 
 	// If perfect centering can be done, remaining pixels are on
 	// the right and below the child.
-	im = box.Paint(image.Rect(0, 0, 5, 5), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".....",
 		".rr..",
@@ -93,14 +93,14 @@ func TestBoxChildCenter(t *testing.T) {
 	}, im))
 
 	// Centered horizontally here
-	im = box.Paint(image.Rect(0, 0, 4, 2), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 4, 2), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".rr.",
 		".rr.",
 	}, im))
 
 	// Centered vertically here
-	im = box.Paint(image.Rect(0, 0, 2, 4), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 2, 4), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"..",
 		"rr",
@@ -117,7 +117,7 @@ func TestBoxPadding(t *testing.T) {
 			Color: color.RGBA{0xff, 0, 0, 0xff},
 		},
 	}
-	im := box.Paint(image.Rect(0, 0, 4, 4), 0)
+	im := PaintWidget(box, image.Rect(0, 0, 4, 4), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrr",
 		"rrrr",
@@ -132,7 +132,7 @@ func TestBoxPadding(t *testing.T) {
 		},
 		Padding: 1,
 	}
-	im = box.Paint(image.Rect(0, 0, 4, 4), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 4, 4), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....",
 		".rr.",
@@ -147,7 +147,7 @@ func TestBoxPadding(t *testing.T) {
 		},
 		Padding: 3,
 	}
-	im = box.Paint(image.Rect(0, 0, 8, 8), 0)
+	im = PaintWidget(box, image.Rect(0, 0, 8, 8), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"........",
 		"........",

@@ -48,7 +48,7 @@ func TestTransformationTranslate(t *testing.T) {
 	// These frames should show the box moving diagonally out of frame.
 	assert.Equal(t, 6, o.FrameCount())
 
-	im := o.Paint(image.Rect(0, 0, 5, 5), 0)
+	im := render.PaintWidget(&o, image.Rect(0, 0, 5, 5), 0)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rrr..",
 		"ggg..",
@@ -57,7 +57,7 @@ func TestTransformationTranslate(t *testing.T) {
 		".....",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 5, 5), 1)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 5, 5), 1)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		".....",
 		".rrr.",
@@ -66,7 +66,7 @@ func TestTransformationTranslate(t *testing.T) {
 		".....",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 5, 5), 2)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 5, 5), 2)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		".....",
 		".....",
@@ -75,7 +75,7 @@ func TestTransformationTranslate(t *testing.T) {
 		"..bbb",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 5, 5), 3)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 5, 5), 3)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		".....",
 		".....",
@@ -84,7 +84,7 @@ func TestTransformationTranslate(t *testing.T) {
 		"...gg",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 5, 5), 4)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 5, 5), 4)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		".....",
 		".....",
@@ -93,7 +93,7 @@ func TestTransformationTranslate(t *testing.T) {
 		"....r",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 5, 5), 5)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 5, 5), 5)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		".....",
 		".....",
@@ -144,7 +144,7 @@ func TestTransformationScale(t *testing.T) {
 	// These frames should show the box scaling from 1x to 3x.
 	assert.Equal(t, 3, o.FrameCount())
 
-	im := o.Paint(image.Rect(0, 0, 9, 9), 0)
+	im := render.PaintWidget(&o, image.Rect(0, 0, 9, 9), 0)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rrr......",
 		"rrr......",
@@ -157,7 +157,7 @@ func TestTransformationScale(t *testing.T) {
 		".........",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 9, 9), 1)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 9, 9), 1)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rrrrrr...",
 		"rrrrrr...",
@@ -170,7 +170,7 @@ func TestTransformationScale(t *testing.T) {
 		".........",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 9, 9), 2)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 9, 9), 2)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rrrrrrrrr",
 		"rrrrrrrrr",
@@ -224,35 +224,35 @@ func TestTransformationRotate(t *testing.T) {
 	// These frames should show the box rotating 90 degrees each frame.
 	assert.Equal(t, 5, o.FrameCount())
 
-	im := o.Paint(image.Rect(0, 0, 3, 3), 0)
+	im := render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 0)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rrr",
 		"ggg",
 		"bbb",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 1)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 1)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"bgr",
 		"bgr",
 		"bgr",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 2)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 2)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"bbb",
 		"ggg",
 		"rrr",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 3)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 3)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rgb",
 		"rgb",
 		"rgb",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 4)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 4)
 	assert.Equal(t, nil, render.CheckImage([]string{
 		"rrr",
 		"ggg",
@@ -264,14 +264,16 @@ func TestTransformationAll(t *testing.T) {
 	// Checking colors with anti-aliasing (when scaling) is more complex.
 	ic := render.ImageChecker{Palette: map[string]color.RGBA{
 		"█": {0xff, 0xff, 0xff, 0xff},
-		"▓": {0x80, 0x80, 0x80, 0x80},
-		"▒": {0x7f, 0x7f, 0x7f, 0x7f},
-		"░": {0x40, 0x40, 0x40, 0x40},
+		"▓": {0x40, 0x40, 0x40, 0x40},
+		"▒": {0x20, 0x20, 0x20, 0x20},
+		"░": {0x08, 0x08, 0x08, 0x08},
+		"⎕": {0x04, 0x04, 0x04, 0x04},
 		".": {0, 0, 0, 0},
 		"●": {0, 0, 0, 0xff},
-		"◉": {0, 0, 0, 0x80},
-		"◎": {0, 0, 0, 0x7f},
-		"○": {0, 0, 0, 0x40},
+		"◉": {0, 0, 0, 0x40},
+		"◎": {0, 0, 0, 0x20},
+		"○": {0, 0, 0, 0x08},
+		"⁘": {0, 0, 0, 0x04},
 	}}
 
 	o := Transformation{
@@ -342,7 +344,7 @@ func TestTransformationAll(t *testing.T) {
 	// translated, rotated and in the end scaled to 2x.
 	assert.Equal(t, 5, o.FrameCount())
 
-	im := o.Paint(image.Rect(0, 0, 9, 9), 0)
+	im := render.PaintWidget(&o, image.Rect(0, 0, 9, 9), 0)
 	assert.Equal(t, nil, ic.Check([]string{
 		"█.●......",
 		".........",
@@ -355,7 +357,7 @@ func TestTransformationAll(t *testing.T) {
 		".........",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 9, 9), 1)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 9, 9), 1)
 	assert.Equal(t, nil, ic.Check([]string{
 		".........",
 		".●.█.....",
@@ -368,7 +370,7 @@ func TestTransformationAll(t *testing.T) {
 		".........",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 2)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 2)
 	assert.Equal(t, nil, ic.Check([]string{
 		".........",
 		".........",
@@ -381,7 +383,7 @@ func TestTransformationAll(t *testing.T) {
 		".........",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 3)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 3)
 	assert.Equal(t, nil, ic.Check([]string{
 		".........",
 		".........",
@@ -394,17 +396,17 @@ func TestTransformationAll(t *testing.T) {
 		".........",
 	}, im))
 
-	im = o.Paint(image.Rect(0, 0, 3, 3), 4)
+	im = render.PaintWidget(&o, image.Rect(0, 0, 3, 3), 4)
 
 	assert.Equal(t, nil, ic.Check([]string{
 		".........",
 		".........",
-		"..░▓░.○◉○",
-		"..▓█▓.◉●◎",
-		"..░▓░.○◉○",
+		"..⎕▒░.○◎⁘",
+		"..▒█▓.◉●◎",
+		"..⎕▒░.○◎⁘",
 		".........",
-		"..○◎○.░▓░",
-		"..◎●◉.▓█▓",
-		"..○◎○.░▓░",
+		"..⁘◎○.░▒⎕",
+		"..◎●◉.▓█▒",
+		"..⁘◎○.░▒⎕",
 	}, im))
 }

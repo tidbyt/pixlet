@@ -25,7 +25,7 @@ func TestRowPaint(t *testing.T) {
 
 	// On large canvas, height gets truncated to max of children,
 	// while width expands to full size
-	im := r.Paint(image.Rect(0, 0, 14+2, 17), 0)
+	im := PaintWidget(r, image.Rect(0, 0, 14+2, 17), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"........rrrrrrrr",
 		"........rrrrrrrr",

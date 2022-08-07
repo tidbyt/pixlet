@@ -194,7 +194,7 @@ func (self *Transformation) FrameCount() int {
 	return fc
 }
 
-func (self *Transformation) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (self *Transformation) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	w, h := self.Width, self.Height
 
 	if w == 0 {
@@ -204,14 +204,16 @@ func (self *Transformation) Paint(bounds image.Rectangle, frameIdx int) image.Im
 	if h == 0 {
 		h = bounds.Dy()
 	}
+	return image.Rect(0, 0, w, h)
+}
 
-	bounds = image.Rect(0, 0, w, h)
-	img := self.Child.Paint(bounds, frameIdx)
-	ctx := gg.NewContext(w, h)
+func (self *Transformation) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	bounds = self.PaintBounds(bounds, frameIdx)
+	cb := self.Child.PaintBounds(bounds, frameIdx)
 
 	// As the origin might have been specified in relative units,
 	// transform it given the child widget bounds.
-	origin := self.Origin.Transform(img.Bounds())
+	origin := self.Origin.Transform(cb)
 
 	// Calculate the overall animation progress.
 	progress := self.Direction.Progress(
@@ -220,6 +222,8 @@ func (self *Transformation) Paint(bounds image.Rectangle, frameIdx int) image.Im
 		self.FillMode.Value(),
 		frameIdx,
 	)
+
+	dc.Push()
 
 	// Find the adjacent keyframes to interpolate between.
 	if from, to, err := findKeyframes(self.Keyframes, progress); err == nil {
@@ -230,12 +234,12 @@ func (self *Transformation) Paint(bounds image.Rectangle, frameIdx int) image.Im
 		// Interpolate between transforms and apply them in order.
 		if transforms, ok := InterpolateTransforms(from.Transforms, to.Transforms, progress); ok {
 			for _, transform := range transforms {
-				transform.Apply(ctx, origin, self.Rounding)
+				transform.Apply(dc, origin, self.Rounding)
 			}
 		}
 	}
 
-	ctx.DrawImage(img, 0, 0)
+	self.Child.Paint(dc, bounds, frameIdx)
 
-	return ctx.Image()
+	dc.Pop()
 }

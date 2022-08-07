@@ -11,7 +11,7 @@ import (
 func TestTextDefault(t *testing.T) {
 	text := &Text{Content: "A"}
 	text.Init()
-	im := text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".....",
 		".ww..",
@@ -28,7 +28,7 @@ func TestTextDefault(t *testing.T) {
 
 	text = &Text{Content: "j!ÑÖ"}
 	text.Init()
-	im = text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im = PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"...." + ".." + ".w.w." + "w..w.",
 		"..w." + "w." + "w.w.." + ".....",
@@ -51,7 +51,7 @@ func TestTextParameters(t *testing.T) {
 	}
 	text.Init()
 
-	im := text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......" + "......",
 		"......" + "......",
@@ -80,7 +80,7 @@ func TestTextParameters(t *testing.T) {
 		Height:  10,
 	}
 	text.Init()
-	im = text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im = PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......" + "......",
 		".g..g." + "ggggg.",
@@ -110,7 +110,7 @@ func TestTextFonts(t *testing.T) {
 	}
 	text.Init()
 
-	im := text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......" + "......" + "......" + "......",
 		"......" + "......" + ".w.w.." + "......",
@@ -135,7 +135,7 @@ func TestTextFonts(t *testing.T) {
 		Font:    "Dina_r400-6",
 	}
 	text.Init()
-	im = text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im = PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......" + "......" + ".w.w.." + "......",
 		"......" + "......" + "......" + "......",
@@ -157,7 +157,7 @@ func TestTextFonts(t *testing.T) {
 		Font:    "5x8",
 	}
 	text.Init()
-	im = text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im = PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + "....." + "w..w." + ".....",
 		".ww.." + "....." + "....." + "..w..",
@@ -177,7 +177,7 @@ func TestTextFonts(t *testing.T) {
 		Font:    "tb-8",
 	}
 	text.Init()
-	im = text.Paint(image.Rect(0, 0, 0, 0), 0)
+	im = PaintWidget(text, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + "....." + "w..w." + "..",
 		".ww.." + "....." + "....." + "w.",

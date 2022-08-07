@@ -5,6 +5,8 @@ import (
 	"image"
 	"image/color"
 	"strings"
+
+	"github.com/fogleman/gg"
 )
 
 var DefaultPalette = map[string]color.RGBA{
@@ -100,4 +102,11 @@ func checkImage(expected []string, actual image.Image) error {
 func CheckImage(expected []string, actual image.Image) error {
 	ic := ImageChecker{Palette: DefaultPalette}
 	return ic.Check(expected, actual)
+}
+
+func PaintWidget(w Widget, bounds image.Rectangle, frameIdx int) image.Image {
+	pb := w.PaintBounds(bounds, frameIdx)
+	dc := gg.NewContext(pb.Dx(), pb.Dy())
+	w.Paint(dc, bounds, frameIdx)
+	return dc.Image()
 }

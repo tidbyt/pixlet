@@ -31,8 +31,11 @@ type Circle struct {
 	Diameter int         `starlark:"diameter,required"`
 }
 
-func (c Circle) Paint(bounds image.Rectangle, frameIdx int) image.Image {
-	dc := gg.NewContext(c.Diameter, c.Diameter)
+func (c Circle) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	return image.Rect(0, 0, c.Diameter, c.Diameter)
+}
+
+func (c Circle) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	dc.SetColor(c.Color)
 
 	r := float64(c.Diameter) / 2
@@ -40,21 +43,24 @@ func (c Circle) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 	dc.Fill()
 
 	if c.Child != nil {
+		dc.Push()
+		childBounds := c.Child.PaintBounds(image.Rect(0, 0, c.Diameter, c.Diameter), frameIdx)
+
+		// This is a bit convoluted to obtain the same rounding behavior as with the old
+		// local context rendering
 		center := math.Ceil(
 			float64(c.Diameter) / 2,
 		)
+		x := int(center)
+		y := int(center)
+		x -= int(0.5 * float64(childBounds.Size().X))
+		y -= int(0.5 * float64(childBounds.Size().Y))
 
-		im := c.Child.Paint(image.Rect(0, 0, c.Diameter, c.Diameter), frameIdx)
-		dc.DrawImageAnchored(
-			im,
-			int(center),
-			int(center),
-			0.5,
-			0.5,
-		)
+		dc.Translate(float64(x), float64(y))
+
+		c.Child.Paint(dc, image.Rect(0, 0, c.Diameter, c.Diameter), frameIdx)
+		dc.Pop()
 	}
-
-	return dc.Image()
 }
 
 func (c Circle) FrameCount() int {

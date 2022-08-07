@@ -25,7 +25,7 @@ func TestColumnPaint(t *testing.T) {
 
 	// On large canvas, height gets truncated to max of children,
 	// while width expands to full size
-	im := c.Paint(image.Rect(0, 0, 25, 16+3), 0)
+	im := PaintWidget(c, image.Rect(0, 0, 25, 16+3), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"........",
 		".gggggg.",

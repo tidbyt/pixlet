@@ -34,8 +34,8 @@ type Padding struct {
 	Color    color.Color
 }
 
-func (p Padding) Paint(bounds image.Rectangle, frameIdx int) image.Image {
-	im := p.Child.Paint(
+func (p Padding) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	cb := p.Child.PaintBounds(
 		image.Rect(0, 0, bounds.Dx()-p.Pad.Left-p.Pad.Right, bounds.Dy()-p.Pad.Top-p.Pad.Bottom),
 		frameIdx,
 	)
@@ -45,25 +45,59 @@ func (p Padding) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		width = bounds.Dx()
 		height = bounds.Dy()
 	} else {
-		width = im.Bounds().Dx() + p.Pad.Left + p.Pad.Right
-		height = im.Bounds().Dy() + p.Pad.Top + p.Pad.Bottom
+		width = cb.Dx() + p.Pad.Left + p.Pad.Right
+		height = cb.Dy() + p.Pad.Top + p.Pad.Bottom
 	}
 
-	dc := gg.NewContext(width, height)
+	return image.Rect(0, 0, width, height)
+}
+
+func (p Padding) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	cb := p.Child.PaintBounds(
+		image.Rect(0, 0, bounds.Dx()-p.Pad.Left-p.Pad.Right, bounds.Dy()-p.Pad.Top-p.Pad.Bottom),
+		frameIdx,
+	)
+
+	var width, height int
+	if p.Expanded {
+		width = bounds.Dx()
+		height = bounds.Dy()
+	} else {
+		width = cb.Dx() + p.Pad.Left + p.Pad.Right
+		height = cb.Dy() + p.Pad.Top + p.Pad.Bottom
+	}
+
 	if p.Color != nil {
 		dc.SetColor(p.Color)
-		dc.Clear()
+		dc.DrawRectangle(0, 0, float64(width), float64(height))
+		dc.Fill()
 	}
+
+	dc.Push()
+
+	// Some apps use negative padding as a positioning hack.
+	clipLeft := p.Pad.Left
+	clipTop := p.Pad.Top
+	if clipLeft < 0 {
+		clipLeft = 0
+	}
+	if clipTop < 0 {
+		clipTop = 0
+	}
+
 	dc.DrawRectangle(
-		float64(p.Pad.Left),
-		float64(p.Pad.Top),
+		float64(clipLeft),
+		float64(clipTop),
 		float64(width-p.Pad.Left-p.Pad.Right),
 		float64(height-p.Pad.Top-p.Pad.Bottom),
 	)
 	dc.Clip()
-	dc.DrawImage(im, p.Pad.Left, p.Pad.Top)
 
-	return dc.Image()
+	dc.Translate(float64(p.Pad.Left), float64(p.Pad.Top))
+
+	p.Child.Paint(dc, image.Rect(0, 0, bounds.Dx()-p.Pad.Left-p.Pad.Right, bounds.Dy()-p.Pad.Top-p.Pad.Bottom),
+		frameIdx)
+	dc.Pop()
 }
 
 func (p Padding) FrameCount() int {

@@ -28,19 +28,17 @@ type Stack struct {
 	Children []Widget `starlark:"children,required"`
 }
 
-func (s Stack) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (s Stack) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	width, height := 0, 0
-	images := make([]image.Image, 0, len(s.Children))
 	for _, child := range s.Children {
-		im := child.Paint(bounds, frameIdx)
-		imW, imH := im.Bounds().Dx(), im.Bounds().Dy()
+		cb := child.PaintBounds(bounds, frameIdx)
+		imW, imH := cb.Dx(), cb.Dy()
 		if imW > width {
 			width = imW
 		}
 		if imH > height {
 			height = imH
 		}
-		images = append(images, im)
 	}
 
 	if width > bounds.Dx() {
@@ -50,11 +48,15 @@ func (s Stack) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		height = bounds.Dy()
 	}
 
-	dc := gg.NewContext(width, height)
-	for _, im := range images {
-		dc.DrawImage(im, 0, 0)
+	return image.Rect(0, 0, width, height)
+}
+
+func (s Stack) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	for _, child := range s.Children {
+		dc.Push()
+		child.Paint(dc, bounds, frameIdx)
+		dc.Pop()
 	}
-	return dc.Image()
 }
 
 func (s Stack) FrameCount() int {

@@ -31,7 +31,7 @@ func TestTracerCircularPath(t *testing.T) {
 		"........",
 		"........",
 		"........",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 0)))
 
 	assert.Equal(t, nil, ic.Check([]string{
 		"........",
@@ -42,7 +42,7 @@ func TestTracerCircularPath(t *testing.T) {
 		".......1",
 		"........",
 		"........",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 1)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 1)))
 
 	assert.Equal(t, nil, ic.Check([]string{
 		"........",
@@ -53,7 +53,7 @@ func TestTracerCircularPath(t *testing.T) {
 		"........",
 		".......1",
 		"........",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 2)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 2)))
 
 	assert.Equal(t, nil, ic.Check([]string{
 		"........",
@@ -64,7 +64,7 @@ func TestTracerCircularPath(t *testing.T) {
 		"........",
 		"........",
 		"......1.",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 3)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 3)))
 
 	// Spot check third quadrant
 	assert.Equal(t, nil, ic.Check([]string{
@@ -76,7 +76,7 @@ func TestTracerCircularPath(t *testing.T) {
 		"........",
 		"........",
 		"........",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 14)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 14)))
 
 	// Last pixel and verify it loops
 	assert.Equal(t, nil, ic.Check([]string{
@@ -88,7 +88,7 @@ func TestTracerCircularPath(t *testing.T) {
 		"........",
 		"........",
 		"........",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 23)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 23)))
 
 	assert.Equal(t, nil, ic.Check([]string{
 		"........",
@@ -99,7 +99,7 @@ func TestTracerCircularPath(t *testing.T) {
 		".......1",
 		"........",
 		"........",
-	}, tr.Paint(image.Rect(0, 0, 100, 100), 25)))
+	}, PaintWidget(tr, image.Rect(0, 0, 100, 100), 25)))
 
 	// All in all, we should have 24 frames
 	assert.Equal(t, 24, tr.FrameCount())

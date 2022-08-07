@@ -36,20 +36,13 @@ type WrappedText struct {
 	Width       int
 	LineSpacing int
 	Color       color.Color
-	Align   	string
+	Align       string
 }
 
-func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	face := Font[DefaultFontFace]
 	if tw.Font != "" {
 		face = Font[tw.Font]
-	}
-	// Text alignment
-	align := gg.AlignLeft
-	if tw.Align == "center" {
-		align = gg.AlignCenter
-	} else if tw.Align == "right" {
-		align = gg.AlignRight
 	}
 	// The bounds provided by user or parent widget
 	width := tw.Width
@@ -61,7 +54,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		height = bounds.Dy()
 	}
 	linespace := float64(tw.LineSpacing)
-	if linespace <=0{ 
+	if linespace <= 0 {
 		linespace = 0
 	}
 	// Compute size of multi line string
@@ -77,7 +70,7 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		if lw > w {
 			w = lw
 		}
-		h += lh+linespace
+		h += lh + linespace
 	}
 
 	// Size of drawing context
@@ -97,11 +90,27 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		height = bounds.Dy()
 	}
 
+	return image.Rect(0, 0, width, height)
+}
+
+func (tw WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	face := Font[DefaultFontFace]
+	if tw.Font != "" {
+		face = Font[tw.Font]
+	}
+	// Text alignment
+	align := gg.AlignLeft
+	if tw.Align == "center" {
+		align = gg.AlignCenter
+	} else if tw.Align == "right" {
+		align = gg.AlignRight
+	}
+
+	width := tw.PaintBounds(bounds, frameIdx).Dx()
+
 	metrics := face.Metrics()
 	descent := metrics.Descent.Floor()
 
-	// And draw
-	dc = gg.NewContext(width, height)
 	dc.SetFontFace(face)
 	if tw.Color != nil {
 		dc.SetColor(tw.Color)
@@ -119,8 +128,6 @@ func (tw WrappedText) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		(float64(tw.LineSpacing)+dc.FontHeight())/dc.FontHeight(),
 		align,
 	)
-
-	return dc.Image()
 }
 
 func (tw WrappedText) FrameCount() int {
