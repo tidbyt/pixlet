@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 // A vector draws its children either vertically or horizontally (like

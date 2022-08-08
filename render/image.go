@@ -12,8 +12,8 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	"github.com/fogleman/gg"
 	"github.com/nfnt/resize"
+	"github.com/tidbyt/gg"
 	"github.com/tidbyt/go-libwebp/webp"
 )
 
@@ -84,11 +84,11 @@ func (p *Image) InitFromGIF(data []byte) error {
 	}
 
 	p.Delay = img.Delay[0] * 10
-	
+
 	var prev_src *image.Paletted
 	disposal_length := len(img.Disposal)
 	compositing_op := draw.Src
-	
+
 	last := image.NewRGBA(image.Rect(0, 0, img.Config.Width, img.Config.Height))
 
 	for index, src := range img.Image {
@@ -105,7 +105,7 @@ func (p *Image) InitFromGIF(data []byte) error {
 		// if this is a non-DisposalPrevious frame
 		// and the next frame is DisposalPrevious
 		// store the src to reset before the next frame draws
-		if (!is_disposal_previous && index + 1 < disposal_length && img.Disposal[index+1] == gif.DisposalPrevious) {
+		if !is_disposal_previous && index+1 < disposal_length && img.Disposal[index+1] == gif.DisposalPrevious {
 			prev_src = src
 		}
 
