@@ -1,7 +1,7 @@
 package animation
 
 import (
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 type Transform interface {

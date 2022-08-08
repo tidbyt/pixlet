@@ -1,7 +1,7 @@
 package animation
 
 import (
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 // Transform by translating by a given offset.

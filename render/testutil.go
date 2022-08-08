@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"strings"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 var DefaultPalette = map[string]color.RGBA{

@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 // Column lays out and draws its children vertically (in a column).

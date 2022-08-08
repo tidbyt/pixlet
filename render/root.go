@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"sync"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 const (

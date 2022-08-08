@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 var DefaultPlotColor = color.RGBA{0xff, 0xff, 0xff, 0xff}

@@ -5,7 +5,7 @@ import (
 	"image"
 	"sort"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 
 	"tidbyt.dev/pixlet/render"
 )

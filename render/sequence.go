@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 // Sequence renders a list of child widgets in sequence.

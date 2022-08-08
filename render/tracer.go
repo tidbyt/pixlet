@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 type Tracer struct {

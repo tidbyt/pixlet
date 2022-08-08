@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/fogleman/gg"
+	"github.com/tidbyt/gg"
 )
 
 // Row lays out and draws its children horizontally (in a row).

@@ -2,13 +2,10 @@ module tidbyt.dev/pixlet
 
 go 1.19
 
-replace github.com/fogleman/gg => github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427
-
 require (
 	github.com/antchfx/xmlquery v1.3.12
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
-	github.com/fogleman/gg v1.3.0
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/google/pprof v0.0.0-20220729232143-a41b82acbcb1
@@ -24,6 +21,7 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
+	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
