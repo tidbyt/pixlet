@@ -3,7 +3,7 @@ name: pixlet
 on:
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 jobs:
   lint:
@@ -14,7 +14,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.16.12'
+          go-version: "1.19"
 
       - name: Install buildifier
         run: make install-buildifier
@@ -31,35 +31,35 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: '1.16.12'
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.19"
 
-    - name: Install Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
 
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install -y libwebp-dev
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libwebp-dev
 
-    - name: Install macOS dependencies
-      if: matrix.os == 'macos-latest'
-      run: brew install webp
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: brew install webp
 
-    - name: Install frontend dependencies
-      run: npm install
+      - name: Install frontend dependencies
+        run: npm install
 
-    - name: Build frontend
-      run: npm run build
+      - name: Build frontend
+        run: npm run build
 
-    - name: Build
-      run: make build
+      - name: Build
+        run: make build
 
-    - name: Test
-      run: make test
+      - name: Test
+        run: make test
