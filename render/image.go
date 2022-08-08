@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/gif"
 
@@ -76,9 +77,6 @@ func (p *Image) InitFromWebP(data []byte) error {
 }
 
 func (p *Image) InitFromGIF(data []byte) error {
-	// GIF support is a bit limited. Some optimized GIFs will not
-	// render correctly.
-	//
 	// Consider using WebP instead.
 	img, err := gif.DecodeAll(bytes.NewReader(data))
 	if err != nil {
@@ -86,18 +84,51 @@ func (p *Image) InitFromGIF(data []byte) error {
 	}
 
 	p.Delay = img.Delay[0] * 10
+	
+	var prev_src *image.Paletted
+	disposal_length := len(img.Disposal)
+	compositing_op := draw.Src
+	
+	last := image.NewRGBA(image.Rect(0, 0, img.Config.Width, img.Config.Height))
 
-	last := image.NewRGBA(image.Rect(0, 0, img.Image[0].Bounds().Dx(), img.Image[0].Bounds().Dy()))
-	draw.Draw(last, last.Bounds(), img.Image[0], image.ZP, draw.Src)
+	for index, src := range img.Image {
+		bounds := img.Image[index].Bounds()
+		disposal_method := img.Disposal[index]
+		is_disposal_previous := disposal_method == gif.DisposalPrevious
 
-	for _, src := range img.Image {
+		// if the frame is DisposalPrevious
+		// reset to the last non-DisposalPrevious frame
+		if is_disposal_previous && prev_src != nil {
+			draw.Draw(last, last.Bounds(), prev_src, image.ZP, draw.Over)
+		}
 
-		// Note: We're not really handling all disposal
-		// methods here, but this seems to be good enough.
-		draw.Draw(last, last.Bounds(), src, image.ZP, draw.Over)
+		// if this is a non-DisposalPrevious frame
+		// and the next frame is DisposalPrevious
+		// store the src to reset before the next frame draws
+		if (!is_disposal_previous && index + 1 < disposal_length && img.Disposal[index+1] == gif.DisposalPrevious) {
+			prev_src = src
+		}
+
+		draw.Draw(last, bounds, img.Image[index], image.Point{bounds.Min.X, bounds.Min.Y}, compositing_op)
 		frame := *last
 		frame.Pix = make([]uint8, len(last.Pix))
 		copy(frame.Pix, last.Pix)
+
+		// if this is a non-DisposalPrevious frame
+		// set the compositing operation to Over
+		if !is_disposal_previous {
+			compositing_op = draw.Over
+		}
+
+		// if the frame is DisposalBackground
+		// remove the frame pixels
+		if disposal_method == gif.DisposalBackground {
+			for x := bounds.Min.X; x < bounds.Max.X; x++ {
+				for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+					last.Set(x, y, color.Transparent)
+				}
+			}
+		}
 
 		p.imgs = append(p.imgs, &frame)
 	}
