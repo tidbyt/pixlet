@@ -11,7 +11,7 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-playground/validator/v10 v10.11.0
-	github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57
+	github.com/google/pprof v0.0.0-20220729232143-a41b82acbcb1
 	github.com/google/tink/go v1.4.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
