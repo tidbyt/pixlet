@@ -17,7 +17,7 @@ type Starfield struct {
 	Color  color.Color
 	Width  int
 	Height int
-	frames []image.Image
+	stars  []*Star
 }
 
 type Star struct {
@@ -92,74 +92,63 @@ func DrawLine(dc *gg.Context, x0, y0, x1, y1 int) {
 	}
 }
 
-func AnimateStarfield(width, height, numStars, numFrames int) []image.Image {
-	//White := color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff}
-	Black := color.RGBA{R: 0, G: 0, B: 0, A: 0xff}
+func (s *Starfield) Init() error {
+	s.initStars(60)
+	return nil
+}
 
-	star := make([]*Star, numStars)
+func (s *Starfield) initStars(numStars int) {
+	s.stars = make([]*Star, numStars)
 	for i := 0; i < numStars; i++ {
-		star[i] = &Star{
+		s.stars[i] = &Star{
 			X: 2*rand.Float64() - 1,
 			Y: 2*rand.Float64() - 1,
 			D: 1.0,  //rand.Float64(),
 			V: 0.01, //rand.Float64()
 		}
 		if i < 10 {
-			fmt.Println(star[i].X, star[i].Y)
+			fmt.Println(s.stars[i].X, s.stars[i].Y)
 		}
 	}
-
-	frames := make([]image.Image, 0, numFrames)
-	for i := 0; i < numFrames; i++ {
-		dc := gg.NewContext(width, height)
-		dc.SetColor(Black)
-		dc.Clear()
-
-		for j := 0; j < len(star); j++ {
-			star[j].Tick()
-			if math.Abs(star[j].X) > 1.0 || math.Abs(star[j].Y) > 1.0 {
-				star[j].X = rand.NormFloat64() * 0.3
-				star[j].Y = rand.NormFloat64() * 0.3
-				star[j].PrevX = 0
-				star[j].PrevY = 0
-				star[j].D = 0.9 //rand.Float64()
-				continue
-			}
-
-			pX := int(math.Round(float64(width) * (star[j].PrevX + 0.5)))
-			pY := int(math.Round(float64(height) * (star[j].PrevY + 0.5)))
-			X := int(math.Round(float64(width) * (star[j].X + 0.5)))
-			Y := int(math.Round(float64(height) * (star[j].Y + 0.5)))
-
-			if pX != 0 && pY != 0 && (pX != X || pY != Y) {
-				dc.SetColor(color.RGBA{0x22, 0x22, 0x22, 0xff})
-				DrawLine(dc, pX, pY, X, Y)
-			}
-			dc.SetColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
-			dc.SetPixel(X, Y)
-		}
-
-		dc.SetColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
-
-		frames = append(frames, dc.Image())
-	}
-
-	return frames
-
 }
 
-func (s *Starfield) Paint(bounds image.Rectangle, frameIdx int) image.Image {
-	if len(s.frames) == 0 {
-		s.frames = AnimateStarfield(bounds.Dx(), bounds.Dy(), 40, 300)
+func (s *Starfield) PaintBounds(bounds image.Rectangle, frameIdx int) image.Image {
+	return image.Rect(0, 0, 64, 32)
+}
+
+func (s *Starfield) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	Black := color.RGBA{R: 0, G: 0, B: 0, A: 0xff}
+
+	dc.SetColor(Black)
+	dc.Clear()
+
+	for j := 0; j < len(s.stars); j++ {
+		s.stars[j].Tick()
+		if math.Abs(s.stars[j].X) > 1.0 || math.Abs(s.stars[j].Y) > 1.0 {
+			s.stars[j].X = rand.NormFloat64() * 0.3
+			s.stars[j].Y = rand.NormFloat64() * 0.3
+			s.stars[j].PrevX = 0
+			s.stars[j].PrevY = 0
+			s.stars[j].D = 0.9 //rand.Float64()
+			continue
+		}
+
+		pX := int(math.Round(float64(bounds.Dx()) * (s.stars[j].PrevX + 0.5)))
+		pY := int(math.Round(float64(bounds.Dy()) * (s.stars[j].PrevY + 0.5)))
+		X := int(math.Round(float64(bounds.Dx()) * (s.stars[j].X + 0.5)))
+		Y := int(math.Round(float64(bounds.Dy()) * (s.stars[j].Y + 0.5)))
+
+		if pX != 0 && pY != 0 && (pX != X || pY != Y) {
+			dc.SetColor(color.RGBA{0x22, 0x22, 0x22, 0xff})
+			DrawLine(dc, pX, pY, X, Y)
+		}
+		dc.SetColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
+		dc.SetPixel(X, Y)
 	}
 
-	return s.frames[frameIdx]
+	dc.SetColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
 }
 
 func (s *Starfield) FrameCount() int {
-	if len(s.frames) == 0 {
-		s.frames = AnimateStarfield(64, 32, 60, 300)
-	}
-
-	return len(s.frames)
+	return 300
 }

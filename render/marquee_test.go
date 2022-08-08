@@ -35,8 +35,8 @@ func TestMarqueeNoScrollHorizontal(t *testing.T) {
 	// Child fits so there's just 1 single frame
 	assert.Equal(t, 1, m.FrameCount())
 	assert.Equal(t, 1, mv.FrameCount())
-	im := m.Paint(image.Rect(0, 0, 100, 100), 0)
-	imv := mv.Paint(image.Rect(0, 0, 100, 100), 0)
+	im := PaintWidget(m, image.Rect(0, 0, 100, 100), 0)
+	imv := PaintWidget(mv, image.Rect(0, 0, 100, 100), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrggb",
 		"rrrgg.",
@@ -78,8 +78,8 @@ func TestMarqueeNoScrollAlignCenter(t *testing.T) {
 	// Child fits so there's just 1 single frame
 	assert.Equal(t, 1, m.FrameCount())
 	assert.Equal(t, 1, mv.FrameCount())
-	im := m.Paint(image.Rect(0, 0, 100, 100), 0)
-	imv := mv.Paint(image.Rect(0, 0, 100, 100), 0)
+	im := PaintWidget(m, image.Rect(0, 0, 100, 100), 0)
+	imv := PaintWidget(mv, image.Rect(0, 0, 100, 100), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".rrrggb.",
 		".rrrgg..",
@@ -123,8 +123,8 @@ func TestMarqueeNoScrollAlignEnd(t *testing.T) {
 	// Child fits so there's just 1 single frame
 	assert.Equal(t, 1, m.FrameCount())
 	assert.Equal(t, 1, mv.FrameCount())
-	im := m.Paint(image.Rect(0, 0, 100, 100), 0)
-	imv := mv.Paint(image.Rect(0, 0, 100, 100), 0)
+	im := PaintWidget(m, image.Rect(0, 0, 100, 100), 0)
+	imv := PaintWidget(mv, image.Rect(0, 0, 100, 100), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"..rrrggb",
 		"..rrrgg.",
@@ -166,51 +166,51 @@ func TestMarqueeOldBehavior(t *testing.T) {
 		"......",
 		"......",
 		"......",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 0)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"....rr",
 		"....rr",
 		"....rr",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 2)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 2)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrggg",
 		"rrrggg",
 		"rrr...",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 6)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 6)))
 
 	// Scrolling out of view
 	assert.Equal(t, nil, checkImage([]string{
 		"rgggbb",
 		"rggg..",
 		"r.....",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 8)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 8)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"b.....",
 		"......",
 		"......",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 14)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 14)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"......",
 		"......",
 		"......",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 15)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 15)))
 
 	// Scrolling back into view
 	assert.Equal(t, nil, checkImage([]string{
 		"...rrr",
 		"...rrr",
 		"...rrr",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 18)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 18)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrggg",
 		"rrrggg",
 		"rrr...",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 21)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 21)))
 
 	// Later frames keep it fixed in the last frame. This makes
 	// multiple simultaneous marquees look nice when they've
@@ -220,19 +220,19 @@ func TestMarqueeOldBehavior(t *testing.T) {
 		"rrrggg",
 		"rrrggg",
 		"rrr...",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 22)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 22)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrggg",
 		"rrrggg",
 		"rrr...",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 26)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 26)))
 
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrggg",
 		"rrrggg",
 		"rrr...",
-	}, m.Paint(image.Rect(0, 0, 100, 100), 100000)))
+	}, PaintWidget(m, image.Rect(0, 0, 100, 100), 100000)))
 }
 
 func TestMarqueeOffsetIdentical(t *testing.T) {
@@ -251,36 +251,36 @@ func TestMarqueeOffsetIdentical(t *testing.T) {
 
 	// Check that identical frames are not repeated after
 	// another, if start and end offset are identical.
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 11)))
-	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 11)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, PaintWidget(m, im, 12)))
 	assert.Equal(t, 13, m.FrameCount())
 
 	m.OffsetStart = 3
 	m.OffsetEnd = 3
-	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 11)))
-	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, PaintWidget(m, im, 12)))
 	assert.Equal(t, 13, m.FrameCount())
 }
 
@@ -300,59 +300,59 @@ func TestMarqueeOffsetStart(t *testing.T) {
 
 	// OffsetStart affects the initial position of the child
 	m.OffsetStart = 2
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 9)))
 
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 11)))
-	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 12)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 13)))
-	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 14)))
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 15)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, PaintWidget(m, im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, PaintWidget(m, im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 13)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, PaintWidget(m, im, 14)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 15)))
 	assert.Equal(t, 16, m.FrameCount())
 
 	// Negative OffsetStart
 	m.OffsetStart = -2
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 11)))
 	assert.Equal(t, 12, m.FrameCount())
 
 	// Overly negative OffsetStart is truncated to child width
 	m.OffsetStart = -1000
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, PaintWidget(m, im, 2)))
 	assert.Equal(t, 7, m.FrameCount())
 	m.OffsetStart = -7
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 1)))
 	assert.Equal(t, 7, m.FrameCount())
 	m.OffsetStart = -8
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 1)))
 	assert.Equal(t, 7, m.FrameCount())
 	m.OffsetStart = -6
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 2)))
 	assert.Equal(t, 8, m.FrameCount())
 }
 
@@ -372,62 +372,62 @@ func TestMarqueeOffsetEnd(t *testing.T) {
 
 	// OffsetEnd affects the final position of the child
 	m.OffsetEnd = 2
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{".....r"}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{"....rg"}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{".....r"}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"....rg"}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 11)))
 	assert.Equal(t, 12, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 12)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 13)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 1024)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 13)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 1024)))
 
 	// Negative offset places child outside of marquee
 	m.OffsetEnd = -4
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"...rgg"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{"..rggb"}, m.Paint(im, 11)))
-	assert.Equal(t, nil, checkImage([]string{".rggbb"}, m.Paint(im, 12)))
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 13)))
-	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, m.Paint(im, 14)))
-	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, m.Paint(im, 15)))
-	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, m.Paint(im, 16)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 17)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"...rgg"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"..rggb"}, PaintWidget(m, im, 11)))
+	assert.Equal(t, nil, checkImage([]string{".rggbb"}, PaintWidget(m, im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 13)))
+	assert.Equal(t, nil, checkImage([]string{"ggbbbb"}, PaintWidget(m, im, 14)))
+	assert.Equal(t, nil, checkImage([]string{"gbbbb."}, PaintWidget(m, im, 15)))
+	assert.Equal(t, nil, checkImage([]string{"bbbb.."}, PaintWidget(m, im, 16)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 17)))
 	assert.Equal(t, 18, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 18)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 19)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 1024)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 18)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 19)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 1024)))
 
 	// Very negative offset is truncated to width of child
 	m.OffsetEnd = -133
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"bbb..."}, m.Paint(im, 17)))
-	assert.Equal(t, nil, checkImage([]string{"bb...."}, m.Paint(im, 18)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 19)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 20)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"bbb..."}, PaintWidget(m, im, 17)))
+	assert.Equal(t, nil, checkImage([]string{"bb...."}, PaintWidget(m, im, 18)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 19)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 20)))
 	assert.Equal(t, 21, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 21)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 22)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 23)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 21)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 22)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 23)))
 
 	// OffsetEnd >= width means it doesn't scroll back
 	m.OffsetEnd = 6
-	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"b....."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"rggbbb"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"b....."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 7)))
 	assert.Equal(t, 8, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{"......"}, m.Paint(im, 1024)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{"......"}, PaintWidget(m, im, 1024)))
 
 }
 
@@ -455,7 +455,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		"g",
 		"g",
 		"b",
-	}, m.Paint(im, 0)))
+	}, PaintWidget(m, im, 0)))
 	assert.Equal(t, nil, checkImage([]string{
 		".",
 		"r",
@@ -463,7 +463,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		"g",
 		"b",
 		"b",
-	}, m.Paint(im, 1)))
+	}, PaintWidget(m, im, 1)))
 	assert.Equal(t, nil, checkImage([]string{
 		"r",
 		"g",
@@ -471,7 +471,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		"b",
 		"b",
 		"b",
-	}, m.Paint(im, 2)))
+	}, PaintWidget(m, im, 2)))
 	assert.Equal(t, nil, checkImage([]string{
 		"g",
 		"g",
@@ -479,7 +479,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		"b",
 		"b",
 		"b",
-	}, m.Paint(im, 3)))
+	}, PaintWidget(m, im, 3)))
 	assert.Equal(t, nil, checkImage([]string{
 		"g",
 		"b",
@@ -487,7 +487,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		"b",
 		"b",
 		".",
-	}, m.Paint(im, 4)))
+	}, PaintWidget(m, im, 4)))
 	assert.Equal(t, nil, checkImage([]string{
 		"b",
 		"b",
@@ -495,7 +495,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		"b",
 		".",
 		".",
-	}, m.Paint(im, 5)))
+	}, PaintWidget(m, im, 5)))
 	assert.Equal(t, nil, checkImage([]string{
 		"b",
 		"b",
@@ -503,7 +503,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		".",
 		".",
 		".",
-	}, m.Paint(im, 6)))
+	}, PaintWidget(m, im, 6)))
 	assert.Equal(t, nil, checkImage([]string{
 		"b",
 		"b",
@@ -511,7 +511,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		".",
 		".",
 		".",
-	}, m.Paint(im, 7)))
+	}, PaintWidget(m, im, 7)))
 	assert.Equal(t, nil, checkImage([]string{
 		"b",
 		".",
@@ -519,7 +519,7 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		".",
 		".",
 		".",
-	}, m.Paint(im, 8)))
+	}, PaintWidget(m, im, 8)))
 	assert.Equal(t, nil, checkImage([]string{
 		".",
 		".",
@@ -527,96 +527,96 @@ func TestMarqueeVerticalScroll(t *testing.T) {
 		".",
 		".",
 		".",
-	}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, m.Paint(im, 11)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, m.Paint(im, 12)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 13)))
-	assert.Equal(t, nil, checkImage([]string{".", "r", "g", "g", "b", "b"}, m.Paint(im, 14)))
-	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, m.Paint(im, 15)))
+	}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, PaintWidget(m, im, 11)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, PaintWidget(m, im, 12)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 13)))
+	assert.Equal(t, nil, checkImage([]string{".", "r", "g", "g", "b", "b"}, PaintWidget(m, im, 14)))
+	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, PaintWidget(m, im, 15)))
 	assert.Equal(t, 16, m.FrameCount())
 
 	// Negative OffsetStart
 	m.OffsetStart = -2
-	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", "b", ".", "."}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", ".", ".", ".", "."}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{".", "r", "g", "g", "b", "b"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", "b", ".", "."}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", ".", ".", ".", "."}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{".", "r", "g", "g", "b", "b"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, PaintWidget(m, im, 11)))
 	assert.Equal(t, 12, m.FrameCount())
 
 	// Overly negative OffsetStart is truncated to child width
 	m.OffsetStart = -1000
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, PaintWidget(m, im, 2)))
 	assert.Equal(t, 7, m.FrameCount())
 	m.OffsetStart = -7
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 1)))
 	assert.Equal(t, 7, m.FrameCount())
 	m.OffsetStart = -8
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 1)))
 	assert.Equal(t, 7, m.FrameCount())
 	m.OffsetStart = -6
-	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 2)))
 	assert.Equal(t, 8, m.FrameCount())
 
 	// OffsetEnd affects the final position of the child
 	m.OffsetStart = 0
 	m.OffsetEnd = 2
-	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"g", "g", "b", "b", "b", "b"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", "b", ".", "."}, m.Paint(im, 3)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, m.Paint(im, 4)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", ".", ".", ".", "."}, m.Paint(im, 5)))
-	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 7)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 11)))
+	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"g", "g", "b", "b", "b", "b"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", "b", ".", "."}, PaintWidget(m, im, 3)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, PaintWidget(m, im, 4)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", ".", ".", ".", "."}, PaintWidget(m, im, 5)))
+	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 7)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "r"}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", "r", "g"}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 11)))
 	assert.Equal(t, 12, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 12)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 13)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 1024)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 12)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 13)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 1024)))
 
 	// Negative offset places child outside of marquee
 	m.OffsetEnd = -4
-	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"g", "g", "b", "b", "b", "b"}, m.Paint(im, 1)))
-	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, m.Paint(im, 2)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, m.Paint(im, 10)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, m.Paint(im, 11)))
-	assert.Equal(t, nil, checkImage([]string{".", "r", "g", "g", "b", "b"}, m.Paint(im, 12)))
-	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, m.Paint(im, 13)))
-	assert.Equal(t, nil, checkImage([]string{"g", "g", "b", "b", "b", "b"}, m.Paint(im, 14)))
-	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, m.Paint(im, 15)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", "b", ".", "."}, m.Paint(im, 16)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, m.Paint(im, 17)))
+	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"g", "g", "b", "b", "b", "b"}, PaintWidget(m, im, 1)))
+	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, PaintWidget(m, im, 2)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", "r", "g", "g"}, PaintWidget(m, im, 10)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", "r", "g", "g", "b"}, PaintWidget(m, im, 11)))
+	assert.Equal(t, nil, checkImage([]string{".", "r", "g", "g", "b", "b"}, PaintWidget(m, im, 12)))
+	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, PaintWidget(m, im, 13)))
+	assert.Equal(t, nil, checkImage([]string{"g", "g", "b", "b", "b", "b"}, PaintWidget(m, im, 14)))
+	assert.Equal(t, nil, checkImage([]string{"g", "b", "b", "b", "b", "."}, PaintWidget(m, im, 15)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", "b", ".", "."}, PaintWidget(m, im, 16)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, PaintWidget(m, im, 17)))
 	assert.Equal(t, 18, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, m.Paint(im, 18)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, m.Paint(im, 19)))
-	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, m.Paint(im, 1024)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, PaintWidget(m, im, 18)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, PaintWidget(m, im, 19)))
+	assert.Equal(t, nil, checkImage([]string{"b", "b", "b", ".", ".", "."}, PaintWidget(m, im, 1024)))
 
 	// OffsetEnd >= width means it doesn't scroll back
 	m.OffsetEnd = 6
-	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, m.Paint(im, 0)))
-	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, m.Paint(im, 6)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 7)))
+	assert.Equal(t, nil, checkImage([]string{"r", "g", "g", "b", "b", "b"}, PaintWidget(m, im, 0)))
+	assert.Equal(t, nil, checkImage([]string{"b", ".", ".", ".", ".", "."}, PaintWidget(m, im, 6)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 7)))
 	assert.Equal(t, 8, m.FrameCount())
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 8)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 9)))
-	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, m.Paint(im, 1024)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 8)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 9)))
+	assert.Equal(t, nil, checkImage([]string{".", ".", ".", ".", ".", "."}, PaintWidget(m, im, 1024)))
 }

@@ -189,7 +189,7 @@ func TestPlotFlatLine(t *testing.T) {
 		"1111111111",
 		"..........",
 		"..........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// Extend view to the left
 	p.XLim[0] = -10
@@ -199,7 +199,7 @@ func TestPlotFlatLine(t *testing.T) {
 		".....11111",
 		"..........",
 		"..........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 }
 
@@ -226,7 +226,7 @@ func TestPlotVerticalLine(t *testing.T) {
 		"1.........",
 		"1.........",
 		"1.........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 }
 
 func TestPlotJaggedLine(t *testing.T) {
@@ -262,7 +262,7 @@ func TestPlotJaggedLine(t *testing.T) {
 		"..1..1.1..",
 		".1...11...",
 		"1....1....",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// Make it bigger
 	p.Width = 20
@@ -278,7 +278,7 @@ func TestPlotJaggedLine(t *testing.T) {
 		"..1.......1..1......",
 		".1.........11.......",
 		"1..........1........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// Zoom in on the second valley
 	p.XLim[0] = 5
@@ -297,7 +297,7 @@ func TestPlotJaggedLine(t *testing.T) {
 		"........1........111",
 		".........1...1111...",
 		"..........111.......",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 }
 
@@ -337,7 +337,7 @@ func TestPlotFewPoints(t *testing.T) {
 		"1.1....1.1",
 		"11......11",
 		"1111111111",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 }
 
@@ -376,7 +376,7 @@ func TestPlotInvertedColor(t *testing.T) {
 		"..11..1.11",
 		"....22....",
 		"....22....",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	p.Width = 20
 	p.Height = 10
@@ -391,7 +391,7 @@ func TestPlotInvertedColor(t *testing.T) {
 		".......2...2........",
 		"........2..2........",
 		"........2222........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 }
 
@@ -399,9 +399,9 @@ func TestPlotSurfaceFill(t *testing.T) {
 	ic := ImageChecker{
 		Palette: map[string]color.RGBA{
 			"1": {0x0, 0xff, 0x0, 0xff},
-			",": {0x0, 0xff, 0x0, 0x55},
+			",": {0x0, 0x55, 0x0, 0xff},
 			"2": {0xff, 0, 0, 0xff},
-			":": {0xff, 0, 0, 0x55},
+			":": {0x55, 0, 0, 0xff},
 			".": {0, 0, 0, 0},
 		},
 	}
@@ -433,7 +433,7 @@ func TestPlotSurfaceFill(t *testing.T) {
 		",,,,,,,,,1......1,,,",
 		".........1,,,,,1....",
 		"..........11111.....",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// Fil with ColorInverted
 	p.ColorInverted = &color.RGBA{0xff, 0, 0, 0xff}
@@ -448,7 +448,7 @@ func TestPlotSurfaceFill(t *testing.T) {
 		",,,,,,,,,1......1,,,",
 		".........2:::::2....",
 		"..........22222.....",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 }
 
 func TestPlotXLim(t *testing.T) {
@@ -496,7 +496,7 @@ func TestPlotXLim(t *testing.T) {
 		".1.....11...........",
 		".1.....11...........",
 		"1......1............",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// And on the left
 	p.XLim[0] = -4
@@ -512,7 +512,7 @@ func TestPlotXLim(t *testing.T) {
 		"......1...11........",
 		"......1...11........",
 		".....1....1.........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// And then do the opposite to "zoom in"
 	p.XLim[0] = 3
@@ -528,5 +528,5 @@ func TestPlotXLim(t *testing.T) {
 		"..........1...11....",
 		"...........111......",
 		"...........1........",
-	}, p.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 }

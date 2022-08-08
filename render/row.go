@@ -2,6 +2,8 @@ package render
 
 import (
 	"image"
+
+	"github.com/fogleman/gg"
 )
 
 // Row lays out and draws its children horizontally (in a row).
@@ -62,7 +64,7 @@ type Row struct {
 	Expanded   bool
 }
 
-func (r Row) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (r Row) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	v := Vector{
 		Vertical:   false,
 		Children:   r.Children,
@@ -70,7 +72,18 @@ func (r Row) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		CrossAlign: r.CrossAlign,
 		Expanded:   r.Expanded,
 	}
-	return v.Paint(bounds, frameIdx)
+	return v.PaintBounds(bounds, frameIdx)
+}
+
+func (r Row) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	v := Vector{
+		Vertical:   false,
+		Children:   r.Children,
+		MainAlign:  r.MainAlign,
+		CrossAlign: r.CrossAlign,
+		Expanded:   r.Expanded,
+	}
+	v.Paint(dc, bounds, frameIdx)
 }
 
 func (r Row) FrameCount() int {

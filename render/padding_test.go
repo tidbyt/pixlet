@@ -21,7 +21,7 @@ func TestPadding(t *testing.T) {
 	}
 
 	// Large bounds
-	im := pad.Paint(image.Rect(0, 0, 20, 20), 0)
+	im := PaintWidget(pad, image.Rect(0, 0, 20, 20), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".......",
 		".......",
@@ -35,7 +35,7 @@ func TestPadding(t *testing.T) {
 	}, im))
 
 	// Small bounds
-	im = pad.Paint(image.Rect(0, 0, 4, 4), 0)
+	im = PaintWidget(pad, image.Rect(0, 0, 4, 4), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".......",
 		".......",
@@ -64,7 +64,7 @@ func TestPaddingExpanded(t *testing.T) {
 		Expanded: true,
 	}
 
-	im := pad.Paint(image.Rect(0, 0, 7, 7), 0)
+	im := PaintWidget(pad, image.Rect(0, 0, 7, 7), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		".......",
 		".rrr...",
@@ -76,7 +76,7 @@ func TestPaddingExpanded(t *testing.T) {
 	}, im))
 
 	// Child doesn't fit: crop
-	im = pad.Paint(image.Rect(0, 0, 3, 3), 0)
+	im = PaintWidget(pad, image.Rect(0, 0, 3, 3), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"...",
 		".r.",
@@ -98,7 +98,7 @@ func TestColorPadding(t *testing.T) {
 	}
 
 	// Large bounds
-	im := pad.Paint(image.Rect(0, 0, 20, 20), 0)
+	im := PaintWidget(pad, image.Rect(0, 0, 20, 20), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"ggggggg",
 		"ggggggg",
@@ -112,7 +112,7 @@ func TestColorPadding(t *testing.T) {
 	}, im))
 
 	// Small bounds
-	im = pad.Paint(image.Rect(0, 0, 4, 4), 0)
+	im = PaintWidget(pad, image.Rect(0, 0, 4, 4), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"ggggggg",
 		"ggggggg",
@@ -139,10 +139,10 @@ func TestColorPaddingExpanded(t *testing.T) {
 			Bottom: 1,
 		},
 		Expanded: true,
-		Color: color.RGBA{0, 0xff, 0, 0xff},
+		Color:    color.RGBA{0, 0xff, 0, 0xff},
 	}
 
-	im := pad.Paint(image.Rect(0, 0, 7, 7), 0)
+	im := PaintWidget(pad, image.Rect(0, 0, 7, 7), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"ggggggg",
 		"grrrggg",
@@ -154,7 +154,7 @@ func TestColorPaddingExpanded(t *testing.T) {
 	}, im))
 
 	// Child doesn't fit: crop
-	im = pad.Paint(image.Rect(0, 0, 3, 3), 0)
+	im = PaintWidget(pad, image.Rect(0, 0, 3, 3), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"ggg",
 		"grg",

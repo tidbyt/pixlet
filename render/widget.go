@@ -2,11 +2,15 @@ package render
 
 import (
 	"image"
+
+	"github.com/fogleman/gg"
 )
 
 // A Widget is a self-contained object that can render itself as an image.
 type Widget interface {
-	Paint(bounds image.Rectangle, frameIdx int) image.Image
+	// PaintBounds Returns the bounds of the area that will actually be drawn to when Paint() is called
+	PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle
+	Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int)
 	FrameCount() int
 }
 

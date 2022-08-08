@@ -171,7 +171,7 @@ def main():
 	assert.IsType(t, &render.Box{}, box.Child)
 	assert.Equal(t, box.Child.(*render.Box).Height, 2)
 
-	assert.Equal(t, image.Rect(0, 0, 2, 1), widget.Paint(image.Rect(0, 0, 64, 32), 0).Bounds())
+	assert.Equal(t, image.Rect(0, 0, 2, 1), render.PaintWidget(widget, image.Rect(0, 0, 64, 32), 0).Bounds())
 }
 
 func TestText(t *testing.T) {
@@ -208,7 +208,7 @@ def main():
 	r, g, b, a := text.Color.RGBA()
 	assert.Equal(t, []uint32{eR, eG, eB, eA}, []uint32{r, g, b, a})
 
-	rendered := widget.Paint(image.Rect(0, 0, 64, 32), 0)
+	rendered := render.PaintWidget(widget, image.Rect(0, 0, 64, 32), 0)
 	assert.Greater(t, rendered.Bounds().Dx(), 0)
 	assert.Equal(t, text.Height, rendered.Bounds().Dy())
 }
@@ -216,7 +216,7 @@ def main():
 func TestImage(t *testing.T) {
 	// create a new PNG with a single blue pixel
 	bounds := image.Rect(0, 0, 64, 32)
-	blue := color.NRGBA{0, 0, 255, 255}
+	blue := color.RGBA{0, 0, 255, 255}
 
 	im := image.NewRGBA(bounds)
 	im.Set(12, 12, blue)
@@ -242,7 +242,7 @@ def main():
 	starlarkP := app.Globals["img"]
 	require.IsType(t, &render_runtime.Image{}, starlarkP)
 
-	actualIm := starlarkP.(*render_runtime.Image).AsRenderWidget().Paint(image.Rect(0, 0, 64, 32), 0)
+	actualIm := render.PaintWidget(starlarkP.(*render_runtime.Image).AsRenderWidget(), image.Rect(0, 0, 64, 32), 0)
 	assert.Equal(t, bounds, actualIm.Bounds())
 	assert.Equal(t, blue, actualIm.At(12, 12))
 }

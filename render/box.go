@@ -38,7 +38,18 @@ type Box struct {
 	Color         color.Color
 }
 
-func (b Box) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (b Box) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	w, h := b.Width, b.Height
+	if w == 0 {
+		w = bounds.Dx()
+	}
+	if h == 0 {
+		h = bounds.Dy()
+	}
+	return image.Rect(0, 0, w, h)
+}
+
+func (b Box) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	w, h := b.Width, b.Height
 	if w == 0 {
 		w = bounds.Dx()
@@ -47,10 +58,10 @@ func (b Box) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		h = bounds.Dy()
 	}
 
-	dc := gg.NewContext(w, h)
 	if b.Color != nil {
 		dc.SetColor(b.Color)
-		dc.Clear()
+		dc.DrawRectangle(0, 0, float64(w), float64(h))
+		dc.Fill()
 	}
 
 	if b.Child != nil {
@@ -60,6 +71,8 @@ func (b Box) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 		if chW < 0 || chH < 0 {
 			// padding makes the child invisible, no point painting it
 		} else {
+			dc.Push()
+
 			dc.DrawRectangle(
 				float64(b.Padding),
 				float64(b.Padding),
@@ -68,18 +81,20 @@ func (b Box) Paint(bounds image.Rectangle, frameIdx int) image.Image {
 			)
 			dc.Clip()
 
-			im := b.Child.Paint(image.Rect(0, 0, chW, chH), frameIdx)
-			dc.DrawImageAnchored(
-				im,
-				w/2,
-				h/2,
-				0.5,
-				0.5,
-			)
+			childBounds := b.Child.PaintBounds(image.Rect(0, 0, chW, chH), frameIdx)
+
+			// This is a bit convoluted to obtain the same rounding behavior as with the old
+			// local-context rendering
+			x := w / 2
+			y := h / 2
+			x -= int(0.5 * float64(childBounds.Size().X))
+			y -= int(0.5 * float64(childBounds.Size().Y))
+
+			dc.Translate(float64(x), float64(y))
+			b.Child.Paint(dc, image.Rect(0, 0, chW, chH), frameIdx)
+			dc.Pop()
 		}
 	}
-
-	return dc.Image()
 }
 
 func (b Box) FrameCount() int {

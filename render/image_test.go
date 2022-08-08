@@ -18,7 +18,7 @@ func TestImage(t *testing.T) {
 	img.Init()
 
 	// Size of Image is independent of bounds
-	im := img.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrrrrrrrr",
 		"r........r",
@@ -37,7 +37,7 @@ func TestImage(t *testing.T) {
 	assert.Equal(t, 10, w)
 	assert.Equal(t, 12, h)
 
-	im = img.Paint(image.Rect(0, 0, 100, 100), 0)
+	im = PaintWidget(img, image.Rect(0, 0, 100, 100), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"rrrrrrrrrr",
 		"r........r",
@@ -67,7 +67,7 @@ func TestImageScale(t *testing.T) {
 	w, h := img.Size()
 	assert.Equal(t, 5, w)
 	assert.Equal(t, 6, h)
-	im := img.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, 5, im.Bounds().Dx())
 	assert.Equal(t, 6, im.Bounds().Dy())
 }
@@ -83,7 +83,7 @@ func TestImageScaleAspectRatioWidth(t *testing.T) {
 	w, h := img.Size()
 	assert.Equal(t, 5, w)
 	assert.Equal(t, 6, h)
-	im := img.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, 5, im.Bounds().Dx())
 	assert.Equal(t, 6, im.Bounds().Dy())
 }
@@ -99,7 +99,7 @@ func TestImageScaleAspectRatioHeight(t *testing.T) {
 	w, h := img.Size()
 	assert.Equal(t, 5, w)
 	assert.Equal(t, 6, h)
-	im := img.Paint(image.Rect(0, 0, 0, 0), 0)
+	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, 5, im.Bounds().Dx())
 	assert.Equal(t, 6, im.Bounds().Dy())
 }
@@ -137,7 +137,7 @@ func TestImageAnimatedGif(t *testing.T) {
 		"x....",
 		".x...",
 		"...x.",
-	}, img.Paint(image.Rect(0, 0, 100, 100), 0)))
+	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 0)))
 
 	// since no disposal method is set, subsequent frames should
 	// draw on top of first frame
@@ -146,19 +146,19 @@ func TestImageAnimatedGif(t *testing.T) {
 		"xx...",
 		".xx..",
 		"...xx",
-	}, img.Paint(image.Rect(0, 0, 100, 100), 1)))
+	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 1)))
 	assert.Equal(t, nil, checkImage([]string{
 		"x.xxx",
 		"xxx..",
 		".xxx.",
 		"...xx",
-	}, img.Paint(image.Rect(0, 0, 100, 100), 2)))
+	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 2)))
 	assert.Equal(t, nil, checkImage([]string{
 		"xxxxx",
 		"xxxx.",
 		".xxxx",
 		"...xx",
-	}, img.Paint(image.Rect(0, 0, 100, 100), 3)))
+	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 3)))
 
 	// loops after the last frame
 	assert.Equal(t, nil, checkImage([]string{
@@ -166,11 +166,11 @@ func TestImageAnimatedGif(t *testing.T) {
 		"x....",
 		".x...",
 		"...x.",
-	}, img.Paint(image.Rect(0, 0, 100, 100), 4)))
+	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 4)))
 	assert.Equal(t, nil, checkImage([]string{
 		"..xx.",
 		"xx...",
 		".xx..",
 		"...xx",
-	}, img.Paint(image.Rect(0, 0, 100, 100), 5)))
+	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 5)))
 }

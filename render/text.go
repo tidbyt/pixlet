@@ -44,10 +44,12 @@ func (t *Text) Size() (int, int) {
 	return t.img.Bounds().Dx(), t.img.Bounds().Dy()
 }
 
-func (t *Text) Paint(
-	bounds image.Rectangle, frameIdx int,
-) image.Image {
-	return t.img
+func (t *Text) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	dc.DrawImage(t.img, 0, 0)
+}
+
+func (t *Text) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	return image.Rect(0, 0, t.img.Bounds().Dx(), t.img.Bounds().Dy())
 }
 
 func (t *Text) Init() error {

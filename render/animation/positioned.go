@@ -36,7 +36,11 @@ type AnimatedPositioned struct {
 	Hold     int           `starlark:"hold"`
 }
 
-func (o AnimatedPositioned) Paint(bounds image.Rectangle, frameIdx int) image.Image {
+func (o AnimatedPositioned) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	return bounds
+}
+
+func (o AnimatedPositioned) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	var position float64
 
 	if frameIdx < o.Delay {
@@ -62,11 +66,10 @@ func (o AnimatedPositioned) Paint(bounds image.Rectangle, frameIdx int) image.Im
 	x := o.XStart + dx*sx
 	y := o.YStart + dy*sy
 
-	im := o.Child.Paint(bounds, frameIdx)
-
-	dc := gg.NewContext(bounds.Dx(), bounds.Dy())
-	dc.DrawImage(im, x, y)
-	return dc.Image()
+	dc.Push()
+	dc.Translate(float64(x), float64(y))
+	o.Child.Paint(dc, bounds, frameIdx)
+	dc.Pop()
 }
 
 func (o AnimatedPositioned) FrameCount() int {
