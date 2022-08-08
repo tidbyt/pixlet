@@ -88,3 +88,13 @@ For example, if your app receives an error from an external API, try these optio
 [2]: https://github.com/bazelbuild/starlark/blob/master/spec.md#print
 [3]: https://github.com/tidbyt/community
 [4]: schema/schema.md
+
+## Performance profiling
+
+Some apps may take a long time to render, particularly if they produce a long and complex animation. You can use `pixlet profile` to identify how to optimize the app's performance. Most apps will not need this kind of optimization.
+
+```shell
+$ pixlet profile path_to_your_app.star
+```
+
+When you profile your app, it will print a list of the functions which consume the most CPU time. Improving these will have the biggest impact on overall run time.
