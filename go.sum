@@ -467,6 +467,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tidbyt/gg v0.0.0-20220804144917-ec82497a6952 h1:3agIRXeUIES9tRYpCdlV8ftNnP0IO8sm2VX68etJf3Q=
 github.com/tidbyt/gg v0.0.0-20220804144917-ec82497a6952/go.mod h1:+SCm6iJHe2lfsQzlbLCsd5XsTKYSD0VqtQmWMnNs9OE=
+github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427 h1:br5WYVw/jr4G0PZpBBx2fBAANVUrI8KKHMSs3LVqO9A=
+github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427/go.mod h1:+SCm6iJHe2lfsQzlbLCsd5XsTKYSD0VqtQmWMnNs9OE=
 github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2 h1:T/jkZO+VeoP9QPPAidWR89NWUeT4VluF2vMLgmZtSy8=
 github.com/tidbyt/go-libwebp v0.0.0-20201015173751-7718986fb5f2/go.mod h1:p1Ify/wlo/z2CCUv0o+4j4lvBvEf1SWO5LYRDmadNY0=
 github.com/tidbyt/go-libwebp v0.0.0-20220302033350-dd1cead28df2 h1:X0FYTOmj5qBsrwvVOtBdk7JnE28et4PwBGj8cWuY3f4=
