@@ -10,6 +10,7 @@ import (
 var (
 	DefaultFontFace  = "tb-8"
 	DefaultFontColor = color.White
+	MaxWidth         = 1000
 )
 
 // Text draws a string of text on a single line.
@@ -63,6 +64,12 @@ func (t *Text) Init() error {
 
 	w, _ := dc.MeasureString(t.Content)
 	width := int(w)
+
+	// If the width of the text is longer then the max, cut off the size of the
+	// image so it's not unbounded.
+	if width > MaxWidth {
+		width = MaxWidth
+	}
 
 	metrics := face.Metrics()
 	ascent := metrics.Ascent.Floor()
