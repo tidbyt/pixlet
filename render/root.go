@@ -15,6 +15,9 @@ const (
 
 	// DefaultFrameHeight is the normal height for a frame.
 	DefaultFrameHeight = 32
+
+	// DefaultMaxFrameCount is the default maximum number of frames to render.
+	DefaultMaxFrameCount = 2000
 )
 
 // Every Widget tree has a Root.
@@ -41,6 +44,7 @@ type Root struct {
 	MaxAge int32  `starlark:"max_age"`
 
 	maxParallelFrames int
+	maxFrameCount     int
 }
 
 type RootPaintOption func(*Root)
@@ -57,6 +61,14 @@ func WithMaxParallelFrames(max int) RootPaintOption {
 	}
 }
 
+// WithMaxFrameCount sets the maximum number of frames that will be
+// rendered when calling `Paint`.
+func WithMaxFrameCount(max int) RootPaintOption {
+	return func(r *Root) {
+		r.maxFrameCount = max
+	}
+}
+
 // Paint renders the child widget onto the frame. It doesn't do
 // any resizing or alignment.
 func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image {
@@ -64,7 +76,15 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 		opt(&r)
 	}
 
+	if r.maxFrameCount <= 0 {
+		r.maxFrameCount = DefaultMaxFrameCount
+	}
+
 	numFrames := r.Child.FrameCount()
+	if numFrames > r.maxFrameCount {
+		numFrames = r.maxFrameCount
+	}
+
 	frames := make([]image.Image, numFrames)
 
 	parallelism := r.maxParallelFrames
