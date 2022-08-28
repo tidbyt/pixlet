@@ -15,6 +15,10 @@ def assert(success, message=None):
     if not success:
         fail(message or "assertion failed")
 
+def abs(x):
+	if x > 0:
+		return x
+	return -x
 
 # Setup.
 format = "2006-01-02T15:04:05"
@@ -24,13 +28,23 @@ expectedSet = time.parse_time("2022-01-15T21:52:30", format = format)
 lat = 40.6781784
 lng = -73.9441579
 
+# Sunrise occurs when center of the sun is 50 arc minutes below horizon
+# due to atmospheric refraction and the angular distance to the top.
+# https://en.wikipedia.org/wiki/Sunrise#Angle
+sunriseElevation = -50.0 / 60.0
+
 # Call methods.
 rise = sunrise.sunrise(lat, lng, input)
 set = sunrise.sunset(lat, lng, input)
+elevation = sunrise.elevation(lat, lng, expectedSet)
+morning, evening = sunrise.elevation_time(lat, lng, sunriseElevation, input)
 
 # Assert.
 assert(rise == expectedRise)
 assert(set == expectedSet)
+assert(abs(elevation - sunriseElevation) < 0.005)
+assert(abs(expectedRise.unix - morning.unix) < 2)
+assert(abs(evening.unix - expectedSet.unix) < 2)
 
 def main():
 	return []
