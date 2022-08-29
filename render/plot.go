@@ -224,13 +224,13 @@ func (p Plot) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		}
 		if y > p.invThreshold {
 			dc.SetColor(fillColInv)
-			for ; y != p.invThreshold; y-- {
+			for ; y != p.invThreshold && y >= 0; y-- {
 				tx, ty := dc.TransformPoint(float64(x), float64(y))
 				dc.SetPixel(int(tx), int(ty))
 			}
 		} else {
 			dc.SetColor(fillCol)
-			for ; y <= p.invThreshold; y++ {
+			for ; y <= p.invThreshold && y <= p.Height; y++ {
 				tx, ty := dc.TransformPoint(float64(x), float64(y))
 				dc.SetPixel(int(tx), int(ty))
 			}
