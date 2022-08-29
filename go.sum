@@ -102,6 +102,8 @@ github.com/google/martian v2.1.0+incompatible/go.mod h1:9I4somxYTbIHy5NJKHRl3wXi
 github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57/go.mod h1:zfwlbNMJ+OItoe0UupaVj+oy1omPYYDuagoSzA8v9mc=
 github.com/google/pprof v0.0.0-20220729232143-a41b82acbcb1 h1:8pyqKJvrJqUYaKS851Ule26pwWvey6IDMiczaBLDKLQ=
 github.com/google/pprof v0.0.0-20220729232143-a41b82acbcb1/go.mod h1:gSuNB+gJaOiQKLEZ+q+PK9Mq3SOzhRcw2GsGS/FhYDk=
+github.com/google/pprof v0.0.0-20220829040838-70bd9ae97f40 h1:ykKxL12NZd3JmWZnyqarJGsF73M9Xhtrik/FEtEeFRE=
+github.com/google/pprof v0.0.0-20220829040838-70bd9ae97f40/go.mod h1:dDKJzRmX4S37WGHujM7tX//fmj1uioxKzKxz3lo4HJo=
 github.com/google/tink/go v1.4.0 h1:7Ihv6n6/0zPrm2GRAeeF408P9Y00HXC2J6tvUzgb2sg=
 github.com/google/tink/go v1.4.0/go.mod h1:OdW+ACSIXwGiPOWJiRTdoKzStsnqo8ZOsTzchWLy2DY=
 github.com/google/tink/go v1.7.0 h1:6Eox8zONGebBFcCBqkVmt60LaWZa6xg1cl/DwAh/J1w=
