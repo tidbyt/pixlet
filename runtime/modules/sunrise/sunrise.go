@@ -27,8 +27,10 @@ func LoadModule() (starlark.StringDict, error) {
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
 				Members: starlark.StringDict{
-					"sunrise": starlark.NewBuiltin("sunrise", sunrise),
-					"sunset":  starlark.NewBuiltin("sunset", sunset),
+					"sunrise":        starlark.NewBuiltin("sunrise", sunrise),
+					"sunset":         starlark.NewBuiltin("sunset", sunset),
+					"elevation":      starlark.NewBuiltin("elevation", elevation),
+					"elevation_time": starlark.NewBuiltin("elevation_time", elevation_time),
 				},
 			},
 		}
@@ -91,4 +93,63 @@ func sunset(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, k
 	}
 
 	return startime.Time(set), nil
+}
+
+func elevation(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starLat  starlark.Float
+		starLng  starlark.Float
+		starTime startime.Time
+	)
+
+	if err := starlark.UnpackArgs(
+		"elevation",
+		args, kwargs,
+		"lat", &starLat,
+		"lng", &starLng,
+		"time", &starTime,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for elevation: %s", err)
+	}
+
+	lat := float64(starLat)
+	lng := float64(starLng)
+	when := time.Time(starTime)
+
+	elev := gosunrise.Elevation(lat, lng, when)
+	return starlark.Float(elev), nil
+}
+
+func elevation_time(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starLat  starlark.Float
+		starLng  starlark.Float
+		starElev starlark.Float
+		starDate startime.Time
+	)
+
+	if err := starlark.UnpackArgs(
+		"elevation_time",
+		args, kwargs,
+		"lat", &starLat,
+		"lng", &starLng,
+		"elev", &starElev,
+		"date", &starDate,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for elevation: %s", err)
+	}
+
+	lat := float64(starLat)
+	lng := float64(starLng)
+	elev := float64(starElev)
+	date := time.Time(starDate)
+
+	morning, evening := gosunrise.TimeOfElevation(lat, lng, elev, date.Year(), date.Month(), date.Day())
+	if morning == empty || evening == empty {
+		return starlark.None, nil
+	}
+	starMorning := startime.Time(morning)
+	starEvening := startime.Time(evening)
+
+	return starlark.Tuple([]starlark.Value{starMorning, starEvening}), nil
 }

@@ -174,6 +174,8 @@ The `sunrise` module calculates sunrise and sunset times for a given set of GPS 
 | --- | --- |
 | `sunrise(lat, lng, date)` | Calculates the sunrise time for a given location and date. |
 | `sunset(lat, lng, date)` | Calculates the sunset time for a given location and date. |
+| `elevation(lat, lng, time)` | Calculates the elevation of the sun above the horizon for a given location and point in time. |
+| `elevation_time(lat, lng, elev, date)` | Calculates the two times at which the sun was at the given elevation above the horizon for a given location and date. Returns None if the sun never reached the given elevation. |
 
 Example:
 
