@@ -52,7 +52,7 @@
     "@mui/icons-material": "5.10.2",
     "@mui/lab": "5.0.0-alpha.96",
     "@mui/material": "5.10.2",
-    "@reduxjs/toolkit": "1.8.4",
+    "@reduxjs/toolkit": "1.8.5",
     "axios": "0.27.2",
     "date-fns": "2.29.0",
     "notistack": "2.0.5",
