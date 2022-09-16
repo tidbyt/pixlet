@@ -77,6 +77,8 @@ func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 		a.decrypter.attachToThread(t)
 	}
 
+	random.AttachRandToThread(t)
+
 	for _, init := range initializers {
 		t = init(t)
 	}
