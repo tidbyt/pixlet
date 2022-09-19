@@ -31,7 +31,7 @@ def test_seed():
         if sequence[i] != random.number(0, 1 << 20):
             fail("sequence mismatch despite identical seed")
 
-    random.seed(4712) # diferent seed
+    random.seed(4712) # different seed
     different = 0
     for i in range(len(sequence)):
         if sequence[i] != random.number(0, 1 << 20):
