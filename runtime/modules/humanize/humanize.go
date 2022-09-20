@@ -36,6 +36,7 @@ func LoadModule() (starlark.StringDict, error) {
 					"time":               starlark.NewBuiltin("time", times),
 					"relative_time":      starlark.NewBuiltin("relative_time", relativeTime),
 					"time_format":        starlark.NewBuiltin("time_format", convertTimeFormatter),
+					"day_of_week":        starlark.NewBuiltin("day_of_week", dayOfWeek),
 					"bytes":              starlark.NewBuiltin("bytes", bytes),
 					"parse_bytes":        starlark.NewBuiltin("parse_bytes", parseBytes),
 					"comma":              starlark.NewBuiltin("comma", comma),
@@ -139,6 +140,23 @@ func convertTimeFormatter(thread *starlark.Thread, _ *starlark.Builtin, args sta
 	}
 
 	return starlark.String(formatted), nil
+}
+
+func dayOfWeek(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		starDate startime.Time
+	)
+
+	if err := starlark.UnpackArgs(
+		"day_of_week",
+		args, kwargs,
+		"date", &starDate,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for time: %s", err)
+	}
+
+	date := time.Time(starDate)
+	return starlark.MakeInt(int(date.Weekday())), nil
 }
 
 func relativeTime(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
