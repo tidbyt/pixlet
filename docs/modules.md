@@ -72,6 +72,7 @@ The `humanize` module has formatters for units to human friendly sizes.
 | `time(date)` | Lets you take a `time.Time` and spit it out in relative terms. For example, `12 seconds ago` or `3 days from now`. |
 | `relative_time(date1, date2, label1?, label2?)` | Formats a time into a relative string. It takes two `time.Time`s and two labels. In addition to the generic time delta string (e.g. 5 minutes), the labels are used applied so that the label corresponding to the smaller time is applied. |
 | `time_format(format, date?)` | Takes a [Java SimpleDateFormat](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html) and returns a [Go layout string](https://programming.guide/go/format-parse-string-time-date-example.html). If you pass it a `date`, it will apply the format using the converted layout string and return the formatted date. |
+| `day_of_week(date)` | Returns an integer corresponding to the day of the week, where 0 = Sunday, 6 = Saturday. |
 | `bytes(size, iec?)` | Lets you take numbers like `82854982` and convert them to useful strings like, `83 MB`. You can optionally format using IEC sizes like, `83 MiB`. |
 | `parse_bytes(formatted_size)` | Lets you take strings like `83 MB` and convert them to the number of bytes it represents like, `82854982`. |
 | `comma(num)` | Lets you take numbers like `123456` or `123456.78` and convert them to comma-separated numbers like `123,456` or `123,456.78`. |
