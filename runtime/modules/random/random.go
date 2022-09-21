@@ -20,7 +20,7 @@ var (
 	module starlark.StringDict
 )
 
-func AttachRandToThread(t *starlark.Thread) {
+func AttachToThread(t *starlark.Thread) {
 	t.SetLocal(
 		threadRandKey,
 		rand.New(
