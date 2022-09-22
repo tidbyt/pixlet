@@ -1,5 +1,5 @@
 # Pixlet
-
+[![Docs](https://img.shields.io/badge/docs-tidbyt.dev-blue?style=flat-square)](https://tidbyt.dev)
 [![Build & test](https://img.shields.io/github/workflow/status/tidbyt/pixlet/pixlet?style=flat-square)](https://github.com/tidbyt/pixlet/actions)
 [![Discourse](https://img.shields.io/discourse/status?server=https%3A%2F%2Fdiscuss.tidbyt.com&style=flat-square)](https://discuss.tidbyt.com/)
 [![Discord Server](https://img.shields.io/discord/928484660785336380?style=flat-square)](https://discord.gg/r45MXG4kZc)
@@ -15,6 +15,8 @@ Apps developed with Pixlet can be served in a browser, rendered as WebP or
 GIF animations, or pushed to a physical Tidbyt device.
 
 ## Documentation
+
+> Hey! We have a new docs site! Check it out at [tidbyt.dev](https://tidbyt.dev). We'll be updating this repo in the coming weeks.
 
 - [Getting started](#getting-started)
 - [How it works](#how-it-works)
