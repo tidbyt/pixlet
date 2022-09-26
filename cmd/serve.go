@@ -15,7 +15,7 @@ var (
 func init() {
 	ServeCmd.Flags().StringVarP(&host, "host", "i", "127.0.0.1", "Host interface for serving rendered images")
 	ServeCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port for serving rendered images")
-	ServeCmd.Flags().BoolVarP(&watch, "watch", "w", false, "Reload scripts on change")
+	ServeCmd.Flags().BoolVarP(&watch, "watch", "w", true, "Reload scripts on change")
 }
 
 var ServeCmd = &cobra.Command{
