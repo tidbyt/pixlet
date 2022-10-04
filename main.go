@@ -24,6 +24,7 @@ func init() {
 	rootCmd.AddCommand(cmd.VersionCmd)
 	rootCmd.AddCommand(cmd.ProfileCmd)
 	rootCmd.AddCommand(cmd.LoginCmd)
+	rootCmd.AddCommand(cmd.DevicesCmd)
 }
 
 func main() {
