@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -59,7 +60,31 @@ func push(cmd *cobra.Command, args []string) {
 	}
 
 	if apiToken == "" {
-		fmt.Printf("blank Tidbyt API token (set $%s or pass with --api-token)\n", APITokenEnv)
+		var tok oauth2.Token
+		if err := privateConfig.UnmarshalKey("token", &tok); err != nil {
+			fmt.Println("unmarshaling API token from config:", err)
+			os.Exit(1)
+		}
+
+		if !tok.Valid() {
+			// probably expired, try to refresh
+			ts := oauthConf.TokenSource(cmd.Context(), &tok)
+			refreshed, err := ts.Token()
+			if err != nil {
+				fmt.Println("refreshing API token:", err)
+				os.Exit(1)
+			}
+
+			tok = *refreshed
+			privateConfig.Set("token", tok)
+			privateConfig.WriteConfig()
+		}
+
+		apiToken = tok.AccessToken
+	}
+
+	if apiToken == "" {
+		fmt.Printf("blank Tidbyt API token (use `pixlet login`, set $%s or pass with --api-token)\n", APITokenEnv)
 		os.Exit(1)
 	}
 
