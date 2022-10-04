@@ -38,8 +38,8 @@ func init() {
 }
 
 var PushCmd = &cobra.Command{
-	Use:   "push [device ID] [webp image] [installationID]",
-	Short: "Pushes a webp image to a Tidbyt device",
+	Use:   "push [device ID] [webp image]",
+	Short: "Render a Pixlet script and push the WebP output to a Tidbyt",
 	Args:  cobra.MinimumNArgs(2),
 	Run:   push,
 }

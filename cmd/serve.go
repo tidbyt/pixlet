@@ -20,7 +20,7 @@ func init() {
 
 var ServeCmd = &cobra.Command{
 	Use:   "serve [script]",
-	Short: "Serves a starlark render script over HTTP.",
+	Short: "Serve a Pixlet app in a web server",
 	Args:  cobra.ExactArgs(1),
 	RunE:  serve,
 }
