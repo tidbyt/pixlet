@@ -8,11 +8,13 @@ import (
 	"tidbyt.dev/pixlet/cmd"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "pixlet",
-	Short: "pixel graphics rendering",
-	Long:  "Pixlet renders graphics for pixel devices, like Tidbyt",
-}
+var (
+	rootCmd = &cobra.Command{
+		Use:   "pixlet",
+		Short: "pixel graphics rendering",
+		Long:  "Pixlet renders graphics for pixel devices, like Tidbyt",
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(cmd.ServeCmd)
@@ -21,6 +23,7 @@ func init() {
 	rootCmd.AddCommand(cmd.EncryptCmd)
 	rootCmd.AddCommand(cmd.VersionCmd)
 	rootCmd.AddCommand(cmd.ProfileCmd)
+	rootCmd.AddCommand(cmd.LoginCmd)
 }
 
 func main() {

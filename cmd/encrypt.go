@@ -28,7 +28,7 @@ const PublicKeysetJSON = `{
 
 var EncryptCmd = &cobra.Command{
 	Use:     "encrypt [app name] [secret value]...",
-	Short:   "Encrypts secrets for use in an app that will be submitted to the Tidbyt community repo",
+	Short:   "Encrypt a secret for use in the Tidbyt community repo",
 	Example: "encrypt weather my-top-secretweather-api-key-123456",
 	Args:    cobra.MinimumNArgs(2),
 	Run:     encrypt,

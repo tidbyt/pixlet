@@ -34,7 +34,7 @@ func init() {
 
 var RenderCmd = &cobra.Command{
 	Use:   "render [script] [<key>=value>]...",
-	Short: "Runs script with provided config parameters.",
+	Short: "Run a Pixlet script with provided config parameters",
 	Args:  cobra.MinimumNArgs(1),
 	Run:   render,
 }

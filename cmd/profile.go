@@ -28,7 +28,7 @@ func init() {
 
 var ProfileCmd = &cobra.Command{
 	Use:   "profile [script] [<key>=value>]...",
-	Short: "Runs script with provided config parameters and prints execution-time profile.",
+	Short: "Run a Pixlet script and print its execution-time profile",
 	Args:  cobra.MinimumNArgs(1),
 	Run:   profile,
 }
