@@ -29,6 +29,7 @@ import (
 	"tidbyt.dev/pixlet/runtime/modules/random"
 	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
+	"tidbyt.dev/pixlet/runtime/modules/xpath"
 	"tidbyt.dev/pixlet/schema"
 	"tidbyt.dev/pixlet/starlarkutil"
 )
@@ -307,7 +308,7 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return LoadSecretModule()
 
 	case "xpath.star":
-		return LoadXPathModule()
+		return xpath.LoadXPathModule()
 
 	case "compress/gzip.star":
 		return starlark.StringDict{

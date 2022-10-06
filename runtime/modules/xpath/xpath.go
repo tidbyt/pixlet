@@ -1,8 +1,7 @@
-package runtime
+package xpath
 
 import (
 	"fmt"
-	//	"log"
 	"strings"
 	"sync"
 
