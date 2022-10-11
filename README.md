@@ -133,12 +133,22 @@ make an applet like this.
 If you have a Tidbyt, `pixlet` can push apps directly to it. For example,
 to show the Bitcoin tracker on your Tidbyt:
 
-```
+```console
+# render the bitcoin example
 pixlet render examples/bitcoin.star
-pixlet push --api-token <YOUR API TOKEN> <YOUR DEVICE ID> examples/bitcoin.webp
+
+# login to your Tidbyt account
+pixlet login
+
+# list available Tidbyt devices
+pixlet devices
+
+# push to your favorite Tidbyt
+pixlet push <YOUR DEVICE ID> examples/bitcoin.webp
 ```
 
-To get the ID and API key for a device, open the settings for the device in the Tidbyt app on your phone, and tap **Get API key**.
+To get the ID for a device, run `pixlet devices`. Alternatively, you can
+open the settings for the device in the Tidbyt app on your phone, and tap **Get API key**.
 
 If all goes well, you should see the Bitcoin tracker appear on your Tidbyt:
 
@@ -147,9 +157,9 @@ If all goes well, you should see the Bitcoin tracker appear on your Tidbyt:
 ## Push as an Installation
 Pushing an applet to your Tidbyt without an installation ID simply displays your applet one time. If you would like your applet to continously display as part of the rotation, add an installation ID to the push command:
 
-```
+```console
 pixlet render examples/bitcoin.star
-pixlet push --api-token <YOUR API TOKEN> --installation-id <INSTALLATION ID> <YOUR DEVICE ID> examples/bitcoin.webp
+pixlet push --installation-id <INSTALLATION ID> <YOUR DEVICE ID> examples/bitcoin.webp
 ```
 
 For example, if we set the `installationID` to "Bitcoin", it would appear in the mobile app as follows:
