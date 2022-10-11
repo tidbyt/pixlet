@@ -8,6 +8,8 @@ else
 	LDFLAGS = -ldflags="-X 'tidbyt.dev/pixlet/cmd.Version=$(GIT_COMMIT)'"
 endif
 
+all: build
+
 test:
 	go test -v -cover ./...
 
@@ -19,7 +21,7 @@ clean:
 bench:
 	go test -benchmem -benchtime=20s -bench BenchmarkRunAndRender tidbyt.dev/pixlet/encode
 
-build: clean
+build:
 	 go build $(LDFLAGS) -o $(BINARY) tidbyt.dev/pixlet
 
 embedfonts:
