@@ -51,7 +51,8 @@ func devices(cmd *cobra.Command, args []string) {
 
 	body := struct {
 		Devices []struct {
-			ID string `json:"id"`
+			ID          string `json:"id"`
+			DisplayName string `json:"displayName"`
 		} `json:"devices"`
 	}{}
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
@@ -60,6 +61,6 @@ func devices(cmd *cobra.Command, args []string) {
 	}
 
 	for _, d := range body.Devices {
-		fmt.Println(d.ID)
+		fmt.Printf("%s (%s)\n", d.ID, d.DisplayName)
 	}
 }
