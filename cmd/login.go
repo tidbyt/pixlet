@@ -16,16 +16,7 @@ import (
 	cv "github.com/nirasan/go-oauth-pkce-code-verifier"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/authhandler"
-)
-
-const (
-	oauthClientID     = "d8ae7ea0-4a1a-46b0-b556-6d742687223a"
-	oauthCallbackAddr = "localhost:8085"
-
-	oauthBaseURL  = "https://login.tidbyt.com/oauth2/auth"
-	oauthTokenURL = "https://login.tidbyt.com/oauth2/token"
 )
 
 var LoginCmd = &cobra.Command{
@@ -35,38 +26,16 @@ var LoginCmd = &cobra.Command{
 	Run:     login,
 }
 
-var (
-	oauthConf = &oauth2.Config{
-		ClientID: "d8ae7ea0-4a1a-46b0-b556-6d742687223a",
-		Scopes:   []string{"device", "offline_access"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://login.tidbyt.com/oauth2/auth",
-			TokenURL: "https://login.tidbyt.com/oauth2/token",
-		},
-		RedirectURL: fmt.Sprintf("http://%s", oauthCallbackAddr),
-	}
-)
-
-type authResult struct {
-	code  string
-	state string
-	err   error
-}
-
 func login(cmd *cobra.Command, args []string) {
 	server := &http.Server{
 		Addr: oauthCallbackAddr,
 	}
 
-	authResult := struct {
-		code  string
-		state string
-	}{}
-
-	done := make(chan bool, 1)
+	var authCode, authState string
+	done := make(chan bool)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		authResult.code = r.URL.Query().Get("code")
-		authResult.state = r.URL.Query().Get("state")
+		authCode = r.URL.Query().Get("code")
+		authState = r.URL.Query().Get("state")
 
 		w.Header().Set("content-type", "text/plain")
 		io.WriteString(w, "please close this window and return to pixlet")
@@ -84,7 +53,7 @@ func login(cmd *cobra.Command, args []string) {
 		go server.ListenAndServe()
 		<-done
 
-		return authResult.code, authResult.state, nil
+		return authCode, authState, nil
 	}
 
 	cv, err := cv.CreateCodeVerifier()
