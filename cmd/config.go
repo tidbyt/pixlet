@@ -10,8 +10,22 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	oauthCallbackAddr = "localhost:8085"
+)
+
 var (
 	privateConfig = viper.New()
+
+	oauthConf = &oauth2.Config{
+		ClientID: "d8ae7ea0-4a1a-46b0-b556-6d742687223a",
+		Scopes:   []string{"device", "offline_access"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://login.tidbyt.com/oauth2/auth",
+			TokenURL: "https://login.tidbyt.com/oauth2/token",
+		},
+		RedirectURL: fmt.Sprintf("http://%s", oauthCallbackAddr),
+	}
 )
 
 func init() {
