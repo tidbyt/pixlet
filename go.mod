@@ -7,7 +7,7 @@ require (
 	github.com/antchfx/xmlquery v1.3.12
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
-	github.com/fsnotify/fsnotify v1.5.4
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/google/pprof v0.0.0-20221010195024-131d412537ea
 	github.com/google/tink/go v1.7.0
@@ -65,7 +65,7 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
