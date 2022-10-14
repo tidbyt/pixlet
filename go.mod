@@ -31,7 +31,7 @@ require (
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20221010140840-6bf6f0955179
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
-	golang.org/x/oauth2 v0.0.0-20221006150949-b44042a4b9c1
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
 )
 
