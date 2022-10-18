@@ -32,7 +32,7 @@ require (
 	go.starlark.net v0.0.0-20221010140840-6bf6f0955179
 	golang.org/x/image v0.0.0-20221017200508-ffcb3fe7d1bf
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
-	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
+	golang.org/x/sync v0.1.0
 )
 
 require (
