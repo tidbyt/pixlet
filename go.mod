@@ -30,7 +30,7 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20221019144234-6ce4ce37fe55
-	golang.org/x/image v0.0.0-20221017200508-ffcb3fe7d1bf
+	golang.org/x/image v0.1.0
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.1.0
 )
