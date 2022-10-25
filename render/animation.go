@@ -35,6 +35,10 @@ func (a Animation) FrameCount() int {
 }
 
 func (a Animation) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+	if len(a.Children) == 0 {
+		return image.Rect(0, 0, 0, 0)
+	}
+
 	if frameIdx > len(a.Children) {
 		frameIdx %= len(a.Children)
 		if frameIdx < 0 {
@@ -46,6 +50,10 @@ func (a Animation) PaintBounds(bounds image.Rectangle, frameIdx int) image.Recta
 }
 
 func (a Animation) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	if len(a.Children) == 0 {
+		return
+	}
+
 	if frameIdx > len(a.Children) {
 		frameIdx %= len(a.Children)
 		if frameIdx < 0 {
