@@ -47,6 +47,7 @@ jobs:
         with:
           update: true
           install: >-
+            make
             mingw-w64-x86_64-go
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-libwebp
