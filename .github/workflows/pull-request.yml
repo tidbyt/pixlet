@@ -80,6 +80,7 @@ jobs:
 
       - name: Build Release Windows
         if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
         run: make release-windows
         env:
           PIXLET_VERSION: 0.0.1

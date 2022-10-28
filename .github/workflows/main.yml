@@ -98,7 +98,7 @@ jobs:
         id: vars
         shell: msys2 {0}
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        if: matrix.os == 'windows-latest'
 
       - name: Build Release Linux
         if: matrix.os == 'ubuntu-latest'
@@ -114,6 +114,7 @@ jobs:
 
       - name: Build Release Windows
         if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
         run: make release-windows
         env:
           PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
