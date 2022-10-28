@@ -78,12 +78,18 @@ jobs:
         run: make build
         if: matrix.os == 'windows-latest'
 
+      - name: Build Release Windows
+        if: matrix.os == 'windows-latest'
+        run: make release-windows
+        env:
+          PIXLET_VERSION: 0.0.1
+
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v3
         if: matrix.os == 'windows-latest'
         with:
           name: windows-artifacts
-          path: pixlet.exe
+          path: build
 
       - name: Test
         run: make test

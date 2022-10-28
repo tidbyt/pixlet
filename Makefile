@@ -33,6 +33,9 @@ release-macos: clean
 release-linux: clean
 	./scripts/release-linux.sh
 
+release-windows: clean
+	./scripts/release-windows.sh
+
 install-buildifier:
 	go install github.com/bazelbuild/buildtools/buildifier@latest
 
