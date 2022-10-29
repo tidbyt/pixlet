@@ -5,8 +5,8 @@ if [ -z "$LIBWEBP_VERSION" ]; then
 	exit 1
 fi
 
-if [ -z "$RELEASE_ARCHS" ]; then
-	echo "Please set RELEASE_ARCHS"
+if [ -z "$LIBWEBP_ARCHS" ]; then
+	echo "Please set LIBWEBP_ARCHS"
 	exit 1
 fi
 
@@ -18,7 +18,7 @@ pushd "/tmp/$LIBWEBP_VERSION" > /dev/null
 gpg --receive-keys --keyserver hkps://keyserver.ubuntu.com 6B0E6B70976DE303EDF2F601F9C3D6BDB8232B5D 2>/dev/null
 
 echo "Fetching WebP Binaries"
-for ARCH in $RELEASE_ARCHS
+for ARCH in $LIBWEBP_ARCHS
 do
 	if [[ $ARCH == windows* ]]; then
 		curl -sLO "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/${LIBWEBP_VERSION}-${ARCH}.zip"
