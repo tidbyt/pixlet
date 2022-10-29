@@ -2,7 +2,8 @@
 
 set -e
 
-export RELEASE_ARCHS="darwim-arm64 darwin-amd64"
+export RELEASE_ARCHS="darwin-arm64 darwin-amd64"
+export LIBWEBP_ARCHS="mac-arm64 mac-x86-64"
 export RELEASE_PLATFORM="darwin"
 
 source scripts/set-libwebp-version.sh
