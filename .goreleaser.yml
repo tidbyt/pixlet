@@ -7,11 +7,20 @@ builds:
       - amd64
       - arm64
 
+    goos:
+      - darwin
+      - linux
+      - windows
+
+    ignore:
+      - goos: windows
+        goarch: arm64
+
     hooks:
       post: ./.goreleaser/fetch-artifacts.sh
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 
 changelog:
   sort: asc
