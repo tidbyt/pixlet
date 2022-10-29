@@ -95,7 +95,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
 
       - name: Set Windows pixlet version
-        id: vars
+        id: windowsvars 
         shell: msys2 {0}
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
         if: matrix.os == 'windows-latest'
@@ -117,7 +117,7 @@ jobs:
         shell: msys2 {0}
         run: make release-windows
         env:
-          PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
+          PIXLET_VERSION: ${{ steps.windowsvars.outputs.tag }}
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v3
