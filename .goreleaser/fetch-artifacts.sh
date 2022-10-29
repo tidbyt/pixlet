@@ -10,6 +10,4 @@ for dist in "darwin_amd64" "linux_amd64" "darwin_arm64" "linux_arm64" "windows_a
         cp "$dist/pixlet" "out/pixlet_$dist/pixlet"
         chmod +x "out/pixlet_$dist/pixlet"
 	fi
-
-    rm -rf "$dist"
 done
