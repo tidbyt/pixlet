@@ -28,7 +28,7 @@ jobs:
     name: Build and Test Release Artifacts
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -42,6 +42,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16"
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        if: matrix.os == 'windows-latest'
+        with:
+          update: true
+          install: >-
+            make
+            mingw-w64-x86_64-go
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-libwebp
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -62,13 +73,32 @@ jobs:
 
       - name: Build
         run: make build
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+
+      - name: Build Windows
+        shell: msys2 {0}
+        run: make build
+        if: matrix.os == 'windows-latest'
 
       - name: Test
         run: make test
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+
+      - name: Test Windows
+        shell: msys2 {0}
+        run: make test
+        if: matrix.os == 'windows-latest'
 
       - name: Set pixlet version
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+
+      - name: Set Windows pixlet version
+        id: vars
+        shell: msys2 {0}
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        if: matrix.os == 'windows-latest'
 
       - name: Build Release Linux
         if: matrix.os == 'ubuntu-latest'
@@ -79,6 +109,13 @@ jobs:
       - name: Build Release macOS
         if: matrix.os == 'macos-latest'
         run: make release-macos
+        env:
+          PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
+
+      - name: Build Release Windows
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: make release-windows
         env:
           PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
 

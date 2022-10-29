@@ -7,3 +7,7 @@ for dist in "darwin_amd64" "linux_amd64" "darwin_arm64" "linux_arm64"; do
     cp "$dist/pixlet" "out/pixlet_$dist/pixlet"
     chmod +x "out/pixlet_$dist/pixlet"
 done
+
+dist="windows_amd64"
+mkdir -p "out/pixlet_$dist"
+cp "$dist/pixlet.exe" "out/pixlet_$dist/pixlet.exe"
