@@ -147,13 +147,16 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: release-artifacts
+          path: build
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3
         with:
-          version: v1.7.0
+          distribution: goreleaser-pro
+          version: v1.12.3
           args: release
         env:
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
           GITHUB_TOKEN: ${{ secrets.TIDBYT_GITHUB_TOKEN }}
           DISCORD_WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
           DISCORD_WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
