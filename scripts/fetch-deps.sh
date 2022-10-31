@@ -6,7 +6,7 @@ if [ -z "$LIBWEBP_VERSION" ]; then
 fi
 
 if [ -z "$RELEASE_ARCHS" ]; then
-	echo "Please set RELEASE_ARCHS"
+	echo "Please set LIBWEBP_ARCHS"
 	exit 1
 fi
 
