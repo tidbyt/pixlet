@@ -8,12 +8,24 @@ builds:
   - builder: prebuilt
     binary: pixlet
 
-    targets:
-      - darwin_amd64
-      - darwin_arm64
-      - linux_amd64
-      - linux_arm64
-      - windows_amd64
+    goarch:
+      - amd64
+      - arm64
+
+    goos:
+      - darwin
+      - linux
+      - windows
+
+    goarm:
+      - 7
+
+    goamd64:
+      - v1
+
+    ignore:
+      - goos: windows
+        goarch: arm64
 
     prebuilt:
       path: build/{{ .Os }}_{{ .Arch }}/pixlet{{ .Ext }}
