@@ -8,24 +8,19 @@ import (
 	"github.com/tidbyt/gg"
 )
 
-// PieChart draws the PieChart of a circle with the given `start` and `end`
-// angles, in radians, with size `diameter` and a defined `color`.
-// If `fill` is passed, the PieChart will be filled in with `color`,
-// to the center of the circle, like a piece of a pie.
+// PieChart draws a circular pie chart of size `diameter`. It takes two
+// arguments for the data: parallel lists `colors` and `weights` representing
+// the shading and relative sizes of each data entry.
 //
-// DOC(Color): Fill and stroke color
+// DOC(Colors): List of color hex codes
+// Doc(Weights): List of numbers corresponding to the relative size of each color
 // DOC(Diameter): Diameter of the circle
-// DOC(Start): Angle, in radians, where the circle's PieChart begins. 0 rad is at 3pm on a clock.
-// DOC(End): Angle, in radians, where the circle's PieChart ends.
-// Doc(Fill): Whether or not the PieChart should be filled in.
 //
 // EXAMPLE BEGIN
 // render.PieChart(
-//      color="#fff",
-//      diameter=30,
-//      start=0,
-//      end=math.pi / 2,
-//      fill=True,
+//      colors = [ "#fff", "#0f0", "#00f" ],
+//      weights  = [ 180, 135, 45 ],
+//      diameter = 30,
 // )
 // EXAMPLE END
 type PieChart struct {
