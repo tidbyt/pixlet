@@ -28,7 +28,7 @@ func ParseColor(scol string) (color.Color, error) {
 		fourBits = false
 		hasAlpha = true
 	default:
-		return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color A (len=%v)", scol, len(scol))
+		return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color", scol)
 	}
 
 	var r, g, b, a uint8
@@ -39,7 +39,7 @@ func ParseColor(scol string) (color.Color, error) {
 			return color.Gray{0}, err
 		}
 		if n != 4 {
-			return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color b ", scol)
+			return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color", scol)
 		}
 	} else {
 		n, err := fmt.Sscanf(scol, format, &r, &g, &b)
@@ -47,7 +47,7 @@ func ParseColor(scol string) (color.Color, error) {
 			return color.Gray{0}, err
 		}
 		if n != 3 {
-			return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color c ", scol)
+			return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color", scol)
 		}
 		if fourBits {
 			a = 15
