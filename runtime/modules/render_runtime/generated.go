@@ -48,6 +48,8 @@ func LoadRenderModule() (starlark.StringDict, error) {
 
 					"Padding": starlark.NewBuiltin("Padding", newPadding),
 
+					"PieChart": starlark.NewBuiltin("PieChart", newPieChart),
+
 					"Plot": starlark.NewBuiltin("Plot", newPlot),
 
 					"Root": starlark.NewBuiltin("Root", newRoot),
@@ -620,7 +622,7 @@ func newMarquee(
 		offset_start     starlark.Int
 		offset_end       starlark.Int
 		scroll_direction starlark.String
-		align			 starlark.String
+		align            starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -632,7 +634,7 @@ func newMarquee(
 		"offset_start?", &offset_start,
 		"offset_end?", &offset_end,
 		"scroll_direction?", &scroll_direction,
-		"align?", & align,
+		"align?", &align,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
@@ -702,8 +704,11 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 	case "scroll_direction":
 
 		return starlark.String(w.ScrollDirection), nil
+
 	case "align":
+
 		return starlark.String(w.Align), nil
+
 	default:
 		return nil, nil
 	}
@@ -856,6 +861,100 @@ func (w *Padding) Freeze()              {}
 func (w *Padding) Truth() starlark.Bool { return true }
 
 func (w *Padding) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
+	return uint32(sum), err
+}
+
+type PieChart struct {
+	Widget
+
+	render.PieChart
+
+	starlarkColors *starlark.List
+
+	starlarkWeights *starlark.List
+}
+
+func newPieChart(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		colors   *starlark.List
+		weights  *starlark.List
+		diameter starlark.Int
+	)
+
+	if err := starlark.UnpackArgs(
+		"PieChart",
+		args, kwargs,
+		"colors", &colors,
+		"weights", &weights,
+		"diameter", &diameter,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for PieChart: %s", err)
+	}
+
+	w := &PieChart{}
+
+	w.starlarkColors = colors
+	if val, err := ColorSeriesFromStarlark(colors); err == nil {
+		w.Colors = val
+	} else {
+		return nil, err
+	}
+
+	w.starlarkWeights = weights
+	if val, err := WeightsFromStarlark(weights); err == nil {
+		w.Weights = val
+	} else {
+		return nil, err
+	}
+
+	w.Diameter = int(diameter.BigInt().Int64())
+
+	return w, nil
+}
+
+func (w *PieChart) AsRenderWidget() render.Widget {
+	return &w.PieChart
+}
+
+func (w *PieChart) AttrNames() []string {
+	return []string{
+		"colors", "weights", "diameter",
+	}
+}
+
+func (w *PieChart) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "colors":
+
+		return w.starlarkColors, nil
+
+	case "weights":
+
+		return w.starlarkWeights, nil
+
+	case "diameter":
+
+		return starlark.MakeInt(int(w.Diameter)), nil
+
+	default:
+		return nil, nil
+	}
+}
+
+func (w *PieChart) String() string       { return "PieChart(...)" }
+func (w *PieChart) Type() string         { return "PieChart" }
+func (w *PieChart) Freeze()              {}
+func (w *PieChart) Truth() starlark.Bool { return true }
+
+func (w *PieChart) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }

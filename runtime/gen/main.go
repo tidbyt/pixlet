@@ -77,6 +77,7 @@ var Packages = []Package{
 			reflect.ValueOf(new(render.Image)),
 			reflect.ValueOf(new(render.Marquee)),
 			reflect.ValueOf(new(render.Padding)),
+			reflect.ValueOf(new(render.PieChart)),
 			reflect.ValueOf(new(render.Plot)),
 			reflect.ValueOf(new(render.Root)),
 			reflect.ValueOf(new(render.Row)),
@@ -168,6 +169,20 @@ var TypeMap = map[reflect.Type]Type{
 		GoType:        "starlark.String",
 		DocType:       `color`,
 		TemplatePath:  "./gen/attr/color.tmpl",
+		GenerateField: true,
+	},
+
+	// Render `PieChart types`
+	toDecayedType(new([]color.Color)): {
+		GoType:        "*starlark.List",
+		DocType:       `[color]`,
+		TemplatePath:  "./gen/attr/colors.tmpl",
+		GenerateField: true,
+	},
+	toDecayedType(new([]float64)): {
+		GoType:        "*starlark.List",
+		DocType:       `[float]`,
+		TemplatePath:  "./gen/attr/weights.tmpl",
 		GenerateField: true,
 	},
 
