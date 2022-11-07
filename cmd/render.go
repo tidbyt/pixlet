@@ -106,8 +106,8 @@ func render(cmd *cobra.Command, args []string) {
 		)
 		for x := 0; x < in.Bounds().Dx(); x++ {
 			for y := 0; y < in.Bounds().Dy(); y++ {
-				for xx := 0; xx < 10; xx++ {
-					for yy := 0; yy < 10; yy++ {
+				for xx := 0; xx < magnify; xx++ {
+					for yy := 0; yy < magnify; yy++ {
 						out.SetRGBA(
 							x*magnify+xx,
 							y*magnify+yy,
