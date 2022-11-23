@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
-	github.com/antchfx/xmlquery v1.3.12
+	github.com/antchfx/xmlquery v1.3.13
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
 	github.com/fsnotify/fsnotify v1.6.0
