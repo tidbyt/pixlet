@@ -7,12 +7,15 @@ import (
 	"image/color"
 	"image/draw"
 	"image/gif"
+	"image/jpeg"
 
 	// register image formats
 	_ "image/jpeg"
 	_ "image/png"
 
 	"github.com/nfnt/resize"
+	"github.com/srwiley/oksvg"
+	"github.com/srwiley/rasterx"
 	"github.com/tidbyt/gg"
 	"github.com/tidbyt/go-libwebp/webp"
 )
@@ -147,12 +150,38 @@ func (p *Image) InitFromImage(data []byte) error {
 	return nil
 }
 
+func (p *Image) InitFromSVG(data []byte) error {
+	w := p.Width
+	h := p.Height
+
+	icon, _ := oksvg.ReadIconStream(bytes.NewReader(data))
+  icon.SetTarget(0, 0, float64(w), float64(h))
+  rgba := image.NewRGBA(image.Rect(0, 0, w, h))
+  icon.Draw(rasterx.NewDasher(w, h, rasterx.NewScannerGV(w, h, rgba, rgba.Bounds())), 1)
+	buf := new(bytes.Buffer)
+	err := jpeg.Encode(buf, rgba, nil);
+
+	if err != nil {
+		return err;
+	}
+
+	err = p.InitFromImage([]byte(buf.Bytes()))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *Image) Init() error {
 	err := p.InitFromWebP([]byte(p.Src))
 	if err != nil {
 		err = p.InitFromGIF([]byte(p.Src))
 		if err != nil {
-			err = p.InitFromImage([]byte(p.Src))
+			err = p.InitFromSVG([]byte(p.Src))
+			if err != nil {
+				err = p.InitFromImage([]byte(p.Src))
+			}
 		}
 	}
 
