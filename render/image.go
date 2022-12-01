@@ -8,6 +8,9 @@ import (
 	"image/draw"
 	"image/gif"
 	"image/jpeg"
+	"io"
+	"net/http"
+	"net/url"
 
 	// register image formats
 	_ "image/jpeg"
@@ -58,6 +61,11 @@ func (p *Image) Size() (int, int) {
 
 func (p *Image) FrameCount() int {
 	return len(p.imgs)
+}
+
+func (p *Image) IsSrcUrl() bool {
+	u, err := url.Parse(p.Src)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
 func (p *Image) InitFromWebP(data []byte) error {
@@ -151,13 +159,13 @@ func (p *Image) InitFromImage(data []byte) error {
 }
 
 func (p *Image) InitFromSVG(data []byte) error {
-	w := p.Width
-	h := p.Height
+	svgData, _ := oksvg.ReadIconStream(bytes.NewReader(data))
+	w := int(svgData.ViewBox.W)
+	h := int(svgData.ViewBox.H)
 
-	icon, _ := oksvg.ReadIconStream(bytes.NewReader(data))
-  icon.SetTarget(0, 0, float64(w), float64(h))
+  svgData.SetTarget(0, 0, float64(w), float64(h))
   rgba := image.NewRGBA(image.Rect(0, 0, w, h))
-  icon.Draw(rasterx.NewDasher(w, h, rasterx.NewScannerGV(w, h, rgba, rgba.Bounds())), 1)
+  svgData.Draw(rasterx.NewDasher(w, h, rasterx.NewScannerGV(w, h, rgba, rgba.Bounds())), 1)
 	buf := new(bytes.Buffer)
 	err := jpeg.Encode(buf, rgba, nil);
 
@@ -173,14 +181,38 @@ func (p *Image) InitFromSVG(data []byte) error {
 	return nil
 }
 
-func (p *Image) Init() error {
-	err := p.InitFromWebP([]byte(p.Src))
+func (p *Image) InitFromURL(url string) error {
+  response, err := http.Get(url)
+	defer response.Body.Close()
+
 	if err != nil {
-		err = p.InitFromGIF([]byte(p.Src))
+		return err
+	}
+
+	body, err := io.ReadAll(response.Body)
+
+	p.Src = string(body)
+	err = p.Init()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *Image) Init() error {
+	var err error
+	if p.IsSrcUrl() {
+		err = p.InitFromURL(p.Src)
+	} else {
+		err = p.InitFromWebP([]byte(p.Src))
 		if err != nil {
-			err = p.InitFromSVG([]byte(p.Src))
+			err = p.InitFromGIF([]byte(p.Src))
 			if err != nil {
-				err = p.InitFromImage([]byte(p.Src))
+				err = p.InitFromSVG([]byte(p.Src))
+				if err != nil {
+					err = p.InitFromImage([]byte(p.Src))
+				}
 			}
 		}
 	}

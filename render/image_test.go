@@ -3,6 +3,8 @@ package render
 import (
 	"encoding/base64"
 	"image"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,6 +18,7 @@ func TestImage(t *testing.T) {
 	raw, _ := base64.StdEncoding.DecodeString(testPNG)
 	img := &Image{Src: string(raw)}
 	img.Init()
+	assert.False(t, img.IsSrcUrl())
 
 	// Size of Image is independent of bounds
 	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
@@ -173,4 +176,63 @@ func TestImageAnimatedGif(t *testing.T) {
 		".xx..",
 		"...xx",
 	}, PaintWidget(img, image.Rect(0, 0, 100, 100), 5)))
+}
+
+func TestIsSrcUrl(t *testing.T) {
+	validUrl := "https://testurl.com";
+	img := &Image{Src: string(validUrl)}
+	img.Init()
+	assert.True(t, img.IsSrcUrl())
+}
+
+func TestImageUrl(t *testing.T) {
+	raw, _ := base64.StdEncoding.DecodeString(testPNG)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(raw))
+	}))
+	defer server.Close()
+
+	img := &Image{Src: string(server.URL)}
+	img.Init()
+	assert.True(t, img.IsSrcUrl())
+
+	// Size of Image is independent of bounds
+	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		"rrrrrrrrrr",
+		"r........r",
+		"r...rr...r",
+		"r...rr...r",
+		"r...rr...r",
+		"r.rrrrrr.r",
+		"r.rrrrrr.r",
+		"r...rr...r",
+		"r...rr...r",
+		"r...rr...r",
+		"r........r",
+		"rrrrrrrrrr",
+	}, im))
+	w, h := img.Size()
+	assert.Equal(t, 10, w)
+	assert.Equal(t, 12, h)
+
+	im = PaintWidget(img, image.Rect(0, 0, 100, 100), 0)
+	assert.Equal(t, nil, checkImage([]string{
+		"rrrrrrrrrr",
+		"r........r",
+		"r...rr...r",
+		"r...rr...r",
+		"r...rr...r",
+		"r.rrrrrr.r",
+		"r.rrrrrr.r",
+		"r...rr...r",
+		"r...rr...r",
+		"r...rr...r",
+		"r........r",
+		"rrrrrrrrrr",
+	}, im))
+	w, h = img.Size()
+	assert.Equal(t, 10, w)
+	assert.Equal(t, 12, h)
 }
