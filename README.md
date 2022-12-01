@@ -40,6 +40,11 @@ brew install tidbyt/tidbyt/pixlet
 
 Download the `pixlet` binary from [the latest release][1].
 
+Arch Linux users can install the latest pixlet binary from the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/pixlet-bin) using [yay](https://github.com/Jguer/yay):
+```
+yay -S pixlet-bin
+```
+
 Alternatively you can [build from source](docs/BUILD.md).
 
 [1]: https://github.com/tidbyt/pixlet/releases/latest
