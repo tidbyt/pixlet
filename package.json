@@ -54,7 +54,7 @@
     "@mui/material": "5.10.16",
     "@reduxjs/toolkit": "1.9.1",
     "@mui/x-date-pickers": "5.0.9",
-    "axios": "1.2.0",
+    "axios": "1.2.1",
     "date-fns": "2.29.3",
     "dayjs": "1.11.6",
     "notistack": "2.0.8",
