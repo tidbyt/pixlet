@@ -56,7 +56,7 @@
     "@mui/x-date-pickers": "5.0.9",
     "axios": "1.2.1",
     "date-fns": "2.29.3",
-    "dayjs": "1.11.6",
+    "dayjs": "1.11.7",
     "notistack": "2.0.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
