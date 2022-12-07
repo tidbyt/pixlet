@@ -19,7 +19,6 @@ func TestImage(t *testing.T) {
 	img := &Image{Src: string(raw)}
 	img.Init()
 	assert.False(t, img.IsSrcUrl())
-
 	// Size of Image is independent of bounds
 	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
 	assert.Equal(t, nil, checkImage([]string{
@@ -179,9 +178,8 @@ func TestImageAnimatedGif(t *testing.T) {
 }
 
 func TestIsSrcUrl(t *testing.T) {
-	validUrl := "https://testurl.com";
+	validUrl := "https://testurl.com"
 	img := &Image{Src: string(validUrl)}
-	img.Init()
 	assert.True(t, img.IsSrcUrl())
 }
 
@@ -193,9 +191,8 @@ func TestImageUrl(t *testing.T) {
 	}))
 	defer server.Close()
 
-	img := &Image{Src: string(server.URL)}
+	img := &Image{Src: server.URL}
 	img.Init()
-	assert.True(t, img.IsSrcUrl())
 
 	// Size of Image is independent of bounds
 	im := PaintWidget(img, image.Rect(0, 0, 0, 0), 0)
