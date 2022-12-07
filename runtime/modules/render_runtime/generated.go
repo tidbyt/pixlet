@@ -878,8 +878,6 @@ type Plot struct {
 	starlarkFillColor starlark.String
 
 	starlarkFillColorInverted starlark.String
-	
-	starlarkChartType starlark.String
 }
 
 func newPlot(
@@ -900,7 +898,6 @@ func newPlot(
 		fill                starlark.Bool
 		fill_color          starlark.String
 		fill_color_inverted starlark.String
-		chart_type					starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -916,7 +913,6 @@ func newPlot(
 		"fill?", &fill,
 		"fill_color?", &fill_color,
 		"fill_color_inverted?", &fill_color_inverted,
-		"chart_type?", &chart_type,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Plot: %s", err)
 	}
@@ -984,16 +980,6 @@ func newPlot(
 			return nil, fmt.Errorf("fill_color_inverted is not a valid hex string: %s", fill_color_inverted.String())
 		}
 		w.FillColorInverted = c
-	}
-
-	w.starlarkChartType = chart_type
-	if chart_type != "" {
-		if (chart_type != "line" && chart_type != "scatter") {
-			return nil, fmt.Errorf("chart_type is not valid (supported: line, scatter): %s", chart_type.String())
-		}
-		w.ChartType = string(chart_type)
-	} else {
-		w.ChartType = "line"
 	}
 
 	return w, nil
