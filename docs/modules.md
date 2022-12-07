@@ -106,6 +106,10 @@ On an xpath object, the following methods are available:
 | --- | --- |
 | `query(path)` | Retrieves text of the first tag matching the path |
 | `query_all(path)` | Retrieves text of all tags matching the path |
+| `query_node(path)` | Retrieves the first tag matching the path as an xpath object |
+| `query_all_nodes(path)` | Retrieves all tags matching the path as xpath objects |
+
+The `query_node` and `query_all_nodes` methods allow you to recursively query the XML document, which can be useful if you need to query several tags that are nested underneath some parent tag.
 
 Example:
 
@@ -122,6 +126,11 @@ doc = """
 def get_bars():
     x = xpath.loads(doc)
     return x.query_all("/foo/bar")
+
+def also_get_bars():
+    x = xpath.loads(doc)
+    foo = x.query_node("/foo")
+    return foo.query_all("/bar")
 ...
 ```
 

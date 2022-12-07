@@ -9,7 +9,7 @@ require (
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
-	github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26
+	github.com/google/pprof v0.0.0-20221203041831-ce31453925ec
 	github.com/google/tink/go v1.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
@@ -31,9 +31,9 @@ require (
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
-	go.starlark.net v0.0.0-20221202143044-42872f4d8faa
-	golang.org/x/image v0.1.0
-	golang.org/x/oauth2 v0.2.0
+	go.starlark.net v0.0.0-20221205180719-3fd0dac74452
+	golang.org/x/image v0.2.0
+	golang.org/x/oauth2 v0.3.0
 	golang.org/x/sync v0.1.0
 )
 
@@ -66,9 +66,9 @@ require (
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.3.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
