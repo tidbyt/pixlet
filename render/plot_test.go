@@ -530,3 +530,40 @@ func TestPlotXLim(t *testing.T) {
 		"...........1........",
 	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 }
+
+func TestPlotScatter(t *testing.T) {
+	ic := ImageChecker{
+		Palette: map[string]color.RGBA{
+			"1": {0xff, 0xff, 0xff, 0xff},
+			".": {0, 0, 0, 0},
+		},
+	}
+
+	// Flatline
+	p := Plot{
+		Width:     10,
+		Height:    5,
+		Data:      [][2]float64{{0, 47}, {9, 47}},
+		XLim:      Empty,
+		YLim:      Empty,
+		ChartType: "scatter",
+	}
+	assert.Equal(t, nil, ic.Check([]string{
+		"..........",
+		"..........",
+		"1........1",
+		"..........",
+		"..........",
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
+
+	// Extend view to the left
+	p.XLim[0] = -10
+	assert.Equal(t, nil, ic.Check([]string{
+		"..........",
+		"..........",
+		".....1...1",
+		"..........",
+		"..........",
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
+
+}

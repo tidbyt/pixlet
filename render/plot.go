@@ -25,6 +25,7 @@ var FillDampFactor uint8 = 0x55
 // DOC(Fill): Paint surface between line and X-axis
 // DOC(FillColor): Fill color for Y-values above 0
 // DOC(FillColorInverted): Fill color for Y-values below 0
+// DOC(ChartType): Specifies the type of chart to render, "scatter" or "line", default is "line"
 //
 // EXAMPLE BEGIN
 // render.Plot(
@@ -71,6 +72,9 @@ type Plot struct {
 
 	// If true, also paint surface between line and X-axis
 	Fill bool `starlark:"fill"`
+
+	// Optional, default "line". If set to "scatter", the line connecting dots will not be drawn
+	ChartType string `starlark:"chart_type"`
 
 	// Optional fill color for Y-values above 0
 	FillColor color.Color `starlark:"fill_color"`
@@ -237,16 +241,29 @@ func (p Plot) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		}
 	}
 
-	// the line itself
-	for i := 0; i < pl.Length(); i++ {
-		x, y := pl.Point(i)
-		if y > p.invThreshold {
-			dc.SetColor(colInv)
-		} else {
-			dc.SetColor(col)
+	if p.ChartType == "scatter" {
+		points := p.translatePoints()
+		for i := 0; i < len(points); i++ {
+			point := points[i]
+			if point.Y > p.invThreshold {
+				dc.SetColor(colInv)
+			} else {
+				dc.SetColor(col)
+			}
+			dc.SetPixel(int(point.X), int(point.Y))
 		}
-		tx, ty := dc.TransformPoint(float64(x), float64(y))
-		dc.SetPixel(int(tx), int(ty))
+	} else {
+		// the line itself
+		for i := 0; i < pl.Length(); i++ {
+			x, y := pl.Point(i)
+			if y > p.invThreshold {
+				dc.SetColor(colInv)
+			} else {
+				dc.SetColor(col)
+			}
+			tx, ty := dc.TransformPoint(float64(x), float64(y))
+			dc.SetPixel(int(tx), int(ty))
+		}
 	}
 }
 
