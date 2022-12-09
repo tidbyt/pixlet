@@ -10,21 +10,25 @@ import (
 )
 
 func init() {
-	LintCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
-	LintCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
-	LintCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "d", false, "no code modifications")
-	LintCmd.Flags().StringVarP(&format, "format", "f", "", "diagnostics format: text or json (default text)")
+	FormatCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
+	FormatCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
+	FormatCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "d", false, "no code modifications")
+	FormatCmd.Flags().StringVarP(&format, "format", "f", "", "diagnostics format: text or json (default text)")
 }
 
-var LintCmd = &cobra.Command{
-	Use:   "lint",
-	Short: "Lints Pixlet apps.",
-	Run:   lintCmd,
+var FormatCmd = &cobra.Command{
+	Use:   "format",
+	Short: "Formats Pixlet apps.",
+	Run:   formatCmd,
 }
 
-func lintCmd(cmd *cobra.Command, args []string) {
-	mode := "check"
-	lint := "warn"
+func formatCmd(cmd *cobra.Command, args []string) {
+	mode := "fix"
+	lint := "off"
+
+	if dryRunFlag {
+		mode = "diff"
+	}
 
 	if err := utils.ValidateFormat(&format, &mode); err != nil {
 		fmt.Fprintf(os.Stderr, "buildifier: %s\n", err)
