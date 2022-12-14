@@ -31,7 +31,7 @@
     "@svgr/webpack": "6.5.1",
     "babel-loader": "9.1.0",
     "babel-preset-react": "6.24.1",
-    "css-loader": "6.7.2",
+    "css-loader": "6.7.3",
     "file-loader": "6.2.0",
     "html-webpack-plugin": "5.5.0",
     "style-loader": "3.3.1",
