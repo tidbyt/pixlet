@@ -304,6 +304,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	case "cache.star":
 		return LoadCacheModule()
 
+	case "cache_redis.star":
+		return LoadCacheRedisModule()
+
 	case "secret.star":
 		return LoadSecretModule()
 
