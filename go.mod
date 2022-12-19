@@ -9,7 +9,7 @@ require (
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
-	github.com/google/pprof v0.0.0-20221212185716-aee1124e3a93
+	github.com/google/pprof v0.0.0-20221219190121-3cb0bae90811
 	github.com/google/tink/go v1.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
