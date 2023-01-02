@@ -51,7 +51,7 @@
     "@fortawesome/react-fontawesome": "0.2.0",
     "@mui/icons-material": "5.11.0",
     "@mui/lab": "5.0.0-alpha.114",
-    "@mui/material": "5.11.2",
+    "@mui/material": "5.11.3",
     "@reduxjs/toolkit": "1.9.1",
     "@mui/x-date-pickers": "5.0.12",
     "axios": "1.2.2",
