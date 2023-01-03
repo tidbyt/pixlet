@@ -23,7 +23,7 @@ var renderModule = RenderModule{}
 func LoadRenderModule() (starlark.StringDict, error) {
 	renderModule.once.Do(func() {
 		fnt := starlark.NewDict(len(render.Font))
-		for k, _ := range render.Font {
+		for k := range render.Font {
 			fnt.SetKey(starlark.String(k), starlark.String(k))
 		}
 		fnt.Freeze()
@@ -995,6 +995,7 @@ func newPlot(
 		x_lim               starlark.Tuple
 		y_lim               starlark.Tuple
 		fill                starlark.Bool
+		chart_type          starlark.String
 		fill_color          starlark.String
 		fill_color_inverted starlark.String
 	)
@@ -1010,6 +1011,7 @@ func newPlot(
 		"x_lim?", &x_lim,
 		"y_lim?", &y_lim,
 		"fill?", &fill,
+		"chart_type?", &chart_type,
 		"fill_color?", &fill_color,
 		"fill_color_inverted?", &fill_color_inverted,
 	); err != nil {
@@ -1063,6 +1065,8 @@ func newPlot(
 
 	w.Fill = bool(fill)
 
+	w.ChartType = chart_type.GoString()
+
 	w.starlarkFillColor = fill_color
 	if fill_color.Len() > 0 {
 		c, err := render.ParseColor(fill_color.GoString())
@@ -1090,7 +1094,7 @@ func (w *Plot) AsRenderWidget() render.Widget {
 
 func (w *Plot) AttrNames() []string {
 	return []string{
-		"data", "width", "height", "color", "color_inverted", "x_lim", "y_lim", "fill", "fill_color", "fill_color_inverted",
+		"data", "width", "height", "color", "color_inverted", "x_lim", "y_lim", "fill", "chart_type", "fill_color", "fill_color_inverted",
 	}
 }
 
@@ -1128,6 +1132,10 @@ func (w *Plot) Attr(name string) (starlark.Value, error) {
 	case "fill":
 
 		return starlark.Bool(w.Fill), nil
+
+	case "chart_type":
+
+		return starlark.String(w.ChartType), nil
 
 	case "fill_color":
 

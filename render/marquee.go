@@ -26,7 +26,7 @@ import (
 // - `"start"`: place child at the left/top
 // - `"end"`: place child at the right/bottom
 // - `"center"`: place child at the center
-
+//
 // DOC(Child): Widget to potentially scroll
 // DOC(Width): Width of the Marquee, required for horizontal
 // DOC(Height): Height of the Marquee, required for vertical

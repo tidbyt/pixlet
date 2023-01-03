@@ -14,7 +14,6 @@ import (
 	"go/parser"
 	"go/token"
 	"image/color"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -25,8 +24,6 @@ import (
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/render/animation"
 )
-
-const DocumentationDirectory = "../docs/"
 
 // Given a `reflect.Type` representing a pointer or slice, get the pointed-to or element type.
 func decay(t reflect.Type) reflect.Type {
@@ -60,13 +57,13 @@ type Package struct {
 var Packages = []Package{
 	{
 		Name:           "render",
-		Directory:      "../render",
+		Directory:      "./render",
 		ImportPath:     "tidbyt.dev/pixlet/render",
-		HeaderTemplate: "./gen/header/render.tmpl",
-		TypeTemplate:   "./gen/type.tmpl",
-		CodePath:       "./modules/render_runtime/generated.go",
-		DocTemplate:    "./gen/docs/render.tmpl",
-		DocPath:        "../docs/widgets.md",
+		HeaderTemplate: "./runtime/gen/header/render.tmpl",
+		TypeTemplate:   "./runtime/gen/type.tmpl",
+		CodePath:       "./runtime/modules/render_runtime/generated.go",
+		DocTemplate:    "./runtime/gen/docs/render.tmpl",
+		DocPath:        "./docs/widgets.md",
 		GoRootName:     "Root",
 		GoWidgetName:   "Widget",
 		Types: []reflect.Value{
@@ -89,13 +86,13 @@ var Packages = []Package{
 	},
 	{
 		Name:           "animation",
-		Directory:      "../render/animation",
+		Directory:      "./render/animation",
 		ImportPath:     "tidbyt.dev/pixlet/render/animation",
-		HeaderTemplate: "./gen/header/animation.tmpl",
-		TypeTemplate:   "./gen/type.tmpl",
-		CodePath:       "./modules/animation_runtime/generated.go",
-		DocTemplate:    "./gen/docs/animation.tmpl",
-		DocPath:        "../docs/animation.md",
+		HeaderTemplate: "./runtime/gen/header/animation.tmpl",
+		TypeTemplate:   "./runtime/gen/type.tmpl",
+		CodePath:       "./runtime/modules/animation_runtime/generated.go",
+		DocTemplate:    "./runtime/gen/docs/animation.tmpl",
+		DocPath:        "./docs/animation.md",
 		GoRootName:     "render_runtime.Root",
 		GoWidgetName:   "render_runtime.Widget",
 		Types: []reflect.Value{
@@ -126,49 +123,49 @@ var TypeMap = map[reflect.Type]Type{
 	toDecayedType(new(string)): {
 		GoType:       "starlark.String",
 		DocType:      "str",
-		TemplatePath: "./gen/attr/string.tmpl",
+		TemplatePath: "./runtime/gen/attr/string.tmpl",
 	},
 	toDecayedType(new(int)): {
 		GoType:       "starlark.Int",
 		DocType:      "int",
-		TemplatePath: "./gen/attr/int.tmpl",
+		TemplatePath: "./runtime/gen/attr/int.tmpl",
 	},
 	toDecayedType(new(int32)): {
 		GoType:       "starlark.Int",
 		DocType:      "int",
-		TemplatePath: "./gen/attr/int32.tmpl",
+		TemplatePath: "./runtime/gen/attr/int32.tmpl",
 	},
 	toDecayedType(new(float64)): {
 		GoType:       "starlark.Value",
 		DocType:      "float / int",
-		TemplatePath: "./gen/attr/float.tmpl",
+		TemplatePath: "./runtime/gen/attr/float.tmpl",
 	},
 	toDecayedType(new(bool)): {
 		GoType:       "starlark.Bool",
 		DocType:      "bool",
-		TemplatePath: "./gen/attr/bool.tmpl",
+		TemplatePath: "./runtime/gen/attr/bool.tmpl",
 	},
 
 	// Render types
 	toDecayedType(new(render.Insets)): {
 		GoType:       "starlark.Value",
 		DocType:      "int / (int, int, int, int)",
-		TemplatePath: "./gen/attr/insets.tmpl",
+		TemplatePath: "./runtime/gen/attr/insets.tmpl",
 	},
 	toDecayedType(new(render.Widget)): {
 		GoType:       "starlark.Value",
 		DocType:      "Widget",
-		TemplatePath: "./gen/attr/child.tmpl",
+		TemplatePath: "./runtime/gen/attr/child.tmpl",
 	},
 	toDecayedType(new([]render.Widget)): {
 		GoType:       "*starlark.List",
 		DocType:      "[Widget]",
-		TemplatePath: "./gen/attr/children.tmpl",
+		TemplatePath: "./runtime/gen/attr/children.tmpl",
 	},
 	toDecayedType(new(color.Color)): {
 		GoType:        "starlark.String",
 		DocType:       `color`,
-		TemplatePath:  "./gen/attr/color.tmpl",
+		TemplatePath:  "./runtime/gen/attr/color.tmpl",
 		GenerateField: true,
 	},
 
@@ -190,57 +187,57 @@ var TypeMap = map[reflect.Type]Type{
 	toDecayedType(new([2]float64)): {
 		GoType:       "starlark.Tuple",
 		DocType:      "(float, float)",
-		TemplatePath: "./gen/attr/datapoint.tmpl",
+		TemplatePath: "./runtime/gen/attr/datapoint.tmpl",
 	},
 	toDecayedType(new([][2]float64)): {
 		GoType:       "*starlark.List",
 		DocType:      "[(float, float)]",
-		TemplatePath: "./gen/attr/dataseries.tmpl",
+		TemplatePath: "./runtime/gen/attr/dataseries.tmpl",
 	},
 
 	// Animation types
 	toDecayedType(new(animation.Origin)): {
 		GoType:       "starlark.Value",
 		DocType:      "Origin",
-		TemplatePath: "./gen/attr/origin.tmpl",
+		TemplatePath: "./runtime/gen/attr/origin.tmpl",
 	},
 	toDecayedType(new(animation.Curve)): {
 		GoType:       "starlark.Value",
 		DocType:      `str / function`,
-		TemplatePath: "./gen/attr/curve.tmpl",
+		TemplatePath: "./runtime/gen/attr/curve.tmpl",
 	},
 	toDecayedType(new(animation.Direction)): {
 		GoType:        "starlark.String",
 		DocType:       `str`,
-		TemplatePath:  "./gen/attr/direction.tmpl",
+		TemplatePath:  "./runtime/gen/attr/direction.tmpl",
 		GenerateField: true,
 	},
 	toDecayedType(new(animation.FillMode)): {
 		GoType:        "starlark.String",
 		DocType:       `str`,
-		TemplatePath:  "./gen/attr/fill_mode.tmpl",
+		TemplatePath:  "./runtime/gen/attr/fill_mode.tmpl",
 		GenerateField: true,
 	},
 	toDecayedType(new(animation.Rounding)): {
 		GoType:        "starlark.String",
 		DocType:       `str`,
-		TemplatePath:  "./gen/attr/rounding.tmpl",
+		TemplatePath:  "./runtime/gen/attr/rounding.tmpl",
 		GenerateField: true,
 	},
 	toDecayedType(new(animation.Percentage)): {
 		GoType:       "starlark.Value",
 		DocType:      `float`,
-		TemplatePath: "./gen/attr/percentage.tmpl",
+		TemplatePath: "./runtime/gen/attr/percentage.tmpl",
 	},
 	toDecayedType(new([]animation.Keyframe)): {
 		GoType:       "*starlark.List",
 		DocType:      "[Keyframe]",
-		TemplatePath: "./gen/attr/keyframes.tmpl",
+		TemplatePath: "./runtime/gen/attr/keyframes.tmpl",
 	},
 	toDecayedType(new([]animation.Transform)): {
 		GoType:       "*starlark.List",
 		DocType:      "[Transform]",
-		TemplatePath: "./gen/attr/transforms.tmpl",
+		TemplatePath: "./runtime/gen/attr/transforms.tmpl",
 	},
 }
 
@@ -411,7 +408,7 @@ func loadTemplate(name, path string) *template.Template {
 		"ToLower": strings.ToLower,
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	nilOrPanic(err)
 
 	template, err := template.New(name).Funcs(funcMap).Parse(string(content))
@@ -519,16 +516,6 @@ func generateDocs(pkg Package, types []*GeneratedType) {
 	template := loadTemplate("docs", pkg.DocTemplate)
 
 	renderTemplateToFile(template, types, pkg.DocPath)
-
-	for _, typ := range types {
-		for i, example := range typ.Examples {
-			err := ioutil.WriteFile(
-				fmt.Sprintf("%s/%s_%d.star", DocumentationDirectory, typ.GoName, i),
-				[]byte(example),
-				0644)
-			nilOrPanic(err)
-		}
-	}
 }
 
 func main() {
