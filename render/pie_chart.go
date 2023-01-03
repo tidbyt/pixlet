@@ -13,7 +13,7 @@ import (
 // the shading and relative sizes of each data entry.
 //
 // DOC(Colors): List of color hex codes
-// Doc(Weights): List of numbers corresponding to the relative size of each color
+// DOC(Weights): List of numbers corresponding to the relative size of each color
 // DOC(Diameter): Diameter of the circle
 //
 // EXAMPLE BEGIN
