@@ -23,7 +23,7 @@ var renderModule = RenderModule{}
 func LoadRenderModule() (starlark.StringDict, error) {
 	renderModule.once.Do(func() {
 		fnt := starlark.NewDict(len(render.Font))
-		for k, _ := range render.Font {
+		for k := range render.Font {
 			fnt.SetKey(starlark.String(k), starlark.String(k))
 		}
 		fnt.Freeze()
@@ -620,7 +620,7 @@ func newMarquee(
 		offset_start     starlark.Int
 		offset_end       starlark.Int
 		scroll_direction starlark.String
-		align			 starlark.String
+		align            starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -632,7 +632,7 @@ func newMarquee(
 		"offset_start?", &offset_start,
 		"offset_end?", &offset_end,
 		"scroll_direction?", &scroll_direction,
-		"align?", & align,
+		"align?", &align,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
@@ -702,8 +702,11 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 	case "scroll_direction":
 
 		return starlark.String(w.ScrollDirection), nil
+
 	case "align":
+
 		return starlark.String(w.Align), nil
+
 	default:
 		return nil, nil
 	}

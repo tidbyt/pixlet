@@ -207,7 +207,7 @@ one of the following `align` values:
 | `offset_start` | `int` | Position of child at beginning of animation | N |
 | `offset_end` | `int` | Position of child at end of animation | N |
 | `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
-| `align` | `str` | Alignment of child that fits fully, default is 'start' | N |
+| `align` | `str` | alignment when contents fit on screen, 'start', 'center' or 'end', default is start | N |
 
 #### Example
 ```
@@ -455,6 +455,7 @@ Alignment of the text is controlled by passing one of the following `align` valu
 - `"left"`: align text to the left
 - `"center"`: align text in the center
 - `"right"`: align text to the right
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
