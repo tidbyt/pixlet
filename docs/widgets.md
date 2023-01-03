@@ -253,6 +253,7 @@ Plot is a widget that draws a data series.
 | `x_lim` | `(float, float)` | Limit X-axis to a range | N |
 | `y_lim` | `(float, float)` | Limit Y-axis to a range | N |
 | `fill` | `bool` | Paint surface between line and X-axis | N |
+| `chart_type` | `str` | Specifies the type of chart to render, "scatter" or "line", default is "line" | N |
 | `fill_color` | `color` | Fill color for Y-values above 0 | N |
 | `fill_color_inverted` | `color` | Fill color for Y-values below 0 | N |
 
