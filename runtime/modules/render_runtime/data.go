@@ -2,9 +2,11 @@ package render_runtime
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 
 	"go.starlark.net/starlark"
+	"tidbyt.dev/pixlet/render"
 )
 
 func DataPointElementFromStarlark(value starlark.Value) (float64, error) {
@@ -49,6 +51,41 @@ func DataSeriesFromStarlark(list *starlark.List) ([][2]float64, error) {
 			result = append(result, val)
 		} else {
 			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+func WeightsFromStarlark(list *starlark.List) ([]float64, error) {
+	result := make([]float64, 0)
+
+	for i := 0; i < list.Len(); i++ {
+		if val, err := DataPointElementFromStarlark(list.Index(i)); err == nil {
+			result = append(result, val)
+		} else {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+func ColorSeriesFromStarlark(list *starlark.List) ([]color.Color, error) {
+	result := make([]color.Color, 0)
+
+	for i := 0; i < list.Len(); i++ {
+		c := list.Index(i)
+
+		switch v := c.(type) {
+		case starlark.String:
+			c, err := render.ParseColor(v.GoString())
+			if err != nil {
+				return nil, fmt.Errorf("colors[%v] is not a valid hex string: %+v", i, c)
+			}
+			result = append(result, c)
+		default:
+			return nil, fmt.Errorf("colors[%v] is not a valid string", i)
 		}
 	}
 

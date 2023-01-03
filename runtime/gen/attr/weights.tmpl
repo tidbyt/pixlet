@@ -1,0 +1,8 @@
+{{if not .IsReadOnly}}
+	w.starlark{{.GoName}} = {{.StarlarkName}}
+	if val, err := WeightsFromStarlark({{.StarlarkName}}); err == nil {
+		w.{{.GoName}} = val
+	} else {
+		return nil, err
+	}
+{{end}}

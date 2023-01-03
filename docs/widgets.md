@@ -239,6 +239,38 @@ accordingly.
 
 
 
+## PieChart
+PieChart draws the PieChart of a circle with the given `start` and `end`
+angles, in radians, with size `diameter` and a defined `color`.
+If `fill` is passed, the PieChart will be filled in with `color`,
+to the center of the circle, like a piece of a pie.
+
+
+
+
+
+Doc(Fill): Whether or not the PieChart should be filled in.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `colors` | `[color]` |  | **Y** |
+| `weights` | `[float]` |  | **Y** |
+| `diameter` | `int` | Diameter of the circle | **Y** |
+
+#### Example
+```
+render.PieChart(
+     color="#fff",
+     diameter=30,
+     start=0,
+     end=math.pi / 2,
+     fill=True,
+)
+```
+![](img/widget_PieChart_0.gif)
+
+
 ## Plot
 Plot is a widget that draws a data series.
 
