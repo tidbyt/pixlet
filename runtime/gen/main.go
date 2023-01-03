@@ -14,7 +14,6 @@ import (
 	"go/parser"
 	"go/token"
 	"image/color"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -25,8 +24,6 @@ import (
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/render/animation"
 )
-
-const DocumentationDirectory = "./docs"
 
 // Given a `reflect.Type` representing a pointer or slice, get the pointed-to or element type.
 func decay(t reflect.Type) reflect.Type {
@@ -396,7 +393,7 @@ func loadTemplate(name, path string) *template.Template {
 		"ToLower": strings.ToLower,
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	nilOrPanic(err)
 
 	template, err := template.New(name).Funcs(funcMap).Parse(string(content))
@@ -504,16 +501,6 @@ func generateDocs(pkg Package, types []*GeneratedType) {
 	template := loadTemplate("docs", pkg.DocTemplate)
 
 	renderTemplateToFile(template, types, pkg.DocPath)
-
-	for _, typ := range types {
-		for i, example := range typ.Examples {
-			err := ioutil.WriteFile(
-				fmt.Sprintf("%s/animation/%s_%d.star", DocumentationDirectory, typ.GoName, i),
-				[]byte(example),
-				0644)
-			nilOrPanic(err)
-		}
-	}
 }
 
 func main() {
