@@ -26,9 +26,11 @@ build:
 
 embedfonts:
 	go run render/gen/embedfonts.go
+	gofmt -s -w ./
 
 widgets:
 	 go run runtime/gen/main.go
+	 gofmt -s -w ./
 
 release-macos: clean
 	./scripts/release-macos.sh
