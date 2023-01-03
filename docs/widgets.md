@@ -240,32 +240,23 @@ accordingly.
 
 
 ## PieChart
-PieChart draws the PieChart of a circle with the given `start` and `end`
-angles, in radians, with size `diameter` and a defined `color`.
-If `fill` is passed, the PieChart will be filled in with `color`,
-to the center of the circle, like a piece of a pie.
-
-
-
-
-
-Doc(Fill): Whether or not the PieChart should be filled in.
+PieChart draws a circular pie chart of size `diameter`. It takes two
+arguments for the data: parallel lists `colors` and `weights` representing
+the shading and relative sizes of each data entry.
 
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `colors` | `[color]` |  | **Y** |
-| `weights` | `[float]` |  | **Y** |
+| `colors` | `[color]` | List of color hex codes | **Y** |
+| `weights` | `[float]` | List of numbers corresponding to the relative size of each color | **Y** |
 | `diameter` | `int` | Diameter of the circle | **Y** |
 
 #### Example
 ```
 render.PieChart(
-     color="#fff",
-     diameter=30,
-     start=0,
-     end=math.pi / 2,
-     fill=True,
+     colors = [ "#fff", "#0f0", "#00f" ],
+     weights  = [ 180, 135, 45 ],
+     diameter = 30,
 )
 ```
 ![](img/widget_PieChart_0.gif)

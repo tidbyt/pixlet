@@ -173,13 +173,13 @@ var TypeMap = map[reflect.Type]Type{
 	toDecayedType(new([]color.Color)): {
 		GoType:        "*starlark.List",
 		DocType:       `[color]`,
-		TemplatePath:  "./gen/attr/colors.tmpl",
+		TemplatePath:  "./runtime/gen/attr/colors.tmpl",
 		GenerateField: true,
 	},
 	toDecayedType(new([]float64)): {
 		GoType:        "*starlark.List",
 		DocType:       `[float]`,
-		TemplatePath:  "./gen/attr/weights.tmpl",
+		TemplatePath:  "./runtime/gen/attr/weights.tmpl",
 		GenerateField: true,
 	},
 
