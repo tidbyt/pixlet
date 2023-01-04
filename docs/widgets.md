@@ -206,7 +206,7 @@ one of the following `align` values:
 | `offset_start` | `int` | Position of child at beginning of animation | N |
 | `offset_end` | `int` | Position of child at end of animation | N |
 | `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
-| `align` | `str` | Alignment of child that fits fully, default is 'start' | N |
+| `align` | `str` | alignment when contents fit on screen, 'start', 'center' or 'end', default is start | N |
 
 #### Example
 ```
@@ -238,6 +238,29 @@ accordingly.
 
 
 
+## PieChart
+PieChart draws a circular pie chart of size `diameter`. It takes two
+arguments for the data: parallel lists `colors` and `weights` representing
+the shading and relative sizes of each data entry.
+
+#### Attributes
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| `colors` | `[color]` | List of color hex codes | **Y** |
+| `weights` | `[float]` | List of numbers corresponding to the relative size of each color | **Y** |
+| `diameter` | `int` | Diameter of the circle | **Y** |
+
+#### Example
+```
+render.PieChart(
+     colors = [ "#fff", "#0f0", "#00f" ],
+     weights  = [ 180, 135, 45 ],
+     diameter = 30,
+)
+```
+![](img/widget_PieChart_0.gif)
+
+
 ## Plot
 Plot is a widget that draws a data series.
 
@@ -252,6 +275,7 @@ Plot is a widget that draws a data series.
 | `x_lim` | `(float, float)` | Limit X-axis to a range | N |
 | `y_lim` | `(float, float)` | Limit Y-axis to a range | N |
 | `fill` | `bool` | Paint surface between line and X-axis | N |
+| `chart_type` | `str` | Specifies the type of chart to render, "scatter" or "line", default is "line" | N |
 | `fill_color` | `color` | Fill color for Y-values above 0 | N |
 | `fill_color_inverted` | `color` | Fill color for Y-values below 0 | N |
 
@@ -454,6 +478,7 @@ Alignment of the text is controlled by passing one of the following `align` valu
 - `"left"`: align text to the left
 - `"center"`: align text in the center
 - `"right"`: align text to the right
+
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |

@@ -23,7 +23,7 @@ var renderModule = RenderModule{}
 func LoadRenderModule() (starlark.StringDict, error) {
 	renderModule.once.Do(func() {
 		fnt := starlark.NewDict(len(render.Font))
-		for k, _ := range render.Font {
+		for k := range render.Font {
 			fnt.SetKey(starlark.String(k), starlark.String(k))
 		}
 		fnt.Freeze()
@@ -47,6 +47,8 @@ func LoadRenderModule() (starlark.StringDict, error) {
 					"Marquee": starlark.NewBuiltin("Marquee", newMarquee),
 
 					"Padding": starlark.NewBuiltin("Padding", newPadding),
+
+					"PieChart": starlark.NewBuiltin("PieChart", newPieChart),
 
 					"Plot": starlark.NewBuiltin("Plot", newPlot),
 
@@ -620,7 +622,7 @@ func newMarquee(
 		offset_start     starlark.Int
 		offset_end       starlark.Int
 		scroll_direction starlark.String
-		align			 starlark.String
+		align            starlark.String
 	)
 
 	if err := starlark.UnpackArgs(
@@ -632,7 +634,7 @@ func newMarquee(
 		"offset_start?", &offset_start,
 		"offset_end?", &offset_end,
 		"scroll_direction?", &scroll_direction,
-		"align?", & align,
+		"align?", &align,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
@@ -702,8 +704,11 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 	case "scroll_direction":
 
 		return starlark.String(w.ScrollDirection), nil
+
 	case "align":
+
 		return starlark.String(w.Align), nil
+
 	default:
 		return nil, nil
 	}
@@ -860,6 +865,100 @@ func (w *Padding) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+type PieChart struct {
+	Widget
+
+	render.PieChart
+
+	starlarkColors *starlark.List
+
+	starlarkWeights *starlark.List
+}
+
+func newPieChart(
+	thread *starlark.Thread,
+	_ *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+
+	var (
+		colors   *starlark.List
+		weights  *starlark.List
+		diameter starlark.Int
+	)
+
+	if err := starlark.UnpackArgs(
+		"PieChart",
+		args, kwargs,
+		"colors", &colors,
+		"weights", &weights,
+		"diameter", &diameter,
+	); err != nil {
+		return nil, fmt.Errorf("unpacking arguments for PieChart: %s", err)
+	}
+
+	w := &PieChart{}
+
+	w.starlarkColors = colors
+	if val, err := ColorSeriesFromStarlark(colors); err == nil {
+		w.Colors = val
+	} else {
+		return nil, err
+	}
+
+	w.starlarkWeights = weights
+	if val, err := WeightsFromStarlark(weights); err == nil {
+		w.Weights = val
+	} else {
+		return nil, err
+	}
+
+	w.Diameter = int(diameter.BigInt().Int64())
+
+	return w, nil
+}
+
+func (w *PieChart) AsRenderWidget() render.Widget {
+	return &w.PieChart
+}
+
+func (w *PieChart) AttrNames() []string {
+	return []string{
+		"colors", "weights", "diameter",
+	}
+}
+
+func (w *PieChart) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "colors":
+
+		return w.starlarkColors, nil
+
+	case "weights":
+
+		return w.starlarkWeights, nil
+
+	case "diameter":
+
+		return starlark.MakeInt(int(w.Diameter)), nil
+
+	default:
+		return nil, nil
+	}
+}
+
+func (w *PieChart) String() string       { return "PieChart(...)" }
+func (w *PieChart) Type() string         { return "PieChart" }
+func (w *PieChart) Freeze()              {}
+func (w *PieChart) Truth() starlark.Bool { return true }
+
+func (w *PieChart) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
+	return uint32(sum), err
+}
+
 type Plot struct {
 	Widget
 
@@ -896,6 +995,7 @@ func newPlot(
 		x_lim               starlark.Tuple
 		y_lim               starlark.Tuple
 		fill                starlark.Bool
+		chart_type          starlark.String
 		fill_color          starlark.String
 		fill_color_inverted starlark.String
 	)
@@ -911,6 +1011,7 @@ func newPlot(
 		"x_lim?", &x_lim,
 		"y_lim?", &y_lim,
 		"fill?", &fill,
+		"chart_type?", &chart_type,
 		"fill_color?", &fill_color,
 		"fill_color_inverted?", &fill_color_inverted,
 	); err != nil {
@@ -964,6 +1065,8 @@ func newPlot(
 
 	w.Fill = bool(fill)
 
+	w.ChartType = chart_type.GoString()
+
 	w.starlarkFillColor = fill_color
 	if fill_color.Len() > 0 {
 		c, err := render.ParseColor(fill_color.GoString())
@@ -991,7 +1094,7 @@ func (w *Plot) AsRenderWidget() render.Widget {
 
 func (w *Plot) AttrNames() []string {
 	return []string{
-		"data", "width", "height", "color", "color_inverted", "x_lim", "y_lim", "fill", "fill_color", "fill_color_inverted",
+		"data", "width", "height", "color", "color_inverted", "x_lim", "y_lim", "fill", "chart_type", "fill_color", "fill_color_inverted",
 	}
 }
 
@@ -1029,6 +1132,10 @@ func (w *Plot) Attr(name string) (starlark.Value, error) {
 	case "fill":
 
 		return starlark.Bool(w.Fill), nil
+
+	case "chart_type":
+
+		return starlark.String(w.ChartType), nil
 
 	case "fill_color":
 
