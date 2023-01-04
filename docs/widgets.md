@@ -207,7 +207,8 @@ one of the following `align` values:
 | `offset_start` | `int` | Position of child at beginning of animation | N |
 | `offset_end` | `int` | Position of child at end of animation | N |
 | `scroll_direction` | `str` | Direction to scroll, 'vertical' or 'horizontal', default is horizontal | N |
-| `align` | `str` | alignment when contents fit on screen, 'start', 'center' or 'end', default is start | N |
+| `align` | `str` | Alignment when contents fit on screen, 'start', 'center' or 'end', default is start | N |
+| `delay` | `int` | Delay the scroll of the animation by a certain number of frames, default is 0 | N |
 
 #### Example
 ```
