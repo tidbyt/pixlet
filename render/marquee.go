@@ -168,6 +168,7 @@ func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		// freeze marquee at final frame
 		offset = offend
 	}
+
 	pb := m.PaintBounds(bounds, frameIdx)
 
 	if m.isVertical() {
