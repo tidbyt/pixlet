@@ -1,8 +1,9 @@
 package render
 
 import (
-	"github.com/tidbyt/gg"
 	"image"
+
+	"github.com/tidbyt/gg"
 )
 
 // Marquee scrolls its child horizontally or vertically.
