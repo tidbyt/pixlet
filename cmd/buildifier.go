@@ -153,6 +153,28 @@ func processFiles(files []string, lint string, tf *utils.TempFile, mode string, 
 // diff is the differ to use when *mode == "diff".
 var diff *differ.Differ
 
+func defaultWarnings() []string {
+	warnings := []string{}
+	for _, warning := range warn.AllWarnings {
+		if !disabledWarnings[warning] {
+			warnings = append(warnings, warning)
+		}
+	}
+	return warnings
+}
+
+var disabledWarnings = map[string]bool{
+	"function-docstring":        true, // disables docstring warnings
+	"function-docstring-header": true, // disables docstring warnings
+	"function-docstring-args":   true, // disables docstring warnings
+	"function-docstring-return": true, // disables docstring warnings
+	"native-android":            true, // disables native android rules
+	"native-cc":                 true, // disables native cc rules
+	"native-java":               true, // disables native java rules
+	"native-proto":              true, // disables native proto rules
+	"native-py":                 true, // disables native python rules
+}
+
 // processFile processes a single file containing data.
 // It has been read from filename and should be written back if fixing.
 func processFile(filename string, data []byte, lint string, displayFileNames bool, tf *utils.TempFile, mode string, verbose bool) (*utils.FileDiagnostics, int) {
@@ -177,7 +199,8 @@ func processFile(filename string, data []byte, lint string, displayFileNames boo
 		f.WorkspaceRoot, f.Pkg, f.Label = wspace.SplitFilePath(absoluteFilename)
 	}
 
-	warnings := utils.Lint(f, lint, &warn.AllWarnings, verbose)
+	enabledWarnings := defaultWarnings()
+	warnings := utils.Lint(f, lint, &enabledWarnings, verbose)
 	if len(warnings) > 0 {
 		exitCode = 4
 	}
