@@ -11,7 +11,7 @@ func init() {
 	FormatCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
 	FormatCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
 	FormatCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "d", false, "display a diff of formatting changes without modification")
-	FormatCmd.Flags().StringVar(&format, "format", "text", "diagnostics format: text or json")
+	FormatCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "output format, text or json")
 }
 
 var FormatCmd = &cobra.Command{
@@ -47,6 +47,6 @@ func formatCmd(cmd *cobra.Command, args []string) {
 	diff = differ
 
 	// Run buildifier and exit with the returned exit code.
-	exitCode := runBuildifier(args, lint, mode, format, rflag, vflag)
+	exitCode := runBuildifier(args, lint, mode, outputFormat, rflag, vflag)
 	os.Exit(exitCode)
 }

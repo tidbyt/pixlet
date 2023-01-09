@@ -11,7 +11,7 @@ func init() {
 	LintCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
 	LintCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
 	LintCmd.Flags().BoolVarP(&fixFlag, "fix", "f", false, "automatically fix resolvable lint issues")
-	LintCmd.Flags().StringVar(&format, "format", "text", "diagnostics format: text or json")
+	LintCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "output format, text or json")
 }
 
 var LintCmd = &cobra.Command{
@@ -51,6 +51,6 @@ func lintCmd(cmd *cobra.Command, args []string) {
 	// production.
 
 	// Run buildifier and exit with the returned exit code.
-	exitCode := runBuildifier(args, lint, mode, format, rflag, vflag)
+	exitCode := runBuildifier(args, lint, mode, outputFormat, rflag, vflag)
 	os.Exit(exitCode)
 }
