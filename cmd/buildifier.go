@@ -27,15 +27,16 @@ import (
 	"github.com/bazelbuild/buildtools/build"
 	"github.com/bazelbuild/buildtools/buildifier/utils"
 	"github.com/bazelbuild/buildtools/differ"
+	"github.com/bazelbuild/buildtools/warn"
 	"github.com/bazelbuild/buildtools/wspace"
 )
 
 var (
-	vflag      bool
-	rflag      bool
-	dryRunFlag bool
-	fixFlag    bool
-	format     string
+	vflag        bool
+	rflag        bool
+	dryRunFlag   bool
+	fixFlag      bool
+	outputFormat string
 )
 
 func runBuildifier(args []string, lint string, mode string, format string, recursive bool, verbose bool) int {
@@ -176,8 +177,7 @@ func processFile(filename string, data []byte, lint string, displayFileNames boo
 		f.WorkspaceRoot, f.Pkg, f.Label = wspace.SplitFilePath(absoluteFilename)
 	}
 
-	warningsList := []string{}
-	warnings := utils.Lint(f, lint, &warningsList, verbose)
+	warnings := utils.Lint(f, lint, &warn.AllWarnings, verbose)
 	if len(warnings) > 0 {
 		exitCode = 4
 	}
