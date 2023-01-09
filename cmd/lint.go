@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/bazelbuild/buildtools/buildifier/utils"
 	"github.com/bazelbuild/buildtools/differ"
 	"github.com/spf13/cobra"
 )
@@ -12,37 +10,47 @@ import (
 func init() {
 	LintCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
 	LintCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
-	LintCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "d", false, "no code modifications")
-	LintCmd.Flags().StringVarP(&format, "format", "f", "", "diagnostics format: text or json (default text)")
+	LintCmd.Flags().BoolVarP(&fixFlag, "fix", "f", false, "automatically fix resolvable lint issues")
+	LintCmd.Flags().StringVar(&format, "format", "text", "diagnostics format: text or json")
 }
 
 var LintCmd = &cobra.Command{
-	Use:   "lint",
-	Short: "Lints Pixlet apps.",
-	Run:   lintCmd,
+	Use: "lint <pathspec>...",
+	Example: `  pixlet lint app.star
+  pixlet lint --recursive --fix ./`,
+	Short: "Lints Tidbyt apps",
+	Long: `The lint command provides a linter for Tidbyt apps. It's capable of linting a
+file, a list of files, or directory with the recursive option. Additionally, it
+provides an option to automatically fix resolvable linter issues.`,
+	Args: cobra.MinimumNArgs(1),
+	Run:  lintCmd,
 }
 
 func lintCmd(cmd *cobra.Command, args []string) {
+	// Mode refers to formatting mode for buildifier, with the options being
+	// check, diff, or fix. For the pixlet lint command, we only want to check
+	// formatting.
 	mode := "check"
+
+	// Lint refers to the lint mode for buildifier, with the options being off,
+	// warn, or fix. For pixlet lint, we want to warn by default but offer a
+	// flag to automatically fix resolvable issues.
 	lint := "warn"
-
-	if err := utils.ValidateFormat(&format, &mode); err != nil {
-		fmt.Fprintf(os.Stderr, "buildifier: %s\n", err)
-		os.Exit(2)
+	if fixFlag {
+		lint = "fix"
 	}
 
-	dflag := false
-	if err := utils.ValidateModes(&mode, &lint, &dflag); err != nil {
-		fmt.Fprintf(os.Stderr, "buildifier: %s\n", err)
-		os.Exit(2)
-	}
-
-	differ, deprecationWarning := differ.Find()
-	if deprecationWarning && mode == "diff" {
-		fmt.Fprintf(os.Stderr, "buildifier: selecting diff program with the BUILDIFIER_DIFF, BUILDIFIER_MULTIDIFF, and DISPLAY environment variables is deprecated, use flags -diff_command and -multi_diff instead\n")
-	}
+	// Copied from the buildifier source, we need to supply a diff program for
+	// the differ.
+	differ, _ := differ.Find()
 	diff = differ
 
+	// TODO: We currently offer misspelling protection in the community repo
+	// for app manifests. We'll want to consider adding additional spelling
+	// support to pixlet lint to ensure typos in apps don't make it to
+	// production.
+
+	// Run buildifier and exit with the returned exit code.
 	exitCode := runBuildifier(args, lint, mode, format, rflag, vflag)
 	os.Exit(exitCode)
 }

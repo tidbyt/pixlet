@@ -34,6 +34,7 @@ var (
 	vflag      bool
 	rflag      bool
 	dryRunFlag bool
+	fixFlag    bool
 	format     string
 )
 
