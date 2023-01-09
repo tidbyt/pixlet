@@ -36,7 +36,10 @@ func lintCmd(cmd *cobra.Command, args []string) {
 	// warn, or fix. For pixlet lint, we want to warn by default but offer a
 	// flag to automatically fix resolvable issues.
 	lint := "warn"
+
+	// If the fix flag is enabled, the lint command should both format and lint.
 	if fixFlag {
+		mode = "fix"
 		lint = "fix"
 	}
 
