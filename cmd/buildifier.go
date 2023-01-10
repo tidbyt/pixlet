@@ -168,11 +168,13 @@ var disabledWarnings = map[string]bool{
 	"function-docstring-header": true, // disables docstring warnings
 	"function-docstring-args":   true, // disables docstring warnings
 	"function-docstring-return": true, // disables docstring warnings
+	"name-conventions":          true, // disables naming convention warnings
 	"native-android":            true, // disables native android rules
 	"native-cc":                 true, // disables native cc rules
 	"native-java":               true, // disables native java rules
 	"native-proto":              true, // disables native proto rules
 	"native-py":                 true, // disables native python rules
+	"unsorted-dict-items":       true, // disables dictionary sorting
 }
 
 // processFile processes a single file containing data.
