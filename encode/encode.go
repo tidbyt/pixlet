@@ -26,10 +26,11 @@ const (
 )
 
 type Screens struct {
-	roots  []render.Root
-	images []image.Image
-	delay  int32
-	MaxAge int32
+	roots             []render.Root
+	images            []image.Image
+	delay             int32
+	MaxAge            int32
+	ShowFullAnimation bool
 }
 
 type ImageFilter func(image.Image) (image.Image, error)
@@ -47,6 +48,7 @@ func ScreensFromRoots(roots []render.Root) *Screens {
 		if roots[0].MaxAge > 0 {
 			screens.MaxAge = roots[0].MaxAge
 		}
+		screens.ShowFullAnimation = roots[0].ShowFullAnimation
 	}
 	return &screens
 }

@@ -227,3 +227,27 @@ func TestScreensFromRoots(t *testing.T) {
 	assert.Equal(t, int32(4711), s.delay)
 	assert.Equal(t, int32(42), s.MaxAge)
 }
+
+func TestShowFullAnimation(t *testing.T) {
+	requestFull := `
+load("render.star", "render")
+def main():
+    return render.Root(show_full_animation=True, child=render.Box())
+`
+	app := runtime.Applet{}
+	require.NoError(t, app.Load("test.star", []byte(requestFull), nil))
+	roots, err := app.Run(map[string]string{})
+	assert.NoError(t, err)
+	assert.True(t, ScreensFromRoots(roots).ShowFullAnimation)
+
+	dontRequestFull := `
+load("render.star", "render")
+def main():
+    return render.Root(child=render.Box())
+`
+	app = runtime.Applet{}
+	require.NoError(t, app.Load("test.star", []byte(dontRequestFull), nil))
+	roots, err = app.Run(map[string]string{})
+	assert.NoError(t, err)
+	assert.False(t, ScreensFromRoots(roots).ShowFullAnimation)
+}
