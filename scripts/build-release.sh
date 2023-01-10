@@ -25,7 +25,7 @@ do
 		 CC=aarch64-linux-gnu-gcc CGO_LDFLAGS="-Wl,-Bstatic -lwebp -lwebpdemux -lwebpmux -Wl,-Bdynamic" CGO_ENABLED=1 GOOS=$RELEASE_PLATFORM GOARCH=$RELEASE_ARCH go build -ldflags="-X 'tidbyt.dev/pixlet/cmd.Version=${PIXLET_VERSION}'" -o build/${RELEASE_PLATFORM}_${RELEASE_ARCH}/pixlet tidbyt.dev/pixlet
 	elif [[ $ARCH == "linux-amd64"  ]]; then
 		echo "linux-amd64"
-		 CGO_LDFLAGS="-Wl,-Bstatic -lwebp -lwebpdemux -lwebpmux -Wl,-Bdynamic" CGO_ENABLED=1 GOOS=$RELEASE_PLATFORM GOARCH=$RELEASE_ARCH go build -ldflags="-X 'tidbyt.dev/pixlet/cmd.Version=${PIXLET_VERSION}'" -o build/${RELEASE_PLATFORM}_${RELEASE_ARCH}/pixlet tidbyt.dev/pixlet
+		CGO_ENABLED=1 GOOS=$RELEASE_PLATFORM GOARCH=$RELEASE_ARCH go build -ldflags="-s -extldflags=-static -X 'tidbyt.dev/pixlet/cmd.Version=${PIXLET_VERSION}'" -o build/${RELEASE_PLATFORM}_${RELEASE_ARCH}/pixlet tidbyt.dev/pixlet
 	elif [[ $ARCH == "windows-amd64"  ]]; then
 		echo "windows-amd64"
 		go build -ldflags="-s -extldflags=-static -X 'tidbyt.dev/pixlet/cmd.Version=${PIXLET_VERSION}'" -o build/${RELEASE_PLATFORM}_${RELEASE_ARCH}/pixlet.exe tidbyt.dev/pixlet
