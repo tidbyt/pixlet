@@ -413,6 +413,8 @@ go.starlark.net v0.0.0-20230103143115-09991d3a103e h1:lmqmzBAG2MQVtZHInHQJODrmPQ
 go.starlark.net v0.0.0-20230103143115-09991d3a103e/go.mod h1:kIVgS18CjmEC3PqMd5kaJSGEifyV/CeB9x506ZJ1Vbk=
 go.starlark.net v0.0.0-20230105143730-d7da88764354 h1:MqQRg4vlpVc7cQoQBgQGPyP3N4FAhKlMQ/y/Akv4/xM=
 go.starlark.net v0.0.0-20230105143730-d7da88764354/go.mod h1:kIVgS18CjmEC3PqMd5kaJSGEifyV/CeB9x506ZJ1Vbk=
+go.starlark.net v0.0.0-20230110155749-dcdc0f0598e3 h1:HHTeY6zVHRTdouDUqubojvQUmBqLkZxfWbFetw9v/NM=
+go.starlark.net v0.0.0-20230110155749-dcdc0f0598e3/go.mod h1:kIVgS18CjmEC3PqMd5kaJSGEifyV/CeB9x506ZJ1Vbk=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
 go.uber.org/zap v1.10.0/go.mod h1:vwi/ZaCAaUcBkycHslxD9B2zi4UTXhF60s6SWpuDF0Q=
