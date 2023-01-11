@@ -168,6 +168,7 @@ var disabledWarnings = map[string]bool{
 	"function-docstring-header": true, // disables docstring warnings
 	"function-docstring-args":   true, // disables docstring warnings
 	"function-docstring-return": true, // disables docstring warnings
+	"integer-division":          true, // disables integer division
 	"name-conventions":          true, // disables naming convention warnings
 	"native-android":            true, // disables native android rules
 	"native-cc":                 true, // disables native cc rules
