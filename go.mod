@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
-	github.com/antchfx/xmlquery v1.3.13
+	github.com/antchfx/xmlquery v1.3.14
 	github.com/bazelbuild/buildtools v0.0.0-20230111132423-06e8e2436a75
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
@@ -40,7 +40,7 @@ require (
 	github.com/Code-Hex/go-wordwrap v1.0.0 // indirect
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
-	github.com/antchfx/xpath v1.2.1 // indirect
+	github.com/antchfx/xpath v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
