@@ -164,6 +164,7 @@ func defaultWarnings() []string {
 }
 
 var disabledWarnings = map[string]bool{
+	"confusing-name":            true, // disables confusing name warnings
 	"function-docstring":        true, // disables docstring warnings
 	"function-docstring-header": true, // disables docstring warnings
 	"function-docstring-args":   true, // disables docstring warnings
