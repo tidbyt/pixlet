@@ -10,7 +10,7 @@ load("schema.star", "schema")
 
 def main(config):
     return render.Root(
-        child = render.Box(height = 1, width = 1),
+        child = render.Text("Hello, world!"),
     )
 
 def get_schema():
