@@ -1,10 +1,10 @@
-package tools_test
+package repo_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"tidbyt.dev/pixlet/tools"
+	"tidbyt.dev/pixlet/tools/repo"
 )
 
 func TestIsInRepo(t *testing.T) {
@@ -24,7 +24,7 @@ func TestIsInRepo(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := tools.IsInRepo(tc.repo)
+			got := repo.IsInRepo(tc.repo)
 			assert.Equal(t, tc.want, got)
 		})
 	}

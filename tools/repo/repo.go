@@ -1,4 +1,4 @@
-package tools
+package repo
 
 import (
 	"os"
@@ -11,7 +11,7 @@ import (
 // program is in the provided git repository. Git repositories can be named
 // differently on a local clone then the remote. In addition, a git repo can
 // have multiple remotes. In practice though, the business logic question is
-// something like: "Am I in the community repo"?. To answer that, this function
+// something like: "Am I in the community repo?". To answer that, this function
 // iterates over the remotes and if any of them have the same name as the one
 // requested, it returns true. Any other case returns false.
 func IsInRepo(name string) bool {
