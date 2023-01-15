@@ -15,6 +15,21 @@ const (
 	goExt   = ".go"
 )
 
+// AppType defines the type of app to generate using this package. There are
+// several types of apps that are defined slightly differently. The ideal state
+// is one type of app no matter where the app exists, but that's not the current
+// reality.
+type AppType int64
+
+const (
+	// Community represents an app that will be published in the community repo.
+	Community AppType = iota
+	// Local represents an app that is local and not meant to be published.
+	Local
+	// Internal represents a Tidbyt internal app.
+	Internal
+)
+
 //go:embed templates/source.star.tmpl
 var starSource string
 
@@ -29,6 +44,8 @@ type Generator struct {
 	starTmpl *template.Template
 	goTmpl   *template.Template
 	appsTmpl *template.Template
+	appType  AppType
+	root     string
 }
 
 type appsDef struct {
@@ -37,7 +54,7 @@ type appsDef struct {
 }
 
 // NewGenerator creates an instantiated generator with the templates parsed.
-func NewGenerator() (*Generator, error) {
+func NewGenerator(appType AppType, root string) (*Generator, error) {
 	starTmpl, err := template.New("star").Parse(starSource)
 	if err != nil {
 		return nil, err
@@ -57,28 +74,32 @@ func NewGenerator() (*Generator, error) {
 		starTmpl: starTmpl,
 		goTmpl:   goTmpl,
 		appsTmpl: appsTmpl,
+		appType:  appType,
+		root:     root,
 	}, nil
 }
 
 // GenerateApp creates the base app starlark, go package, and updates the app
 // list.
-func (g *Generator) GenerateApp(app *manifest.Manifest) error {
-	err := g.createDir(app)
-	if err != nil {
-		return err
+func (g *Generator) GenerateApp(app *manifest.Manifest) (string, error) {
+	if g.appType == Community {
+		err := g.createDir(app)
+		if err != nil {
+			return "", err
+		}
+
+		err = g.generateGo(app)
+		if err != nil {
+			return "", err
+		}
+
+		err = g.updateApps()
+		if err != nil {
+			return "", err
+		}
 	}
 
-	err = g.generateStarlark(app)
-	if err != nil {
-		return err
-	}
-
-	err = g.generateGo(app)
-	if err != nil {
-		return err
-	}
-
-	return g.updateApps()
+	return g.generateStarlark(app)
 }
 
 // RemoveApp removes an app from the apps directory.
@@ -97,12 +118,12 @@ func (g *Generator) UpdateApps() error {
 }
 
 func (g *Generator) createDir(app *manifest.Manifest) error {
-	p := path.Join(appsDir, app.PackageName)
+	p := path.Join(g.root, appsDir, app.PackageName)
 	return os.MkdirAll(p, os.ModePerm)
 }
 
 func (g *Generator) removeDir(app *manifest.Manifest) error {
-	p := path.Join(appsDir, app.PackageName)
+	p := path.Join(g.root, appsDir, app.PackageName)
 	return os.RemoveAll(p)
 }
 
@@ -124,7 +145,7 @@ func (g *Generator) updateApps() error {
 			packages = append(packages, f.Name())
 		}
 	}
-	p := path.Join(appsDir, appsDir+goExt)
+	p := path.Join(g.root, appsDir, appsDir+goExt)
 
 	file, err := os.Create(p)
 	if err != nil {
@@ -143,20 +164,33 @@ func (g *Generator) updateApps() error {
 	return g.appsTmpl.Execute(file, a)
 }
 
-func (g *Generator) generateStarlark(app *manifest.Manifest) error {
-	p := path.Join(appsDir, app.PackageName, app.FileName)
+func (g *Generator) generateStarlark(app *manifest.Manifest) (string, error) {
+	var p string
+	switch g.appType {
+	case Community:
+		p = path.Join(g.root, appsDir, app.PackageName, app.FileName)
+	case Internal:
+		p = path.Join(g.root, appsDir, app.FileName)
+	default:
+		p = path.Join(g.root, app.FileName)
+	}
 
 	file, err := os.Create(p)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 
-	return g.starTmpl.Execute(file, app)
+	err = g.starTmpl.Execute(file, app)
+	if err != nil {
+		return "", err
+	}
+
+	return p, nil
 }
 
 func (g *Generator) generateGo(app *manifest.Manifest) error {
-	p := path.Join(appsDir, app.PackageName, app.PackageName+goExt)
+	p := path.Join(g.root, appsDir, app.PackageName, app.PackageName+goExt)
 
 	file, err := os.Create(p)
 	if err != nil {

@@ -16,10 +16,31 @@ var CreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Creates a new app.",
 	Long:  `This command will prompt for all of the information we need to generate a new app in this repo.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if !repo.IsInRepo("community") {
-			fmt.Println("app creation failed, try again from the community repo")
-			os.Exit(1)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Get the current working directory.
+		cwd, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("app creation failed, something went wrong with your local filesystem: %w", err)
+		}
+
+		// Determine what type of app this is an what the root should be.
+		var root string
+		var appType generator.AppType
+		if repo.IsInRepo(cwd, "community") {
+			appType = generator.Community
+			root, err = repo.RepoRoot(cwd)
+			if err != nil {
+				return fmt.Errorf("app creation failed, something went wrong with your community repo: %w", err)
+			}
+		} else if repo.IsInRepo(cwd, "tidbyt") {
+			appType = generator.Internal
+			root, err = repo.RepoRoot(cwd)
+			if err != nil {
+				return fmt.Errorf("app creation failed, something went wrong with your tidbyt repo: %w", err)
+			}
+		} else {
+			appType = generator.Local
+			root = cwd
 		}
 
 		// Get the name of the app.
@@ -29,8 +50,7 @@ var CreateCmd = &cobra.Command{
 		}
 		name, err := namePrompt.Run()
 		if err != nil {
-			fmt.Printf("app creation failed %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("app creation failed %w", err)
 		}
 
 		// Get the summary of the app.
@@ -40,8 +60,7 @@ var CreateCmd = &cobra.Command{
 		}
 		summary, err := summaryPrompt.Run()
 		if err != nil {
-			fmt.Printf("app creation failed %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("app creation failed %w", err)
 		}
 
 		// Get the description of the app.
@@ -51,8 +70,7 @@ var CreateCmd = &cobra.Command{
 		}
 		desc, err := descPrompt.Run()
 		if err != nil {
-			fmt.Printf("app creation failed %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("app creation failed %w", err)
 		}
 
 		// Get the author of the app.
@@ -62,15 +80,13 @@ var CreateCmd = &cobra.Command{
 		}
 		author, err := authorPrompt.Run()
 		if err != nil {
-			fmt.Printf("app creation failed %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("app creation failed %w", err)
 		}
 
 		// Generate app.
-		g, err := generator.NewGenerator()
+		g, err := generator.NewGenerator(appType, root)
 		if err != nil {
-			fmt.Printf("app creation failed %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("app creation failed %w", err)
 		}
 		app := &manifest.Manifest{
 			ID:          manifest.GenerateID(name),
@@ -81,12 +97,20 @@ var CreateCmd = &cobra.Command{
 			FileName:    manifest.GenerateFileName(name),
 			PackageName: manifest.GeneratePackageName(name),
 		}
-		err = g.GenerateApp(app)
+		absolutePath, err := g.GenerateApp(app)
 		if err != nil {
-			fmt.Printf("app creation failed %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("app creation failed %w", err)
 		}
 
-		fmt.Printf("pixlet serve apps/%s/%s\n", app.PackageName, app.FileName)
+		// TODO: update to use a relative path. It's going to require a bit of
+		// effort since this could also be run on Windows.
+
+		// Let the user know where the app is and how to use it.
+		fmt.Println("To start the app, run:")
+		fmt.Printf("\tpixlet serve %s\n", absolutePath)
+		fmt.Println("")
+		fmt.Println("For docs, head to:")
+		fmt.Printf("\thttps://tidbyt.dev\n")
+		return nil
 	},
 }

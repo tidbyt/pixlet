@@ -1,6 +1,7 @@
 package repo_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,6 +9,9 @@ import (
 )
 
 func TestIsInRepo(t *testing.T) {
+	root, err := os.Getwd()
+	assert.NoError(t, err)
+
 	tests := map[string]struct {
 		repo string
 		want bool
@@ -24,7 +28,7 @@ func TestIsInRepo(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := repo.IsInRepo(tc.repo)
+			got := repo.IsInRepo(root, tc.repo)
 			assert.Equal(t, tc.want, got)
 		})
 	}
