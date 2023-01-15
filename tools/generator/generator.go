@@ -133,7 +133,7 @@ func (g *Generator) updateApps() error {
 	}
 	packages := []string{}
 
-	files, err := os.ReadDir(appsDir)
+	files, err := os.ReadDir(path.Join(g.root, appsDir))
 	if err != nil {
 		return err
 	}

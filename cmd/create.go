@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -99,15 +100,23 @@ var CreateCmd = &cobra.Command{
 		}
 		absolutePath, err := g.GenerateApp(app)
 		if err != nil {
-			return fmt.Errorf("app creation failed %w", err)
+			return fmt.Errorf("app creation failed: %w", err)
 		}
 
-		// TODO: update to use a relative path. It's going to require a bit of
-		// effort since this could also be run on Windows.
+		// Get the relative path from where the user started. Note, we're not
+		// using the root here, given the root can be git repo specific.
+		relativePath, err := filepath.Rel(cwd, absolutePath)
+		if err != nil {
+			return fmt.Errorf("app was created, but we don't know where: %w", err)
+		}
 
 		// Let the user know where the app is and how to use it.
+		fmt.Println("")
+		fmt.Println("App created at:")
+		fmt.Printf("\t%s\n", absolutePath)
+		fmt.Println("")
 		fmt.Println("To start the app, run:")
-		fmt.Printf("\tpixlet serve %s\n", absolutePath)
+		fmt.Printf("\tpixlet serve %s\n", relativePath)
 		fmt.Println("")
 		fmt.Println("For docs, head to:")
 		fmt.Printf("\thttps://tidbyt.dev\n")
