@@ -15,8 +15,8 @@ import (
 // CreateCmd prompts the user for info and generates a new app.
 var CreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Creates a new app.",
-	Long:  `This command will prompt for all of the information we need to generate a new app in this repo.`,
+	Short: "Creates a new app",
+	Long:  `This command will prompt for all of the information we need to generate a new Tidbyt app.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Get the current working directory.
 		cwd, err := os.Getwd()
