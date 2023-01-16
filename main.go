@@ -28,6 +28,7 @@ func init() {
 	rootCmd.AddCommand(cmd.FormatCmd)
 	rootCmd.AddCommand(cmd.LintCmd)
 	rootCmd.AddCommand(cmd.CreateCmd)
+	rootCmd.AddCommand(cmd.CheckCmd)
 }
 
 func main() {

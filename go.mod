@@ -8,6 +8,7 @@ require (
 	github.com/bazelbuild/buildtools v0.0.0-20230113180850-180a94ab3a3a
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
+	github.com/fatih/color v1.13.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/google/pprof v0.0.0-20230111200839-76d1ae5aea2b
@@ -36,7 +37,11 @@ require (
 	golang.org/x/sync v0.1.0
 )
 
-require github.com/chzyer/readline v1.5.0 // indirect
+require (
+	github.com/chzyer/readline v1.5.0 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+)
 
 require (
 	github.com/Code-Hex/go-wordwrap v1.0.0 // indirect
@@ -49,10 +54,10 @@ require (
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/gitsight/go-vcsurl v1.0.0 // indirect
+	github.com/gitsight/go-vcsurl v1.0.0
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.4.0 // indirect
-	github.com/go-git/go-git/v5 v5.5.2 // indirect
+	github.com/go-git/go-git/v5 v5.5.2
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
@@ -86,7 +91,7 @@ require (
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/text v0.6.0
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
