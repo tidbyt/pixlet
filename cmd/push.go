@@ -40,10 +40,10 @@ var PushCmd = &cobra.Command{
 	Use:   "push [device ID] [webp image]",
 	Short: "Render a Pixlet script and push the WebP output to a Tidbyt",
 	Args:  cobra.MinimumNArgs(2),
-	Run:   push,
+	RunE:  push,
 }
 
-func push(cmd *cobra.Command, args []string) {
+func push(cmd *cobra.Command, args []string) error {
 	deviceID := args[0]
 	image := args[1]
 
@@ -63,14 +63,12 @@ func push(cmd *cobra.Command, args []string) {
 	}
 
 	if apiToken == "" {
-		fmt.Printf("blank Tidbyt API token (use `pixlet login`, set $%s or pass with --api-token)\n", APITokenEnv)
-		os.Exit(1)
+		return fmt.Errorf("blank Tidbyt API token (use `pixlet login`, set $%s or pass with --api-token)", APITokenEnv)
 	}
 
 	imageData, err := ioutil.ReadFile(image)
 	if err != nil {
-		fmt.Printf("failed to read file %s: %v\n", image, err)
-		os.Exit(1)
+		return fmt.Errorf("failed to read file %s: %w", image, err)
 	}
 
 	payload, err := json.Marshal(
@@ -82,8 +80,7 @@ func push(cmd *cobra.Command, args []string) {
 		},
 	)
 	if err != nil {
-		fmt.Printf("failed to marshal json: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to marshal json: %w", err)
 	}
 
 	client := &http.Client{}
@@ -93,24 +90,22 @@ func push(cmd *cobra.Command, args []string) {
 		bytes.NewReader(payload),
 	)
 	if err != nil {
-		fmt.Printf("creating POST request: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("creating POST request: %w", err)
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiToken))
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("pushing to API: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("pushing to API: %w", err)
 	}
 
 	if resp.StatusCode != 200 {
 		fmt.Printf("Tidbyt API returned status %s\n", resp.Status)
 		body, _ := ioutil.ReadAll(resp.Body)
 		fmt.Println(string(body))
-		os.Exit(1)
+		return fmt.Errorf("Tidbyt API returned status: %s", resp.Status)
 	}
 
-	os.Exit(0)
+	return nil
 }

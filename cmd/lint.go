@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"os"
+	"fmt"
 
 	"github.com/bazelbuild/buildtools/differ"
 	"github.com/spf13/cobra"
@@ -11,7 +11,7 @@ func init() {
 	LintCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
 	LintCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
 	LintCmd.Flags().BoolVarP(&fixFlag, "fix", "f", false, "automatically fix resolvable lint issues")
-	LintCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "output format, text or json")
+	LintCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "output format, text or json")
 }
 
 var LintCmd = &cobra.Command{
@@ -23,10 +23,10 @@ var LintCmd = &cobra.Command{
 file, a list of files, or directory with the recursive option. Additionally, it
 provides an option to automatically fix resolvable linter issues.`,
 	Args: cobra.MinimumNArgs(1),
-	Run:  lintCmd,
+	RunE: lintCmd,
 }
 
-func lintCmd(cmd *cobra.Command, args []string) {
+func lintCmd(cmd *cobra.Command, args []string) error {
 	// Mode refers to formatting mode for buildifier, with the options being
 	// check, diff, or fix. For the pixlet lint command, we only want to check
 	// formatting.
@@ -55,5 +55,9 @@ func lintCmd(cmd *cobra.Command, args []string) {
 
 	// Run buildifier and exit with the returned exit code.
 	exitCode := runBuildifier(args, lint, mode, outputFormat, rflag, vflag)
-	os.Exit(exitCode)
+	if exitCode != 0 {
+		return fmt.Errorf("linting failed with exit code: %d", exitCode)
+	}
+
+	return nil
 }

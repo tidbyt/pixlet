@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"os"
+	"fmt"
 
 	"github.com/bazelbuild/buildtools/differ"
 	"github.com/spf13/cobra"
@@ -23,10 +23,10 @@ var FormatCmd = &cobra.Command{
 will format your starlark source code in line. If you wish you see the output
 before applying, add the --dry-run flag.`,
 	Args: cobra.MinimumNArgs(1),
-	Run:  formatCmd,
+	RunE: formatCmd,
 }
 
-func formatCmd(cmd *cobra.Command, args []string) {
+func formatCmd(cmd *cobra.Command, args []string) error {
 	// Lint refers to the lint mode for buildifier, with the options being off,
 	// warn, or fix. For pixlet format, we don't want to lint at all.
 	lint := "off"
@@ -46,6 +46,10 @@ func formatCmd(cmd *cobra.Command, args []string) {
 	diff = differ
 
 	// Run buildifier and exit with the returned exit code.
-	exitCode := runBuildifier(args, lint, mode, "text", rflag, vflag)
-	os.Exit(exitCode)
+	exitCode := runBuildifier(args, lint, mode, "", rflag, vflag)
+	if exitCode != 0 {
+		return fmt.Errorf("formatting returned non-zero exit status: %d", exitCode)
+	}
+
+	return nil
 }
