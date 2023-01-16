@@ -72,7 +72,9 @@ func runBuildifier(args []string, lint string, mode string, format string, recur
 	}
 
 	diagnosticsOutput := diagnostics.Format(format, verbose)
-	if format != "" {
+	if format == "off" {
+		// Do nothing.
+	} else if format != "" {
 		// Explicitly provided --format means the diagnostics are printed to stdout
 		fmt.Printf(diagnosticsOutput)
 		// Exit code should be set to 0 so that other tools know they can safely parse the json
