@@ -7,7 +7,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/plumbing/storer"
+	"github.com/go-git/go-git/v5/utils/merkletrie"
 )
 
 // IsInRepo determines if the provided directory is in the provided git
@@ -88,45 +88,45 @@ func DetermineChanges(dir string, oldCommit string, newCommit string) ([]string,
 	if err != nil {
 		return nil, fmt.Errorf("couldn't find new commit: %w", err)
 	}
-
-	// Validate that old is before the new commit.
-	// TODO
-
-	// Get commits to iterate over.
-	commits, err := repo.Log(&git.LogOptions{
-		From: new.Hash,
-	})
+	oldTree, err := old.Tree()
 	if err != nil {
-		return nil, fmt.Errorf("couldn't get git log: %w", err)
+		return nil, fmt.Errorf("couldn't generate tree for old commit: %w", err)
 	}
-	defer commits.Close()
-
-	// Discover the set of changed files between the two commits.
-	changed := map[string]bool{}
-	err = commits.ForEach(func(c *object.Commit) error {
-		if c.Hash == old.Hash {
-			return storer.ErrStop
-		}
-
-		stats, err := c.Stats()
-		if err != nil {
-			return err
-		}
-
-		for _, stat := range stats {
-			changed[stat.Name] = true
-		}
-
-		return nil
-	})
+	newTree, err := new.Tree()
 	if err != nil {
-		return nil, fmt.Errorf("couldn't iterate over commits: %w", err)
+		return nil, fmt.Errorf("couldn't generate tree for new commit: %w", err)
 	}
 
+	// Diff the two trees to determine what changed.
+	changes, err := oldTree.Diff(newTree)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get changes between commits: %w", err)
+	}
+
+	// Create a unique list of changed files.
 	changedFiles := []string{}
-	for item := range changed {
-		changedFiles = append(changedFiles, item)
+	for _, change := range changes {
+		action, err := change.Action()
+		if err != nil {
+			return nil, fmt.Errorf("couldn't determine action for commit: %w", err)
+		}
+
+		// Skip deleted files.
+		if action == merkletrie.Delete {
+			continue
+		}
+
+		changedFiles = append(changedFiles, getChangeName(change))
 	}
 
 	return changedFiles, nil
+}
+
+func getChangeName(change *object.Change) string {
+	var empty = object.ChangeEntry{}
+	if change.From != empty {
+		return change.From.Name
+	}
+
+	return change.To.Name
 }

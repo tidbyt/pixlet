@@ -3,6 +3,8 @@ package community
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/tools/repo"
@@ -15,7 +17,9 @@ var (
 
 func init() {
 	TargetDeterminatorCmd.Flags().StringVarP(&oldCommit, "old", "o", "", "The old commit to compare against")
+	TargetDeterminatorCmd.MarkFlagRequired("old")
 	TargetDeterminatorCmd.Flags().StringVarP(&newCommit, "new", "n", "", "The new commit to compare against")
+	TargetDeterminatorCmd.MarkFlagRequired("new")
 }
 
 var TargetDeterminatorCmd = &cobra.Command{
@@ -36,13 +40,30 @@ func determineTargets(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("could not determine targets, something went wrong with the local filesystem: %w", err)
 	}
 
-	files, err := repo.DetermineChanges(cwd, oldCommit, newCommit)
+	changedFiles, err := repo.DetermineChanges(cwd, oldCommit, newCommit)
 	if err != nil {
 		return fmt.Errorf("could not determine targets: %w", err)
 	}
 
-	for _, f := range files {
-		fmt.Println(f)
+	changedApps := map[string]bool{}
+	for _, f := range changedFiles {
+		// We only care about things in apps/{{ app package }}/ changing and
+		// nothing else. Skip any file changes that are not in that structure.
+		parts := strings.Split(f, string(os.PathSeparator))
+		if len(parts) < 3 {
+			continue
+		}
+
+		// If the filepath does not start with apps, we also don't care about
+		// it.
+		dir := filepath.Dir(f) + string(os.PathSeparator)
+		if strings.HasPrefix(dir, "apps") {
+			changedApps[dir] = true
+		}
+	}
+
+	for app := range changedApps {
+		fmt.Println(app)
 	}
 
 	return nil
