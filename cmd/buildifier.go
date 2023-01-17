@@ -178,6 +178,7 @@ var disabledWarnings = map[string]bool{
 	"native-java":               true, // disables native java rules
 	"native-proto":              true, // disables native proto rules
 	"native-py":                 true, // disables native python rules
+	"module-docstring":          true, // disables module docstring
 	"string-iteration":          true, // disables string iteration warning
 	"unsorted-dict-items":       true, // disables dictionary sorting
 }
