@@ -8,20 +8,23 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 )
 
 var (
-	output    string
-	magnify   int
-	renderGif bool
+	output        string
+	magnify       int
+	renderGif     bool
+	silenceOutput bool
 )
 
 func init() {
 	RenderCmd.Flags().StringVarP(&output, "output", "o", "", "Path for rendered image")
 	RenderCmd.Flags().BoolVarP(&renderGif, "gif", "", false, "Generate GIF instead of WebP")
+	RenderCmd.Flags().BoolVarP(&silenceOutput, "silent", "", false, "Silence print statements when rendering app")
 	RenderCmd.Flags().IntVarP(
 		&magnify,
 		"magnify",
@@ -77,7 +80,17 @@ func render(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
-	roots, err := applet.Run(config)
+	// Remove the print function from the starlark thread if the silent flag is
+	// passed.
+	initializers := []runtime.ThreadInitializer{}
+	if silenceOutput {
+		initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
+			thread.Print = func(thread *starlark.Thread, msg string) {}
+			return thread
+		})
+	}
+
+	roots, err := applet.Run(config, initializers...)
 	if err != nil {
 		return fmt.Errorf("error running script: %w", err)
 	}

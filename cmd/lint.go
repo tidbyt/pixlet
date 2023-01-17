@@ -11,7 +11,7 @@ func init() {
 	LintCmd.Flags().BoolVarP(&vflag, "verbose", "v", false, "print verbose information to standard error")
 	LintCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find starlark files recursively")
 	LintCmd.Flags().BoolVarP(&fixFlag, "fix", "f", false, "automatically fix resolvable lint issues")
-	LintCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "output format, text or json")
+	LintCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "output format: text, json, or off")
 }
 
 var LintCmd = &cobra.Command{
