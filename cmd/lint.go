@@ -59,5 +59,19 @@ func lintCmd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("linting failed with exit code: %d", exitCode)
 	}
 
+	// Buildifier will return a zero exit status when the fix flag is provided,
+	// even if there are still lint issues that could not be fixed. So we need
+	// to run it twice to get the full picture - once with fix enabled and once
+	// more to determine what else needs to be fixed manually.
+	if fixFlag {
+		mode = "check"
+		lint = "warn"
+
+		exitCode := runBuildifier(args, lint, mode, outputFormat, rflag, vflag)
+		if exitCode != 0 {
+			return fmt.Errorf("linting failed with exit code: %d", exitCode)
+		}
+	}
+
 	return nil
 }
