@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/cmd"
+	"tidbyt.dev/pixlet/cmd/community"
 )
 
 var (
@@ -29,6 +30,7 @@ func init() {
 	rootCmd.AddCommand(cmd.LintCmd)
 	rootCmd.AddCommand(cmd.CreateCmd)
 	rootCmd.AddCommand(cmd.CheckCmd)
+	rootCmd.AddCommand(community.CommunityCmd)
 }
 
 func main() {

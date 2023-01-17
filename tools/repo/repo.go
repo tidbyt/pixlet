@@ -5,6 +5,9 @@ import (
 
 	"github.com/gitsight/go-vcsurl"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/utils/merkletrie"
 )
 
 // IsInRepo determines if the provided directory is in the provided git
@@ -57,4 +60,73 @@ func RepoRoot(dir string) (string, error) {
 	}
 
 	return worktree.Filesystem.Root(), nil
+}
+
+func DetermineChanges(dir string, oldCommit string, newCommit string) ([]string, error) {
+	// Load the repo.
+	repo, err := git.PlainOpenWithOptions(dir, &git.PlainOpenOptions{
+		DetectDotGit: true,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("couldn't instantiate repo: %w", err)
+	}
+
+	// Do a bunch of plumbing to get these commits usable for go-git
+	oldHash, err := repo.ResolveRevision(plumbing.Revision(oldCommit))
+	if err != nil {
+		return nil, fmt.Errorf("couldn't parse old commit: %w", err)
+	}
+	newHash, err := repo.ResolveRevision(plumbing.Revision(newCommit))
+	if err != nil {
+		return nil, fmt.Errorf("couldn't parse new commit: %w", err)
+	}
+	old, err := repo.CommitObject(*oldHash)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't find old commit: %w", err)
+	}
+	new, err := repo.CommitObject(*newHash)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't find new commit: %w", err)
+	}
+	oldTree, err := old.Tree()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't generate tree for old commit: %w", err)
+	}
+	newTree, err := new.Tree()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't generate tree for new commit: %w", err)
+	}
+
+	// Diff the two trees to determine what changed.
+	changes, err := oldTree.Diff(newTree)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get changes between commits: %w", err)
+	}
+
+	// Create a unique list of changed files.
+	changedFiles := []string{}
+	for _, change := range changes {
+		action, err := change.Action()
+		if err != nil {
+			return nil, fmt.Errorf("couldn't determine action for commit: %w", err)
+		}
+
+		// Skip deleted files.
+		if action == merkletrie.Delete {
+			continue
+		}
+
+		changedFiles = append(changedFiles, getChangeName(change))
+	}
+
+	return changedFiles, nil
+}
+
+func getChangeName(change *object.Change) string {
+	var empty = object.ChangeEntry{}
+	if change.From != empty {
+		return change.From.Name
+	}
+
+	return change.To.Name
 }
