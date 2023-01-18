@@ -6,6 +6,7 @@ import (
 
 func init() {
 	CommunityCmd.AddCommand(TargetDeterminatorCmd)
+	CommunityCmd.AddCommand(ValidateManifestCmd)
 }
 
 var CommunityCmd = &cobra.Command{
