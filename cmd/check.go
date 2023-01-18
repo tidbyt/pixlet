@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bazelbuild/buildtools/buildifier/utils"
@@ -35,6 +36,12 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("could not discover apps using recursive flag: %w", err)
 		}
 		apps = discovered
+	} else {
+		for _, app := range apps {
+			if filepath.Ext(app) != ".star" {
+				return fmt.Errorf("only starlark source files or directories with the recursive flag are supported")
+			}
+		}
 	}
 
 	// Check every app.
@@ -104,7 +111,7 @@ func failure(app string, err error, sol string) {
 		// The builtin starlark Backtrace function prints the last line at an
 		// awkward indentation level. This check helps keep the failure indented
 		// at one more level to ensure it's even more clear what is broken.
-		if strings.Contains(line, "Error in") && index == len(multilineError)-1 {
+		if (strings.Contains(line, "Error in") || strings.Contains(line, "Error:")) && index == len(multilineError)-1 {
 			multilineError[index] = fmt.Sprintf("      %s", line)
 		} else {
 			multilineError[index] = fmt.Sprintf("  %s", line)
