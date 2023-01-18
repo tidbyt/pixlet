@@ -1,16 +1,29 @@
 package manifest_test
 
 import (
+	"bytes"
 	_ "embed"
+	"io"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"tidbyt.dev/pixlet/tools/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed testdata/source.star
 var source []byte
+
+var output string = `---
+id: foo-tracker
+name: Foo Tracker
+summary: Track realtime foo
+desc: The foo tracker provides realtime feeds for foo.
+author: Tidbyt
+fileName: foo_tracker.star
+packageName: footracker
+`
 
 func TestManifest(t *testing.T) {
 	m := manifest.Manifest{
@@ -27,6 +40,46 @@ func TestManifest(t *testing.T) {
 	expected, err := os.ReadFile("testdata/source.star")
 	assert.NoError(t, err)
 	assert.Equal(t, m.Source, expected)
+}
+
+func TestLoadManifest(t *testing.T) {
+	p := filepath.Join("testdata", "manifest.yaml")
+	f, err := os.Open(p)
+	assert.NoError(t, err)
+	defer f.Close()
+
+	m, err := manifest.LoadManifest(f)
+	assert.NoError(t, err)
+
+	assert.Equal(t, m.ID, "fuzzy-clock")
+	assert.Equal(t, m.Name, "Fuzzy Clock")
+	assert.Equal(t, m.Author, "Max Timkovich")
+	assert.Equal(t, m.Summary, "Human readable time")
+	assert.Equal(t, m.Desc, "Display the time in a groovy, human-readable way.")
+	assert.Equal(t, m.FileName, "fuzzy_clock.star")
+	assert.Equal(t, m.PackageName, "fuzzyclock")
+}
+
+func TestWriteManifest(t *testing.T) {
+	m := manifest.Manifest{
+		ID:          "foo-tracker",
+		Name:        "Foo Tracker",
+		Summary:     "Track realtime foo",
+		Desc:        "The foo tracker provides realtime feeds for foo.",
+		Author:      "Tidbyt",
+		FileName:    "foo_tracker.star",
+		PackageName: "footracker",
+		Source:      source,
+	}
+
+	buff := bytes.Buffer{}
+	err := m.WriteManifest(&buff)
+	assert.NoError(t, err)
+
+	b, err := io.ReadAll(&buff)
+	assert.NoError(t, err)
+
+	assert.Equal(t, output, string(b))
 }
 
 func TestGeneratePackageName(t *testing.T) {

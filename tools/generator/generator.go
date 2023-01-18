@@ -2,17 +2,17 @@ package generator
 
 import (
 	_ "embed"
+	"fmt"
 	"os"
 	"path"
-	"sort"
 	"text/template"
 
-	"tidbyt.dev/pixlet/tools/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 const (
-	appsDir = "apps"
-	goExt   = ".go"
+	appsDir      = "apps"
+	manifestName = "manifest.yaml"
 )
 
 // AppType defines the type of app to generate using this package. There are
@@ -33,17 +33,9 @@ const (
 //go:embed templates/source.star.tmpl
 var starSource string
 
-//go:embed templates/source.go.tmpl
-var goSource string
-
-//go:embed templates/apps.go.tmpl
-var appsSource string
-
 // Generator provides a structure for generating apps.
 type Generator struct {
 	starTmpl *template.Template
-	goTmpl   *template.Template
-	appsTmpl *template.Template
 	appType  AppType
 	root     string
 }
@@ -60,20 +52,8 @@ func NewGenerator(appType AppType, root string) (*Generator, error) {
 		return nil, err
 	}
 
-	goTmpl, err := template.New("go").Parse(goSource)
-	if err != nil {
-		return nil, err
-	}
-
-	appsTmpl, err := template.New("apps").Parse(appsSource)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Generator{
 		starTmpl: starTmpl,
-		goTmpl:   goTmpl,
-		appsTmpl: appsTmpl,
 		appType:  appType,
 		root:     root,
 	}, nil
@@ -87,13 +67,10 @@ func (g *Generator) GenerateApp(app *manifest.Manifest) (string, error) {
 		if err != nil {
 			return "", err
 		}
+	}
 
-		err = g.generateGo(app)
-		if err != nil {
-			return "", err
-		}
-
-		err = g.updateApps()
+	if g.appType == Local || g.appType == Community {
+		err := g.writeManifest(app)
 		if err != nil {
 			return "", err
 		}
@@ -104,17 +81,7 @@ func (g *Generator) GenerateApp(app *manifest.Manifest) (string, error) {
 
 // RemoveApp removes an app from the apps directory.
 func (g *Generator) RemoveApp(app *manifest.Manifest) error {
-	err := g.removeDir(app)
-	if err != nil {
-		return err
-	}
-
-	return g.updateApps()
-}
-
-// UpdateApps generates the app list in apps.go.
-func (g *Generator) UpdateApps() error {
-	return g.updateApps()
+	return g.removeDir(app)
 }
 
 func (g *Generator) createDir(app *manifest.Manifest) error {
@@ -127,41 +94,22 @@ func (g *Generator) removeDir(app *manifest.Manifest) error {
 	return os.RemoveAll(p)
 }
 
-func (g *Generator) updateApps() error {
-	imports := []string{
-		"tidbyt.dev/community/" + appsDir + "/manifest",
+func (g *Generator) writeManifest(app *manifest.Manifest) error {
+	var p string
+	switch g.appType {
+	case Community:
+		p = path.Join(g.root, appsDir, app.PackageName, app.FileName)
+	default:
+		p = path.Join(g.root, manifestName)
 	}
-	packages := []string{}
 
-	files, err := os.ReadDir(path.Join(g.root, appsDir))
+	f, err := os.Create(p)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't create manifest file: %w", err)
 	}
+	defer f.Close()
 
-	for _, f := range files {
-		if f.IsDir() && f.Name() != "manifest" {
-			imp := "tidbyt.dev/community/" + appsDir + "/" + f.Name()
-			imports = append(imports, imp)
-			packages = append(packages, f.Name())
-		}
-	}
-	p := path.Join(g.root, appsDir, appsDir+goExt)
-
-	file, err := os.Create(p)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	sort.Strings(imports)
-	sort.Strings(packages)
-
-	a := &appsDef{
-		Imports:  imports,
-		Packages: packages,
-	}
-
-	return g.appsTmpl.Execute(file, a)
+	return app.WriteManifest(f)
 }
 
 func (g *Generator) generateStarlark(app *manifest.Manifest) (string, error) {
@@ -187,16 +135,4 @@ func (g *Generator) generateStarlark(app *manifest.Manifest) (string, error) {
 	}
 
 	return p, nil
-}
-
-func (g *Generator) generateGo(app *manifest.Manifest) error {
-	p := path.Join(g.root, appsDir, app.PackageName, app.PackageName+goExt)
-
-	file, err := os.Create(p)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return g.goTmpl.Execute(file, app)
 }
