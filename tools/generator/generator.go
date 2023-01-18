@@ -2,6 +2,7 @@ package generator
 
 import (
 	_ "embed"
+	"fmt"
 	"os"
 	"path"
 	"sort"
@@ -11,8 +12,9 @@ import (
 )
 
 const (
-	appsDir = "apps"
-	goExt   = ".go"
+	appsDir      = "apps"
+	goExt        = ".go"
+	manifestName = "manifest.yaml"
 )
 
 // AppType defines the type of app to generate using this package. There are
@@ -41,11 +43,12 @@ var appsSource string
 
 // Generator provides a structure for generating apps.
 type Generator struct {
-	starTmpl *template.Template
-	goTmpl   *template.Template
-	appsTmpl *template.Template
-	appType  AppType
-	root     string
+	starTmpl     *template.Template
+	goTmpl       *template.Template
+	manifestTmpl *template.Template
+	appsTmpl     *template.Template
+	appType      AppType
+	root         string
 }
 
 type appsDef struct {
@@ -65,17 +68,23 @@ func NewGenerator(appType AppType, root string) (*Generator, error) {
 		return nil, err
 	}
 
+	manifestTmpl, err := template.New("manifest").Parse(goSource)
+	if err != nil {
+		return nil, err
+	}
+
 	appsTmpl, err := template.New("apps").Parse(appsSource)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Generator{
-		starTmpl: starTmpl,
-		goTmpl:   goTmpl,
-		appsTmpl: appsTmpl,
-		appType:  appType,
-		root:     root,
+		starTmpl:     starTmpl,
+		goTmpl:       goTmpl,
+		manifestTmpl: manifestTmpl,
+		appsTmpl:     appsTmpl,
+		appType:      appType,
+		root:         root,
 	}, nil
 }
 
@@ -94,6 +103,13 @@ func (g *Generator) GenerateApp(app *manifest.Manifest) (string, error) {
 		}
 
 		err = g.updateApps()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if g.appType == Local || g.appType == Community {
+		err := g.writeManifest(app)
 		if err != nil {
 			return "", err
 		}
@@ -162,6 +178,24 @@ func (g *Generator) updateApps() error {
 	}
 
 	return g.appsTmpl.Execute(file, a)
+}
+
+func (g *Generator) writeManifest(app *manifest.Manifest) error {
+	var p string
+	switch g.appType {
+	case Community:
+		p = path.Join(g.root, appsDir, app.PackageName, app.FileName)
+	default:
+		p = path.Join(g.root, manifestName)
+	}
+
+	f, err := os.Create(p)
+	if err != nil {
+		return fmt.Errorf("couldn't create manifest file: %w", err)
+	}
+	defer f.Close()
+
+	return app.WriteManifest(f)
 }
 
 func (g *Generator) generateStarlark(app *manifest.Manifest) (string, error) {
