@@ -7,8 +7,8 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"tidbyt.dev/pixlet/manifest"
 	"tidbyt.dev/pixlet/tools/generator"
-	"tidbyt.dev/pixlet/tools/manifest"
 	"tidbyt.dev/pixlet/tools/repo"
 )
 
