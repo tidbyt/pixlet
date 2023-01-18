@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"tidbyt.dev/pixlet/tools/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 func TestValidateName(t *testing.T) {
