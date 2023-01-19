@@ -45,6 +45,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         if: matrix.os == 'windows-latest'
         with:
+          msystem: mingw64
           update: true
           install: >-
             make
@@ -75,7 +76,9 @@ jobs:
 
       - name: Build Windows
         shell: msys2 {0}
-        run: make build
+        run: |
+          set MSYSTEM=MINGW64
+          make build
         if: matrix.os == 'windows-latest'
 
       - name: Test
@@ -84,5 +87,7 @@ jobs:
 
       - name: Test Windows
         shell: msys2 {0}
-        run: make test
+        run: |
+          set MSYSTEM=MINGW64
+          make test
         if: matrix.os == 'windows-latest'
