@@ -45,12 +45,13 @@ jobs:
         uses: msys2/setup-msys2@v2
         if: matrix.os == 'windows-latest'
         with:
+          msystem: mingw64
           update: true
           install: >-
             make
+            curl
             mingw-w64-x86_64-go
             mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-libwebp
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -62,6 +63,14 @@ jobs:
       - name: Install macOS dependencies
         if: matrix.os == 'macos-latest'
         run: brew install webp
+
+      - name: Install Windows dependencies
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: |
+          set MSYSTEM=MINGW64
+          curl -LO https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-libwebp-1.2.4-4-any.pkg.tar.zst
+          pacman -U --noconfirm mingw-w64-x86_64-libwebp-1.2.4-4-any.pkg.tar.zst
 
       - name: Install frontend dependencies
         run: npm install
@@ -75,7 +84,9 @@ jobs:
 
       - name: Build Windows
         shell: msys2 {0}
-        run: make build
+        run: |
+          set MSYSTEM=MINGW64
+          make build
         if: matrix.os == 'windows-latest'
 
       - name: Test
@@ -84,5 +95,7 @@ jobs:
 
       - name: Test Windows
         shell: msys2 {0}
-        run: make test
+        run: |
+          set MSYSTEM=MINGW64
+          make test
         if: matrix.os == 'windows-latest'
