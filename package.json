@@ -53,7 +53,7 @@
     "@mui/lab": "5.0.0-alpha.115",
     "@mui/material": "5.11.4",
     "@reduxjs/toolkit": "1.9.1",
-    "@mui/x-date-pickers": "5.0.13",
+    "@mui/x-date-pickers": "5.0.15",
     "axios": "1.2.2",
     "date-fns": "2.29.3",
     "dayjs": "1.11.7",
