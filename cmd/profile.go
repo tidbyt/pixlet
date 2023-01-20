@@ -30,7 +30,7 @@ var ProfileCmd = &cobra.Command{
 	Use:   "profile [script] [<key>=value>]...",
 	Short: "Run a Pixlet script and print its execution-time profile",
 	Args:  cobra.MinimumNArgs(1),
-	Run:   profile,
+	RunE:  profile,
 }
 
 // We save the profile into an in-memory buffer, which is simpler than the tool expects.
@@ -64,28 +64,25 @@ func (u printUI) IsTerminal() bool                             { return false }
 func (u printUI) WantBrowser() bool                            { return false }
 func (u printUI) SetAutoComplete(complete func(string) string) {}
 
-func profile(cmd *cobra.Command, args []string) {
+func profile(cmd *cobra.Command, args []string) error {
 	script := args[0]
 
 	if !strings.HasSuffix(script, ".star") {
-		fmt.Printf("script file must have suffix .star: %s\n", script)
-		os.Exit(1)
+		return fmt.Errorf("script file must have suffix .star: %s", script)
 	}
 
 	config := map[string]string{}
 	for _, param := range args[1:] {
 		split := strings.Split(param, "=")
 		if len(split) != 2 {
-			fmt.Printf("parameters must be on form <key>=<value>, found %s\n", param)
-			os.Exit(1)
+			return fmt.Errorf("parameters must be on form <key>=<value>, found %s", param)
 		}
 		config[split[0]] = split[1]
 	}
 
 	src, err := ioutil.ReadFile(script)
 	if err != nil {
-		fmt.Printf("failed to read file %s: %v\n", script, err)
-		os.Exit(1)
+		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
 
 	runtime.InitCache(runtime.NewInMemoryCache())
@@ -93,32 +90,27 @@ func profile(cmd *cobra.Command, args []string) {
 	applet := runtime.Applet{}
 	err = applet.Load(script, src, nil)
 	if err != nil {
-		fmt.Printf("failed to load applet: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
 	buf := new(bytes.Buffer)
 	if err = starlark.StartProfile(buf); err != nil {
-		fmt.Printf("Error starting profiler: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error starting profiler: %w", err)
 	}
 
 	_, err = applet.Run(config)
 	if err != nil {
 		_ = starlark.StopProfile()
-		fmt.Printf("Error running script: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error running script: %w", err)
 	}
 
 	if err = starlark.StopProfile(); err != nil {
-		fmt.Printf("Error stopping profiler: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error stopping profiler: %w", err)
 	}
 
 	profile, err := pprof_profile.ParseData(buf.Bytes())
 	if err != nil {
-		fmt.Printf("Could not parse pprof profile: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("could not parse pprof profile: %w", err)
 	}
 
 	options := &pprof_driver.Options{
@@ -126,7 +118,8 @@ func profile(cmd *cobra.Command, args []string) {
 		UI:    printUI{},
 	}
 	if err = pprof_driver.PProf(options); err != nil {
-		fmt.Printf("Could not start pprof driver: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("could not start pprof driver: %w", err)
 	}
+
+	return nil
 }

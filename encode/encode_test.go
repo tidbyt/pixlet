@@ -190,7 +190,7 @@ func TestHash(t *testing.T) {
 }
 
 func TestHashDelayAndMaxAge(t *testing.T) {
-	r := []render.Root{render.Root{Child: &render.Text{Content: "derp"}}}
+	r := []render.Root{{Child: &render.Text{Content: "derp"}}}
 
 	h1, err := ScreensFromRoots(r).Hash()
 	assert.NoError(t, err)
@@ -208,8 +208,8 @@ func TestHashDelayAndMaxAge(t *testing.T) {
 func TestScreensFromRoots(t *testing.T) {
 	// check that widget trees and params are copied correctly
 	s := ScreensFromRoots([]render.Root{
-		render.Root{Child: &render.Text{Content: "tree 0"}},
-		render.Root{Child: &render.Text{Content: "tree 1"}},
+		{Child: &render.Text{Content: "tree 0"}},
+		{Child: &render.Text{Content: "tree 1"}},
 	})
 	assert.Equal(t, 2, len(s.roots))
 	assert.Equal(t, "tree 0", s.roots[0].Child.(*render.Text).Content)
@@ -220,10 +220,34 @@ func TestScreensFromRoots(t *testing.T) {
 
 	// check that delay and maxAge are copied from first root only
 	s = ScreensFromRoots([]render.Root{
-		render.Root{Child: &render.Text{Content: "tree 0"}, Delay: 4711, MaxAge: 42},
-		render.Root{Child: &render.Text{Content: "tree 1"}, Delay: 31415, MaxAge: 926535},
+		{Child: &render.Text{Content: "tree 0"}, Delay: 4711, MaxAge: 42},
+		{Child: &render.Text{Content: "tree 1"}, Delay: 31415, MaxAge: 926535},
 	})
 	assert.Equal(t, 2, len(s.roots))
 	assert.Equal(t, int32(4711), s.delay)
 	assert.Equal(t, int32(42), s.MaxAge)
+}
+
+func TestShowFullAnimation(t *testing.T) {
+	requestFull := `
+load("render.star", "render")
+def main():
+    return render.Root(show_full_animation=True, child=render.Box())
+`
+	app := runtime.Applet{}
+	require.NoError(t, app.Load("test.star", []byte(requestFull), nil))
+	roots, err := app.Run(map[string]string{})
+	assert.NoError(t, err)
+	assert.True(t, ScreensFromRoots(roots).ShowFullAnimation)
+
+	dontRequestFull := `
+load("render.star", "render")
+def main():
+    return render.Root(child=render.Box())
+`
+	app = runtime.Applet{}
+	require.NoError(t, app.Load("test.star", []byte(dontRequestFull), nil))
+	roots, err = app.Run(map[string]string{})
+	assert.NoError(t, err)
+	assert.False(t, ScreensFromRoots(roots).ShowFullAnimation)
 }

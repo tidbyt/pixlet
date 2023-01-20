@@ -37,11 +37,12 @@ const (
 // DOC(Child): Widget to render
 // DOC(Delay): Frame delay in milliseconds
 // DOC(MaxAge): Expiration time in seconds
-//
+// DOC(ShowFullAnimation): Request animation is shown in full, regardless of app cycle speed
 type Root struct {
-	Child  Widget `starlark:"child,required"`
-	Delay  int32  `starlark:"delay"`
-	MaxAge int32  `starlark:"max_age"`
+	Child             Widget `starlark:"child,required"`
+	Delay             int32  `starlark:"delay"`
+	MaxAge            int32  `starlark:"max_age"`
+	ShowFullAnimation bool   `starlark:"show_full_animation"`
 
 	maxParallelFrames int
 	maxFrameCount     int

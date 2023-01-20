@@ -13,6 +13,11 @@ import (
 // area. If not set, WrappedText will use as much vertical and
 // horizontal space as possible to fit the text.
 //
+// Alignment of the text is controlled by passing one of the following `align` values:
+// - `"left"`: align text to the left
+// - `"center"`: align text in the center
+// - `"right"`: align text to the right
+//
 // DOC(Content): The text string to draw
 // DOC(Font): Desired font face
 // DOC(Height): Limits height of the area on which text may be drawn

@@ -4,25 +4,27 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 )
 
 var (
-	output    string
-	magnify   int
-	renderGif bool
+	output        string
+	magnify       int
+	renderGif     bool
+	silenceOutput bool
 )
 
 func init() {
 	RenderCmd.Flags().StringVarP(&output, "output", "o", "", "Path for rendered image")
 	RenderCmd.Flags().BoolVarP(&renderGif, "gif", "", false, "Generate GIF instead of WebP")
+	RenderCmd.Flags().BoolVarP(&silenceOutput, "silent", "", false, "Silence print statements when rendering app")
 	RenderCmd.Flags().IntVarP(
 		&magnify,
 		"magnify",
@@ -36,15 +38,14 @@ var RenderCmd = &cobra.Command{
 	Use:   "render [script] [<key>=value>]...",
 	Short: "Run a Pixlet script with provided config parameters",
 	Args:  cobra.MinimumNArgs(1),
-	Run:   render,
+	RunE:  render,
 }
 
-func render(cmd *cobra.Command, args []string) {
+func render(cmd *cobra.Command, args []string) error {
 	script := args[0]
 
 	if !strings.HasSuffix(script, ".star") {
-		fmt.Printf("script file must have suffix .star: %s\n", script)
-		os.Exit(1)
+		return fmt.Errorf("script file must have suffix .star: %s", script)
 	}
 
 	outPath := strings.TrimSuffix(script, ".star")
@@ -61,16 +62,14 @@ func render(cmd *cobra.Command, args []string) {
 	for _, param := range args[1:] {
 		split := strings.Split(param, "=")
 		if len(split) != 2 {
-			fmt.Printf("parameters must be on form <key>=<value>, found %s\n", param)
-			os.Exit(1)
+			return fmt.Errorf("parameters must be on form <key>=<value>, found %s", param)
 		}
 		config[split[0]] = split[1]
 	}
 
 	src, err := ioutil.ReadFile(script)
 	if err != nil {
-		fmt.Printf("failed to read file %s: %v\n", script, err)
-		os.Exit(1)
+		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
 
 	runtime.InitCache(runtime.NewInMemoryCache())
@@ -78,14 +77,22 @@ func render(cmd *cobra.Command, args []string) {
 	applet := runtime.Applet{}
 	err = applet.Load(script, src, nil)
 	if err != nil {
-		fmt.Printf("failed to load applet: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
-	roots, err := applet.Run(config)
+	// Remove the print function from the starlark thread if the silent flag is
+	// passed.
+	initializers := []runtime.ThreadInitializer{}
+	if silenceOutput {
+		initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
+			thread.Print = func(thread *starlark.Thread, msg string) {}
+			return thread
+		})
+	}
+
+	roots, err := applet.Run(config, initializers...)
 	if err != nil {
-		log.Printf("Error running script: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error running script: %w", err)
 	}
 	screens := encode.ScreensFromRoots(roots)
 
@@ -129,8 +136,7 @@ func render(cmd *cobra.Command, args []string) {
 		buf, err = screens.EncodeWebP(filter)
 	}
 	if err != nil {
-		fmt.Printf("Error rendering: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error rendering: %w", err)
 	}
 
 	if outPath == "-" {
@@ -140,7 +146,8 @@ func render(cmd *cobra.Command, args []string) {
 	}
 
 	if err != nil {
-		fmt.Printf("Writing %s: %s", outPath, err)
-		os.Exit(1)
+		return fmt.Errorf("writing %s: %s", outPath, err)
 	}
+
+	return nil
 }
