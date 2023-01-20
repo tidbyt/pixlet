@@ -1,5 +1,6 @@
-// https://mui.com/material-ui/react-slider/#InputSlider.js
-import * as React from 'react';
+// Largely based on https://mui.com/material-ui/react-slider/#InputSlider.js
+import React, { useState } from 'react';
+
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -11,16 +12,18 @@ const Input = styled(MuiInput)`
   width: 80px;
 `;
 
-export default function InputSlider({ min, max, step }) {
-  const [value, setValue] = React.useState(0);
+export default function InputSlider({ min, max, step, defaultValue, onChange}) {
+  const [value, setValue] = useState(defaultValue);
 
   const handleSliderChange = (event, newValue) => {
     setValue(newValue);
+    onChange(event);
   };
 
   const handleInputChange = (event) => {
     if (event.target.value === '') {
       setValue('');
+      onChange(event);
       return;
     }
     const value = Number(event.target.value);
@@ -31,6 +34,7 @@ export default function InputSlider({ min, max, step }) {
     } else {
       setValue(value);
     }
+    onChange(event);
   };
 
   const handleBlur = () => {
@@ -46,7 +50,7 @@ export default function InputSlider({ min, max, step }) {
       <Grid container spacing={2} alignItems="center">
         <Grid item xs>
           <Slider
-            value={typeof value === 'number' ? value : 0}
+            value={value}
             min={min}
             max={max}
             step={step}
