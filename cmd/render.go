@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"tidbyt.dev/pixlet/encode"
+	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -18,6 +19,8 @@ var (
 	output    string
 	magnify   int
 	renderGif bool
+	width     int
+	height    int
 )
 
 func init() {
@@ -30,6 +33,20 @@ func init() {
 		1,
 		"Increase image dimension by a factor (useful for debugging)",
 	)
+	RenderCmd.Flags().IntVarP(
+		&width,
+		"width",
+		"w",
+		64,
+		"Set width",
+	)
+	RenderCmd.Flags().IntVarP(
+		&height,
+		"height",
+		"t",
+		32,
+		"Set height",
+	)
 }
 
 var RenderCmd = &cobra.Command{
@@ -41,6 +58,9 @@ var RenderCmd = &cobra.Command{
 
 func render(cmd *cobra.Command, args []string) {
 	script := args[0]
+
+	globals.Width = width
+	globals.Height = height
 
 	if !strings.HasSuffix(script, ".star") {
 		fmt.Printf("script file must have suffix .star: %s\n", script)

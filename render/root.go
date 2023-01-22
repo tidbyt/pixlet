@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/globals"
 )
 
 const (
@@ -19,6 +20,9 @@ const (
 	// DefaultMaxFrameCount is the default maximum number of frames to render.
 	DefaultMaxFrameCount = 2000
 )
+
+var FrameWidth = DefaultFrameWidth
+var FrameHeight = DefaultFrameHeight
 
 // Every Widget tree has a Root.
 //
@@ -37,7 +41,6 @@ const (
 // DOC(Child): Widget to render
 // DOC(Delay): Frame delay in milliseconds
 // DOC(MaxAge): Expiration time in seconds
-//
 type Root struct {
 	Child  Widget `starlark:"child,required"`
 	Delay  int32  `starlark:"delay"`
@@ -92,6 +95,13 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 		parallelism = runtime.NumCPU()
 	}
 
+	if globals.Width != DefaultFrameWidth {
+		FrameWidth = globals.Width
+	}
+	if globals.Height != DefaultFrameHeight {
+		FrameHeight = globals.Height
+	}
+
 	var wg sync.WaitGroup
 	sem := make(chan bool, parallelism)
 	for i := 0; i < numFrames; i++ {
@@ -104,14 +114,14 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 				wg.Done()
 			}()
 
-			dc := gg.NewContext(DefaultFrameWidth, DefaultFrameHeight)
+			dc := gg.NewContext(FrameWidth, FrameHeight)
 			if solidBackground {
 				dc.SetColor(color.Black)
 				dc.Clear()
 			}
 
 			dc.Push()
-			r.Child.Paint(dc, image.Rect(0, 0, DefaultFrameWidth, DefaultFrameHeight), i)
+			r.Child.Paint(dc, image.Rect(0, 0, FrameWidth, FrameHeight), i)
 			dc.Pop()
 			frames[i] = dc.Image()
 		}(i)

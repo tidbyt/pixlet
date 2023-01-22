@@ -37,10 +37,12 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Marquee(
-//      width=64,
-//      child=render.Text("this won't fit in 64 pixels"),
-//      offset_start=5,
-//      offset_end=32,
+//
+//	width=64,
+//	child=render.Text("this won't fit in 64 pixels"),
+//	offset_start=5,
+//	offset_end=32,
+//
 // )
 // EXAMPLE END
 type Marquee struct {
@@ -75,11 +77,11 @@ func (m Marquee) FrameCount() int {
 	var cw int
 	var size int
 	if m.isVertical() {
-		cb = m.Child.PaintBounds(image.Rect(0, 0, DefaultFrameWidth, m.Height*10), 0)
+		cb = m.Child.PaintBounds(image.Rect(0, 0, FrameWidth, m.Height*10), 0)
 		cw = cb.Dy()
 		size = m.Height
 	} else {
-		cb = m.Child.PaintBounds(image.Rect(0, 0, m.Width*10, DefaultFrameHeight), 0)
+		cb = m.Child.PaintBounds(image.Rect(0, 0, m.Width*10, FrameHeight), 0)
 		cw = cb.Dx()
 		size = m.Width
 	}
