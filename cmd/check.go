@@ -83,6 +83,14 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
+		// Ensure icons are valid.
+		err = community.ValidateIcons(cmd, []string{app})
+		if err != nil {
+			foundIssue = true
+			failure(app, fmt.Errorf("app has invalid icons: %w", err), "try `pixlet community list-icons` for the full list of valid icons")
+			continue
+		}
+
 		// Check app manifest exists
 		dir := filepath.Dir(app)
 		options := []string{
