@@ -7,6 +7,7 @@ import (
 func init() {
 	CommunityCmd.AddCommand(CreateManifestCmd)
 	CommunityCmd.AddCommand(ListIconsCmd)
+	CommunityCmd.AddCommand(LoadAppCmd)
 	CommunityCmd.AddCommand(SpellCheckCmd)
 	CommunityCmd.AddCommand(TargetDeterminatorCmd)
 	CommunityCmd.AddCommand(ValidateIconsCmd)

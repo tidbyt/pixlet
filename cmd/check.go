@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/cmd/community"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 func init() {
@@ -45,6 +46,8 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// TODO: this needs to be parallelized.
+
 	// Check every app.
 	foundIssue := false
 	for _, app := range apps {
@@ -64,13 +67,14 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 		}
 		defer os.Remove(f.Name())
 
-		// Check if app will render.
-		silenceOutput = true
-		output = f.Name()
-		err = render(cmd, []string{app})
+		// TODO: Check if app will render once we are able to enable target
+		// determination.
+
+		// Check if an app can load.
+		err = community.LoadApp(cmd, []string{app})
 		if err != nil {
 			foundIssue = true
-			failure(app, fmt.Errorf("app failed to render: %w", err), fmt.Sprintf("try `pixlet render %s` and resolve any errors", app))
+			failure(app, fmt.Errorf("app failed to load: %w", err), "try `pixlet community load-app` and resolve any runtime issues")
 			continue
 		}
 
@@ -93,18 +97,14 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 
 		// Check app manifest exists
 		dir := filepath.Dir(app)
-		options := []string{
-			filepath.Join(dir, "manifest.yaml"),
-			filepath.Join(dir, "manifest.yml"),
-		}
-		manifestFile, err := findManifestFile(options)
-		if err != nil {
+		if !doesManifestExist(dir) {
 			foundIssue = true
-			failure(app, fmt.Errorf("couldn't find app manifest: %w", err), fmt.Sprintf("try `pixlet community create-manifest %s`", filepath.Join(dir, "manifest.yaml")))
+			failure(app, fmt.Errorf("couldn't find app manifest: %w", err), fmt.Sprintf("try `pixlet community create-manifest %s`", filepath.Join(dir, manifest.ManifestFileName)))
 			continue
 		}
 
 		// Validate manifest.
+		manifestFile := filepath.Join(dir, manifest.ManifestFileName)
 		err = community.ValidateManifest(cmd, []string{manifestFile})
 		if err != nil {
 			foundIssue = true
@@ -112,20 +112,16 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		// Check spelling in both the app and the manifest.
+		// Check spelling.
 		community.SilentSpelling = true
-		err = community.SpellCheck(cmd, []string{app})
-		if err != nil {
-			foundIssue = true
-			failure(app, fmt.Errorf("app contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", app))
-			continue
-		}
 		err = community.SpellCheck(cmd, []string{manifestFile})
 		if err != nil {
 			foundIssue = true
 			failure(app, fmt.Errorf("manifest contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", manifestFile))
 			continue
 		}
+		// TODO: enable spell check for apps once we can run it successfully
+		// against the community repo.
 
 		// If we're here, the app and manifest are good to go!
 		success(app)
@@ -138,21 +134,18 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func findManifestFile(options []string) (string, error) {
-	for _, file := range options {
-		_, err := os.Stat(file)
-		if os.IsNotExist(err) {
-			continue
-		}
-
-		if err != nil {
-			return "", fmt.Errorf("couldn't check manifest existence: %w", err)
-		}
-
-		return file, nil
+func doesManifestExist(dir string) bool {
+	file := filepath.Join(dir, manifest.ManifestFileName)
+	_, err := os.Stat(file)
+	if os.IsNotExist(err) {
+		return false
 	}
 
-	return "", fmt.Errorf("manifest doesn't exist")
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func success(app string) {
