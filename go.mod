@@ -8,7 +8,7 @@ require (
 	github.com/bazelbuild/buildtools v0.0.0-20230113180850-180a94ab3a3a
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
-	github.com/fatih/color v1.14.0
+	github.com/fatih/color v1.14.1
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/google/pprof v0.0.0-20230111200839-76d1ae5aea2b
