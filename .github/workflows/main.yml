@@ -43,6 +43,10 @@ jobs:
         with:
           node-version: "16"
 
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
+        if: matrix.os == 'ubuntu-22.04'
+
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         if: matrix.os == 'windows-latest'
@@ -119,6 +123,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: make release-linux
         env:
+          GLIBC_VERSION: "2.25"
           PIXLET_VERSION: ${{ steps.vars.outputs.tag }}
 
       - name: Build Release macOS
