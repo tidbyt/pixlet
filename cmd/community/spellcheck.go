@@ -59,14 +59,25 @@ func SpellCheck(cmd *cobra.Command, args []string) error {
 
 	// If FixSpelling is true, we only want to fix spelling and return
 	if FixSpelling {
-		_, err := f.Seek(0, io.SeekStart)
+		// Updating a file in line gets a bit tricky. The file would first have
+		// to be cleared of the file contents, which feels dangerous. So
+		// instead, create a temp file, write the contents, and then replace
+		// the original file with the new file.
+		temp := args[0] + ".temp"
+		t, err := os.Create(temp)
+		if err != nil {
+			return fmt.Errorf("could not create file: %w", err)
+		}
+		defer t.Close()
+
+		_, err = t.WriteString(updated)
 		if err != nil {
 			return fmt.Errorf("could not update file: %w", err)
 		}
 
-		_, err = f.WriteString(updated)
+		err = os.Rename(temp, args[0])
 		if err != nil {
-			return fmt.Errorf("could not update file: %w", err)
+			return fmt.Errorf("could not replace file: %w", err)
 		}
 
 		return nil
