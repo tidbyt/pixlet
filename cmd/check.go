@@ -112,6 +112,22 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
+		// Check spelling in both the app and the manifest.
+		community.SilentSpelling = true
+		err = community.SpellCheck(cmd, []string{app})
+		if err != nil {
+			foundIssue = true
+			failure(app, fmt.Errorf("app contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", app))
+			continue
+		}
+		err = community.SpellCheck(cmd, []string{manifestFile})
+		if err != nil {
+			foundIssue = true
+			failure(app, fmt.Errorf("manifest contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", manifestFile))
+			continue
+		}
+
+		// If we're here, the app and manifest are good to go!
 		success(app)
 	}
 
