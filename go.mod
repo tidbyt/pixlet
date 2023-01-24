@@ -39,6 +39,7 @@ require (
 
 require (
 	github.com/chzyer/readline v1.5.0 // indirect
+	github.com/client9/misspell v0.3.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 )
