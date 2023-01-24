@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/cmd/community"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 func init() {
@@ -93,18 +94,14 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 
 		// Check app manifest exists
 		dir := filepath.Dir(app)
-		options := []string{
-			filepath.Join(dir, "manifest.yaml"),
-			filepath.Join(dir, "manifest.yml"),
-		}
-		manifestFile, err := findManifestFile(options)
-		if err != nil {
+		if !doesManifestExist(dir) {
 			foundIssue = true
-			failure(app, fmt.Errorf("couldn't find app manifest: %w", err), fmt.Sprintf("try `pixlet community create-manifest %s`", filepath.Join(dir, "manifest.yaml")))
+			failure(app, fmt.Errorf("couldn't find app manifest: %w", err), fmt.Sprintf("try `pixlet community create-manifest %s`", filepath.Join(dir, manifest.ManifestFileName)))
 			continue
 		}
 
 		// Validate manifest.
+		manifestFile := filepath.Join(dir, manifest.ManifestFileName)
 		err = community.ValidateManifest(cmd, []string{manifestFile})
 		if err != nil {
 			foundIssue = true
@@ -138,21 +135,18 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func findManifestFile(options []string) (string, error) {
-	for _, file := range options {
-		_, err := os.Stat(file)
-		if os.IsNotExist(err) {
-			continue
-		}
-
-		if err != nil {
-			return "", fmt.Errorf("couldn't check manifest existence: %w", err)
-		}
-
-		return file, nil
+func doesManifestExist(dir string) bool {
+	file := filepath.Join(dir, manifest.ManifestFileName)
+	_, err := os.Stat(file)
+	if os.IsNotExist(err) {
+		return false
 	}
 
-	return "", fmt.Errorf("manifest doesn't exist")
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func success(app string) {

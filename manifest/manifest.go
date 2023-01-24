@@ -9,6 +9,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const ManifestFileName = "manifest.yaml"
+
 // Manifest is a structure to define a starlark applet for Tidbyt in Go.
 type Manifest struct {
 	// ID is the unique identifier of this app. It has to be globally unique,

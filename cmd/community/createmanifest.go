@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 var CreateManifestCmd = &cobra.Command{
@@ -19,8 +20,8 @@ var CreateManifestCmd = &cobra.Command{
 
 func CreateManifest(cmd *cobra.Command, args []string) error {
 	fileName := filepath.Base(args[0])
-	if fileName != "manifest.yaml" && fileName != "manifest.yml" {
-		return fmt.Errorf("supplied manifest must be named manifest.yaml or manifest.yml")
+	if fileName != manifest.ManifestFileName {
+		return fmt.Errorf("supplied manifest must be named %s", manifest.ManifestFileName)
 	}
 
 	f, err := os.Create(args[0])
