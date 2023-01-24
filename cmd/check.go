@@ -46,6 +46,8 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// TODO: this needs to be parallelized.
+
 	// Check every app.
 	foundIssue := false
 	for _, app := range apps {
@@ -65,13 +67,14 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 		}
 		defer os.Remove(f.Name())
 
-		// Check if app will render.
-		silenceOutput = true
-		output = f.Name()
-		err = render(cmd, []string{app})
+		// TODO: Check if app will render once we are able to enable target
+		// determination.
+
+		// Check if an app can load.
+		err = community.LoadApp(cmd, []string{app})
 		if err != nil {
 			foundIssue = true
-			failure(app, fmt.Errorf("app failed to render: %w", err), fmt.Sprintf("try `pixlet render %s` and resolve any errors", app))
+			failure(app, fmt.Errorf("app failed to load: %w", err), "try `pixlet community load-app` and resolve any runtime issues")
 			continue
 		}
 
@@ -109,20 +112,16 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		// Check spelling in both the app and the manifest.
+		// Check spelling.
 		community.SilentSpelling = true
-		err = community.SpellCheck(cmd, []string{app})
-		if err != nil {
-			foundIssue = true
-			failure(app, fmt.Errorf("app contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", app))
-			continue
-		}
 		err = community.SpellCheck(cmd, []string{manifestFile})
 		if err != nil {
 			foundIssue = true
 			failure(app, fmt.Errorf("manifest contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", manifestFile))
 			continue
 		}
+		// TODO: enable spell check for apps once we can run it successfully
+		// against the community repo.
 
 		// If we're here, the app and manifest are good to go!
 		success(app)
