@@ -5,7 +5,8 @@ go 1.19
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
 	github.com/antchfx/xmlquery v1.3.14
-	github.com/bazelbuild/buildtools v0.0.0-20230113180850-180a94ab3a3a
+	github.com/bazelbuild/buildtools v0.0.0-20230125142043-3a328885b19c
+	github.com/client9/misspell v0.3.4
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
 	github.com/fatih/color v1.14.1
@@ -39,7 +40,6 @@ require (
 
 require (
 	github.com/chzyer/readline v1.5.0 // indirect
-	github.com/client9/misspell v0.3.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 )
