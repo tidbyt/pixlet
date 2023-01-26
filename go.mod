@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
-	github.com/antchfx/xmlquery v1.3.14
+	github.com/antchfx/xmlquery v1.3.15
 	github.com/bazelbuild/buildtools v0.0.0-20230126151539-bf454e7b8ec3
 	github.com/client9/misspell v0.3.4
 	github.com/dustin/go-humanize v1.0.1
@@ -50,7 +50,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
-	github.com/antchfx/xpath v1.2.2 // indirect
+	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/chzyer/readline v1.5.0 // indirect
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
