@@ -148,7 +148,7 @@ func TestFile(t *testing.T) {
 	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
 
-	webp, err := ScreensFromRoots(roots).EncodeWebP()
+	webp, err := ScreensFromRoots(roots).EncodeWebP(15000)
 	assert.NoError(t, err)
 	assert.True(t, len(webp) > 0)
 }
