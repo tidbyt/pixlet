@@ -119,7 +119,7 @@ func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, e
 	remainingDuration := time.Duration(maxDuration) * time.Millisecond
 	for _, im := range images {
 		frameDuration := time.Duration(s.delay) * time.Millisecond
-		if frameDuration < remainingDuration {
+		if frameDuration > remainingDuration {
 			frameDuration = remainingDuration
 		}
 		remainingDuration -= frameDuration
