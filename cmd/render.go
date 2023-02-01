@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
+	"math"
 	"os"
 	"strings"
 
@@ -18,6 +19,7 @@ var (
 	output        string
 	magnify       int
 	renderGif     bool
+	maxDuration   int
 	silenceOutput bool
 )
 
@@ -31,6 +33,13 @@ func init() {
 		"m",
 		1,
 		"Increase image dimension by a factor (useful for debugging)",
+	)
+	RenderCmd.Flags().IntVarP(
+		&maxDuration,
+		"max_duration",
+		"d",
+		15000,
+		"Maximum allowed animation duration (ms).",
 	)
 }
 
@@ -130,10 +139,14 @@ func render(cmd *cobra.Command, args []string) error {
 
 	var buf []byte
 
+	if screens.ShowFullAnimation || maxDuration == 0 {
+		maxDuration = math.MaxInt
+	}
+
 	if renderGif {
-		buf, err = screens.EncodeGIF(filter)
+		buf, err = screens.EncodeGIF(maxDuration, filter)
 	} else {
-		buf, err = screens.EncodeWebP(filter)
+		buf, err = screens.EncodeWebP(maxDuration, filter)
 	}
 	if err != nil {
 		return fmt.Errorf("error rendering: %w", err)
