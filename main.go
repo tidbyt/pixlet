@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	_ "time/tzdata"
 
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/cmd"
