@@ -12,6 +12,7 @@ import (
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
+	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -21,6 +22,8 @@ var (
 	renderGif     bool
 	maxDuration   int
 	silenceOutput bool
+	width         int
+	height        int
 )
 
 func init() {
@@ -33,6 +36,20 @@ func init() {
 		"m",
 		1,
 		"Increase image dimension by a factor (useful for debugging)",
+	)
+	RenderCmd.Flags().IntVarP(
+		&width,
+		"width",
+		"w",
+		64,
+		"Set width",
+	)
+	RenderCmd.Flags().IntVarP(
+		&height,
+		"height",
+		"t",
+		32,
+		"Set height",
 	)
 	RenderCmd.Flags().IntVarP(
 		&maxDuration,
@@ -52,6 +69,9 @@ var RenderCmd = &cobra.Command{
 
 func render(cmd *cobra.Command, args []string) error {
 	script := args[0]
+
+	globals.Width = width
+	globals.Height = height
 
 	if !strings.HasSuffix(script, ".star") {
 		return fmt.Errorf("script file must have suffix .star: %s", script)
