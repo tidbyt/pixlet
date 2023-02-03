@@ -94,7 +94,7 @@ func (s *Screens) Hash() ([]byte, error) {
 
 // Renders a screen to WebP. Optionally pass filters for
 // postprocessing each individual frame.
-func (s *Screens) EncodeWebP(filters ...ImageFilter) ([]byte, error) {
+func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, error) {
 	images, err := s.render(filters...)
 	if err != nil {
 		return nil, err
@@ -116,10 +116,20 @@ func (s *Screens) EncodeWebP(filters ...ImageFilter) ([]byte, error) {
 	}
 	defer anim.Close()
 
-	frameDuration := time.Duration(s.delay) * time.Millisecond
+	remainingDuration := time.Duration(maxDuration) * time.Millisecond
 	for _, im := range images {
+		frameDuration := time.Duration(s.delay) * time.Millisecond
+		if frameDuration > remainingDuration {
+			frameDuration = remainingDuration
+		}
+		remainingDuration -= frameDuration
+
 		if err := anim.AddFrame(im, frameDuration); err != nil {
 			return nil, errors.Wrap(err, "adding frame")
+		}
+
+		if remainingDuration <= 0 {
+			break
 		}
 	}
 
@@ -133,7 +143,7 @@ func (s *Screens) EncodeWebP(filters ...ImageFilter) ([]byte, error) {
 
 // Renders a screen to GIF. Optionally pass filters for postprocessing
 // each individual frame.
-func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
+func (s *Screens) EncodeGIF(maxDuration int, filters ...ImageFilter) ([]byte, error) {
 	images, err := s.render(filters...)
 	if err != nil {
 		return nil, err
@@ -145,6 +155,7 @@ func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
 
 	g := &gif.GIF{}
 
+	remainingDuration := maxDuration
 	for imIdx, im := range images {
 		imRGBA, ok := im.(*image.RGBA)
 		if !ok {
@@ -155,8 +166,18 @@ func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
 		imPaletted := image.NewPaletted(imRGBA.Bounds(), palette)
 		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.Point{0, 0}, draw.Src)
 
+		frameDelay := int(s.delay)
+		if frameDelay > remainingDuration {
+			frameDelay = remainingDuration
+		}
+		remainingDuration -= frameDelay
+
 		g.Image = append(g.Image, imPaletted)
-		g.Delay = append(g.Delay, int(s.delay/10)) // in 100ths of a second
+		g.Delay = append(g.Delay, frameDelay/10) // in 100ths of a second
+
+		if remainingDuration <= 0 {
+			break
+		}
 	}
 
 	buf := &bytes.Buffer{}

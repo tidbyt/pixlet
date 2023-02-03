@@ -105,6 +105,7 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 
 		// Validate manifest.
 		manifestFile := filepath.Join(dir, manifest.ManifestFileName)
+		community.ValidateManifestAppFileName = filepath.Base(app)
 		err = community.ValidateManifest(cmd, []string{manifestFile})
 		if err != nil {
 			foundIssue = true
