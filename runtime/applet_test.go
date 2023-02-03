@@ -262,4 +262,21 @@ def main():
 	assert.Equal(t, "foobar", printedText)
 }
 
+func TestTimezoneDatabase(t *testing.T) {
+	src:= `
+load("render.star", "render")
+load("time.star", "time")
+def main():
+    # Fails if America/Los_Angeles is an unknown system.
+	t = time.time(hour = 21, minute = 47, location = "America/Los_Angeles")
+	return render.Root(child=render.Box())
+`
+
+	app := &Applet{}
+	err := app.Load("test.star", []byte(src), nil)
+	assert.NoError(t, err)
+	_, err = app.Run(map[string]string{})
+	assert.NoError(t, err)
+}
+
 // TODO: test Screens, especially Screens.Render()

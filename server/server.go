@@ -19,12 +19,12 @@ type Server struct {
 }
 
 // NewServer creates a new server initialized with the applet.
-func NewServer(host string, port int, watch bool, filename string) (*Server, error) {
+func NewServer(host string, port int, watch bool, filename string, maxDuration int) (*Server, error) {
 	fileChanges := make(chan bool, 100)
 	w := watcher.NewWatcher(filename, fileChanges)
 
 	updatesChan := make(chan loader.Update, 100)
-	l, err := loader.NewLoader(filename, watch, fileChanges, updatesChan)
+	l, err := loader.NewLoader(filename, watch, fileChanges, updatesChan, maxDuration)
 	if err != nil {
 		return nil, err
 	}

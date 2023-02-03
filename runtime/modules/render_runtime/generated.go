@@ -1182,9 +1182,10 @@ func newRoot(
 ) (starlark.Value, error) {
 
 	var (
-		child   starlark.Value
-		delay   starlark.Int
-		max_age starlark.Int
+		child               starlark.Value
+		delay               starlark.Int
+		max_age             starlark.Int
+		show_full_animation starlark.Bool
 	)
 
 	if err := starlark.UnpackArgs(
@@ -1193,6 +1194,7 @@ func newRoot(
 		"child", &child,
 		"delay?", &delay,
 		"max_age?", &max_age,
+		"show_full_animation?", &show_full_animation,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Root: %s", err)
 	}
@@ -1223,6 +1225,8 @@ func newRoot(
 		return nil, err
 	}
 
+	w.ShowFullAnimation = bool(show_full_animation)
+
 	return w, nil
 }
 
@@ -1232,7 +1236,7 @@ func (w *Root) AsRenderRoot() render.Root {
 
 func (w *Root) AttrNames() []string {
 	return []string{
-		"child", "delay", "max_age",
+		"child", "delay", "max_age", "show_full_animation",
 	}
 }
 
@@ -1250,6 +1254,10 @@ func (w *Root) Attr(name string) (starlark.Value, error) {
 	case "max_age":
 
 		return starlark.MakeInt(int(w.MaxAge)), nil
+
+	case "show_full_animation":
+
+		return starlark.Bool(w.ShowFullAnimation), nil
 
 	default:
 		return nil, nil
