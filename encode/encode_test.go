@@ -349,4 +349,15 @@ def main():
 	for _, d := range gifDelays(gifData) {
 		assert.Equal(t, 500, d)
 	}
+
+	// inf ms -> all 100 frames, 500 ms each.
+	gifData, err = ScreensFromRoots(roots).EncodeGIF(0)
+	assert.NoError(t, err)
+	webpData, err = ScreensFromRoots(roots).EncodeWebP(0)
+	assert.NoError(t, err)
+	assert.Equal(t, gifDelays(gifData), webpDelays(webpData))
+	for _, d := range gifDelays(gifData) {
+		assert.Equal(t, 500, d)
+	}
+
 }

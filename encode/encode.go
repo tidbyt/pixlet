@@ -119,16 +119,19 @@ func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, e
 	remainingDuration := time.Duration(maxDuration) * time.Millisecond
 	for _, im := range images {
 		frameDuration := time.Duration(s.delay) * time.Millisecond
-		if frameDuration > remainingDuration {
-			frameDuration = remainingDuration
+
+		if maxDuration > 0 {
+			if frameDuration > remainingDuration {
+				frameDuration = remainingDuration
+			}
+			remainingDuration -= frameDuration
 		}
-		remainingDuration -= frameDuration
 
 		if err := anim.AddFrame(im, frameDuration); err != nil {
 			return nil, errors.Wrap(err, "adding frame")
 		}
 
-		if remainingDuration <= 0 {
+		if maxDuration > 0 && remainingDuration <= 0 {
 			break
 		}
 	}
@@ -167,15 +170,17 @@ func (s *Screens) EncodeGIF(maxDuration int, filters ...ImageFilter) ([]byte, er
 		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.Point{0, 0}, draw.Src)
 
 		frameDelay := int(s.delay)
-		if frameDelay > remainingDuration {
-			frameDelay = remainingDuration
+		if maxDuration > 0 {
+			if frameDelay > remainingDuration {
+				frameDelay = remainingDuration
+			}
+			remainingDuration -= frameDelay
 		}
-		remainingDuration -= frameDelay
 
 		g.Image = append(g.Image, imPaletted)
 		g.Delay = append(g.Delay, frameDelay/10) // in 100ths of a second
 
-		if remainingDuration <= 0 {
+		if maxDuration > 0 && remainingDuration <= 0 {
 			break
 		}
 	}
