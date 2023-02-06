@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
-	"math"
 	"os"
 	"strings"
 
@@ -159,8 +158,8 @@ func render(cmd *cobra.Command, args []string) error {
 
 	var buf []byte
 
-	if screens.ShowFullAnimation || maxDuration == 0 {
-		maxDuration = math.MaxInt
+	if screens.ShowFullAnimation {
+		maxDuration = 0
 	}
 
 	if renderGif {
