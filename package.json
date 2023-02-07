@@ -62,8 +62,8 @@
     "react-dom": "18.2.0",
     "react-easy-crop": "4.6.3",
     "react-redux": "8.0.5",
-    "react-router": "6.8.0",
-    "react-router-dom": "6.8.0",
+    "react-router": "6.8.1",
+    "react-router-dom": "6.8.1",
     "react-simple-oauth2-login": "0.5.4"
   }
 }
