@@ -327,6 +327,7 @@ displaying stale data in the event of e.g. connectivity issues.
 | `child` | `Widget` | Widget to render | **Y** |
 | `delay` | `int` | Frame delay in milliseconds | N |
 | `max_age` | `int` | Expiration time in seconds | N |
+| `show_full_animation` | `bool` | Request animation is shown in full, regardless of app cycle speed | N |
 
 
 

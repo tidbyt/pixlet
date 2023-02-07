@@ -26,10 +26,11 @@ const (
 )
 
 type Screens struct {
-	roots  []render.Root
-	images []image.Image
-	delay  int32
-	MaxAge int32
+	roots             []render.Root
+	images            []image.Image
+	delay             int32
+	MaxAge            int32
+	ShowFullAnimation bool
 }
 
 type ImageFilter func(image.Image) (image.Image, error)
@@ -47,6 +48,7 @@ func ScreensFromRoots(roots []render.Root) *Screens {
 		if roots[0].MaxAge > 0 {
 			screens.MaxAge = roots[0].MaxAge
 		}
+		screens.ShowFullAnimation = roots[0].ShowFullAnimation
 	}
 	return &screens
 }
@@ -92,7 +94,7 @@ func (s *Screens) Hash() ([]byte, error) {
 
 // Renders a screen to WebP. Optionally pass filters for
 // postprocessing each individual frame.
-func (s *Screens) EncodeWebP(filters ...ImageFilter) ([]byte, error) {
+func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, error) {
 	images, err := s.render(filters...)
 	if err != nil {
 		return nil, err
@@ -114,10 +116,23 @@ func (s *Screens) EncodeWebP(filters ...ImageFilter) ([]byte, error) {
 	}
 	defer anim.Close()
 
-	frameDuration := time.Duration(s.delay) * time.Millisecond
+	remainingDuration := time.Duration(maxDuration) * time.Millisecond
 	for _, im := range images {
+		frameDuration := time.Duration(s.delay) * time.Millisecond
+
+		if maxDuration > 0 {
+			if frameDuration > remainingDuration {
+				frameDuration = remainingDuration
+			}
+			remainingDuration -= frameDuration
+		}
+
 		if err := anim.AddFrame(im, frameDuration); err != nil {
 			return nil, errors.Wrap(err, "adding frame")
+		}
+
+		if maxDuration > 0 && remainingDuration <= 0 {
+			break
 		}
 	}
 
@@ -131,7 +146,7 @@ func (s *Screens) EncodeWebP(filters ...ImageFilter) ([]byte, error) {
 
 // Renders a screen to GIF. Optionally pass filters for postprocessing
 // each individual frame.
-func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
+func (s *Screens) EncodeGIF(maxDuration int, filters ...ImageFilter) ([]byte, error) {
 	images, err := s.render(filters...)
 	if err != nil {
 		return nil, err
@@ -143,6 +158,7 @@ func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
 
 	g := &gif.GIF{}
 
+	remainingDuration := maxDuration
 	for imIdx, im := range images {
 		imRGBA, ok := im.(*image.RGBA)
 		if !ok {
@@ -153,8 +169,20 @@ func (s *Screens) EncodeGIF(filters ...ImageFilter) ([]byte, error) {
 		imPaletted := image.NewPaletted(imRGBA.Bounds(), palette)
 		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.Point{0, 0}, draw.Src)
 
+		frameDelay := int(s.delay)
+		if maxDuration > 0 {
+			if frameDelay > remainingDuration {
+				frameDelay = remainingDuration
+			}
+			remainingDuration -= frameDelay
+		}
+
 		g.Image = append(g.Image, imPaletted)
-		g.Delay = append(g.Delay, int(s.delay/10)) // in 100ths of a second
+		g.Delay = append(g.Delay, frameDelay/10) // in 100ths of a second
+
+		if maxDuration > 0 && remainingDuration <= 0 {
+			break
+		}
 	}
 
 	buf := &bytes.Buffer{}

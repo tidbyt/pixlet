@@ -1,18 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/cmd"
+	"tidbyt.dev/pixlet/cmd/community"
 )
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "pixlet",
-		Short: "pixel graphics rendering",
-		Long:  "Pixlet renders graphics for pixel devices, like Tidbyt",
+		Use:          "pixlet",
+		Short:        "pixel graphics rendering",
+		Long:         "Pixlet renders graphics for pixel devices, like Tidbyt",
+		SilenceUsage: true,
 	}
 )
 
@@ -25,11 +26,15 @@ func init() {
 	rootCmd.AddCommand(cmd.ProfileCmd)
 	rootCmd.AddCommand(cmd.LoginCmd)
 	rootCmd.AddCommand(cmd.DevicesCmd)
+	rootCmd.AddCommand(cmd.FormatCmd)
+	rootCmd.AddCommand(cmd.LintCmd)
+	rootCmd.AddCommand(cmd.CreateCmd)
+	rootCmd.AddCommand(cmd.CheckCmd)
+	rootCmd.AddCommand(community.CommunityCmd)
 }
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }

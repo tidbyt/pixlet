@@ -26,6 +26,7 @@ type Loader struct {
 	requestedChanges chan bool
 	updatesChan      chan Update
 	resultsChan      chan Update
+	maxDuration      int
 }
 
 type Update struct {
@@ -38,7 +39,14 @@ type Update struct {
 // fileChanges channel and write updates to the updatesChan. Updates are base64
 // encoded WebP strings. If watch is enabled, both file changes and on demand
 // requests will send updates over the updatesChan.
-func NewLoader(filename string, watch bool, fileChanges chan bool, updatesChan chan Update) (*Loader, error) {
+func NewLoader(
+	filename string,
+	watch bool,
+	fileChanges chan bool,
+	updatesChan chan Update,
+	maxDuration int,
+) (*Loader, error) {
+
 	l := &Loader{
 		filename:         filename,
 		fileChanges:      fileChanges,
@@ -48,6 +56,7 @@ func NewLoader(filename string, watch bool, fileChanges chan bool, updatesChan c
 		configChanges:    make(chan map[string]string, 100),
 		requestedChanges: make(chan bool, 100),
 		resultsChan:      make(chan Update, 100),
+		maxDuration:      maxDuration,
 	}
 
 	runtime.InitCache(runtime.NewInMemoryCache())
@@ -145,7 +154,7 @@ func (l *Loader) loadApplet(config map[string]string) (string, error) {
 		return "", fmt.Errorf("error running script: %w", err)
 	}
 
-	webp, err := encode.ScreensFromRoots(roots).EncodeWebP()
+	webp, err := encode.ScreensFromRoots(roots).EncodeWebP(l.maxDuration)
 	if err != nil {
 		return "", fmt.Errorf("error rendering: %w", err)
 	}
