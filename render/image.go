@@ -11,7 +11,6 @@ import (
 	"image/jpeg"
 	"io"
 	"net/http"
-	"net/url"
 
 	// register image formats
 	_ "image/jpeg"
@@ -62,11 +61,6 @@ func (p *Image) Size() (int, int) {
 
 func (p *Image) FrameCount() int {
 	return len(p.imgs)
-}
-
-func (p *Image) IsSrcUrl() bool {
-	u, err := url.Parse(p.Src)
-	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
 func (p *Image) InitFromWebP(data []byte) error {
@@ -206,18 +200,13 @@ func (p *Image) InitFromURL(url string) error {
 }
 
 func (p *Image) Init() error {
-	var err error
-	if p.IsSrcUrl() {
-		err = p.InitFromURL(p.Src)
-	} else {
-		err = p.InitFromWebP([]byte(p.Src))
+	err := p.InitFromWebP([]byte(p.Src))
+	if err != nil {
+		err = p.InitFromGIF([]byte(p.Src))
 		if err != nil {
-			err = p.InitFromGIF([]byte(p.Src))
+			err = p.InitFromSVG([]byte(p.Src))
 			if err != nil {
-				err = p.InitFromSVG([]byte(p.Src))
-				if err != nil {
-					err = p.InitFromImage([]byte(p.Src))
-				}
+				err = p.InitFromImage([]byte(p.Src))
 			}
 		}
 	}

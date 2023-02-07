@@ -51,6 +51,7 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20221026131551-cf6655e29de4 // indirect
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/chzyer/readline v1.5.0 // indirect
