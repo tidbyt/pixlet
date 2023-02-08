@@ -154,7 +154,13 @@ func (l *Loader) loadApplet(config map[string]string) (string, error) {
 		return "", fmt.Errorf("error running script: %w", err)
 	}
 
-	webp, err := encode.ScreensFromRoots(roots).EncodeWebP(l.maxDuration)
+	screens := encode.ScreensFromRoots(roots)
+
+	maxDuration := l.maxDuration
+	if screens.ShowFullAnimation {
+		maxDuration = 0
+	}
+	webp, err := screens.EncodeWebP(maxDuration)
 	if err != nil {
 		return "", fmt.Errorf("error rendering: %w", err)
 	}
