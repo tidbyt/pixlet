@@ -75,11 +75,11 @@ func (m Marquee) FrameCount() int {
 	var cw int
 	var size int
 	if m.isVertical() {
-		cb = m.Child.PaintBounds(image.Rect(0, 0, DefaultFrameWidth, m.Height*10), 0)
+		cb = m.Child.PaintBounds(image.Rect(0, 0, FrameWidth, m.Height*10), 0)
 		cw = cb.Dy()
 		size = m.Height
 	} else {
-		cb = m.Child.PaintBounds(image.Rect(0, 0, m.Width*10, DefaultFrameHeight), 0)
+		cb = m.Child.PaintBounds(image.Rect(0, 0, m.Width*10, FrameHeight), 0)
 		cw = cb.Dx()
 		size = m.Width
 	}

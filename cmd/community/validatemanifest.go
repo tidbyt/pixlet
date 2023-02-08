@@ -9,6 +9,12 @@ import (
 	"tidbyt.dev/pixlet/manifest"
 )
 
+var ValidateManifestAppFileName string
+
+func init() {
+	ValidateManifestCmd.Flags().StringVarP(&ValidateManifestAppFileName, "app-file-name", "a", "", "ensures the app file name is the same as the manifest")
+}
+
 var ValidateManifestCmd = &cobra.Command{
 	Use:     "validate-manifest <pathspec>",
 	Short:   "Validates an app manifest is ready for publishing",
@@ -21,8 +27,8 @@ validating the contents of each field.`,
 
 func ValidateManifest(cmd *cobra.Command, args []string) error {
 	fileName := filepath.Base(args[0])
-	if fileName != "manifest.yaml" && fileName != "manifest.yml" {
-		return fmt.Errorf("supplied manifest must be named manifest.yaml or manifest.yml")
+	if fileName != manifest.ManifestFileName {
+		return fmt.Errorf("supplied manifest must be named %s", manifest.ManifestFileName)
 	}
 
 	f, err := os.Open(args[0])
@@ -39,6 +45,10 @@ func ValidateManifest(cmd *cobra.Command, args []string) error {
 	err = m.Validate()
 	if err != nil {
 		return fmt.Errorf("couldn't validate manifest: %w", err)
+	}
+
+	if ValidateManifestAppFileName != "" && m.FileName != ValidateManifestAppFileName {
+		return fmt.Errorf("app name doesn't match: %s != %s", ValidateManifestAppFileName, m.FileName)
 	}
 
 	return nil

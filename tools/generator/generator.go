@@ -98,7 +98,7 @@ func (g *Generator) writeManifest(app *manifest.Manifest) error {
 	var p string
 	switch g.appType {
 	case Community:
-		p = path.Join(g.root, appsDir, app.PackageName, app.FileName)
+		p = path.Join(g.root, appsDir, app.PackageName, manifestName)
 	default:
 		p = path.Join(g.root, manifestName)
 	}
