@@ -37,9 +37,9 @@ require (
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20230128213706-3f75dec8e403
 	golang.org/x/image v0.3.0
-	golang.org/x/oauth2 v0.4.0
+	golang.org/x/oauth2 v0.5.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/text v0.6.0
+	golang.org/x/text v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -88,8 +88,8 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/net v0.5.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
