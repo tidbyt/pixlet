@@ -28,7 +28,7 @@ assert(s1.id == "colors")
 assert(s1.name == "Colors")
 assert(s1.desc == "The color to display")
 assert(s1.icon == "brush")
-assert(s1.default == "fff")
+assert(s1.default == "#fff")
 
 # with palette
 s2 = schema.Color(
@@ -37,20 +37,20 @@ s2 = schema.Color(
     desc = "The color to display",
     icon = "brush",
     default = "123456",
-    palette = ["f0f", "aabbcd", "103", "323334"],
+    palette = ["#f0f", "#aabbcd", "103", "323334"],
 )
 
 assert(s2.id == "colors")
 assert(s2.name == "Colors")
 assert(s2.desc == "The color to display")
 assert(s2.icon == "brush")
-assert(s2.default == "123456")
+assert(s2.default == "#123456")
 print(s2.palette)
 assert(len(s2.palette) == 4)
-assert(s2.palette[0] == "f0f")
-assert(s2.palette[1] == "aabbcd")
-assert(s2.palette[2] == "103")
-assert(s2.palette[3] == "323334")
+assert(s2.palette[0] == "#f0f")
+assert(s2.palette[1] == "#aabbcd")
+assert(s2.palette[2] == "#103")
+assert(s2.palette[3] == "#323334")
 
 def main():
     return []
@@ -108,17 +108,27 @@ def main(config):
 	assert.Error(t, err)
 	_, err = app.Run(map[string]string{"default": "01", "palette": "[]"})
 	assert.Error(t, err)
+	_, err = app.Run(map[string]string{"default": "#01", "palette": "[]"})
+	assert.Error(t, err)
 	_, err = app.Run(map[string]string{"default": "0123", "palette": "[]"})
+	assert.Error(t, err)
+	_, err = app.Run(map[string]string{"default": "#0123", "palette": "[]"})
 	assert.Error(t, err)
 	_, err = app.Run(map[string]string{"default": "01234", "palette": "[]"})
 	assert.Error(t, err)
+	_, err = app.Run(map[string]string{"default": "#01234", "palette": "[]"})
+	assert.Error(t, err)
 	_, err = app.Run(map[string]string{"default": "0123456", "palette": "[]"})
+	assert.Error(t, err)
+	_, err = app.Run(map[string]string{"default": "#0123456", "palette": "[]"})
 	assert.Error(t, err)
 
 	// Bad palette
 	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["nothex"]`})
 	assert.Error(t, err)
 	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0"]`})
+	assert.Error(t, err)
+	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "#0f"]`})
 	assert.Error(t, err)
 	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0123"]`})
 	assert.Error(t, err)

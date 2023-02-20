@@ -30,7 +30,7 @@ func normalizeHexColor(hex string) (string, error) {
 		)
 	}
 
-	return hex, nil
+	return fmt.Sprintf("#%s", hex), nil
 }
 
 func newColor(

@@ -119,7 +119,7 @@ def get_schema():
                 desc = "A Color",
                 icon = "brush",
                 default = "ffaa66",
-                palette = ["ffaa66", "#bbb"],
+                palette = ["#ffaa66", "#bbb"],
             ),
         ],
     )
@@ -252,8 +252,8 @@ def main():
 				Name:        "Color",
 				Description: "A Color",
 				Icon:        "brush",
-				Default:     "ffaa66",
-				Palette:     []string{"ffaa66", "bbb"},
+				Default:     "#ffaa66",
+				Palette:     []string{"#ffaa66", "#bbb"},
 			},
 		},
 	}, s)
@@ -361,7 +361,7 @@ def get_schema():
          "name": "Color",
          "description": "A Color",
          "default": "ffaa66",
-         "palette": ["ffaa66", "bbb"],
+         "palette": ["#ffaa66", "bbb"],
         },
     ]
 
@@ -521,7 +521,7 @@ def main():
 				Description: "A Color",
 				Icon:        "brush",
 				Default:     "ffaa66",
-				Palette:     []string{"ffaa66", "bbb"},
+				Palette:     []string{"#ffaa66", "bbb"},
 			},
 		},
 	}, s)
