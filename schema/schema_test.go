@@ -113,6 +113,14 @@ def get_schema():
             	desc = "Picture",
             	icon = "photo_camera",
             ),
+            schema.Color(
+                id = "colorid",
+                name = "Color",
+                desc = "A Color",
+                icon = "brush",
+                default = "ffaa66",
+                palette = ["ffaa66", "#bbb"],
+            ),
         ],
     )
 
@@ -238,6 +246,15 @@ def main():
 				Description: "Picture",
 				Icon:        "photo_camera",
 			},
+			{
+				Type:        "color",
+				ID:          "colorid",
+				Name:        "Color",
+				Description: "A Color",
+				Icon:        "brush",
+				Default:     "ffaa66",
+				Palette:     []string{"ffaa66", "bbb"},
+			},
 		},
 	}, s)
 }
@@ -337,6 +354,14 @@ def get_schema():
          "icon": "photo_camera",
          "name": "Photo",
          "description": "Picture",
+        },
+        {"type": "color",
+         "id": "colorid",
+         "icon": "brush",
+         "name": "Color",
+         "description": "A Color",
+         "default": "ffaa66",
+         "palette": ["ffaa66", "bbb"],
         },
     ]
 
@@ -488,6 +513,15 @@ def main():
 				Name:        "Photo",
 				Description: "Picture",
 				Icon:        "photo_camera",
+			},
+			{
+				Type:        "color",
+				ID:          "colorid",
+				Name:        "Color",
+				Description: "A Color",
+				Icon:        "brush",
+				Default:     "ffaa66",
+				Palette:     []string{"ffaa66", "bbb"},
 			},
 		},
 	}, s)
