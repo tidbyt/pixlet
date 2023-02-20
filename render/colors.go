@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"image/color"
+	"strings"
 )
 
 func ParseColor(scol string) (color.Color, error) {
@@ -10,21 +11,23 @@ func ParseColor(scol string) (color.Color, error) {
 	var fourBits bool
 	var hasAlpha bool
 
+	scol = strings.TrimPrefix(scol, "#")
+
 	switch len(scol) {
-	case 4:
-		format = "#%1x%1x%1x"
+	case 3:
+		format = "%1x%1x%1x"
 		fourBits = true
 		hasAlpha = false
-	case 5:
-		format = "#%1x%1x%1x%1x"
+	case 4:
+		format = "%1x%1x%1x%1x"
 		fourBits = true
 		hasAlpha = true
-	case 7:
-		format = "#%02x%02x%02x"
+	case 6:
+		format = "%02x%02x%02x"
 		fourBits = false
 		hasAlpha = false
-	case 9:
-		format = "#%02x%02x%02x%02x"
+	case 8:
+		format = "%02x%02x%02x%02x"
 		fourBits = false
 		hasAlpha = true
 	default:
