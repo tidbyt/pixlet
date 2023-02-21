@@ -34,7 +34,7 @@ type Schema struct {
 
 // SchemaField represents an item in the config used to confgure an applet.
 type SchemaField struct {
-	Type        string            `json:"type" validate:"required,oneof=datetime dropdown generated location locationbased onoff radio text typeahead oauth2 oauth1 png"`
+	Type        string            `json:"type" validate:"required,oneof=color datetime dropdown generated location locationbased onoff radio text typeahead oauth2 oauth1 png"`
 	ID          string            `json:"id" validate:"required"`
 	Name        string            `json:"name,omitempty" validate:"required_for=datetime dropdown location locationbased onoff radio text typeahead png"`
 	Description string            `json:"description,omitempty"`
@@ -43,6 +43,7 @@ type SchemaField struct {
 
 	Default string         `json:"default,omitempty" validate:"required_for=dropdown onoff radio"`
 	Options []SchemaOption `json:"options,omitempty" validate:"required_for=dropdown radio,dive"`
+	Palette []string       `json:"palette,omitempty"`
 
 	Source  string `json:"source,omitempty" validate:"required_for=generated"`
 	Handler string `json:"handler,omitempty" validate:"required_for=generated locationbased typeahead oauth2"`
