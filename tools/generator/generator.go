@@ -62,18 +62,16 @@ func NewGenerator(appType AppType, root string) (*Generator, error) {
 // GenerateApp creates the base app starlark, go package, and updates the app
 // list.
 func (g *Generator) GenerateApp(app *manifest.Manifest) (string, error) {
-	if g.appType == Community {
+	if g.appType == Community || g.appType == Internal {
 		err := g.createDir(app)
 		if err != nil {
 			return "", err
 		}
 	}
 
-	if g.appType == Local || g.appType == Community {
-		err := g.writeManifest(app)
-		if err != nil {
-			return "", err
-		}
+	err := g.writeManifest(app)
+	if err != nil {
+		return "", err
 	}
 
 	return g.generateStarlark(app)
@@ -97,7 +95,7 @@ func (g *Generator) removeDir(app *manifest.Manifest) error {
 func (g *Generator) writeManifest(app *manifest.Manifest) error {
 	var p string
 	switch g.appType {
-	case Community:
+	case Community, Internal:
 		p = path.Join(g.root, appsDir, app.PackageName, manifestName)
 	default:
 		p = path.Join(g.root, manifestName)
@@ -115,10 +113,8 @@ func (g *Generator) writeManifest(app *manifest.Manifest) error {
 func (g *Generator) generateStarlark(app *manifest.Manifest) (string, error) {
 	var p string
 	switch g.appType {
-	case Community:
+	case Community, Internal:
 		p = path.Join(g.root, appsDir, app.PackageName, app.FileName)
-	case Internal:
-		p = path.Join(g.root, appsDir, app.FileName)
 	default:
 		p = path.Join(g.root, app.FileName)
 	}
