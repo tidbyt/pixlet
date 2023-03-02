@@ -76,6 +76,8 @@ github.com/bazelbuild/buildtools v0.0.0-20230126151539-bf454e7b8ec3 h1:ujxlhmZnC
 github.com/bazelbuild/buildtools v0.0.0-20230126151539-bf454e7b8ec3/go.mod h1:689QdV3hBP7Vo9dJMmzhoYIyo/9iMhEmHkJcnaPRCbo=
 github.com/bazelbuild/buildtools v0.0.0-20230127124510-cf446296fb76 h1:DQ4RKicYtQ0KmtM6+PhBbMhd+qaazxi/8FuZoD7a1Zo=
 github.com/bazelbuild/buildtools v0.0.0-20230127124510-cf446296fb76/go.mod h1:689QdV3hBP7Vo9dJMmzhoYIyo/9iMhEmHkJcnaPRCbo=
+github.com/bazelbuild/buildtools v0.0.0-20230302165817-a6ca93fd072d h1:AfqOWCQPEd/qAi41zI5ovrK0d5oQbXdX+l5VonjZq7A=
+github.com/bazelbuild/buildtools v0.0.0-20230302165817-a6ca93fd072d/go.mod h1:689QdV3hBP7Vo9dJMmzhoYIyo/9iMhEmHkJcnaPRCbo=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
