@@ -36,7 +36,7 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
-	golang.org/x/image v0.5.0
+	golang.org/x/image v0.6.0
 	golang.org/x/oauth2 v0.5.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.8.0
