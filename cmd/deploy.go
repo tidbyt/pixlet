@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -40,6 +41,18 @@ command is for internal use only at the moment, and normal API tokens will not
 be able to deploy apps. We fully intend to make this command generally available
 once our backend can support public deploys.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if deployAPIToken == "" {
+			return fmt.Errorf("token must not be blank")
+		}
+
+		if deployAppID == "" {
+			return fmt.Errorf("app must not be blank")
+		}
+
+		if deployVersion == "" {
+			return fmt.Errorf("version must not be blank")
+		}
+
 		d := &TidbytAppDeploy{
 			AppID:   deployAppID,
 			Version: deployVersion,
@@ -50,14 +63,14 @@ once our backend can support public deploys.`,
 			return fmt.Errorf("could not create http request: %w", err)
 		}
 
-		requestURL := fmt.Sprintf("%s/v0/apps/%s/deploy", uploadURL, uploadAppID)
+		requestURL := fmt.Sprintf("%s/v0/apps/%s/deploy", deployURL, deployAppID)
 		req, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(b))
 		if err != nil {
 			return fmt.Errorf("could not create http request: %w", err)
 		}
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiToken))
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", deployAPIToken))
 
 		client := http.Client{
 			Timeout: 30 * time.Second,
@@ -69,9 +82,9 @@ once our backend can support public deploys.`,
 		}
 		defer resp.Body.Close()
 
-		statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
-		if !statusOK {
-			return fmt.Errorf("remote returned an error with code: %d", resp.StatusCode)
+		if resp.StatusCode != 200 {
+			body, _ := io.ReadAll(resp.Body)
+			return fmt.Errorf("request returned status %d with message: %s", resp.StatusCode, body)
 		}
 
 		return nil

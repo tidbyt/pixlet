@@ -61,6 +61,18 @@ command public once our backend is well positioned to support it.`,
 			return fmt.Errorf("input bundle format is not correct, did you create it with `pixlet bundle`?")
 		}
 
+		if uploadAPIToken == "" {
+			return fmt.Errorf("token must not be blank")
+		}
+
+		if uploadAppID == "" {
+			return fmt.Errorf("app must not be blank")
+		}
+
+		if uploadVersion == "" {
+			return fmt.Errorf("version must not be blank")
+		}
+
 		f, err := os.Open(bundleFile)
 		if err != nil {
 			return fmt.Errorf("could not open bundle: %w", err)
@@ -98,7 +110,7 @@ command public once our backend is well positioned to support it.`,
 		}
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiToken))
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", uploadAPIToken))
 
 		client := http.Client{
 			Timeout: 30 * time.Second,
