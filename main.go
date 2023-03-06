@@ -31,6 +31,8 @@ func init() {
 	rootCmd.AddCommand(cmd.CreateCmd)
 	rootCmd.AddCommand(cmd.CheckCmd)
 	rootCmd.AddCommand(cmd.BundleCmd)
+	rootCmd.AddCommand(cmd.UploadCmd)
+	rootCmd.AddCommand(cmd.DeployCmd)
 	rootCmd.AddCommand(community.CommunityCmd)
 }
 
