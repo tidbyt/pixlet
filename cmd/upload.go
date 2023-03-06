@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -16,6 +19,12 @@ var uploadVersion string
 var uploadAppID string
 var uploadURL string
 var uploadAPIToken string
+
+type TidbytBundleUpload struct {
+	AppID   string `json:"appID"`
+	Version string `json:"version"`
+	Bundle  string `json:"bundle"`
+}
 
 func init() {
 	UploadCmd.Flags().StringVarP(&uploadAppID, "app", "a", "", "app ID of the bundle to upload")
@@ -71,14 +80,24 @@ command public once our backend is well positioned to support it.`,
 			return fmt.Errorf("could not re-create bundle: %w", err)
 		}
 
-		// TODO: check URL with mats.
-		requestURL := fmt.Sprintf("%s/v0/apps/%s/%s", uploadURL, uploadAppID, uploadVersion)
-		req, err := http.NewRequest(http.MethodPost, requestURL, buf)
+		uploadBundle := &TidbytBundleUpload{
+			AppID:   uploadAppID,
+			Version: uploadVersion,
+			Bundle:  base64.StdEncoding.EncodeToString(buf.Bytes()),
+		}
+
+		b, err := json.Marshal(uploadBundle)
+		if err != nil {
+			return fmt.Errorf("could not marshal request: %w", err)
+		}
+
+		requestURL := fmt.Sprintf("%s/v0/apps/%s/upload", uploadURL, uploadAppID)
+		req, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewReader(b))
 		if err != nil {
 			return fmt.Errorf("could not create http request: %w", err)
 		}
 
-		req.Header.Set("Content-Type", "application/gzip")
+		req.Header.Set("Content-Type", "application/json")
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiToken))
 
 		client := http.Client{
@@ -91,9 +110,9 @@ command public once our backend is well positioned to support it.`,
 		}
 		defer resp.Body.Close()
 
-		statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
-		if !statusOK {
-			return fmt.Errorf("remote returned an error with code: %d", resp.StatusCode)
+		if resp.StatusCode != 200 {
+			body, _ := io.ReadAll(resp.Body)
+			return fmt.Errorf("request returned status %d with message: %s", resp.StatusCode, body)
 		}
 
 		return nil

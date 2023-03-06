@@ -15,10 +15,13 @@ var deployAppID string
 var deployURL string
 var deployAPIToken string
 
-type DeployAppRequest struct{}
+type TidbytAppDeploy struct {
+	AppID   string `json:"appID"`
+	Version string `json:"version"`
+}
 
 func init() {
-	DeployCmd.Flags().StringVarP(&deployAPIToken, "app", "a", "", "app ID of the bundle to deploy")
+	DeployCmd.Flags().StringVarP(&deployAppID, "app", "a", "", "app ID of the bundle to deploy")
 	DeployCmd.MarkFlagRequired("app")
 	DeployCmd.Flags().StringVarP(&deployVersion, "version", "v", "", "version of the bundle to deploy")
 	DeployCmd.MarkFlagRequired("version")
@@ -37,16 +40,17 @@ command is for internal use only at the moment, and normal API tokens will not
 be able to deploy apps. We fully intend to make this command generally available
 once our backend can support public deploys.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// TODO: check struct with mats.
-		d := &DeployAppRequest{}
+		d := &TidbytAppDeploy{
+			AppID:   deployAppID,
+			Version: deployVersion,
+		}
 
 		b, err := json.Marshal(d)
 		if err != nil {
 			return fmt.Errorf("could not create http request: %w", err)
 		}
 
-		// TODO: check URL with mats.
-		requestURL := fmt.Sprintf("%s/v0/apps/%s/%s", uploadURL, uploadAppID, uploadVersion)
+		requestURL := fmt.Sprintf("%s/v0/apps/%s/deploy", uploadURL, uploadAppID)
 		req, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(b))
 		if err != nil {
 			return fmt.Errorf("could not create http request: %w", err)
