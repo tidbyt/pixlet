@@ -1,0 +1,8 @@
+---
+id: test-app
+name: Test App
+summary: For Testing
+desc: It's an app for testing.
+author: Test Dev
+fileName: test_app.star
+packageName: testapp

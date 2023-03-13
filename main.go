@@ -30,6 +30,10 @@ func init() {
 	rootCmd.AddCommand(cmd.LintCmd)
 	rootCmd.AddCommand(cmd.CreateCmd)
 	rootCmd.AddCommand(cmd.CheckCmd)
+	rootCmd.AddCommand(cmd.BundleCmd)
+	rootCmd.AddCommand(cmd.UploadCmd)
+	rootCmd.AddCommand(cmd.DeployCmd)
+	rootCmd.AddCommand(cmd.SetAuthCmd)
 	rootCmd.AddCommand(community.CommunityCmd)
 }
 
