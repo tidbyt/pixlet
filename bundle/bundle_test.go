@@ -3,6 +3,7 @@ package bundle_test
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ func TestBundleWriteAndLoad(t *testing.T) {
 	ab, err := bundle.InitFromPath("testdata/testapp")
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
-	assert.Equal(t, 633, len(ab.Source))
+	assertSourceLengthMatches(t, ab.Source)
 
 	// Create a temp directory.
 	dir, err := os.MkdirTemp("", "")
@@ -32,7 +33,7 @@ func TestBundleWriteAndLoad(t *testing.T) {
 	newBun, err := bundle.LoadBundle(f)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", newBun.Manifest.ID)
-	assert.Equal(t, 633, len(ab.Source))
+	assertSourceLengthMatches(t, ab.Source)
 }
 func TestLoadBundle(t *testing.T) {
 	f, err := os.Open("testdata/bundle.tar.gz")
@@ -41,7 +42,7 @@ func TestLoadBundle(t *testing.T) {
 	ab, err := bundle.LoadBundle(f)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
-	assert.Equal(t, 633, len(ab.Source))
+	assertSourceLengthMatches(t, ab.Source)
 }
 
 func TestLoadBundleExcessData(t *testing.T) {
@@ -52,5 +53,16 @@ func TestLoadBundleExcessData(t *testing.T) {
 	ab, err := bundle.LoadBundle(f)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
-	assert.Equal(t, 633, len(ab.Source))
+	assertSourceLengthMatches(t, ab.Source)
+}
+
+func assertSourceLengthMatches(t *testing.T, source []byte) {
+	os := runtime.GOOS
+	switch os {
+	case "windows":
+		assert.Equal(t, 664, len(source))
+	default:
+		assert.Equal(t, 633, len(source))
+	}
+
 }
