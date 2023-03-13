@@ -18,7 +18,6 @@ import (
 var uploadVersion string
 var uploadAppID string
 var uploadURL string
-var uploadAPIToken string
 
 type TidbytBundleUpload struct {
 	AppID   string `json:"appID"`
@@ -31,8 +30,6 @@ func init() {
 	UploadCmd.MarkFlagRequired("app")
 	UploadCmd.Flags().StringVarP(&uploadVersion, "version", "v", "", "version of the bundle to upload")
 	UploadCmd.MarkFlagRequired("version")
-	UploadCmd.Flags().StringVarP(&uploadAPIToken, "token", "t", "", "API token to use when uploading the bundle to the remote store")
-	UploadCmd.MarkFlagRequired("token")
 
 	UploadCmd.Flags().StringVarP(&uploadURL, "url", "u", "https://api.tidbyt.com", "base URL of the remote bundle store")
 }
@@ -61,8 +58,9 @@ command public once our backend is well positioned to support it.`,
 			return fmt.Errorf("input bundle format is not correct, did you create it with `pixlet bundle`?")
 		}
 
-		if uploadAPIToken == "" {
-			return fmt.Errorf("token must not be blank")
+		apiToken := oauthTokenFromConfig(cmd.Context())
+		if apiToken == "" {
+			return fmt.Errorf("login with `pixlet login` or use `pixlet set-auth` to configure auth")
 		}
 
 		if uploadAppID == "" {
@@ -110,7 +108,7 @@ command public once our backend is well positioned to support it.`,
 		}
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", uploadAPIToken))
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiToken))
 
 		client := http.Client{
 			Timeout: 30 * time.Second,

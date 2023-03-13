@@ -33,6 +33,7 @@ func init() {
 	rootCmd.AddCommand(cmd.BundleCmd)
 	rootCmd.AddCommand(cmd.UploadCmd)
 	rootCmd.AddCommand(cmd.DeployCmd)
+	rootCmd.AddCommand(cmd.SetAuthCmd)
 	rootCmd.AddCommand(community.CommunityCmd)
 }
 
