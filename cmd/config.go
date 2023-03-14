@@ -19,7 +19,7 @@ var (
 
 	oauthConf = &oauth2.Config{
 		ClientID: "d8ae7ea0-4a1a-46b0-b556-6d742687223a",
-		Scopes:   []string{"device", "offline_access"},
+		Scopes:   []string{"device", "offline_access", "app-admin"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://login.tidbyt.com/oauth2/auth",
 			TokenURL: "https://login.tidbyt.com/oauth2/token",
