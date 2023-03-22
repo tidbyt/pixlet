@@ -3,6 +3,7 @@ import React from 'react';
 import OAuth2 from './fields/oauth2/OAuth2';
 import PhotoSelect from './fields/photoselect/PhotoSelect';
 import Toggle from './fields/Toggle';
+import Color from './fields/Color';
 import DateTime from './fields/DateTime';
 import Dropdown from './fields/Dropdown';
 import LocationBased from './fields/location/LocationBased';
@@ -32,6 +33,8 @@ export default function FieldDetails({ field }) {
             return <Toggle field={field} />
         case 'typeahead':
             return <Typeahead field={field} />
+        case 'color':
+            return <Color field={field} />
         default:
             return <Typography>Unsupported type: {field.type}</Typography>
     }
