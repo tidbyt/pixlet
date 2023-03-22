@@ -66,7 +66,7 @@ def get_counter():
 
 ## Pixlet module: HMAC
 
-This module implements the HMAC algorithm as described by [RFC 2104](https://docs.python.org/3/library/hmac.html#:~:text=as%20described%20by-,RFC%202104,-.).
+This module implements the HMAC algorithm as described by [RFC 2104](https://datatracker.ietf.org/doc/html/rfc2104.html).
 
 | Function | Description |
 | --- | --- |
