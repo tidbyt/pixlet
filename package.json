@@ -52,7 +52,7 @@
     "@mui/icons-material": "5.11.11",
     "@mui/lab": "5.0.0-alpha.124",
     "@mui/material": "5.11.14",
-    "@mui/x-date-pickers": "5.0.20",
+    "@mui/x-date-pickers": "6.0.2",
     "@reduxjs/toolkit": "1.9.3",
     "axios": "1.3.4",
     "date-fns": "2.29.3",
