@@ -63,6 +63,27 @@ def get_counter():
     return i + 1
 ...
 ```
+
+## Pixlet module: HMAC
+
+This module implements the HMAC algorithm as described by [RFC 2104](https://datatracker.ietf.org/doc/html/rfc2104.html).
+
+| Function | Description |
+| --- | --- |
+| `md5(key, string)` | Returns md5 hash of a string using the provided key |
+| `sha1(key, string)` | Returns sha1 hash of a string using the provided key |
+| `sha256(key, string)` | Returns sha256 hash of a string using the provided key |
+
+Example:
+
+```starlark
+load("hmac.star", "hmac")
+
+sum = hmac.md5("secret", "hello world!")
+print(sum)
+# Output: 0a0461e10e89506d7c31a145663bed93
+```
+
 ## Pixlet module: Humanize
 
 The `humanize` module has formatters for units to human friendly sizes. 

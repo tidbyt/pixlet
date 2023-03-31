@@ -81,6 +81,7 @@ export default function OAuth2({ field }) {
             authorizationUrl={field.authorization_endpoint}
             responseType="code"
             scope={scope}
+            state="abc123"
             clientId={field.client_id}
             redirectUri={redirectUri}
             render={renderButton}
