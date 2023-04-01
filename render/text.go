@@ -54,10 +54,10 @@ func (t *Text) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle
 }
 
 func (t *Text) Init() error {
-	face := Font[DefaultFontFace]
-	if t.Font != "" {
-		face = Font[t.Font]
+	if t.Font == "" {
+		t.Font = DefaultFontFace
 	}
+	face := GetFont(t.Font)
 
 	dc := gg.NewContext(0, 0)
 	dc.SetFontFace(face)
