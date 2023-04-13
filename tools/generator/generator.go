@@ -26,6 +26,8 @@ const (
 	Community AppType = iota
 	// Local represents an app that is local and not meant to be published.
 	Local
+	//LocalCustom is exactly like Local but puts it in a differnt folder/name
+	LocalCustom
 	// Internal represents a Tidbyt internal app.
 	Internal
 )
@@ -62,7 +64,7 @@ func NewGenerator(appType AppType, root string) (*Generator, error) {
 // GenerateApp creates the base app starlark, go package, and updates the app
 // list.
 func (g *Generator) GenerateApp(app *manifest.Manifest) (string, error) {
-	if g.appType == Community || g.appType == Internal {
+	if g.appType == Community || g.appType == Internal || g.appType==LocalCustom {
 		err := g.createDir(app)
 		if err != nil {
 			return "", err
@@ -83,12 +85,24 @@ func (g *Generator) RemoveApp(app *manifest.Manifest) error {
 }
 
 func (g *Generator) createDir(app *manifest.Manifest) error {
-	p := path.Join(g.root, appsDir, app.PackageName)
+	// p := path.Join(g.root, appsDir, app.PackageName)
+	var p string
+	if g.appType==LocalCustom {
+		p = g.root //appDir and/or PackageName is already accounted for here
+	} else {
+		p = path.Join(g.root, appsDir, app.PackageName)
+	}
 	return os.MkdirAll(p, os.ModePerm)
 }
 
 func (g *Generator) removeDir(app *manifest.Manifest) error {
-	p := path.Join(g.root, appsDir, app.PackageName)
+	// p := path.Join(g.root, appsDir, app.PackageName)
+	var p string
+	if g.appType==LocalCustom {
+		p = g.root //appDir and/or PackageName is already accounted for here
+	} else {
+		p = path.Join(g.root, appsDir, app.PackageName)
+	}
 	return os.RemoveAll(p)
 }
 

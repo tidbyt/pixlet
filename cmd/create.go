@@ -11,6 +11,15 @@ import (
 	"tidbyt.dev/pixlet/tools/repo"
 )
 
+var (
+	appDir string
+	usePackageName bool
+)
+
+func init() {
+	CreateCmd.Flags().StringVarP(&appDir,"appDir","","","Path for created app (when not in Tidbyt repos)")
+	CreateCmd.Flags().BoolVarP(&usePackageName,"usePackageName","",false,"Create app in a folder using PackageName (when not in Tidbyt repos)")
+}
 // CreateCmd prompts the user for info and generates a new app.
 var CreateCmd = &cobra.Command{
 	Use:   "create",
@@ -38,6 +47,9 @@ var CreateCmd = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("app creation failed, something went wrong with your tidbyt repo: %w", err)
 			}
+		} else if (appDir!="" || usePackageName) {
+			appType = generator.LocalCustom
+			root = filepath.Join(cwd,appDir)
 		} else {
 			appType = generator.Local
 			root = cwd
@@ -49,6 +61,10 @@ var CreateCmd = &cobra.Command{
 			return fmt.Errorf("app creation, couldn't get user input: %w", err)
 		}
 
+		// Append packageName to create root folder too
+		if (usePackageName && (appType==generator.Local || appType==generator.LocalCustom)){
+			root = filepath.Join(root,app.PackageName)	
+		} 
 		// Generate app.
 		g, err := generator.NewGenerator(appType, root)
 		if err != nil {
