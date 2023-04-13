@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
 	github.com/antchfx/xmlquery v1.3.15
-	github.com/bazelbuild/buildtools v0.0.0-20230330150744-7ca77e139856
+	github.com/bazelbuild/buildtools v0.0.0-20230412160906-b5478f992416
 	github.com/client9/misspell v0.3.4
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
