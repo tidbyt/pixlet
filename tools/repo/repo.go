@@ -124,9 +124,12 @@ func DetermineChanges(dir string, oldCommit string, newCommit string) ([]string,
 
 func getChangeName(change *object.Change) string {
 	var empty = object.ChangeEntry{}
-	if change.From != empty {
-		return change.From.Name
+
+	// Given we skip deletes, this should never be empty. To should be populated
+	// on inserts and modifications.
+	if change.To != empty {
+		return change.To.Name
 	}
 
-	return change.To.Name
+	return change.From.Name
 }
