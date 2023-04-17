@@ -7,7 +7,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/utils/merkletrie"
 )
 
 // IsInRepo determines if the provided directory is in the provided git
@@ -106,16 +105,6 @@ func DetermineChanges(dir string, oldCommit string, newCommit string) ([]string,
 	// Create a unique list of changed files.
 	changedFiles := []string{}
 	for _, change := range changes {
-		action, err := change.Action()
-		if err != nil {
-			return nil, fmt.Errorf("couldn't determine action for commit: %w", err)
-		}
-
-		// Skip deleted files.
-		if action == merkletrie.Delete {
-			continue
-		}
-
 		changedFiles = append(changedFiles, getChangeName(change))
 	}
 
@@ -125,11 +114,11 @@ func DetermineChanges(dir string, oldCommit string, newCommit string) ([]string,
 func getChangeName(change *object.Change) string {
 	var empty = object.ChangeEntry{}
 
-	// Given we skip deletes, this should never be empty. To should be populated
-	// on inserts and modifications.
+	// Use the To field for Inserts and Modifications.
 	if change.To != empty {
 		return change.To.Name
 	}
 
+	// The From field for Deletes.
 	return change.From.Name
 }
