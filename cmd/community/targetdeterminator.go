@@ -47,6 +47,8 @@ func determineTargets(cmd *cobra.Command, args []string) error {
 
 	changedApps := map[string]bool{}
 	for _, f := range changedFiles {
+		dir := filepath.Dir(f) + string(os.PathSeparator)
+
 		// We only care about things in apps/{{ app package }}/ changing and
 		// nothing else. Skip any file changes that are not in that structure.
 		parts := strings.Split(f, string(os.PathSeparator))
@@ -56,10 +58,17 @@ func determineTargets(cmd *cobra.Command, args []string) error {
 
 		// If the filepath does not start with apps, we also don't care about
 		// it.
-		dir := filepath.Dir(f) + string(os.PathSeparator)
-		if strings.HasPrefix(dir, "apps") {
-			changedApps[dir] = true
+		if !strings.HasPrefix(dir, "apps") {
+			continue
 		}
+
+		// If the directory no longer exists, we don't care about it. This would
+		// happen if someone deleted an app in a PR.
+		if !dirExists(dir) {
+			continue
+		}
+
+		changedApps[dir] = true
 	}
 
 	for app := range changedApps {
@@ -67,4 +76,17 @@ func determineTargets(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func dirExists(dir string) bool {
+	_, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	if err != nil {
+		return false
+	}
+
+	return true
 }
