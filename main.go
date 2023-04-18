@@ -34,6 +34,7 @@ func init() {
 	rootCmd.AddCommand(cmd.UploadCmd)
 	rootCmd.AddCommand(cmd.DeployCmd)
 	rootCmd.AddCommand(cmd.SetAuthCmd)
+	rootCmd.AddCommand(cmd.TestCmd)
 	rootCmd.AddCommand(community.CommunityCmd)
 }
 
