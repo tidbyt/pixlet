@@ -1,8 +1,9 @@
-package encode
+package encode_test
 
 import (
 	"testing"
 
+	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -84,7 +85,7 @@ func BenchmarkRunAndRender(b *testing.B) {
 			b.Error(err)
 		}
 
-		webp, err := ScreensFromRoots(roots).EncodeWebP(15000)
+		webp, err := encode.ScreensFromRoots(roots).EncodeWebP(15000)
 		if err != nil {
 			b.Error(err)
 		}

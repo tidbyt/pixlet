@@ -1,4 +1,4 @@
-package encode
+package encode_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tidbyt/go-libwebp/webp"
+	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime"
 )
@@ -151,7 +152,7 @@ func TestFile(t *testing.T) {
 	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
 
-	webp, err := ScreensFromRoots(roots).EncodeWebP(15000)
+	webp, err := encode.ScreensFromRoots(roots).EncodeWebP(15000)
 	assert.NoError(t, err)
 	assert.True(t, len(webp) > 0)
 }
@@ -165,13 +166,13 @@ func TestHash(t *testing.T) {
 	require.NoError(t, err)
 
 	// ensure we can calculate a hash
-	hash, err := ScreensFromRoots(roots).Hash()
+	hash, err := encode.ScreensFromRoots(roots).Hash()
 	require.NoError(t, err)
 	require.True(t, len(hash) > 0)
 
 	// ensure the hash doesn't change
 	for i := 0; i < 20; i++ {
-		h, err := ScreensFromRoots(roots).Hash()
+		h, err := encode.ScreensFromRoots(roots).Hash()
 		assert.NoError(t, err)
 		assert.Equal(t, hash, h)
 	}
@@ -186,7 +187,7 @@ func TestHash(t *testing.T) {
 	require.NoError(t, err)
 
 	// ensure we can calculate a hash on the new app
-	hash2, err := ScreensFromRoots(roots2).Hash()
+	hash2, err := encode.ScreensFromRoots(roots2).Hash()
 
 	// ensure hashes are different
 	require.NotEqual(t, hash, hash2)
@@ -195,40 +196,17 @@ func TestHash(t *testing.T) {
 func TestHashDelayAndMaxAge(t *testing.T) {
 	r := []render.Root{{Child: &render.Text{Content: "derp"}}}
 
-	h1, err := ScreensFromRoots(r).Hash()
+	h1, err := encode.ScreensFromRoots(r).Hash()
 	assert.NoError(t, err)
 	r[0].MaxAge = 12
-	h2, err := ScreensFromRoots(r).Hash()
+	h2, err := encode.ScreensFromRoots(r).Hash()
 	assert.NoError(t, err)
 	r[0].Delay = 1
-	h3, err := ScreensFromRoots(r).Hash()
+	h3, err := encode.ScreensFromRoots(r).Hash()
 	assert.NoError(t, err)
 
 	assert.NotEqual(t, h1, h2)
 	assert.NotEqual(t, h2, h3)
-}
-
-func TestScreensFromRoots(t *testing.T) {
-	// check that widget trees and params are copied correctly
-	s := ScreensFromRoots([]render.Root{
-		{Child: &render.Text{Content: "tree 0"}},
-		{Child: &render.Text{Content: "tree 1"}},
-	})
-	assert.Equal(t, 2, len(s.roots))
-	assert.Equal(t, "tree 0", s.roots[0].Child.(*render.Text).Content)
-	assert.Equal(t, "tree 1", s.roots[1].Child.(*render.Text).Content)
-	assert.Equal(t, 0, len(s.images))
-	assert.Equal(t, int32(50), s.delay)
-	assert.Equal(t, int32(0), s.MaxAge)
-
-	// check that delay and maxAge are copied from first root only
-	s = ScreensFromRoots([]render.Root{
-		{Child: &render.Text{Content: "tree 0"}, Delay: 4711, MaxAge: 42},
-		{Child: &render.Text{Content: "tree 1"}, Delay: 31415, MaxAge: 926535},
-	})
-	assert.Equal(t, 2, len(s.roots))
-	assert.Equal(t, int32(4711), s.delay)
-	assert.Equal(t, int32(42), s.MaxAge)
 }
 
 func TestShowFullAnimation(t *testing.T) {
@@ -241,7 +219,7 @@ def main():
 	require.NoError(t, app.Load("test.star", []byte(requestFull), nil))
 	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.True(t, ScreensFromRoots(roots).ShowFullAnimation)
+	assert.True(t, encode.ScreensFromRoots(roots).ShowFullAnimation)
 
 	dontRequestFull := `
 load("render.star", "render")
@@ -252,7 +230,7 @@ def main():
 	require.NoError(t, app.Load("test.star", []byte(dontRequestFull), nil))
 	roots, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
-	assert.False(t, ScreensFromRoots(roots).ShowFullAnimation)
+	assert.False(t, encode.ScreensFromRoots(roots).ShowFullAnimation)
 }
 
 func TestMaxDuration(t *testing.T) {
@@ -316,34 +294,34 @@ def main():
 	// whatever fits in the maxDuration.
 
 	// 3000 ms -> 6 frames, 500 ms each.
-	gifData, err := ScreensFromRoots(roots).EncodeGIF(3000)
+	gifData, err := encode.ScreensFromRoots(roots).EncodeGIF(3000)
 	assert.NoError(t, err)
-	webpData, err := ScreensFromRoots(roots).EncodeWebP(3000)
+	webpData, err := encode.ScreensFromRoots(roots).EncodeWebP(3000)
 	assert.NoError(t, err)
 	assert.Equal(t, []int{500, 500, 500, 500, 500, 500}, gifDelays(gifData))
 	assert.Equal(t, []int{500, 500, 500, 500, 500, 500}, webpDelays(webpData))
 
 	// 2200 ms -> 5 frames, with last given only 200ms
-	gifData, err = ScreensFromRoots(roots).EncodeGIF(2200)
+	gifData, err = encode.ScreensFromRoots(roots).EncodeGIF(2200)
 	assert.NoError(t, err)
-	webpData, err = ScreensFromRoots(roots).EncodeWebP(2200)
+	webpData, err = encode.ScreensFromRoots(roots).EncodeWebP(2200)
 	assert.NoError(t, err)
 	assert.Equal(t, []int{500, 500, 500, 500, 200}, gifDelays(gifData))
 	assert.Equal(t, []int{500, 500, 500, 500, 200}, webpDelays(webpData))
 
 	// 100 ms -> single frame. Its duration will differ between
 	// gif and webp, but is also irrelevant.
-	gifData, err = ScreensFromRoots(roots).EncodeGIF(100)
+	gifData, err = encode.ScreensFromRoots(roots).EncodeGIF(100)
 	assert.NoError(t, err)
-	webpData, err = ScreensFromRoots(roots).EncodeWebP(100)
+	webpData, err = encode.ScreensFromRoots(roots).EncodeWebP(100)
 	assert.NoError(t, err)
 	assert.Equal(t, []int{100}, gifDelays(gifData))
 	assert.Equal(t, []int{0}, webpDelays(webpData))
 
 	// 60000 ms -> all 100 frames, 500 ms each.
-	gifData, err = ScreensFromRoots(roots).EncodeGIF(60000)
+	gifData, err = encode.ScreensFromRoots(roots).EncodeGIF(60000)
 	assert.NoError(t, err)
-	webpData, err = ScreensFromRoots(roots).EncodeWebP(60000)
+	webpData, err = encode.ScreensFromRoots(roots).EncodeWebP(60000)
 	assert.NoError(t, err)
 	assert.Equal(t, gifDelays(gifData), webpDelays(webpData))
 	for _, d := range gifDelays(gifData) {
@@ -351,9 +329,9 @@ def main():
 	}
 
 	// inf ms -> all 100 frames, 500 ms each.
-	gifData, err = ScreensFromRoots(roots).EncodeGIF(0)
+	gifData, err = encode.ScreensFromRoots(roots).EncodeGIF(0)
 	assert.NoError(t, err)
-	webpData, err = ScreensFromRoots(roots).EncodeWebP(0)
+	webpData, err = encode.ScreensFromRoots(roots).EncodeWebP(0)
 	assert.NoError(t, err)
 	assert.Equal(t, gifDelays(gifData), webpDelays(webpData))
 	for _, d := range gifDelays(gifData) {
