@@ -94,6 +94,8 @@ github.com/bazelbuild/buildtools v0.0.0-20230413151140-7044e4b0e521 h1:BtQx1a3Kt
 github.com/bazelbuild/buildtools v0.0.0-20230413151140-7044e4b0e521/go.mod h1:689QdV3hBP7Vo9dJMmzhoYIyo/9iMhEmHkJcnaPRCbo=
 github.com/bazelbuild/buildtools v0.0.0-20230424192741-43e3addfdd8e h1:Pgb8s6HxtCi5ZUhJedBuzOxlcxOpnN9hcl41krgVNbQ=
 github.com/bazelbuild/buildtools v0.0.0-20230424192741-43e3addfdd8e/go.mod h1:689QdV3hBP7Vo9dJMmzhoYIyo/9iMhEmHkJcnaPRCbo=
+github.com/bazelbuild/buildtools v0.0.0-20230425101439-a4c276be6e5d h1:F77fTo5nfsLzsXPzN9dUJG4WFC8L/KvT52jGwQV4W3I=
+github.com/bazelbuild/buildtools v0.0.0-20230425101439-a4c276be6e5d/go.mod h1:689QdV3hBP7Vo9dJMmzhoYIyo/9iMhEmHkJcnaPRCbo=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
