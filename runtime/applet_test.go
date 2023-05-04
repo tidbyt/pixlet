@@ -1,6 +1,8 @@
 package runtime
 
 import (
+	"archive/zip"
+	"bytes"
 	"fmt"
 	"testing"
 
@@ -263,7 +265,7 @@ def main():
 }
 
 func TestTimezoneDatabase(t *testing.T) {
-	src:= `
+	src := `
 load("render.star", "render")
 load("time.star", "time")
 def main():
@@ -277,6 +279,58 @@ def main():
 	assert.NoError(t, err)
 	_, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
+}
+
+func TestZipModule(t *testing.T) {
+	// Create a new zip file to read from starlark
+	// https://go.dev/src/archive/zip/example_test.go
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
+	var files = []struct {
+		Name, Body string
+	}{
+		{"readme.txt", "This archive contains some text files."},
+		{"gopher.txt", "Gopher names:\nGeorge\nGeoffrey\nGonzo"},
+		{"todo.txt", "Get animal handling licence.\nWrite more examples."},
+	}
+	for _, file := range files {
+		f, err := w.Create(file.Name)
+		assert.NoError(t, err)
+		_, err = f.Write([]byte(file.Body))
+		assert.NoError(t, err)
+	}
+	err := w.Close()
+	assert.NoError(t, err)
+
+	// override the print function of the thread so we can check we got correct
+	// values from the zip module.
+	var printedText []string
+	initializer := func(thread *starlark.Thread) *starlark.Thread {
+		thread.Print = func(thread *starlark.Thread, msg string) {
+			printedText = append(printedText, msg)
+		}
+		return thread
+	}
+
+	src := `
+load("compress/zipfile.star", "zipfile")
+def main(config):
+    z = zipfile.ZipFile(config.get("ZIP_BYTES"))
+    print(z.namelist())
+    zf = z.open("readme.txt")
+    print(zf.read())
+    return []
+`
+
+	app := &Applet{}
+	err = app.Load("test.star", []byte(src), nil)
+	_, err = app.Run(map[string]string{"ZIP_BYTES": buf.String()}, initializer)
+	assert.NoError(t, err)
+
+	assert.Equal(t, []string{
+		"[\"readme.txt\", \"gopher.txt\", \"todo.txt\"]",
+		"This archive contains some text files.",
+	}, printedText)
 }
 
 // TODO: test Screens, especially Screens.Render()
