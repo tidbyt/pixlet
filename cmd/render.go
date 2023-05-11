@@ -100,7 +100,9 @@ func render(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
 
-	runtime.InitCache(runtime.NewInMemoryCache())
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
 
 	applet := runtime.Applet{}
 	err = applet.Load(script, src, nil)

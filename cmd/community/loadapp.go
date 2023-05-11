@@ -29,7 +29,10 @@ func LoadApp(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
-	runtime.InitCache(runtime.NewInMemoryCache())
+
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
 
 	applet := runtime.Applet{}
 	err = applet.Load(script, src, nil)
