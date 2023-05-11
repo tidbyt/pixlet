@@ -59,7 +59,9 @@ func NewLoader(
 		maxDuration:      maxDuration,
 	}
 
-	runtime.InitCache(runtime.NewInMemoryCache())
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
 
 	if !l.watch {
 		err := loadScript(&l.applet, l.filename)

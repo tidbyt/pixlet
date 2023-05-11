@@ -12,7 +12,6 @@ import (
 	starlibcsv "github.com/qri-io/starlib/encoding/csv"
 	starlibhash "github.com/qri-io/starlib/hash"
 	starlibhtml "github.com/qri-io/starlib/html"
-	starlibhttp "github.com/qri-io/starlib/http"
 	starlibre "github.com/qri-io/starlib/re"
 	starlibjson "go.starlark.net/lib/json"
 	starlibmath "go.starlark.net/lib/math"
@@ -29,6 +28,7 @@ import (
 	"tidbyt.dev/pixlet/runtime/modules/qrcode"
 	"tidbyt.dev/pixlet/runtime/modules/random"
 	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
+	"tidbyt.dev/pixlet/runtime/modules/starlarkhttp"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
 	"tidbyt.dev/pixlet/runtime/modules/xpath"
 	"tidbyt.dev/pixlet/schema"
@@ -332,9 +332,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "hmac.star":
 		return hmac.LoadModule()
-	
+
 	case "http.star":
-		return starlibhttp.LoadModule()
+		return starlarkhttp.LoadModule()
 
 	case "html.star":
 		return starlibhtml.LoadModule()

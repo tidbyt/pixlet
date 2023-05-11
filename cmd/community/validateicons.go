@@ -34,7 +34,9 @@ func ValidateIcons(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to read app %s: %w", args[0], err)
 	}
 
-	runtime.InitCache(runtime.NewInMemoryCache())
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
 
 	applet := runtime.Applet{}
 	err = applet.Load(args[0], src, nil)
