@@ -89,10 +89,10 @@ func render(cmd *cobra.Command, args []string) error {
 	config := map[string]string{}
 	for _, param := range args[1:] {
 		split := strings.Split(param, "=")
-		if len(split) != 2 {
+		if len(split) < 2 {
 			return fmt.Errorf("parameters must be on form <key>=<value>, found %s", param)
 		}
-		config[split[0]] = split[1]
+		config[split[0]] = strings.Join(split[1:len(split)], "=")
 	}
 
 	src, err := ioutil.ReadFile(script)
