@@ -13,16 +13,16 @@ import { set } from '../../../config/configSlice';
 
 export default function LocationForm({ field }) {
     const [value, setValue] = useState({
-    	// Default to Brooklyn, because that's where tidbyt folks
-    	// are and  we can only dispatch a location object which
-    	// has all fields set.
-    	'lat': 40.6782,
-    	'lng': -73.9442,
-    	'locality': 'Brooklyn, New York',
-    	'timezone': 'America/New_York',
-    	// But overwrite with app-specific defaults set in config.
-    	...field.default
-   	});
+        // Default to Brooklyn, because that's where tidbyt folks
+        // are and  we can only dispatch a location object which
+        // has all fields set.
+        'lat': 40.678,
+        'lng': -73.944,
+        'locality': 'Brooklyn, New York',
+        'timezone': 'America/New_York',
+        // But overwrite with app-specific defaults set in config.
+        ...field.default
+    });
 
     const config = useSelector(state => state.config);
 
@@ -40,58 +40,62 @@ export default function LocationForm({ field }) {
     }, [])
 
     const setPart = (partName, partValue) => {
-    	let newValue = {...value};
-    	newValue[partName] = partValue;
-    	setValue(newValue);
-    	dispatch(set({
-    		id: field.id,
-    		value: JSON.stringify(newValue),
-    	}));
+        let newValue = { ...value };
+        newValue[partName] = partValue;
+        setValue(newValue);
+        dispatch(set({
+            id: field.id,
+            value: JSON.stringify(newValue),
+        }));
+    }
+
+    const truncateLatLng = (value) => {
+        return String(Number(value).toFixed(3));
     }
 
     const onChangeLatitude = (event) => {
-        setPart('lat', event.target.value);
+        setPart('lat', truncateLatLng(event.target.value));
     }
 
     const onChangeLongitude = (event) => {
-    	setPart('lng', event.target.value);
+        setPart('lng', truncateLatLng(event.target.value));
     }
 
     const onChangeLocality = (event) => {
-    	setPart('locality', event.target.value);
+        setPart('locality', event.target.value);
     }
 
     const onChangeTimezone = (event) => {
-    	setPart('timezone', event.target.value);
+        setPart('timezone', event.target.value);
     }
 
     return (
         <FormControl fullWidth>
             <Typography>Latitude</Typography>
             <InputSlider
-            	min={-90}
-            	max={90}
-            	step={0.1}
-            	onChange={onChangeLatitude}
-            	defaultValue={value['lat']}
+                min={-90}
+                max={90}
+                step={0.1}
+                onChange={onChangeLatitude}
+                defaultValue={value['lat']}
             >
             </InputSlider>
             <Typography>Longitude</Typography>
             <InputSlider
-            	min={-180}
-            	max={180}
-            	step={0.1}
-            	onChange={onChangeLongitude}
-            	defaultValue={value['lng']}
+                min={-180}
+                max={180}
+                step={0.1}
+                onChange={onChangeLongitude}
+                defaultValue={value['lng']}
             >
             </InputSlider>
             <Typography>Locality</Typography>
             <TextField
-            	fullWidth
-            	variant="outlined"
-            	onChange={onChangeLocality}
-            	style={{ marginBottom: '0.5rem' }} 
-            	defaultValue={value['locality']}
+                fullWidth
+                variant="outlined"
+                onChange={onChangeLocality}
+                style={{ marginBottom: '0.5rem' }}
+                defaultValue={value['locality']}
             />
             <Typography>Timezone</Typography>
             <Select
