@@ -41,7 +41,6 @@ var cacheableStatusCodes = map[int]bool{
 	405: true,
 	410: true,
 	414: true,
-	429: true, // Not technically cachable, but it is in our system.
 	501: true,
 }
 
@@ -76,7 +75,7 @@ func (c *cacheClient) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, fmt.Errorf("failed to generate cache key: %w", err)
 	}
 
-	if req.Method == "GET" {
+	if req.Method == "GET" || req.Method == "HEAD" || req.Method == "POST" {
 		b, exists, err := c.cache.Get(nil, key)
 		if exists && err == nil {
 			if res, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(b)), req); err == nil {
@@ -91,7 +90,7 @@ func (c *cacheClient) RoundTrip(req *http.Request) (*http.Response, error) {
 		resp.Body = http.MaxBytesReader(nil, resp.Body, MaxResponseBytes)
 	}
 
-	if err == nil && req.Method == "GET" {
+	if err == nil && (req.Method == "GET" || req.Method == "HEAD" || req.Method == "POST") {
 		ser, err := httputil.DumpResponse(resp, true)
 		if err != nil {
 			// if httputil.DumpResponse fails, it leaves the response body in an
@@ -145,11 +144,6 @@ func DetermineTTL(req *http.Request, resp *http.Response) time.Duration {
 }
 
 func determineTTL(req *http.Request, resp *http.Response) time.Duration {
-	// Check if the request is cachable.
-	if !isCachable(req, resp) {
-		return MinRequestTTL
-	}
-
 	// If the response is a 429, we want to cache the response for the duration
 	// the remote server told us to wait before retrying.
 	if resp.StatusCode == 429 {
@@ -168,8 +162,20 @@ func determineTTL(req *http.Request, resp *http.Response) time.Duration {
 		return retry
 	}
 
+	// Check the status code to determine if the response is cacheable.
+	_, ok := cacheableStatusCodes[resp.StatusCode]
+	if !ok {
+		return MinRequestTTL
+	}
+
 	// Determine the TTL based on the developer's configuration.
 	ttl := determineDeveloperTTL(req)
+
+	// We don't want to cache POST requests unless the developer explicitly
+	// requests it.
+	if ttl == 0 && !(req.Method == "GET" || req.Method == "HEAD") {
+		return MinRequestTTL
+	}
 
 	// If the developer didn't configure a TTL, determine the TTL based on the
 	// response.
@@ -222,15 +228,6 @@ func determineDeveloperTTL(req *http.Request) time.Duration {
 	}
 
 	return 0
-}
-
-func isCachable(req *http.Request, resp *http.Response) bool {
-	if !(req.Method == "GET" || req.Method == "HEAD") {
-		return false
-	}
-
-	_, ok := cacheableStatusCodes[resp.StatusCode]
-	return ok
 }
 
 func parseCacheControl(header string) map[string]interface{} {
