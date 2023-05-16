@@ -89,10 +89,24 @@ func TestDetermineTTL(t *testing.T) {
 			expectedTTL: 5 * time.Second,
 		},
 		"test DELETE request": {
-			ttl:         30,
+			ttl:         0,
 			resHeader:   "",
 			statusCode:  200,
 			method:      "DELETE",
+			expectedTTL: 5 * time.Second,
+		},
+		"test POST request configured with TTL": {
+			ttl:         30,
+			resHeader:   "",
+			statusCode:  200,
+			method:      "POST",
+			expectedTTL: 30 * time.Second,
+		},
+		"test POST request without configured TTL": {
+			ttl:         0,
+			resHeader:   "",
+			statusCode:  200,
+			method:      "POST",
 			expectedTTL: 5 * time.Second,
 		},
 		"test 429 request": {
