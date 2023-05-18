@@ -1,3 +1,5 @@
+//go:build !js && !wasm
+
 package community
 
 import (
@@ -16,6 +18,10 @@ var CreateManifestCmd = &cobra.Command{
 	Long:    `This command creates an app manifest by asking a series of prompts.`,
 	Args:    cobra.ExactArgs(1),
 	RunE:    CreateManifest,
+}
+
+func init() {
+	CommunityCmd.AddCommand(CreateManifestCmd)
 }
 
 func CreateManifest(cmd *cobra.Command, args []string) error {

@@ -28,7 +28,6 @@ func init() {
 	rootCmd.AddCommand(cmd.DevicesCmd)
 	rootCmd.AddCommand(cmd.FormatCmd)
 	rootCmd.AddCommand(cmd.LintCmd)
-	rootCmd.AddCommand(cmd.CreateCmd)
 	rootCmd.AddCommand(cmd.CheckCmd)
 	rootCmd.AddCommand(cmd.BundleCmd)
 	rootCmd.AddCommand(cmd.UploadCmd)
