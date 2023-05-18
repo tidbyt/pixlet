@@ -13,6 +13,7 @@ import ParamSetter from './features/config/ParamSetter';
 import Preview from './features/preview/Preview';
 import Schema from './features/schema/Schema';
 import WatcherManager from './features/watcher/WatcherManager';
+import Controls from './features/controls/Controls';
 
 
 export default function Main() {
@@ -36,6 +37,7 @@ export default function Main() {
                     <Grid container spacing={4}>
                         <Grid item xs={12} lg={size}>
                             <Preview scale={10} />
+                            <Controls />
                         </Grid>
                         <Grid item xs={12} lg={4}>
                             <Schema />
