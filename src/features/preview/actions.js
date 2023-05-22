@@ -6,7 +6,7 @@ import store from '../../store';
 
 export default function fetchPreview(formData) {
     store.dispatch(loading(true));
-    axios.post('/api/v1/preview', formData)
+    axios.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
         .then(res => {
             document.title = res.data.title;
             store.dispatch(update(res.data));

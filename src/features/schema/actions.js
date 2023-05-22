@@ -7,7 +7,7 @@ import store from "../../store";
 export default function refreshSchema() {
     store.dispatch(loading(true));
 
-    axios.get('/api/v1/schema')
+    axios.get(`${PIXLET_API_BASE}/api/v1/schema`)
         .then(res => {
             store.dispatch(update(res.data));
         })

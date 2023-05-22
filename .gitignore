@@ -8,10 +8,12 @@ examples/*.gif
 # Pixlet Binary
 pixlet
 pixlet.exe
+pixlet.wasm
 
 # Releases
 build/
 out/
+dist/
 
 # Dependency directories
 node_modules
