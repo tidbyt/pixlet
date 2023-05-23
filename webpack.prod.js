@@ -23,7 +23,7 @@ if (process.env.PIXLET_BACKEND === "wasm") {
     plugins.push(
         new webpack.DefinePlugin({
             'PIXLET_WASM': JSON.stringify(true),
-            'PIXLET_API_BASE': JSON.stringify('static/pixlet'),
+            'PIXLET_API_BASE': JSON.stringify('pixlet'),
         })
     );
 } else {
