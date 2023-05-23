@@ -1,25 +1,4 @@
-const webpack = require('webpack');
-
-let plugins = [];
-
-if (process.env.PIXLET_BACKEND === "wasm") {
-    plugins.push(
-        new webpack.DefinePlugin({
-            'PIXLET_WASM': JSON.stringify(true),
-            'PIXLET_API_BASE': JSON.stringify('pixlet'),
-        })
-    );
-} else {
-    plugins.push(
-        new webpack.DefinePlugin({
-            'PIXLET_WASM': JSON.stringify(false),
-            'PIXLET_API_BASE': JSON.stringify(''),
-        })
-    );
-}
-
 module.exports = {
-    plugins,
     resolve: {
         extensions: ['*', '.js', '.jsx'],
     },
