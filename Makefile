@@ -53,4 +53,4 @@ lint:
 format: lint
 
 wasm:
-	GOOS=js GOARCH=wasm go build -o ./src/pixlet.wasm tidbyt.dev/pixlet
+	GOOS=js GOARCH=wasm go build -trimpath -ldflags="-s -w" -o ./src/pixlet.wasm tidbyt.dev/pixlet
