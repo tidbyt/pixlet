@@ -2,6 +2,7 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const webpack = require('webpack');
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 const htmlPlugin = new HtmlWebPackPlugin({
@@ -10,7 +11,13 @@ const htmlPlugin = new HtmlWebPackPlugin({
     favicon: 'src/favicon.png'
 });
 
-let plugins = [htmlPlugin];
+const copyPlugin = new CopyWebpackPlugin({
+    patterns: [
+        { from: "public", to: "../" },
+    ],
+});
+
+let plugins = [htmlPlugin, copyPlugin];
 if (process.env.PIXLET_BACKEND === "wasm") {
     plugins.push(
         new webpack.DefinePlugin({

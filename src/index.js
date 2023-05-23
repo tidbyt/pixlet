@@ -25,7 +25,7 @@ const App = () => {
 
 if (PIXLET_WASM && 'serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-        navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).then(function (registration) {
+        navigator.serviceWorker.register(new URL('./sw.js', import.meta.url), { scope: "/" }).then(function (registration) {
             // Registration was successful
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
             ReactDOM.render(<App />, document.getElementById('app'));
