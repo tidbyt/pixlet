@@ -18,7 +18,7 @@ export default function Typeahead({ field }) {
         if (field.id in config) {
             setValue(JSON.parse(config[field.id].value));
         }
-    }, [])
+    }, [config])
 
     const onChange = (event, newValue) => {
         if (newValue) {

@@ -19,15 +19,20 @@ export default function TextInput({ field }) {
 
     useEffect(() => {
         if (field.id in config) {
-            setValue(config[field.id].value);
+            if (config[field.id].value != value) {
+                setValue(config[field.id].value);
+            }
         } else if (field.default) {
-            setValue(field.default);
+            if (field.default != value) {
+                setValue(field.default);
+            }
+            console.log("dispatch");
             dispatch(set({
                 id: field.id,
                 value: field.default,
             }));
         }
-    }, [])
+    }, [config])
 
     const debounce = (callback, wait) => {
         let timeoutId = null;
@@ -39,9 +44,14 @@ export default function TextInput({ field }) {
         };
     };
 
-    const onChange = useCallback(
+    const onChange = (event) => {
+        setValue(event.target.value);
+        debounceConfig(event);
+    }
+
+    const debounceConfig = useCallback(
         debounce((event) => {
-            setValue(event.target.value);
+            console.log("debounce");
             dispatch(set({
                 id: field.id,
                 value: event.target.value,
@@ -51,6 +61,6 @@ export default function TextInput({ field }) {
     );
 
     return (
-        <TextField fullWidth defaultValue={value} label={field.name} variant="outlined" onChange={onChange} />
+        <TextField fullWidth value={value} label={field.name} variant="outlined" onChange={onChange} />
     )
 }

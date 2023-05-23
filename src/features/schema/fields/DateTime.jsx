@@ -18,7 +18,7 @@ export default function DateTime({ field }) {
         if (field.id in config) {
             setDateTime(new Date(config[field.id].value));
         }
-    }, []);
+    }, [config]);
 
     const onChange = (timestamp) => {
         if (!timestamp) {

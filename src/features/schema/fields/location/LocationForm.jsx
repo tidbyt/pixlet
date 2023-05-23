@@ -37,7 +37,7 @@ export default function LocationForm({ field }) {
                 value: field.default,
             }));
         }
-    }, [])
+    }, [config])
 
     const setPart = (partName, partValue) => {
         let newValue = { ...value };

@@ -22,7 +22,7 @@ export default function Color({ field }) {
                 value: field.default,
             }));
         }
-    }, [])
+    }, [config])
 
     const onChange = (value) => {
         setColor(value);
