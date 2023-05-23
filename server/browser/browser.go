@@ -112,11 +112,6 @@ func (b *Browser) Run() error {
 	return g.Wait()
 }
 
-func (b *Browser) serveHTTP() error {
-	log.Printf("listening at http://%s\n", b.addr)
-	return http.ListenAndServe(b.addr, b.r)
-}
-
 func (b *Browser) faviconHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Write(favicon)

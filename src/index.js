@@ -8,7 +8,6 @@ import OAuth2Handler from './features/schema/fields/oauth2/OAuth2Handler';
 import store from './store';
 import DevToolsTheme from './features/theme/DevToolsTheme';
 
-
 const App = () => {
     return (
         <Provider store={store}>
@@ -24,4 +23,17 @@ const App = () => {
     )
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+if (PIXLET_WASM && 'serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).then(function (registration) {
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            ReactDOM.render(<App />, document.getElementById('app'));
+        }, function (err) {
+            // registration failed :(
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+} else {
+    ReactDOM.render(<App />, document.getElementById('app'));
+}

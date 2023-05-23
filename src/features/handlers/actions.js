@@ -20,7 +20,7 @@ export function callHandler(id, handler, param) {
     }
 
     store.dispatch(loading(true));
-    axios.post('/api/v1/handlers/' + handler, JSON.stringify(data))
+    axios.post(`${PIXLET_API_BASE}/api/v1/handlers/` + handler, JSON.stringify(data))
         .then(res => {
             store.dispatch(update({ id: id, value: res.data }));
         })
@@ -42,7 +42,7 @@ export function callGeneratedHandler(id, handler, param) {
     }
 
     store.dispatch(loading(true));
-    axios.post('/api/v1/handlers/' + handler, JSON.stringify(data))
+    axios.post(`${PIXLET_API_BASE}/api/v1/handlers/` + handler, JSON.stringify(data))
         .then(res => {
             store.dispatch(updateGenerated(res.data));
         })
@@ -64,7 +64,7 @@ export function callHandlerSetValue(id, handler, param, valueHandler) {
     }
 
     store.dispatch(loading(true));
-    axios.post('/api/v1/handlers/' + handler, JSON.stringify(data))
+    axios.post(`${PIXLET_API_BASE}/api/v1/handlers/` + handler, JSON.stringify(data))
         .then(res => {
             store.dispatch(update({ id: id, value: res.data }));
             valueHandler(res.data);

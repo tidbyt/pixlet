@@ -10,7 +10,7 @@ else
 	TAGS =
 endif
 
-all: build
+all: build wasm
 
 test:
 	go test $(TAGS) -v -cover ./...
@@ -24,7 +24,7 @@ bench:
 	go test -benchmem -benchtime=20s -bench BenchmarkRunAndRender tidbyt.dev/pixlet/encode
 
 build:
-	 go build $(LDFLAGS) $(TAGS) -o $(BINARY) tidbyt.dev/pixlet
+	go build $(LDFLAGS) $(TAGS) -o $(BINARY) tidbyt.dev/pixlet
 
 embedfonts:
 	go run render/gen/embedfonts.go
@@ -51,3 +51,6 @@ lint:
 	buildifier -r ./
 
 format: lint
+
+wasm:
+	GOOS=js GOARCH=wasm go build -o ./src/pixlet.wasm tidbyt.dev/pixlet
