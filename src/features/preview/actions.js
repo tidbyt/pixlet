@@ -12,7 +12,6 @@ export default function fetchPreview(formData) {
         timeout = setTimeout(function () {
             axios.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
                 .then(res => {
-                    document.title = res.data.title;
                     store.dispatch(update(res.data));
                     if ('error' in res.data) {
                         store.dispatch(setError({ id: res.data.error, message: res.data.error }));
