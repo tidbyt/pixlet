@@ -6,6 +6,11 @@ import { Button, Stack, Grid } from '@mui/material';
 export default function Controls() {
     const preview = useSelector(state => state.preview);
 
+    let imageType = 'webp';
+    if (PIXLET_WASM) {
+        imageType = 'gif';
+    }
+
     function downloadPreview() {
         const date = new Date().getTime();
         const element = document.createElement("a");
@@ -24,9 +29,9 @@ export default function Controls() {
             uint8Array[i] = byteCharacters.charCodeAt(i);
         }
 
-        const file = new Blob([uint8Array], { type: 'image/webp' });
+        const file = new Blob([uint8Array], { type: 'image/' + imageType });
         element.href = URL.createObjectURL(file);
-        element.download = `tidbyt-preview-${date}.webp`;
+        element.download = `tidbyt-preview-${date}.${imageType}`;
         document.body.appendChild(element); // Required for this to work in FireFox
         element.click();
     }
