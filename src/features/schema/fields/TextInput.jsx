@@ -26,7 +26,6 @@ export default function TextInput({ field }) {
             if (field.default != value) {
                 setValue(field.default);
             }
-            console.log("dispatch");
             dispatch(set({
                 id: field.id,
                 value: field.default,
@@ -51,7 +50,6 @@ export default function TextInput({ field }) {
 
     const debounceConfig = useCallback(
         debounce((event) => {
-            console.log("debounce");
             dispatch(set({
                 id: field.id,
                 value: event.target.value,

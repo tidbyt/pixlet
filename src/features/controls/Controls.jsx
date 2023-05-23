@@ -70,7 +70,6 @@ export default function Controls() {
             reader.onload = function () {
                 let contents = reader.result;
                 let json = JSON.parse(contents);
-                console.log(json);
                 setConfig(json);
             };
 
