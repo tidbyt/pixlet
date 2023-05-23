@@ -39,7 +39,7 @@ export default function LocationBased({ field }) {
             }));
         }
         callHandler(field.id, field.handler, JSON.stringify(locationValue));
-    }, [])
+    }, [config])
 
     const setPart = (partName, partValue) => {
         let newLocationValue = { ...locationValue };
