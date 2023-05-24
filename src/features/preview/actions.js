@@ -2,15 +2,25 @@ import axios from 'axios';
 import { update, loading } from './previewSlice';
 import { set as setError, clear as clearErrors } from '../errors/errorSlice';
 import store from '../../store';
+import axiosRetry from 'axios-retry';
 
 let timeout = null;
 
 export default function fetchPreview(formData) {
+    const client = axios.create();
+    axiosRetry(client, {
+        retries: 5,
+        retryDelay: () => 1000,
+        retryCondition: (err) => {
+            return err.response.status === 404;
+        },
+    });
+
     if (PIXLET_WASM) {
         store.dispatch(loading(true));
         clearTimeout(timeout);
         timeout = setTimeout(function () {
-            axios.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
+            client.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
                 .then(res => {
                     store.dispatch(update(res.data));
                     if ('error' in res.data) {
@@ -20,7 +30,10 @@ export default function fetchPreview(formData) {
                     }
                 })
                 .catch(err => {
-                    // TODO: fix this.
+                    if (err.response.status == 404) {
+                        store.dispatch(setError({ id: err, message: "error with pixlet, please refresh page" }));
+                        return;
+                    }
                     store.dispatch(setError({ id: err, message: err }));
                 })
                 .then(() => {
@@ -29,7 +42,7 @@ export default function fetchPreview(formData) {
         }, 300);
 
     } else {
-        axios.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
+        client.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
             .then(res => {
                 document.title = res.data.title;
                 store.dispatch(update(res.data));
@@ -40,7 +53,10 @@ export default function fetchPreview(formData) {
                 }
             })
             .catch(err => {
-                // TODO: fix this.
+                if (err.response.status == 404) {
+                    store.dispatch(setError({ id: err, message: "error with pixlet, please refresh page" }));
+                    return;
+                }
                 store.dispatch(setError({ id: err, message: err }));
             })
             .then(() => {
