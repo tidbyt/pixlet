@@ -54,3 +54,6 @@ format: lint
 
 wasm:
 	GOOS=js GOARCH=wasm go build -trimpath -ldflags="-s -w" -o ./src/pixlet.wasm tidbyt.dev/pixlet
+	mkdir -p ./src/go
+	cp -f $(shell go env GOROOT)/misc/wasm/wasm_exec.js ./src/go/wasm_exec.js
+	cp -f $(shell go list -m -f '{{.Dir}}' github.com/nlepage/go-wasm-http-server)/sw.js ./src/go/sw.js
