@@ -46,7 +46,7 @@
     "@emotion/react": "11.11.0",
     "@emotion/styled": "11.11.0",
     "@fontsource/barlow": "4.5.9",
-    "@fontsource/material-icons": "4.5.4",
+    "@fontsource/material-icons": "5.0.2",
     "@fortawesome/fontawesome-svg-core": "6.4.0",
     "@fortawesome/free-brands-svg-icons": "6.4.0",
     "@fortawesome/free-solid-svg-icons": "6.4.0",
