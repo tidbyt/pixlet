@@ -60,7 +60,7 @@
     "axios-retry": "^3.5.0",
     "copy-webpack-plugin": "^11.0.0",
     "date-fns": "2.30.0",
-    "dayjs": "1.11.7",
+    "dayjs": "1.11.8",
     "material-ui-color": "^1.2.0",
     "notistack": "2.0.8",
     "react": "17.0.2",
