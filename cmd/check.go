@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bazelbuild/buildtools/buildifier/utils"
 	"github.com/fatih/color"
@@ -12,6 +13,8 @@ import (
 	"tidbyt.dev/pixlet/cmd/community"
 	"tidbyt.dev/pixlet/manifest"
 )
+
+const MaxRenderTime = 500000000 // 500ms
 
 func init() {
 	CheckCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find apps recursively")
@@ -59,16 +62,6 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			failure(app, fmt.Errorf("app is not formatted correctly: %w", err), fmt.Sprintf("try `pixlet format %s`", app))
 			continue
 		}
-
-		// Create temporary file for app rendering.
-		f, err := os.CreateTemp("", "")
-		if err != nil {
-			return fmt.Errorf("could not create temp file for rendering, check your system: %w", err)
-		}
-		defer os.Remove(f.Name())
-
-		// TODO: Check if app will render once we are able to enable target
-		// determination.
 
 		// Check if an app can load.
 		err = community.LoadApp(cmd, []string{app})
@@ -121,8 +114,34 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			failure(app, fmt.Errorf("manifest contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", manifestFile))
 			continue
 		}
-		// TODO: enable spell check for apps once we can run it successfully
-		// against the community repo.
+
+		// Create temporary file for app rendering.
+		f, err := os.CreateTemp("", "")
+		if err != nil {
+			return fmt.Errorf("could not create temp file for rendering, check your system: %w", err)
+		}
+		defer os.Remove(f.Name())
+
+		// Check if app renders.
+		silenceOutput = true
+		output = f.Name()
+		err = render(cmd, []string{app})
+		if err != nil {
+			foundIssue = true
+			failure(app, fmt.Errorf("app failed to render: %w", err), "try `pixlet render` and resolve any runtime issues")
+			continue
+		}
+
+		// Check performance.
+		p, err := ProfileApp(app, map[string]string{})
+		if err != nil {
+			return fmt.Errorf("could not profile app: %w", err)
+		}
+		if p.DurationNanos > MaxRenderTime {
+			foundIssue = true
+			failure(app, fmt.Errorf("app takes too long to render %s", time.Duration(p.DurationNanos)), fmt.Sprintf("try optimizing your app using `pixlet profile %s` to get it under %s", app, time.Duration(MaxRenderTime)))
+			continue
+		}
 
 		// If we're here, the app and manifest are good to go!
 		success(app)

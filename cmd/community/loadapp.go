@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"go.starlark.net/starlark"
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -34,8 +35,15 @@ func LoadApp(cmd *cobra.Command, args []string) error {
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
 
+	// Remove the print function from the starlark thread.
+	initializers := []runtime.ThreadInitializer{}
+	initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
+		thread.Print = func(thread *starlark.Thread, msg string) {}
+		return thread
+	})
+
 	applet := runtime.Applet{}
-	err = applet.Load(script, src, nil)
+	err = applet.LoadWithInitializers(script, src, nil, initializers...)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}
