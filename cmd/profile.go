@@ -80,39 +80,9 @@ func profile(cmd *cobra.Command, args []string) error {
 		config[split[0]] = split[1]
 	}
 
-	src, err := ioutil.ReadFile(script)
+	profile, err := ProfileApp(script, config)
 	if err != nil {
-		return fmt.Errorf("failed to read file %s: %w", script, err)
-	}
-
-	cache := runtime.NewInMemoryCache()
-	runtime.InitHTTP(cache)
-	runtime.InitCache(cache)
-
-	applet := runtime.Applet{}
-	err = applet.Load(script, src, nil)
-	if err != nil {
-		return fmt.Errorf("failed to load applet: %w", err)
-	}
-
-	buf := new(bytes.Buffer)
-	if err = starlark.StartProfile(buf); err != nil {
-		return fmt.Errorf("error starting profiler: %w", err)
-	}
-
-	_, err = applet.Run(config)
-	if err != nil {
-		_ = starlark.StopProfile()
-		return fmt.Errorf("error running script: %w", err)
-	}
-
-	if err = starlark.StopProfile(); err != nil {
-		return fmt.Errorf("error stopping profiler: %w", err)
-	}
-
-	profile, err := pprof_profile.ParseData(buf.Bytes())
-	if err != nil {
-		return fmt.Errorf("could not parse pprof profile: %w", err)
+		return err
 	}
 
 	options := &pprof_driver.Options{
@@ -124,4 +94,50 @@ func profile(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func ProfileApp(script string, config map[string]string) (*pprof_profile.Profile, error) {
+	src, err := ioutil.ReadFile(script)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", script, err)
+	}
+
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
+
+	// Remove the print function from the starlark thread.
+	initializers := []runtime.ThreadInitializer{}
+	initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
+		thread.Print = func(thread *starlark.Thread, msg string) {}
+		return thread
+	})
+
+	applet := runtime.Applet{}
+	err = applet.LoadWithInitializers(script, src, nil, initializers...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load applet: %w", err)
+	}
+
+	buf := new(bytes.Buffer)
+	if err = starlark.StartProfile(buf); err != nil {
+		return nil, fmt.Errorf("error starting profiler: %w", err)
+	}
+
+	_, err = applet.Run(config, initializers...)
+	if err != nil {
+		_ = starlark.StopProfile()
+		return nil, fmt.Errorf("error running script: %w", err)
+	}
+
+	if err = starlark.StopProfile(); err != nil {
+		return nil, fmt.Errorf("error stopping profiler: %w", err)
+	}
+
+	profile, err := pprof_profile.ParseData(buf.Bytes())
+	if err != nil {
+		return nil, fmt.Errorf("could not parse pprof profile: %w", err)
+	}
+
+	return profile, nil
 }

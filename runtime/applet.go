@@ -92,6 +92,10 @@ func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 // and the actual code should be passed in src. Optionally also pass
 // loader to make additional starlark modules available to the script.
 func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err error) {
+	return a.LoadWithInitializers(filename, src, loader)
+}
+
+func (a *Applet) LoadWithInitializers(filename string, src []byte, loader ModuleLoader, initializers ...ThreadInitializer) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic while executing %s: %v", a.Filename, r)
@@ -116,7 +120,7 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
 	}
 
-	globals, err := starlark.ExecFile(a.thread(), a.Filename, a.src, a.predeclared)
+	globals, err := starlark.ExecFile(a.thread(initializers...), a.Filename, a.src, a.predeclared)
 	if err != nil {
 		return fmt.Errorf("starlark.ExecFile: %v", err)
 	}

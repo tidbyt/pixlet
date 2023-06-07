@@ -100,16 +100,6 @@ func render(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
 
-	cache := runtime.NewInMemoryCache()
-	runtime.InitHTTP(cache)
-	runtime.InitCache(cache)
-
-	applet := runtime.Applet{}
-	err = applet.Load(script, src, nil)
-	if err != nil {
-		return fmt.Errorf("failed to load applet: %w", err)
-	}
-
 	// Remove the print function from the starlark thread if the silent flag is
 	// passed.
 	initializers := []runtime.ThreadInitializer{}
@@ -118,6 +108,16 @@ func render(cmd *cobra.Command, args []string) error {
 			thread.Print = func(thread *starlark.Thread, msg string) {}
 			return thread
 		})
+	}
+
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
+
+	applet := runtime.Applet{}
+	err = applet.LoadWithInitializers(script, src, nil, initializers...)
+	if err != nil {
+		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
 	roots, err := applet.Run(config, initializers...)
