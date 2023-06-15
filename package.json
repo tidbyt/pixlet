@@ -43,7 +43,7 @@
     "webpack-merge": "5.9.0"
   },
   "dependencies": {
-    "@emotion/react": "11.11.0",
+    "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
     "@fontsource/barlow": "4.5.9",
     "@fontsource/material-icons": "4.5.4",
