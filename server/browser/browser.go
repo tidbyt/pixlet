@@ -4,6 +4,7 @@ package browser
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -90,6 +91,7 @@ func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Up
 
 	// API endpoints to support the React frontend.
 	r.HandleFunc("/api/v1/preview", b.previewHandler)
+	r.HandleFunc("/api/v1/preview.webp", b.imageHandler)
 	r.HandleFunc("/api/v1/push", b.pushHandler)
 	r.HandleFunc("/api/v1/schema", b.schemaHandler).Methods("GET")
 	r.HandleFunc("/api/v1/handlers/{handler}", b.schemaHandlerHandler).Methods("POST")
@@ -153,6 +155,36 @@ func (b *Browser) schemaHandlerHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(data))
+}
+
+func (b *Browser) imageHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		w.WriteHeader(500)
+		http.Error(w, "bad form data", http.StatusBadRequest)
+		return
+	}
+
+	config := make(map[string]string)
+	for k, val := range r.Form {
+		config[k] = val[0]
+	}
+
+	webp, err := b.loader.LoadApplet(config)
+	if err != nil {
+		http.Error(w, "loading applet", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/webp")
+
+	data, err := base64.StdEncoding.DecodeString(webp)
+	if err != nil {
+		http.Error(w, "decoding webp", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(data)
 }
 
 func (b *Browser) previewHandler(w http.ResponseWriter, r *http.Request) {
