@@ -23,7 +23,7 @@ var renderModule = RenderModule{}
 func LoadRenderModule() (starlark.StringDict, error) {
 	renderModule.once.Do(func() {
 		fnt := starlark.NewDict(len(render.Font))
-		for k := range render.Font {
+		for k, _ := range render.Font {
 			fnt.SetKey(starlark.String(k), starlark.String(k))
 		}
 		fnt.Freeze()
@@ -84,6 +84,8 @@ type Animation struct {
 	render.Animation
 
 	starlarkChildren *starlark.List
+
+	frame_count *starlark.Builtin
 }
 
 func newAnimation(
@@ -128,6 +130,8 @@ func newAnimation(
 	}
 	w.starlarkChildren = children
 
+	w.frame_count = starlark.NewBuiltin("frame_count", animationFrameCount)
+
 	return w, nil
 }
 
@@ -148,6 +152,9 @@ func (w *Animation) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkChildren, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -163,6 +170,18 @@ func (w *Animation) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func animationFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Animation)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Box struct {
 	Widget
 
@@ -171,6 +190,8 @@ type Box struct {
 	starlarkChild starlark.Value
 
 	starlarkColor starlark.String
+
+	frame_count *starlark.Builtin
 }
 
 func newBox(
@@ -229,6 +250,8 @@ func newBox(
 		w.Color = c
 	}
 
+	w.frame_count = starlark.NewBuiltin("frame_count", boxFrameCount)
+
 	return w, nil
 }
 
@@ -265,6 +288,9 @@ func (w *Box) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkColor, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -280,6 +306,18 @@ func (w *Box) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func boxFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Box)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Circle struct {
 	Widget
 
@@ -288,6 +326,8 @@ type Circle struct {
 	starlarkColor starlark.String
 
 	starlarkChild starlark.Value
+
+	frame_count *starlark.Builtin
 }
 
 func newCircle(
@@ -338,6 +378,8 @@ func newCircle(
 		w.starlarkChild = child
 	}
 
+	w.frame_count = starlark.NewBuiltin("frame_count", circleFrameCount)
+
 	return w, nil
 }
 
@@ -366,6 +408,9 @@ func (w *Circle) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkChild, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -381,12 +426,26 @@ func (w *Circle) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func circleFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Circle)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Column struct {
 	Widget
 
 	render.Column
 
 	starlarkChildren *starlark.List
+
+	frame_count *starlark.Builtin
 }
 
 func newColumn(
@@ -443,6 +502,8 @@ func newColumn(
 
 	w.Expanded = bool(expanded)
 
+	w.frame_count = starlark.NewBuiltin("frame_count", columnFrameCount)
+
 	return w, nil
 }
 
@@ -475,6 +536,9 @@ func (w *Column) Attr(name string) (starlark.Value, error) {
 
 		return starlark.Bool(w.Expanded), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -490,12 +554,26 @@ func (w *Column) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func columnFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Column)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Image struct {
 	Widget
 
 	render.Image
 
 	size *starlark.Builtin
+
+	frame_count *starlark.Builtin
 }
 
 func newImage(
@@ -530,6 +608,8 @@ func newImage(
 	w.Height = int(height.BigInt().Int64())
 
 	w.size = starlark.NewBuiltin("size", imageSize)
+
+	w.frame_count = starlark.NewBuiltin("frame_count", imageFrameCount)
 
 	if err := w.Init(); err != nil {
 		return nil, err
@@ -570,6 +650,9 @@ func (w *Image) Attr(name string) (starlark.Value, error) {
 	case "size":
 		return w.size.BindReceiver(w), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -600,12 +683,26 @@ func imageSize(
 	}), nil
 }
 
+func imageFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Image)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Marquee struct {
 	Widget
 
 	render.Marquee
 
 	starlarkChild starlark.Value
+
+	frame_count *starlark.Builtin
 }
 
 func newMarquee(
@@ -665,6 +762,8 @@ func newMarquee(
 
 	w.Align = align.GoString()
 
+	w.frame_count = starlark.NewBuiltin("frame_count", marqueeFrameCount)
+
 	return w, nil
 }
 
@@ -709,6 +808,9 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 
 		return starlark.String(w.Align), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -724,6 +826,18 @@ func (w *Marquee) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func marqueeFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Marquee)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Padding struct {
 	Widget
 
@@ -734,6 +848,8 @@ type Padding struct {
 	starlarkPad starlark.Value
 
 	starlarkColor starlark.String
+
+	frame_count *starlark.Builtin
 }
 
 func newPadding(
@@ -818,6 +934,8 @@ func newPadding(
 		w.Color = c
 	}
 
+	w.frame_count = starlark.NewBuiltin("frame_count", paddingFrameCount)
+
 	return w, nil
 }
 
@@ -850,6 +968,9 @@ func (w *Padding) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkColor, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -865,6 +986,18 @@ func (w *Padding) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func paddingFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Padding)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type PieChart struct {
 	Widget
 
@@ -873,6 +1006,8 @@ type PieChart struct {
 	starlarkColors *starlark.List
 
 	starlarkWeights *starlark.List
+
+	frame_count *starlark.Builtin
 }
 
 func newPieChart(
@@ -916,6 +1051,8 @@ func newPieChart(
 
 	w.Diameter = int(diameter.BigInt().Int64())
 
+	w.frame_count = starlark.NewBuiltin("frame_count", piechartFrameCount)
+
 	return w, nil
 }
 
@@ -944,6 +1081,9 @@ func (w *PieChart) Attr(name string) (starlark.Value, error) {
 
 		return starlark.MakeInt(int(w.Diameter)), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -957,6 +1097,18 @@ func (w *PieChart) Truth() starlark.Bool { return true }
 func (w *PieChart) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
+}
+
+func piechartFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*PieChart)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
 }
 
 type Plot struct {
@@ -977,6 +1129,8 @@ type Plot struct {
 	starlarkFillColor starlark.String
 
 	starlarkFillColorInverted starlark.String
+
+	frame_count *starlark.Builtin
 }
 
 func newPlot(
@@ -1085,6 +1239,8 @@ func newPlot(
 		w.FillColorInverted = c
 	}
 
+	w.frame_count = starlark.NewBuiltin("frame_count", plotFrameCount)
+
 	return w, nil
 }
 
@@ -1145,6 +1301,9 @@ func (w *Plot) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkFillColorInverted, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -1158,6 +1317,18 @@ func (w *Plot) Truth() starlark.Bool { return true }
 func (w *Plot) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
+}
+
+func plotFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Plot)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
 }
 
 type Root struct {
@@ -1272,6 +1443,8 @@ type Row struct {
 	render.Row
 
 	starlarkChildren *starlark.List
+
+	frame_count *starlark.Builtin
 }
 
 func newRow(
@@ -1328,6 +1501,8 @@ func newRow(
 
 	w.Expanded = bool(expanded)
 
+	w.frame_count = starlark.NewBuiltin("frame_count", rowFrameCount)
+
 	return w, nil
 }
 
@@ -1360,6 +1535,9 @@ func (w *Row) Attr(name string) (starlark.Value, error) {
 
 		return starlark.Bool(w.Expanded), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -1375,12 +1553,26 @@ func (w *Row) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func rowFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Row)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Sequence struct {
 	Widget
 
 	render.Sequence
 
 	starlarkChildren *starlark.List
+
+	frame_count *starlark.Builtin
 }
 
 func newSequence(
@@ -1425,6 +1617,8 @@ func newSequence(
 	}
 	w.starlarkChildren = children
 
+	w.frame_count = starlark.NewBuiltin("frame_count", sequenceFrameCount)
+
 	return w, nil
 }
 
@@ -1445,6 +1639,9 @@ func (w *Sequence) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkChildren, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -1460,12 +1657,26 @@ func (w *Sequence) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func sequenceFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Sequence)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Stack struct {
 	Widget
 
 	render.Stack
 
 	starlarkChildren *starlark.List
+
+	frame_count *starlark.Builtin
 }
 
 func newStack(
@@ -1510,6 +1721,8 @@ func newStack(
 	}
 	w.starlarkChildren = children
 
+	w.frame_count = starlark.NewBuiltin("frame_count", stackFrameCount)
+
 	return w, nil
 }
 
@@ -1530,6 +1743,9 @@ func (w *Stack) Attr(name string) (starlark.Value, error) {
 
 		return w.starlarkChildren, nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -1545,6 +1761,18 @@ func (w *Stack) Hash() (uint32, error) {
 	return uint32(sum), err
 }
 
+func stackFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Stack)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type Text struct {
 	Widget
 
@@ -1553,6 +1781,8 @@ type Text struct {
 	starlarkColor starlark.String
 
 	size *starlark.Builtin
+
+	frame_count *starlark.Builtin
 }
 
 func newText(
@@ -1603,6 +1833,8 @@ func newText(
 
 	w.size = starlark.NewBuiltin("size", textSize)
 
+	w.frame_count = starlark.NewBuiltin("frame_count", textFrameCount)
+
 	if err := w.Init(); err != nil {
 		return nil, err
 	}
@@ -1646,6 +1878,9 @@ func (w *Text) Attr(name string) (starlark.Value, error) {
 	case "size":
 		return w.size.BindReceiver(w), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -1676,12 +1911,26 @@ func textSize(
 	}), nil
 }
 
+func textFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Text)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
+}
+
 type WrappedText struct {
 	Widget
 
 	render.WrappedText
 
 	starlarkColor starlark.String
+
+	frame_count *starlark.Builtin
 }
 
 func newWrappedText(
@@ -1738,6 +1987,8 @@ func newWrappedText(
 
 	w.Align = align.GoString()
 
+	w.frame_count = starlark.NewBuiltin("frame_count", wrappedtextFrameCount)
+
 	return w, nil
 }
 
@@ -1782,6 +2033,9 @@ func (w *WrappedText) Attr(name string) (starlark.Value, error) {
 
 		return starlark.String(w.Align), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -1795,4 +2049,16 @@ func (w *WrappedText) Truth() starlark.Bool { return true }
 func (w *WrappedText) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
+}
+
+func wrappedtextFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*WrappedText)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
 }
