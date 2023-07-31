@@ -10,22 +10,36 @@ import (
 	"golang.org/x/image/font"
 )
 
-var Font = map[string]font.Face{}
+var fontCache = map[string]font.Face{}
 
-func init() {
-	for name, dataB64 := range FontDataRaw {
-		data, err := base64.StdEncoding.DecodeString(dataB64)
-		if err != nil {
-			log.Printf("couldn't decode %s: %s", name, err)
-			continue
-		}
-
-		f, err := bdf.Parse(data)
-		if err != nil {
-			log.Printf("couldn't parse %s: %s", name, err)
-			continue
-		}
-
-		Font[name] = f.NewFace()
+func GetFontList() []string {
+	fontNames := []string{}
+	for key := range fontDataRaw {
+		fontNames = append(fontNames, key)
 	}
+	return fontNames
+}
+
+func GetFont(name string) font.Face {
+	if font, ok := fontCache[name]; ok {
+		return font
+	}
+
+	dataB64, ok := fontDataRaw[name]
+	if !ok {
+		log.Panicf("Unknown font '%s', the available fonts are: %v", name, GetFontList())
+	}
+
+	data, err := base64.StdEncoding.DecodeString(dataB64)
+	if err != nil {
+		log.Panicf("couldn't decode %s: %s", name, err)
+	}
+
+	f, err := bdf.Parse(data)
+	if err != nil {
+		log.Panicf("couldn't parse %s: %s", name, err)
+	}
+
+	fontCache[name] = f.NewFace()
+	return fontCache[name]
 }

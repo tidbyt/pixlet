@@ -45,10 +45,10 @@ type WrappedText struct {
 }
 
 func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
-	face := Font[DefaultFontFace]
-	if tw.Font != "" {
-		face = Font[tw.Font]
+	if tw.Font == "" {
+		tw.Font = DefaultFontFace
 	}
+	face := GetFont(tw.Font)
 	// The bounds provided by user or parent widget
 	width := tw.Width
 	if width == 0 {
@@ -99,10 +99,10 @@ func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Re
 }
 
 func (tw WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
-	face := Font[DefaultFontFace]
-	if tw.Font != "" {
-		face = Font[tw.Font]
+	if tw.Font == "" {
+		tw.Font = DefaultFontFace
 	}
+	face := GetFont(tw.Font)
 	// Text alignment
 	align := gg.AlignLeft
 	if tw.Align == "center" {

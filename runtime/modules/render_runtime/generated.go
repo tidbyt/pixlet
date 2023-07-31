@@ -22,9 +22,10 @@ var renderModule = RenderModule{}
 
 func LoadRenderModule() (starlark.StringDict, error) {
 	renderModule.once.Do(func() {
-		fnt := starlark.NewDict(len(render.Font))
-		for k, _ := range render.Font {
-			fnt.SetKey(starlark.String(k), starlark.String(k))
+		fontList := render.GetFontList()
+		fnt := starlark.NewDict(len(fontList))
+		for _, name := range fontList {
+			fnt.SetKey(starlark.String(name), starlark.String(name))
 		}
 		fnt.Freeze()
 
