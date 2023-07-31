@@ -721,6 +721,7 @@ func newMarquee(
 		offset_end       starlark.Int
 		scroll_direction starlark.String
 		align            starlark.String
+		delay            starlark.Int
 	)
 
 	if err := starlark.UnpackArgs(
@@ -733,6 +734,7 @@ func newMarquee(
 		"offset_end?", &offset_end,
 		"scroll_direction?", &scroll_direction,
 		"align?", &align,
+		"delay?", &delay,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Marquee: %s", err)
 	}
@@ -763,6 +765,8 @@ func newMarquee(
 
 	w.Align = align.GoString()
 
+	w.Delay = int(delay.BigInt().Int64())
+
 	w.frame_count = starlark.NewBuiltin("frame_count", marqueeFrameCount)
 
 	return w, nil
@@ -774,7 +778,7 @@ func (w *Marquee) AsRenderWidget() render.Widget {
 
 func (w *Marquee) AttrNames() []string {
 	return []string{
-		"child", "width", "height", "offset_start", "offset_end", "scroll_direction", "align",
+		"child", "width", "height", "offset_start", "offset_end", "scroll_direction", "align", "delay",
 	}
 }
 
@@ -808,6 +812,10 @@ func (w *Marquee) Attr(name string) (starlark.Value, error) {
 	case "align":
 
 		return starlark.String(w.Align), nil
+
+	case "delay":
+
+		return starlark.MakeInt(int(w.Delay)), nil
 
 	case "frame_count":
 		return w.frame_count.BindReceiver(w), nil

@@ -33,7 +33,8 @@ import (
 // DOC(OffsetStart): Position of child at beginning of animation
 // DOC(OffsetEnd): Position of child at end of animation
 // DOC(ScrollDirection): Direction to scroll, 'vertical' or 'horizontal', default is horizontal
-// DOC(Align): alignment when contents fit on screen, 'start', 'center' or 'end', default is start
+// DOC(Align): Alignment when contents fit on screen, 'start', 'center' or 'end', default is start
+// DOC(Delay): Delay the scroll of the animation by a certain number of frames, default is 0
 //
 // EXAMPLE BEGIN
 // render.Marquee(
@@ -52,6 +53,7 @@ type Marquee struct {
 	OffsetEnd       int    `starlark:"offset_end"`
 	ScrollDirection string `starlark:"scroll_direction"`
 	Align           string `starlark:"align"`
+	Delay           int    `starlark:"delay"`
 }
 
 func (m Marquee) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
@@ -98,12 +100,13 @@ func (m Marquee) FrameCount() int {
 		offend = -cw
 	}
 
+	delay := m.Delay
 	// If start and end offsets are identical, do not
 	// repeat these identical frames after another.
 	if offstart == offend {
-		return cw + offstart + size - offend
+		return cw + offstart + size - offend + delay
 	} else {
-		return cw + offstart + size - offend + 1
+		return cw + offstart + size - offend + 1 + delay
 	}
 }
 
@@ -133,8 +136,9 @@ func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		offend = -cw
 	}
 
-	loopIdx := cw + offstart
-	endIdx := cw + offstart + size - offend
+	delay := m.Delay
+	loopIdx := cw + offstart + delay
+	endIdx := cw + offstart + size - offend + delay
 
 	align := 0.0 //default is align="start"
 	var offset int
@@ -150,9 +154,12 @@ func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 			align = 1.0
 			offset = size
 		}
+	} else if frameIdx <= delay {
+		// delay the scrolling for the number of frames specified by delay
+		offset = offstart
 	} else if frameIdx <= loopIdx {
 		// first scroll child out of view
-		offset = offstart - frameIdx
+		offset = offstart - frameIdx + delay
 	} else if frameIdx <= endIdx {
 		// then, scroll back into view
 		offset = offend + (endIdx - frameIdx)
