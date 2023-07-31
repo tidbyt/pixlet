@@ -14,7 +14,7 @@ require (
 	github.com/gitsight/go-vcsurl v1.0.1
 	github.com/go-git/go-git/v5 v5.7.0
 	github.com/go-playground/validator/v10 v10.14.1
-	github.com/google/pprof v0.0.0-20230602010524-ada837c32108
+	github.com/google/pprof v0.0.0-20230728192033-2ba5b33183c6
 	github.com/google/tink/go v1.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
@@ -29,10 +29,10 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/qri-io/starlib v0.5.1-0.20220611014110-7fb7ff9ec804
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c
-	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
+	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c
+	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef
 	github.com/stretchr/testify v1.8.4
 	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601
@@ -51,8 +51,8 @@ require (
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230518184743-7afd39499903 // indirect
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
-	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
