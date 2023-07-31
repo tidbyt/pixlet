@@ -9,12 +9,11 @@ import (
 	"hash"
 	"sync"
 	"time"
-	
+
 	godfe "github.com/newm4n/go-dfe"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
-
 
 const (
 	ModuleName = "hmac"

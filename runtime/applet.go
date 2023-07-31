@@ -13,6 +13,7 @@ import (
 	starlibhash "github.com/qri-io/starlib/hash"
 	starlibhtml "github.com/qri-io/starlib/html"
 	starlibre "github.com/qri-io/starlib/re"
+	starlibzip "github.com/qri-io/starlib/zipfile"
 	starlibjson "go.starlark.net/lib/json"
 	starlibmath "go.starlark.net/lib/math"
 	starlibtime "go.starlark.net/lib/time"
@@ -318,6 +319,19 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	case "compress/gzip.star":
 		return starlark.StringDict{
 			starlibgzip.Module.Name: starlibgzip.Module,
+		}, nil
+
+	case "compress/zipfile.star":
+		// Starlib expects you to load the ZipFile function directly, rather than having it be part of a namespace.
+		// Wraps this to be more consistent with other pixlet modules, as follows:
+		//   load("compress/zipfile.star", "zipfile")
+		//   archive = zipfile.ZipFile("/tmp/foo.zip")
+		m, _ := starlibzip.LoadModule()
+		return starlark.StringDict{
+			"zipfile": &starlarkstruct.Module{
+				Name:    "zipfile",
+				Members: m,
+			},
 		}, nil
 
 	case "encoding/base64.star":
