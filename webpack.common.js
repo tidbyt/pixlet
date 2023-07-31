@@ -2,6 +2,10 @@ module.exports = {
     resolve: {
         extensions: ['*', '.js', '.jsx'],
     },
+    experiments: {
+        asyncWebAssembly: true,
+        syncWebAssembly: true
+    },
     module: {
         rules: [
             {
@@ -24,7 +28,7 @@ module.exports = {
                 ],
             },
             {
-                test: /\.(webp|jpe?g|gif)$/i,
+                test: /\.(webp|jpe?g|gif|star)$/i,
                 use: [
                     {
                         loader: 'file-loader',

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"go.starlark.net/starlark"
 	"tidbyt.dev/pixlet/icons"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
@@ -34,10 +35,19 @@ func ValidateIcons(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to read app %s: %w", args[0], err)
 	}
 
-	runtime.InitCache(runtime.NewInMemoryCache())
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
+
+	// Remove the print function from the starlark thread.
+	initializers := []runtime.ThreadInitializer{}
+	initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
+		thread.Print = func(thread *starlark.Thread, msg string) {}
+		return thread
+	})
 
 	applet := runtime.Applet{}
-	err = applet.Load(args[0], src, nil)
+	err = applet.LoadWithInitializers(args[0], src, nil, initializers...)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}

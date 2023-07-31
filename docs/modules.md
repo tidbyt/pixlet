@@ -29,6 +29,7 @@ individual modules, please refer to the Starlib documentation.
 | Module | Description |
 | --- | --- |
 | [`compress/gzip.star`](https://github.com/qri-io/starlib/blob/master/compress/gzip) | gzip decompressing |
+| [`compress/zipfile.star`](https://github.com/qri-io/starlib/blob/master/zipfile) | zip decompressing |
 | [`encoding/base64.star`](https://github.com/qri-io/starlib/tree/master/encoding/base64) | Base 64 encoding and decoding |
 | [`encoding/csv.star`](https://github.com/qri-io/starlib/tree/master/encoding/csv) | CSV decoding |
 | [`encoding/json.star`](https://github.com/qri-io/starlib/tree/master/encoding/json) | JSON encoding and decoding |
@@ -63,6 +64,27 @@ def get_counter():
     return i + 1
 ...
 ```
+
+## Pixlet module: HMAC
+
+This module implements the HMAC algorithm as described by [RFC 2104](https://datatracker.ietf.org/doc/html/rfc2104.html).
+
+| Function | Description |
+| --- | --- |
+| `md5(key, string)` | Returns md5 hash of a string using the provided key |
+| `sha1(key, string)` | Returns sha1 hash of a string using the provided key |
+| `sha256(key, string)` | Returns sha256 hash of a string using the provided key |
+
+Example:
+
+```starlark
+load("hmac.star", "hmac")
+
+sum = hmac.md5("secret", "hello world!")
+print(sum)
+# Output: 0a0461e10e89506d7c31a145663bed93
+```
+
 ## Pixlet module: Humanize
 
 The `humanize` module has formatters for units to human friendly sizes. 

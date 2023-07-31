@@ -1,6 +1,7 @@
 package render
 
 import (
+	"image/color"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,49 +10,62 @@ import (
 func ParseAndAssertColor(
 	t *testing.T,
 	scol string,
-	expectedR uint32,
-	expectedG uint32,
-	expectedB uint32,
-	expectedA uint32,
+	expectedR uint8,
+	expectedG uint8,
+	expectedB uint8,
+	expectedA uint8,
 ) {
-	c, err := ParseColor(scol)
+	col, err := ParseColor(scol)
 	assert.Nil(t, err)
-	r, g, b, a := c.RGBA()
-	assert.Equal(t, expectedR, r)
-	assert.Equal(t, expectedG, g)
-	assert.Equal(t, expectedB, b)
-	assert.Equal(t, expectedA, a)
+
+	c, ok := col.(color.NRGBA)
+	assert.True(t, ok)
+
+	assert.Equal(t, expectedR, c.R)
+	assert.Equal(t, expectedG, c.G)
+	assert.Equal(t, expectedB, c.B)
+	assert.Equal(t, expectedA, c.A)
 }
 
 func TestParseColorRGB(t *testing.T) {
-	ParseAndAssertColor(t, "#5ad", 0x5555, 0xaaaa, 0xdddd, 0xffff)
+	ParseAndAssertColor(t, "#5ad", 0x55, 0xaa, 0xdd, 0xff)
+	ParseAndAssertColor(t, "5ad", 0x55, 0xaa, 0xdd, 0xff)
 }
 
 func TestParseColorRGBA(t *testing.T) {
-	ParseAndAssertColor(t, "#5ad8", 0x2d82, 0x5b05, 0x7653, 0x8888)
+	ParseAndAssertColor(t, "#5ad8", 0x55, 0xaa, 0xdd, 0x88)
+	ParseAndAssertColor(t, "5ad8", 0x55, 0xaa, 0xdd, 0x88)
 }
 
 func TestParseColorRRGGBB(t *testing.T) {
-	ParseAndAssertColor(t, "#257adb", 0x2525, 0x7a7a, 0xdbdb, 0xffff)
+	ParseAndAssertColor(t, "#257adb", 0x25, 0x7a, 0xdb, 0xff)
+	ParseAndAssertColor(t, "257adb", 0x25, 0x7a, 0xdb, 0xff)
 }
 
 func TestParseColorRRGGBBAA(t *testing.T) {
-	ParseAndAssertColor(t, "#257adb75", 0x110a, 0x3831, 0x64df, 0x7575)
+	ParseAndAssertColor(t, "#257adb75", 0x25, 0x7a, 0xdb, 0x75)
+	ParseAndAssertColor(t, "257adb75", 0x25, 0x7a, 0xdb, 0x75)
 }
 
 func TestParseColorBadValue(t *testing.T) {
-	_, err := ParseColor("5ad")
-	assert.NotNil(t, err)
+	_, err := ParseColor("5a")
+	assert.Error(t, err)
 
 	_, err = ParseColor("#5a")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 
 	_, err = ParseColor("#5ad8f")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
+
+	_, err = ParseColor("5ad8f")
+	assert.Error(t, err)
 
 	_, err = ParseColor("#5ad8f33da")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 
 	_, err = ParseColor("#xyz")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
+
+	_, err = ParseColor("##abc")
+	assert.Error(t, err)
 }

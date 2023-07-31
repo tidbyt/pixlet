@@ -20,7 +20,6 @@ import (
 	"github.com/srwiley/oksvg"
 	"github.com/srwiley/rasterx"
 	"github.com/tidbyt/gg"
-	"github.com/tidbyt/go-libwebp/webp"
 )
 
 // Image renders the binary image data passed via `src`. Supported
@@ -61,25 +60,6 @@ func (p *Image) Size() (int, int) {
 
 func (p *Image) FrameCount() int {
 	return len(p.imgs)
-}
-
-func (p *Image) InitFromWebP(data []byte) error {
-	decoder, err := webp.NewAnimationDecoder(data)
-	if err != nil {
-		return fmt.Errorf("creating animation decoder: %v", err)
-	}
-
-	img, err := decoder.Decode()
-	if err != nil {
-		return fmt.Errorf("decoding image data: %v", err)
-	}
-
-	p.Delay = img.Timestamp[0]
-	for _, im := range img.Image {
-		p.imgs = append(p.imgs, im)
-	}
-
-	return nil
 }
 
 func (p *Image) InitFromGIF(data []byte) error {
