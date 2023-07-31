@@ -19,7 +19,7 @@ export default function OAuth2({ field }) {
         if (field.id in config) {
             setLoggedIn(config[field.id].value);
         }
-    }, [])
+    }, [config])
 
     const onSuccess = (response) => {
         if (!response.code) {

@@ -2,19 +2,22 @@ package render
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/gif"
+	"image/jpeg"
 
 	// register image formats
 	_ "image/jpeg"
 	_ "image/png"
 
 	"github.com/nfnt/resize"
+	"github.com/srwiley/oksvg"
+	"github.com/srwiley/rasterx"
 	"github.com/tidbyt/gg"
-	"github.com/tidbyt/go-libwebp/webp"
 )
 
 // Image renders the binary image data passed via `src`. Supported
@@ -55,25 +58,6 @@ func (p *Image) Size() (int, int) {
 
 func (p *Image) FrameCount() int {
 	return len(p.imgs)
-}
-
-func (p *Image) InitFromWebP(data []byte) error {
-	decoder, err := webp.NewAnimationDecoder(data)
-	if err != nil {
-		return fmt.Errorf("creating animation decoder: %v", err)
-	}
-
-	img, err := decoder.Decode()
-	if err != nil {
-		return fmt.Errorf("decoding image data: %v", err)
-	}
-
-	p.Delay = img.Timestamp[0]
-	for _, im := range img.Image {
-		p.imgs = append(p.imgs, im)
-	}
-
-	return nil
 }
 
 func (p *Image) InitFromGIF(data []byte) error {
@@ -147,12 +131,42 @@ func (p *Image) InitFromImage(data []byte) error {
 	return nil
 }
 
+func (p *Image) InitFromSVG(data []byte) error {
+	svgData, _ := oksvg.ReadIconStream(bytes.NewReader(data), oksvg.StrictErrorMode)
+	w := int(svgData.ViewBox.W)
+	h := int(svgData.ViewBox.H)
+
+	if w == 0 && h == 0 {
+		return errors.New("decoding svg data failed")
+	}
+
+	svgData.SetTarget(0, 0, float64(w), float64(h))
+	rgba := image.NewRGBA(image.Rect(0, 0, w, h))
+	svgData.Draw(rasterx.NewDasher(w, h, rasterx.NewScannerGV(w, h, rgba, rgba.Bounds())), 1)
+	buf := new(bytes.Buffer)
+	err := jpeg.Encode(buf, rgba, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = p.InitFromImage([]byte(buf.Bytes()))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *Image) Init() error {
 	err := p.InitFromWebP([]byte(p.Src))
 	if err != nil {
 		err = p.InitFromGIF([]byte(p.Src))
 		if err != nil {
-			err = p.InitFromImage([]byte(p.Src))
+			err = p.InitFromSVG([]byte(p.Src))
+			if err != nil {
+				err = p.InitFromImage([]byte(p.Src))
+			}
 		}
 	}
 

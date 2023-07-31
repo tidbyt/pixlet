@@ -11,6 +11,14 @@ export const configSlice = createSlice({
             config[action.payload.id] = action.payload
             return state;
         },
+        update: (state = initialState, action) => {
+            state = action.payload;
+            return state;
+        },
+        clear: (state = initialState, action) => {
+            state = {};
+            return state;
+        },
         remove: (state = initialState, action) => {
             let config = state;
             if (action.payload in config) {
@@ -21,5 +29,5 @@ export const configSlice = createSlice({
     },
 });
 
-export const { set, remove } = configSlice.actions;
+export const { set, remove, update, clear } = configSlice.actions;
 export default configSlice.reducer;

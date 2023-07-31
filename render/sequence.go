@@ -65,6 +65,7 @@ func (s Sequence) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 			dc.Push()
 			c.Paint(dc, bounds, frameIdx-fc)
 			dc.Pop()
+			break
 		}
 
 		fc += c.FrameCount()

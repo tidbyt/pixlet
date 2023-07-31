@@ -89,23 +89,15 @@ func render(cmd *cobra.Command, args []string) error {
 	config := map[string]string{}
 	for _, param := range args[1:] {
 		split := strings.Split(param, "=")
-		if len(split) != 2 {
+		if len(split) < 2 {
 			return fmt.Errorf("parameters must be on form <key>=<value>, found %s", param)
 		}
-		config[split[0]] = split[1]
+		config[split[0]] = strings.Join(split[1:], "=")
 	}
 
 	src, err := ioutil.ReadFile(script)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", script, err)
-	}
-
-	runtime.InitCache(runtime.NewInMemoryCache())
-
-	applet := runtime.Applet{}
-	err = applet.Load(script, src, nil)
-	if err != nil {
-		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
 	// Remove the print function from the starlark thread if the silent flag is
@@ -116,6 +108,16 @@ func render(cmd *cobra.Command, args []string) error {
 			thread.Print = func(thread *starlark.Thread, msg string) {}
 			return thread
 		})
+	}
+
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
+
+	applet := runtime.Applet{}
+	err = applet.LoadWithInitializers(script, src, nil, initializers...)
+	if err != nil {
+		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
 	roots, err := applet.Run(config, initializers...)

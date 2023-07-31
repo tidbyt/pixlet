@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 
 	"tidbyt.dev/pixlet/encode"
@@ -27,6 +26,7 @@ type Loader struct {
 	updatesChan      chan Update
 	resultsChan      chan Update
 	maxDuration      int
+	initialLoad      chan bool
 }
 
 type Update struct {
@@ -57,12 +57,16 @@ func NewLoader(
 		requestedChanges: make(chan bool, 100),
 		resultsChan:      make(chan Update, 100),
 		maxDuration:      maxDuration,
+		initialLoad:      make(chan bool),
 	}
 
-	runtime.InitCache(runtime.NewInMemoryCache())
+	cache := runtime.NewInMemoryCache()
+	runtime.InitHTTP(cache)
+	runtime.InitCache(cache)
 
 	if !l.watch {
 		err := loadScript(&l.applet, l.filename)
+		l.markInitialLoadComplete()
 		if err != nil {
 			return nil, err
 		}
@@ -128,6 +132,8 @@ func (l *Loader) LoadApplet(config map[string]string) (string, error) {
 }
 
 func (l *Loader) GetSchema() []byte {
+	<-l.initialLoad
+
 	s := []byte(l.applet.GetSchema())
 	if len(s) > 0 {
 		return s
@@ -138,12 +144,14 @@ func (l *Loader) GetSchema() []byte {
 }
 
 func (l *Loader) CallSchemaHandler(ctx context.Context, handlerName, parameter string) (string, error) {
+	<-l.initialLoad
 	return l.applet.CallSchemaHandler(ctx, handlerName, parameter)
 }
 
 func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	if l.watch {
 		err := loadScript(&l.applet, l.filename)
+		l.markInitialLoadComplete()
 		if err != nil {
 			return "", err
 		}
@@ -168,16 +176,11 @@ func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	return base64.StdEncoding.EncodeToString(webp), nil
 }
 
-func loadScript(applet *runtime.Applet, filename string) error {
-	src, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return fmt.Errorf("failed to read file %s: %w", filename, err)
+func (l *Loader) markInitialLoadComplete() {
+	// safely close the l.initialLoad channel to signal that the initial load is complete
+	select {
+	case <-l.initialLoad:
+	default:
+		close(l.initialLoad)
 	}
-
-	err = applet.Load(filename, src, nil)
-	if err != nil {
-		return fmt.Errorf("failed to load applet: %w", err)
-	}
-
-	return nil
 }

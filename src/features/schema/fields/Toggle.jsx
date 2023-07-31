@@ -19,7 +19,7 @@ export default function Toggle({ field }) {
                 value: field.default,
             }));
         }
-    }, [])
+    }, [config])
 
     const onChange = (event) => {
         setToggle(event.target.checked);

@@ -23,7 +23,7 @@ export default function Dropdown({ field }) {
                 value: field.default,
             }));
         }
-    }, [])
+    }, [config])
 
     const onChange = (event) => {
         setValue(event.target.value);

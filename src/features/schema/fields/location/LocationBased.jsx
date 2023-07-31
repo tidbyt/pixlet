@@ -14,14 +14,14 @@ import { callHandler } from '../../../handlers/actions';
 
 export default function LocationBased({ field }) {
     const [locationValue, setLocationValue] = useState({
-    	// Default to Brooklyn, because that's where tidbyt folks
-    	// are and  we can only dispatch a location object which
-    	// has all fields set.
-    	'lat': 40.6782,
-    	'lng': -73.9442,
-    	'locality': 'Brooklyn, New York',
-    	'timezone': 'America/New_York'
-   	});
+        // Default to Brooklyn, because that's where tidbyt folks
+        // are and  we can only dispatch a location object which
+        // has all fields set.
+        'lat': 40.678,
+        'lng': -73.944,
+        'locality': 'Brooklyn, New York',
+        'timezone': 'America/New_York'
+    });
 
     const [value, setValue] = useState(field.default);
 
@@ -39,36 +39,40 @@ export default function LocationBased({ field }) {
             }));
         }
         callHandler(field.id, field.handler, JSON.stringify(locationValue));
-    }, [])
+    }, [config])
 
     const setPart = (partName, partValue) => {
-    	let newLocationValue = {...locationValue};
-    	newLocationValue[partName] = partValue;
-    	setLocationValue(newLocationValue);
+        let newLocationValue = { ...locationValue };
+        newLocationValue[partName] = partValue;
+        setLocationValue(newLocationValue);
         callHandler(field.id, field.handler, JSON.stringify(newLocationValue));
     }
 
+    const truncateLatLng = (value) => {
+        return String(Number(value).toFixed(3));
+    }
+
     const onChangeLatitude = (event) => {
-        setPart('lat', event.target.value);
+        setPart('lat', truncateLatLng(event.target.value));
     }
 
     const onChangeLongitude = (event) => {
-    	setPart('lng', event.target.value);
+        setPart('lng', truncateLatLng(event.target.value));
     }
 
     const onChangeLocality = (event) => {
-    	setPart('locality', event.target.value);
+        setPart('locality', event.target.value);
     }
 
     const onChangeTimezone = (event) => {
-    	setPart('timezone', event.target.value);
+        setPart('timezone', event.target.value);
     }
 
     const onChangeOption = (event) => {
         setValue(event.target.value);
         dispatch(set({
             id: field.id,
-            value: JSON.stringify({'value': event.target.value})
+            value: JSON.stringify({ 'value': event.target.value })
         }));
     }
 
@@ -81,34 +85,34 @@ export default function LocationBased({ field }) {
         <FormControl fullWidth>
             <Typography>Latitude</Typography>
             <InputSlider
-            	min={-90}
-            	max={90}
-            	step={0.1}
-            	onChange={onChangeLatitude}
-            	defaultValue={locationValue['lat']}
+                min={-90}
+                max={90}
+                step={0.1}
+                onChange={onChangeLatitude}
+                defaultValue={locationValue['lat']}
             >
             </InputSlider>
             <Typography>Longitude</Typography>
             <InputSlider
-            	min={-180}
-            	max={180}
-            	step={0.1}
-            	onChange={onChangeLongitude}
-            	defaultValue={locationValue['lng']}
+                min={-180}
+                max={180}
+                step={0.1}
+                onChange={onChangeLongitude}
+                defaultValue={locationValue['lng']}
             >
             </InputSlider>
             <Typography>Locality</Typography>
             <TextField
-            	fullWidth
-            	variant="outlined"
-            	onChange={onChangeLocality}
-            	style={{ marginBottom: '0.5rem' }} 
-            	defaultValue={locationValue['locality']}
+                fullWidth
+                variant="outlined"
+                onChange={onChangeLocality}
+                style={{ marginBottom: '0.5rem' }}
+                defaultValue={locationValue['locality']}
             />
             <Typography>Timezone</Typography>
             <Select
                 onChange={onChangeTimezone}
-                style={{ marginBottom: '0.5rem' }} 
+                style={{ marginBottom: '0.5rem' }}
                 defaultValue={locationValue['timezone']}
             >
                 {Intl.supportedValuesOf('timeZone').map((zone) => {

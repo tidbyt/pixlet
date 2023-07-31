@@ -14,6 +14,11 @@ A quick note about colors.  When specifying colors, use a CSS-like
 hexdecimal color specification.  Pixlet supports "#rgb", "#rrggbb",
 "#rgba", and "#rrggbbaa" color specifications.
 
+For animated widgets like Marquee, you can also call `frame_count()`
+to work out how many frames are required to display the whole
+animation. You can also call `size()` on dynamically-sized widgets
+like Text to get the width and height.
+
 
 ## Animation
 Animations turns a list of children into an animation, where each
@@ -155,8 +160,7 @@ render.Column(
 
 
 ## Image
-Image renders the binary image data passed via `src`. Supported
-formats include PNG, JPEG and GIF.
+Image renders the image data passed via `src`. `src` accepts a string and supports file URLs, SVG as a string, as well as image binary data. Supported binary data formats include PNG, JPEG and GIF.
 
 If `width` or `height` are set, the image will be scaled
 accordingly, with nearest neighbor interpolation. Otherwise the
@@ -169,7 +173,7 @@ the `delay` attribute.
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `src` | `str` | Binary image data | **Y** |
+| `src` | `str` | Binary image data or svg text | **Y** |
 | `width` | `int` | Scale image to this width | N |
 | `height` | `int` | Scale image to this height | N |
 | `delay` | `int` | (Read-only) Frame delay in ms, for animated GIFs | N |

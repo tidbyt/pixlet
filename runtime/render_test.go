@@ -38,6 +38,7 @@ b1 = render.Box(
 assert(b1.width == 64, "b1.width == 64")
 assert(b1.height == 32, "b1.height == 32")
 assert(b1.color == "#000", 'b1.color == "#000"')
+assert(b1.frame_count() == 1, "b1.frame_count() == 1")
 
 b2 = render.Box(
     child = b1,
@@ -59,6 +60,7 @@ assert(t1.font == "6x13", 't1.font == "6x13"')
 assert(t1.color == "#fff", 't1.color == "#fff"')
 assert(0 < t1.size()[0], "0 < t1.size()[0]")
 assert(0 < t1.size()[1], "0 < t1.size()[1]")
+assert(t1.frame_count() == 1, "t1.frame_count() == 1")
 
 # WrappedText
 tw = render.WrappedText(
@@ -93,12 +95,14 @@ imgPng = render.Image(src = png_src)
 assert(imgPng.src == png_src, "imgPng.src == png_src")
 assert(0 < imgPng.size()[0], "0 < imgPng.size()[0]")
 assert(0 < imgPng.size()[1], "0 < imgPng.size()[1]")
+assert(1 == imgPng.frame_count(), "1 == imgPng.frame_count()")
 
 gif_src = base64.decode("R0lGODlhBQAEAPAAAAAAAAAAACH5BAF7AAAAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAABQAEAAACBgRiaLmLBQAh+QQBewAAACwAAAAABQAEAAACBYRzpqhXACH5BAF7AAAALAAAAAAFAAQAAAIGDG6Qp8wFACH5BAF7AAAALAAAAAAFAAQAAAIGRIBnyMoFADs=")
 imgGif = render.Image(src = gif_src)
 assert(5 == imgGif.size()[0], "5 == imgGif.size()[0]")
 assert(4 == imgGif.size()[1], "4 == imgGif.size()[1]")
 assert(1230 == imgGif.delay, "1230 == imgGif.delay")
+assert(4 == imgGif.frame_count(), "4 == imgGif.frame_count()")
 
 # Row and Column
 r1 = render.Row(
