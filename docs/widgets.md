@@ -14,6 +14,11 @@ A quick note about colors.  When specifying colors, use a CSS-like
 hexdecimal color specification.  Pixlet supports "#rgb", "#rrggbb",
 "#rgba", and "#rrggbbaa" color specifications.
 
+For animated widgets like Marquee, you can also call `frame_count()`
+to work out how many frames are required to display the whole
+animation. You can also call `size()` on dynamically-sized widgets
+like Text to get the width and height.
+
 
 ## Animation
 Animations turns a list of children into an animation, where each

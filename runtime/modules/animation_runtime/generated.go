@@ -58,6 +58,8 @@ type AnimatedPositioned struct {
 	starlarkChild starlark.Value
 
 	starlarkCurve starlark.Value
+
+	frame_count *starlark.Builtin
 }
 
 func newAnimatedPositioned(
@@ -132,6 +134,8 @@ func newAnimatedPositioned(
 
 	w.Hold = int(hold.BigInt().Int64())
 
+	w.frame_count = starlark.NewBuiltin("frame_count", animatedpositionedFrameCount)
+
 	return w, nil
 }
 
@@ -184,6 +188,9 @@ func (w *AnimatedPositioned) Attr(name string) (starlark.Value, error) {
 
 		return starlark.MakeInt(int(w.Hold)), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -197,6 +204,18 @@ func (w *AnimatedPositioned) Truth() starlark.Bool { return true }
 func (w *AnimatedPositioned) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
+}
+
+func animatedpositionedFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*AnimatedPositioned)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
 }
 
 type Keyframe struct {
@@ -544,6 +563,8 @@ type Transformation struct {
 	starlarkFillMode starlark.String
 
 	starlarkRounding starlark.String
+
+	frame_count *starlark.Builtin
 }
 
 func newTransformation(
@@ -671,6 +692,8 @@ func newTransformation(
 
 	w.WaitForChild = bool(wait_for_child)
 
+	w.frame_count = starlark.NewBuiltin("frame_count", transformationFrameCount)
+
 	if err := w.Init(); err != nil {
 		return nil, err
 	}
@@ -735,6 +758,9 @@ func (w *Transformation) Attr(name string) (starlark.Value, error) {
 
 		return starlark.Bool(w.WaitForChild), nil
 
+	case "frame_count":
+		return w.frame_count.BindReceiver(w), nil
+
 	default:
 		return nil, nil
 	}
@@ -748,6 +774,18 @@ func (w *Transformation) Truth() starlark.Bool { return true }
 func (w *Transformation) Hash() (uint32, error) {
 	sum, err := hashstructure.Hash(w, hashstructure.FormatV2, nil)
 	return uint32(sum), err
+}
+
+func transformationFrameCount(
+	thread *starlark.Thread,
+	b *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	w := b.Receiver().(*Transformation)
+	count := w.FrameCount()
+
+	return starlark.MakeInt(count), nil
 }
 
 type Translate struct {
