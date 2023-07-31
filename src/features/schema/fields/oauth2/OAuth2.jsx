@@ -19,7 +19,7 @@ export default function OAuth2({ field }) {
         if (field.id in config) {
             setLoggedIn(config[field.id].value);
         }
-    }, [])
+    }, [config])
 
     const onSuccess = (response) => {
         if (!response.code) {
@@ -81,6 +81,7 @@ export default function OAuth2({ field }) {
             authorizationUrl={field.authorization_endpoint}
             responseType="code"
             scope={scope}
+            state="abc123"
             clientId={field.client_id}
             redirectUri={redirectUri}
             render={renderButton}

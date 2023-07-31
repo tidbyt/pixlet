@@ -4,6 +4,7 @@ import (
 	"context"
 	urand "crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/rand"
@@ -18,6 +19,12 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2/authhandler"
 )
+
+var loginCommandJSON bool
+
+func init() {
+	LoginCmd.Flags().BoolVar(&loginCommandJSON, "json", false, "output login information as json")
+}
 
 var LoginCmd = &cobra.Command{
 	Use:     "login",
@@ -92,6 +99,16 @@ func login(cmd *cobra.Command, args []string) {
 	if err := privateConfig.WriteConfig(); err != nil {
 		fmt.Println("persisting token:", err)
 		os.Exit(1)
+	}
+
+	if loginCommandJSON {
+		b, err := json.Marshal(tok)
+		if err != nil {
+			fmt.Printf("could not marshal token: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%s\n", b)
+		os.Exit(0)
 	}
 
 	say, err := cowsay.Say(

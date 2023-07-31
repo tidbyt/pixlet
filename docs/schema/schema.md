@@ -72,6 +72,52 @@ Pixlet offers two types of fields: basic fields like `Toggle` or `Text` and dyna
 ## Fields
 These are the current fields we support through schema today. Note that any addition of a field will require changes in our mobile app before we can truly support them.
 
+### Color
+![color example](color/color.gif)
+> [Example App](color/example.star)
+
+Color provides a color picker. It is provided in `config` as a hex color string with a `#` prefix. The value is ready to use in widgets, like `render.Box()`. 
+
+```starlark
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Color(
+                id = "color",
+                name = "Color",
+                desc = "Color of the screen.",
+                icon = "brush",
+                default = "#7AB0FF",
+            ),
+        ],
+    )
+```
+
+You can also provide an optional `palette` parameter to guide your users towards reasonable color options:
+```starlark
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Color(
+                id = "color",
+                name = "Color",
+                desc = "Color of the screen.",
+                icon = "brush",
+                default = "#7AB0FF",
+                palette = [
+                    "#7AB0FF",
+                    "#BFEDC4",
+                    "#78DECC",
+                    "#DBB5FF",
+                ],
+            ),
+        ],
+    )
+```
+
+
 ### Datetime
 ![datetime example](datetime/datetime.gif)
 > [Example App](datetime/example.star)

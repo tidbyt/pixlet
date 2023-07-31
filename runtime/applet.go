@@ -12,8 +12,8 @@ import (
 	starlibcsv "github.com/qri-io/starlib/encoding/csv"
 	starlibhash "github.com/qri-io/starlib/hash"
 	starlibhtml "github.com/qri-io/starlib/html"
-	starlibhttp "github.com/qri-io/starlib/http"
 	starlibre "github.com/qri-io/starlib/re"
+	starlibzip "github.com/qri-io/starlib/zipfile"
 	starlibjson "go.starlark.net/lib/json"
 	starlibmath "go.starlark.net/lib/math"
 	starlibtime "go.starlark.net/lib/time"
@@ -24,10 +24,12 @@ import (
 
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
+	"tidbyt.dev/pixlet/runtime/modules/hmac"
 	"tidbyt.dev/pixlet/runtime/modules/humanize"
 	"tidbyt.dev/pixlet/runtime/modules/qrcode"
 	"tidbyt.dev/pixlet/runtime/modules/random"
 	"tidbyt.dev/pixlet/runtime/modules/render_runtime"
+	"tidbyt.dev/pixlet/runtime/modules/starlarkhttp"
 	"tidbyt.dev/pixlet/runtime/modules/sunrise"
 	"tidbyt.dev/pixlet/runtime/modules/xpath"
 	"tidbyt.dev/pixlet/schema"
@@ -91,6 +93,10 @@ func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 // and the actual code should be passed in src. Optionally also pass
 // loader to make additional starlark modules available to the script.
 func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err error) {
+	return a.LoadWithInitializers(filename, src, loader)
+}
+
+func (a *Applet) LoadWithInitializers(filename string, src []byte, loader ModuleLoader, initializers ...ThreadInitializer) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic while executing %s: %v", a.Filename, r)
@@ -115,7 +121,7 @@ func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err err
 		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
 	}
 
-	globals, err := starlark.ExecFile(a.thread(), a.Filename, a.src, a.predeclared)
+	globals, err := starlark.ExecFile(a.thread(initializers...), a.Filename, a.src, a.predeclared)
 	if err != nil {
 		return fmt.Errorf("starlark.ExecFile: %v", err)
 	}
@@ -315,6 +321,19 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 			starlibgzip.Module.Name: starlibgzip.Module,
 		}, nil
 
+	case "compress/zipfile.star":
+		// Starlib expects you to load the ZipFile function directly, rather than having it be part of a namespace.
+		// Wraps this to be more consistent with other pixlet modules, as follows:
+		//   load("compress/zipfile.star", "zipfile")
+		//   archive = zipfile.ZipFile("/tmp/foo.zip")
+		m, _ := starlibzip.LoadModule()
+		return starlark.StringDict{
+			"zipfile": &starlarkstruct.Module{
+				Name:    "zipfile",
+				Members: m,
+			},
+		}, nil
+
 	case "encoding/base64.star":
 		return starlibbase64.LoadModule()
 
@@ -329,8 +348,11 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	case "hash.star":
 		return starlibhash.LoadModule()
 
+	case "hmac.star":
+		return hmac.LoadModule()
+
 	case "http.star":
-		return starlibhttp.LoadModule()
+		return starlarkhttp.LoadModule()
 
 	case "html.star":
 		return starlibhtml.LoadModule()

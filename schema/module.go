@@ -48,6 +48,7 @@ func LoadModule() (starlark.StringDict, error) {
 					"Handler":       starlark.NewBuiltin("Handler", newHandler),
 					"HandlerType":   handlerType,
 					"Generated":     starlark.NewBuiltin("Generated", newGenerated),
+					"Color":         starlark.NewBuiltin("Color", newColor),
 				},
 			},
 		}

@@ -2,7 +2,9 @@ import React from 'react';
 
 import OAuth2 from './fields/oauth2/OAuth2';
 import PhotoSelect from './fields/photoselect/PhotoSelect';
+import RawPhotoSelect from './fields/photoselect/RawPhotoSelect';
 import Toggle from './fields/Toggle';
+import Color from './fields/Color';
 import DateTime from './fields/DateTime';
 import Dropdown from './fields/Dropdown';
 import LocationBased from './fields/location/LocationBased';
@@ -25,6 +27,9 @@ export default function FieldDetails({ field }) {
         case 'oauth2':
             return <OAuth2 field={field} />
         case 'png':
+            if (PIXLET_WASM) {
+                return <RawPhotoSelect field={field} />
+            }
             return <PhotoSelect field={field} />
         case 'text':
             return <TextInput field={field} />
@@ -32,6 +37,8 @@ export default function FieldDetails({ field }) {
             return <Toggle field={field} />
         case 'typeahead':
             return <Typeahead field={field} />
+        case 'color':
+            return <Color field={field} />
         default:
             return <Typography>Unsupported type: {field.type}</Typography>
     }

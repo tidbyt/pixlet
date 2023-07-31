@@ -30,6 +30,11 @@ export default function PhotoSelect({ field }) {
                 id: field.id,
                 value: croppedImage,
             }))
+        } else if (field.default) {
+            dispatch(set({
+                id: field.id,
+                value: field.default,
+            }));
         } else {
             dispatch(remove(field.id));
         }

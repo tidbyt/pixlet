@@ -1,18 +1,10 @@
 package encode
 
 import (
-	"bytes"
 	"crypto/sha256"
-	"fmt"
 	"image"
-	"image/color"
-	"image/draw"
-	"image/gif"
-	"time"
 
-	"github.com/ericpauley/go-quantize/quantize"
 	"github.com/pkg/errors"
-	"github.com/tidbyt/go-libwebp/webp"
 	"github.com/vmihailenco/msgpack/v5"
 
 	"tidbyt.dev/pixlet/render"
@@ -90,103 +82,6 @@ func (s *Screens) Hash() ([]byte, error) {
 
 	h := sha256.Sum256(j)
 	return h[:], nil
-}
-
-// Renders a screen to WebP. Optionally pass filters for
-// postprocessing each individual frame.
-func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, error) {
-	images, err := s.render(filters...)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(images) == 0 {
-		return []byte{}, nil
-	}
-
-	bounds := images[0].Bounds()
-	anim, err := webp.NewAnimationEncoder(
-		bounds.Dx(),
-		bounds.Dy(),
-		WebPKMin,
-		WebPKMax,
-	)
-	if err != nil {
-		return nil, errors.Wrap(err, "initializing encoder")
-	}
-	defer anim.Close()
-
-	remainingDuration := time.Duration(maxDuration) * time.Millisecond
-	for _, im := range images {
-		frameDuration := time.Duration(s.delay) * time.Millisecond
-		if frameDuration > remainingDuration {
-			frameDuration = remainingDuration
-		}
-		remainingDuration -= frameDuration
-
-		if err := anim.AddFrame(im, frameDuration); err != nil {
-			return nil, errors.Wrap(err, "adding frame")
-		}
-
-		if remainingDuration <= 0 {
-			break
-		}
-	}
-
-	buf, err := anim.Assemble()
-	if err != nil {
-		return nil, errors.Wrap(err, "encoding animation")
-	}
-
-	return buf, nil
-}
-
-// Renders a screen to GIF. Optionally pass filters for postprocessing
-// each individual frame.
-func (s *Screens) EncodeGIF(maxDuration int, filters ...ImageFilter) ([]byte, error) {
-	images, err := s.render(filters...)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(images) == 0 {
-		return []byte{}, nil
-	}
-
-	g := &gif.GIF{}
-
-	remainingDuration := maxDuration
-	for imIdx, im := range images {
-		imRGBA, ok := im.(*image.RGBA)
-		if !ok {
-			return nil, fmt.Errorf("image %d is %T, require RGBA", imIdx, im)
-		}
-
-		palette := quantize.MedianCutQuantizer{}.Quantize(make([]color.Color, 0, 256), im)
-		imPaletted := image.NewPaletted(imRGBA.Bounds(), palette)
-		draw.Draw(imPaletted, imRGBA.Bounds(), imRGBA, image.Point{0, 0}, draw.Src)
-
-		frameDelay := int(s.delay)
-		if frameDelay > remainingDuration {
-			frameDelay = remainingDuration
-		}
-		remainingDuration -= frameDelay
-
-		g.Image = append(g.Image, imPaletted)
-		g.Delay = append(g.Delay, frameDelay/10) // in 100ths of a second
-
-		if remainingDuration <= 0 {
-			break
-		}
-	}
-
-	buf := &bytes.Buffer{}
-	err = gif.EncodeAll(buf, g)
-	if err != nil {
-		return nil, errors.Wrap(err, "encoding")
-	}
-
-	return buf.Bytes(), nil
 }
 
 func (s *Screens) render(filters ...ImageFilter) ([]image.Image, error) {
