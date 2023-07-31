@@ -21,7 +21,7 @@ import (
 )
 
 // Image renders the binary image data passed via `src`. Supported
-// formats include PNG, JPEG and GIF.
+// formats include PNG, JPEG, GIF, and SVG.
 //
 // If `width` or `height` are set, the image will be scaled
 // accordingly, with nearest neighbor interpolation. Otherwise the
@@ -31,7 +31,7 @@ import (
 // also be animated. Frame delay (in milliseconds) can be read from
 // the `delay` attribute.
 //
-// DOC(Src): Binary image data
+// DOC(Src): Binary image data or SVG text
 // DOC(Width): Scale image to this width
 // DOC(Height): Scale image to this height
 // DOC(Delay): (Read-only) Frame delay in ms, for animated GIFs

@@ -160,7 +160,8 @@ render.Column(
 
 
 ## Image
-Image renders the image data passed via `src`. `src` accepts a string and supports file URLs, SVG as a string, as well as image binary data. Supported binary data formats include PNG, JPEG and GIF.
+Image renders the binary image data passed via `src`. Supported
+formats include PNG, JPEG, GIF, and SVG.
 
 If `width` or `height` are set, the image will be scaled
 accordingly, with nearest neighbor interpolation. Otherwise the
@@ -173,7 +174,7 @@ the `delay` attribute.
 #### Attributes
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
-| `src` | `str` | Binary image data or svg text | **Y** |
+| `src` | `str` | Binary image data or SVG text | **Y** |
 | `width` | `int` | Scale image to this width | N |
 | `height` | `int` | Scale image to this height | N |
 | `delay` | `int` | (Read-only) Frame delay in ms, for animated GIFs | N |
