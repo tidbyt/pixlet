@@ -329,7 +329,7 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		m, _ := starlibzip.LoadModule()
 		return starlark.StringDict{
 			"zipfile": &starlarkstruct.Module{
-				Name: "zipfile",
+				Name:    "zipfile",
 				Members: m,
 			},
 		}, nil

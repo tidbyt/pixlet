@@ -9,12 +9,11 @@ import (
 	"hash"
 	"sync"
 	"time"
-	
+
 	godfe "github.com/newm4n/go-dfe"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
-
 
 const (
 	ModuleName = "hmac"
@@ -49,13 +48,13 @@ func fnHmac(hashFunc func() hash.Hash) func(*starlark.Thread, *starlark.Builtin,
 	return func(t *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		var (
 			key starlark.String
-			s 	starlark.String
+			s   starlark.String
 		)
 		if err := starlark.UnpackPositionalArgs(fn.Name(), args, kwargs, 1, &key, &s); err != nil {
 			return nil, err
 		}
 
-		h :=  hmac.New(hashFunc, []byte(string(key)))
+		h := hmac.New(hashFunc, []byte(string(key)))
 
 		if _, err := h.Write([]byte(string(s))); err != nil {
 			return starlark.None, err

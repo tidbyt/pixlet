@@ -9,8 +9,6 @@ import (
 	"image/draw"
 	"image/gif"
 	"image/jpeg"
-	"io"
-	"net/http"
 
 	// register image formats
 	_ "image/jpeg"
@@ -153,25 +151,6 @@ func (p *Image) InitFromSVG(data []byte) error {
 	}
 
 	err = p.InitFromImage([]byte(buf.Bytes()))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *Image) InitFromURL(url string) error {
-	response, err := http.Get(url)
-	defer response.Body.Close()
-
-	if err != nil {
-		return err
-	}
-
-	body, err := io.ReadAll(response.Body)
-
-	p.Src = string(body)
-	err = p.Init()
 	if err != nil {
 		return err
 	}
