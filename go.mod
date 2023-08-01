@@ -41,7 +41,7 @@ require (
 	go.starlark.net v0.0.0-20230731234521-9b46791399bf
 	golang.org/x/image v0.9.0
 	golang.org/x/oauth2 v0.10.0
-	golang.org/x/sync v0.2.0
+	golang.org/x/sync v0.3.0
 	golang.org/x/text v0.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )
