@@ -10,5 +10,5 @@ Tidbyt's display is 64x32 pixels. If there is a GIF that’s larger than 64x32 p
 ## Finished GIF is 128KB or less
 We’re limited by the number of bytes we can send to the Tidbyt and the Tidbyt is constrained by how many bytes it can store locally. To get around this, we limit the size of the GIF to 128 Kilobytes and if it’s larger than this after downsizing to 64x32 pixels, we drop frames until it fits the size requirements. This means if you want your GIF to look great on the Tidbyt, make sure it’s 128KB or less before adding it through the mobile app or with Pixlet.
 
-## GIF is 15 seconds in length or loops cleanly if less then 15 seconds.
-The length of time the GIF loops should be around 15 seconds. The timings for applet cycles are 15, 10, 7.5, and 5 seconds depending on the setting in the mobile app. If your GIF is less then 15 seconds, ensure it loops cleanly to avoid an interrupt.
+## GIF is 15 seconds in length or loops cleanly if less than 15 seconds.
+The length of time the GIF loops should be around 15 seconds. The timings for applet cycles are 15, 10, 7.5, and 5 seconds depending on the setting in the mobile app. If your GIF is less than 15 seconds, ensure it loops cleanly to avoid an interrupt.

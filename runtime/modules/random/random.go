@@ -104,7 +104,7 @@ func randomNumber(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 	}
 
 	if max < min {
-		return nil, fmt.Errorf("max is less then min")
+		return nil, fmt.Errorf("max is less than min")
 	}
 
 	rng, ok := thread.Local(threadRandKey).(*rand.Rand)

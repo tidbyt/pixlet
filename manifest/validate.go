@@ -47,7 +47,7 @@ func ValidateName(name string) error {
 	}
 
 	if len(name) > MaxNameLength {
-		return fmt.Errorf("app names need to be less then %d characters", MaxNameLength)
+		return fmt.Errorf("app names need to be less than %d characters", MaxNameLength)
 	}
 
 	return nil
@@ -62,7 +62,7 @@ func ValidateSummary(summary string) error {
 	}
 
 	if len(summary) > MaxSummaryLength {
-		return fmt.Errorf("app summaries need to be less then %d characters", MaxSummaryLength)
+		return fmt.Errorf("app summaries need to be less than %d characters", MaxSummaryLength)
 	}
 
 	for _, punct := range punctuation {

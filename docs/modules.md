@@ -219,7 +219,7 @@ The `random` module provides a pseudorandom number generator for pixlet. The gen
 | Function | Description |
 | --- | --- |
 | `seed(s)` | Seeds the generator.|
-| `number(min, max)` | Returns a random number between the min and max. The min has to be 0 or greater. The min has to be less then the max. |
+| `number(min, max)` | Returns a random number between the min and max. The min has to be 0 or greater. The min has to be less than the max. |
 
 Example:
 ```starlark
