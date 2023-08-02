@@ -18,9 +18,9 @@ def test_number():
 	for x in range(0, 300):
 		num = random.number(min, max)
 		if num < min:
-			fail("random number less then min")
+			fail("random number less than min")
 		if num > max:
-			fail("random number greater then max")
+			fail("random number greater than max")
 
 def test_seed():
     random.seed(4711)

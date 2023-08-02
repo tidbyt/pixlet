@@ -132,7 +132,7 @@ func cacheKey(req *http.Request) (string, error) {
 func DetermineTTL(req *http.Request, resp *http.Response) time.Duration {
 	ttl := determineTTL(req, resp)
 
-	// Jitter the TTL by 10% and double check that it's still greater then the
+	// Jitter the TTL by 10% and double check that it's still greater than the
 	// minimum TTL. If it's not, return the minimum TTL. The main thing we want
 	// to avoid is a TTL of 0 given it will be cached forever.
 	ttl = jitterDuration(ttl)
