@@ -28,6 +28,7 @@ individual modules, please refer to the Starlib documentation.
 
 | Module | Description |
 | --- | --- |
+| [`bsoup.star`](https://github.com/qri-io/starlib/blob/master/bsoup) | Beautiful Soup-like functions for HTML |
 | [`compress/gzip.star`](https://github.com/qri-io/starlib/blob/master/compress/gzip) | gzip decompressing |
 | [`compress/zipfile.star`](https://github.com/qri-io/starlib/blob/master/zipfile) | zip decompressing |
 | [`encoding/base64.star`](https://github.com/qri-io/starlib/tree/master/encoding/base64) | Base 64 encoding and decoding |
