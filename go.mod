@@ -13,7 +13,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gitsight/go-vcsurl v1.0.1
 	github.com/go-git/go-git/v5 v5.8.1
-	github.com/go-playground/validator/v10 v10.14.1
+	github.com/go-playground/validator/v10 v10.15.0
 	github.com/google/pprof v0.0.0-20230602010524-ada837c32108
 	github.com/google/tink/go v1.7.0
 	github.com/gorilla/mux v1.8.0
