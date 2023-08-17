@@ -14,7 +14,7 @@ require (
 	github.com/gitsight/go-vcsurl v1.0.1
 	github.com/go-git/go-git/v5 v5.8.1
 	github.com/go-playground/validator/v10 v10.15.1
-	github.com/google/pprof v0.0.0-20230816232805-2861d24d8f05
+	github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b
 	github.com/google/tink/go v1.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0

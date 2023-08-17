@@ -230,6 +230,8 @@ github.com/google/pprof v0.0.0-20230816055901-76846d4d6a3b h1:ZUEdbUOOhWGpraX/m5
 github.com/google/pprof v0.0.0-20230816055901-76846d4d6a3b/go.mod h1:Jh3hGz2jkYak8qXPD19ryItVnUgpgeqzdkY/D0EaeuA=
 github.com/google/pprof v0.0.0-20230816232805-2861d24d8f05 h1:2pmRkRZ5I6hLrFn8TnsfOb2sCUB33i1Kk3DCfeHDCcE=
 github.com/google/pprof v0.0.0-20230816232805-2861d24d8f05/go.mod h1:Jh3hGz2jkYak8qXPD19ryItVnUgpgeqzdkY/D0EaeuA=
+github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b h1:h9U78+dx9a4BKdQkBBos92HalKpaGKHrp+3Uo6yTodo=
+github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b/go.mod h1:czg5+yv1E0ZGTi6S6vVK1mke0fV+FaUhNGcd6VRS9Ik=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/tink/go v1.7.0 h1:6Eox8zONGebBFcCBqkVmt60LaWZa6xg1cl/DwAh/J1w=
 github.com/google/tink/go v1.7.0/go.mod h1:GAUOd+QE3pgj9q8VKIGTCP33c/B7eb4NhxLcgTJZStM=
