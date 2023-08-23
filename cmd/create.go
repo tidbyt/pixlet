@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -87,6 +88,10 @@ var CreateCmd = &cobra.Command{
 
 			app.ID, err = createPrivateApp(apiToken, createOrg)
 			if err != nil {
+				if strings.Contains(err.Error(), "user is not authorized to create apps") {
+					return fmt.Errorf("user is not authorized to create apps for organization %s, please reach out to your Tidbyt For Teams account representative to enable this feature for your account", createOrg)
+				}
+
 				return fmt.Errorf("remote app creation failed: %w", err)
 			}
 		}
