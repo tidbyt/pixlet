@@ -56,7 +56,7 @@
     "@mui/material": "5.14.6",
     "@mui/x-date-pickers": "5.0.20",
     "@reduxjs/toolkit": "1.9.5",
-    "axios": "1.4.0",
+    "axios": "1.5.0",
     "axios-retry": "^3.5.0",
     "copy-webpack-plugin": "^11.0.0",
     "date-fns": "2.30.0",
