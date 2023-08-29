@@ -38,7 +38,7 @@ require (
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
-	go.starlark.net v0.0.0-20230814145427-12f4cb8177e4
+	go.starlark.net v0.0.0-20230829175125-68633c9954b0
 	golang.org/x/image v0.11.0
 	golang.org/x/oauth2 v0.11.0
 	golang.org/x/sync v0.3.0
@@ -94,8 +94,10 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
