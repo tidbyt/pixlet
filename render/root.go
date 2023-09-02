@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"runtime"
@@ -126,6 +127,15 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 			r.Child.Paint(dc, image.Rect(0, 0, FrameWidth, FrameHeight), i)
 			dc.Pop()
 			frames[i] = dc.Image()
+
+			if skiaWidget, ok := r.Child.(WidgetWithSkia); ok {
+				skia := skiaWidget.ToSkia(image.Rect(0, 0, FrameWidth, FrameHeight), i)
+				fmt.Printf(`
+					if (frameIdx == %d) {
+						%s
+					}
+					`, i, skia)
+			}
 		}(i)
 	}
 

@@ -1,8 +1,10 @@
 package render
 
 import (
+	"fmt"
 	"image"
 	"image/color"
+	"strings"
 
 	"github.com/tidbyt/gg"
 )
@@ -98,6 +100,69 @@ func (p Padding) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	p.Child.Paint(dc, image.Rect(0, 0, bounds.Dx()-p.Pad.Left-p.Pad.Right, bounds.Dy()-p.Pad.Top-p.Pad.Bottom),
 		frameIdx)
 	dc.Pop()
+}
+
+func (p Padding) ToSkia(bounds image.Rectangle, frameIdx int) string {
+	skia := &strings.Builder{}
+
+	cb := p.Child.PaintBounds(
+		image.Rect(0, 0, bounds.Dx()-p.Pad.Left-p.Pad.Right, bounds.Dy()-p.Pad.Top-p.Pad.Bottom),
+		frameIdx,
+	)
+
+	var width, height int
+	if p.Expanded {
+		width = bounds.Dx()
+		height = bounds.Dy()
+	} else {
+		width = cb.Dx() + p.Pad.Left + p.Pad.Right
+		height = cb.Dy() + p.Pad.Top + p.Pad.Bottom
+	}
+
+	if p.Color != nil {
+		color := p.Color.(color.NRGBA)
+		fmt.Fprintf(skia, `
+			{
+				SkPaint p;
+				p.setColor(SkColorSetARGB(%d, %d, %d, %d));
+				p.setStyle(SkPaint::kFill_Style);
+				canvas->drawRect(SkRect::MakeXYWH(%d, %d, %d, %d), p);
+			}
+			`,
+			color.A, color.R, color.G, color.B,
+			0, 0, width, height,
+		)
+	}
+
+	if child, ok := p.Child.(WidgetWithSkia); ok && child != nil {
+		childSkia := child.ToSkia(image.Rect(0, 0, width-p.Pad.Left-p.Pad.Right, height-p.Pad.Top-p.Pad.Bottom), frameIdx)
+
+		// Some apps use negative padding as a positioning hack.
+		clipLeft := p.Pad.Left
+		clipTop := p.Pad.Top
+		if clipLeft < 0 {
+			clipLeft = 0
+		}
+		if clipTop < 0 {
+			clipTop = 0
+		}
+
+		fmt.Fprintf(skia, `
+			canvas->save();
+			canvas->clipRect(SkRect::MakeXYWH(%d, %d, %d, %d));
+			canvas->translate(%d, %d);
+			{
+				%s
+			}
+			canvas->restore();
+			`,
+			clipLeft, clipTop, width-p.Pad.Left-p.Pad.Right, height-p.Pad.Top-p.Pad.Bottom,
+			p.Pad.Left, p.Pad.Top,
+			childSkia,
+		)
+	}
+
+	return skia.String()
 }
 
 func (p Padding) FrameCount() int {

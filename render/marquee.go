@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"image"
 
 	"github.com/tidbyt/gg"
@@ -38,10 +39,12 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Marquee(
-//      width=64,
-//      child=render.Text("this won't fit in 64 pixels"),
-//      offset_start=5,
-//      offset_end=32,
+//
+//	width=64,
+//	child=render.Text("this won't fit in 64 pixels"),
+//	offset_start=5,
+//	offset_end=32,
+//
 // )
 // EXAMPLE END
 type Marquee struct {
@@ -187,6 +190,105 @@ func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		dc.Translate(float64(offset), 0)
 		m.Child.Paint(dc, image.Rect(0, 0, m.Width*10, bounds.Dy()), 0)
 		dc.Pop()
+	}
+}
+
+func (m Marquee) ToSkia(bounds image.Rectangle, frameIdx int) string {
+	var cb image.Rectangle
+	var cw int
+	var size int
+	if m.isVertical() {
+		// We'll only scroll frame 0 of the child. Scrolling an
+		// animation would be madness.
+		cb = m.Child.PaintBounds(image.Rect(0, 0, bounds.Dx(), m.Height*10), 0)
+		cw = cb.Dy()
+		size = m.Height
+	} else {
+		cb = m.Child.PaintBounds(image.Rect(0, 0, m.Width*10, bounds.Dy()), 0)
+		cw = cb.Dx()
+		size = m.Width
+	}
+
+	offstart := m.OffsetStart
+	if offstart < -cw {
+		offstart = -cw
+	}
+
+	offend := m.OffsetEnd
+	if offend < -cw {
+		offend = -cw
+	}
+
+	delay := m.Delay
+	loopIdx := cw + offstart + delay
+	endIdx := cw + offstart + size - offend + delay
+
+	align := 0.0 //default is align="start"
+	var offset int
+	if cw <= size {
+		// child fits entirely and we don't want to scroll it anyway
+		offset = 0
+
+		//modify alignment
+		if m.Align == "center" {
+			align = 0.5
+			offset = size / 2
+		} else if m.Align == "end" {
+			align = 1.0
+			offset = size
+		}
+	} else if frameIdx <= delay {
+		// delay the scrolling for the number of frames specified by delay
+		offset = offstart
+	} else if frameIdx <= loopIdx {
+		// first scroll child out of view
+		offset = offstart - frameIdx + delay
+	} else if frameIdx <= endIdx {
+		// then, scroll back into view
+		offset = offend + (endIdx - frameIdx)
+	} else {
+		// if more than FrameCount frames are requested,
+		// freeze marquee at final frame
+		offset = offend
+	}
+
+	pb := m.PaintBounds(bounds, frameIdx)
+
+	child, ok := m.Child.(WidgetWithSkia)
+	if !ok || child == nil {
+		return ""
+	}
+
+	if m.isVertical() {
+		offset -= int(align * float64(cb.Dy()))
+		return fmt.Sprintf(`
+			canvas->save();
+			canvas->clipRect(SkRect::MakeXYWH(%d, %d, %d, %d));
+			canvas->translate(%d, %d);
+			{
+				%s
+			}
+			canvas->restore();
+		`,
+			0, 0, cb.Dx(), cb.Dy(),
+			0, offset,
+			child.ToSkia(image.Rect(0, 0, bounds.Dx(), m.Height*10), 0),
+		)
+	} else {
+		offset -= int(align * float64(cb.Dx()))
+		return fmt.Sprintf(`
+			canvas->save();
+			canvas->clipRect(SkRect::MakeXYWH(%d, %d, %d, %d));
+			canvas->translate(%d, %d);
+			{
+				%s
+			}
+			canvas->restore();
+		`,
+			0, 0, pb.Dx(), pb.Dy(),
+			0, offset,
+			child.ToSkia(image.Rect(0, 0, m.Width*10, bounds.Dy()), 0),
+		)
 	}
 }
 

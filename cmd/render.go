@@ -126,6 +126,11 @@ func render(cmd *cobra.Command, args []string) error {
 	}
 	screens := encode.ScreensFromRoots(roots)
 
+	js, err := screens.JSON()
+	if err == nil {
+		os.WriteFile(outPath+".json", js, 0644)
+	}
+
 	filter := func(input image.Image) (image.Image, error) {
 		if magnify <= 1 {
 			return input, nil

@@ -35,24 +35,28 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Column(
-//      children=[
-//           render.Box(width=10, height=8, color="#a00"),
-//           render.Box(width=14, height=6, color="#0a0"),
-//           render.Box(width=16, height=4, color="#00a"),
-//      ],
+//
+//	children=[
+//	     render.Box(width=10, height=8, color="#a00"),
+//	     render.Box(width=14, height=6, color="#0a0"),
+//	     render.Box(width=16, height=4, color="#00a"),
+//	],
+//
 // )
 // EXAMPLE END
 //
 // EXAMPLE BEGIN
 // render.Column(
-//      expanded=True,
-//      main_align="space_around",
-//      cross_align="center",
-//      children=[
-//           render.Box(width=10, height=8, color="#a00"),
-//           render.Box(width=14, height=6, color="#0a0"),
-//           render.Box(width=16, height=4, color="#00a"),
-//      ],
+//
+//	expanded=True,
+//	main_align="space_around",
+//	cross_align="center",
+//	children=[
+//	     render.Box(width=10, height=8, color="#a00"),
+//	     render.Box(width=14, height=6, color="#0a0"),
+//	     render.Box(width=16, height=4, color="#00a"),
+//	],
+//
 // )
 // EXAMPLE END
 type Column struct {
@@ -84,6 +88,17 @@ func (c Column) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		Expanded:   c.Expanded,
 	}
 	v.Paint(dc, bounds, frameIdx)
+}
+
+func (c Column) ToSkia(bounds image.Rectangle, frameIdx int) string {
+	v := Vector{
+		Vertical:   true,
+		Children:   c.Children,
+		MainAlign:  c.MainAlign,
+		CrossAlign: c.CrossAlign,
+		Expanded:   c.Expanded,
+	}
+	return v.ToSkia(bounds, frameIdx)
 }
 
 func (c Column) FrameCount() int {

@@ -2,6 +2,7 @@ package encode
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"image"
 
 	"github.com/pkg/errors"
@@ -82,6 +83,21 @@ func (s *Screens) Hash() ([]byte, error) {
 
 	h := sha256.Sum256(j)
 	return h[:], nil
+}
+
+func (s *Screens) JSON() ([]byte, error) {
+	data := struct {
+		Roots  []render.Root
+		Images []image.Image
+		Delay  int32
+		MaxAge int32
+	}{
+		Roots:  s.roots,
+		Delay:  s.delay,
+		MaxAge: s.MaxAge,
+	}
+
+	return json.MarshalIndent(data, "", "  ")
 }
 
 func (s *Screens) render(filters ...ImageFilter) ([]image.Image, error) {

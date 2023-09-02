@@ -24,6 +24,10 @@ type WidgetStaticSize interface {
 	Size() (int, int)
 }
 
+type WidgetWithSkia interface {
+	ToSkia(bounds image.Rectangle, frameIdx int) string
+}
+
 // Computes a (mod m). Useful for handling frameIdx > num available
 // frames in Widget.Paint()
 func ModInt(a, m int) int {

@@ -1,7 +1,9 @@
 package render
 
 import (
+	"fmt"
 	"image"
+	"strings"
 
 	"github.com/tidbyt/gg"
 )
@@ -16,11 +18,13 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Stack(
-//      children=[
-//           render.Box(width=50, height=25, color="#911"),
-//           render.Text("hello there"),
-//           render.Box(width=4, height=32, color="#119"),
-//      ],
+//
+//	children=[
+//	     render.Box(width=50, height=25, color="#911"),
+//	     render.Text("hello there"),
+//	     render.Box(width=4, height=32, color="#119"),
+//	],
+//
 // )
 // EXAMPLE END
 type Stack struct {
@@ -57,6 +61,29 @@ func (s Stack) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		child.Paint(dc, bounds, frameIdx)
 		dc.Pop()
 	}
+}
+
+func (s Stack) ToSkia(bounds image.Rectangle, frameIdx int) string {
+	skia := &strings.Builder{}
+
+	for _, child := range s.Children {
+		c, ok := child.(WidgetWithSkia)
+		if !ok || c == nil {
+			continue
+		}
+
+		fmt.Fprintf(skia, `
+			canvas->save();
+			{
+				%s
+			}
+			canvas->restore();
+			`,
+			c.ToSkia(bounds, frameIdx),
+		)
+	}
+
+	return skia.String()
 }
 
 func (s Stack) FrameCount() int {

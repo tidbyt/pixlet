@@ -16,13 +16,15 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Animation(
-//      children=[
-//           render.Box(width=10, height=10, color="#300"),
-//           render.Box(width=12, height=12, color="#500"),
-//           render.Box(width=14, height=14, color="#700"),
-//           render.Box(width=16, height=16, color="#900"),
-//           render.Box(width=18, height=18, color="#b00"),
-//      ],
+//
+//	children=[
+//	     render.Box(width=10, height=10, color="#300"),
+//	     render.Box(width=12, height=12, color="#500"),
+//	     render.Box(width=14, height=14, color="#700"),
+//	     render.Box(width=16, height=16, color="#900"),
+//	     render.Box(width=18, height=18, color="#b00"),
+//	],
+//
 // )
 // EXAMPLE END
 type Animation struct {
@@ -62,4 +64,26 @@ func (a Animation) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	}
 
 	a.Children[ModInt(frameIdx, len(a.Children))].Paint(dc, bounds, frameIdx)
+}
+
+func (a Animation) ToSkia(bounds image.Rectangle, frameIdx int) string {
+	var children []WidgetWithSkia
+	for _, child := range a.Children {
+		if c, ok := child.(WidgetWithSkia); ok && c != nil {
+			children = append(children, c)
+		}
+	}
+
+	if len(children) == 0 {
+		return ""
+	}
+
+	if frameIdx > len(children) {
+		frameIdx %= len(children)
+		if frameIdx < 0 {
+			frameIdx += len(children)
+		}
+	}
+
+	return children[ModInt(frameIdx, len(children))].ToSkia(bounds, frameIdx)
 }
