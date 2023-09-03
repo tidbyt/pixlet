@@ -1,13 +1,16 @@
 package render
 
 import (
+	"context"
 	"image"
 	"image/color"
+	"os"
 	"runtime"
 	"sync"
+	"time"
 
-	"github.com/tidbyt/gg"
 	"tidbyt.dev/pixlet/globals"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 const (
@@ -104,6 +107,9 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 		FrameHeight = globals.Height
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
 	var wg sync.WaitGroup
 	sem := make(chan bool, parallelism)
 	for i := 0; i < numFrames; i++ {
@@ -116,7 +122,13 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 				wg.Done()
 			}()
 
-			dc := gg.NewContext(FrameWidth, FrameHeight)
+			var dc canvas.Canvas
+			if os.Getenv("PIXLET_RENDERER") == "skia" {
+				dc = canvas.NewSkiaCanvas(ctx)
+			} else {
+				dc = canvas.NewGGCanvas(FrameWidth, FrameHeight)
+			}
+
 			if solidBackground {
 				dc.SetColor(color.Black)
 				dc.Clear()
@@ -124,6 +136,7 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 
 			dc.Push()
 			r.Child.Paint(dc, image.Rect(0, 0, FrameWidth, FrameHeight), i)
+
 			dc.Pop()
 			frames[i] = dc.Image()
 		}(i)

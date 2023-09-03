@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 var (
@@ -45,8 +46,8 @@ func (t *Text) Size() (int, int) {
 	return t.img.Bounds().Dx(), t.img.Bounds().Dy()
 }
 
-func (t *Text) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
-	dc.DrawImage(t.img, 0, 0)
+func (t *Text) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
+	dc.DrawGoImage(0, 0, t.img)
 }
 
 func (t *Text) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {

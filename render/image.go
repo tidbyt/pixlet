@@ -17,7 +17,7 @@ import (
 	"github.com/nfnt/resize"
 	"github.com/srwiley/oksvg"
 	"github.com/srwiley/rasterx"
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Image renders the binary image data passed via `src`. Supported
@@ -41,15 +41,36 @@ type Image struct {
 	Width, Height int
 	Delay         int `starlark:"delay,readonly"`
 
-	imgs []image.Image
+	imgs []imageContainer
+}
+
+type imageContainer struct {
+	Image image.Image
+
+	Bytes         []byte
+	Width, Height int
+}
+
+func (c *imageContainer) Bounds() image.Rectangle {
+	if c.Image != nil {
+		return c.Image.Bounds()
+	} else {
+		return image.Rect(0, 0, c.Width, c.Height)
+	}
 }
 
 func (p *Image) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	return p.imgs[ModInt(frameIdx, len(p.imgs))].Bounds()
 }
 
-func (p *Image) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
-	dc.DrawImage(p.imgs[ModInt(frameIdx, len(p.imgs))], 0, 0)
+func (p *Image) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
+	img := p.imgs[ModInt(frameIdx, len(p.imgs))]
+
+	if img.Image != nil {
+		dc.DrawGoImage(0, 0, img.Image)
+	} else {
+		dc.DrawImageFromBuffer(0, 0, float64(img.Width), float64(img.Height), img.Bytes)
+	}
 }
 
 func (p *Image) Size() (int, int) {
@@ -114,19 +135,25 @@ func (p *Image) InitFromGIF(data []byte) error {
 			}
 		}
 
-		p.imgs = append(p.imgs, &frame)
+		p.imgs = append(p.imgs, imageContainer{Image: &frame})
 	}
 
 	return nil
 }
 
 func (p *Image) InitFromImage(data []byte) error {
-	im, _, err := image.Decode(bytes.NewReader(data))
+	config, _, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil {
 		return fmt.Errorf("decoding image data: %v", err)
 	}
 
-	p.imgs = []image.Image{im}
+	p.imgs = []imageContainer{
+		{
+			Bytes:  data,
+			Width:  config.Width,
+			Height: config.Height,
+		},
+	}
 
 	return nil
 }
@@ -189,7 +216,12 @@ func (p *Image) Init() error {
 		}
 
 		for i := 0; i < len(p.imgs); i++ {
-			p.imgs[i] = resize.Resize(uint(nw), uint(nh), p.imgs[i], resize.NearestNeighbor)
+			if p.imgs[i].Image != nil {
+				p.imgs[i].Image = resize.Resize(uint(nw), uint(nh), p.imgs[i].Image, resize.NearestNeighbor)
+			} else {
+				p.imgs[i].Width = nw
+				p.imgs[i].Height = nh
+			}
 		}
 	}
 

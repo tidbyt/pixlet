@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
+	"log"
 	"os"
+	"runtime/pprof"
+	"strconv"
 	"strings"
 	"time"
 
@@ -78,6 +81,17 @@ var RenderCmd = &cobra.Command{
 }
 
 func render(cmd *cobra.Command, args []string) error {
+	f, err := os.Create("profile.out")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
+	return doTheThing(args)
+}
+
+func doTheThing(args []string) error {
 	script := args[0]
 
 	globals.Width = width
@@ -144,57 +158,64 @@ func render(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
-	roots, err := applet.Run(config, initializers...)
-	if err != nil {
-		return fmt.Errorf("error running script: %w", err)
+	var buf []byte
+	iterations := os.Getenv("ITERATIONS")
+	if iterations == "" {
+		iterations = "1"
 	}
-	screens := encode.ScreensFromRoots(roots)
+	n, _ := strconv.Atoi(iterations)
 
-	filter := func(input image.Image) (image.Image, error) {
-		if magnify <= 1 {
-			return input, nil
+	for i := 0; i < n; i++ {
+		roots, err := applet.Run(config, initializers...)
+		if err != nil {
+			return fmt.Errorf("error running script: %w", err)
 		}
-		in, ok := input.(*image.RGBA)
-		if !ok {
-			return nil, fmt.Errorf("image not RGBA, very weird")
-		}
+		screens := encode.ScreensFromRoots(roots)
 
-		out := image.NewRGBA(
-			image.Rect(
-				0, 0,
-				in.Bounds().Dx()*magnify,
-				in.Bounds().Dy()*magnify),
-		)
-		for x := 0; x < in.Bounds().Dx(); x++ {
-			for y := 0; y < in.Bounds().Dy(); y++ {
-				for xx := 0; xx < magnify; xx++ {
-					for yy := 0; yy < magnify; yy++ {
-						out.SetRGBA(
-							x*magnify+xx,
-							y*magnify+yy,
-							in.RGBAAt(x, y),
-						)
+		filter := func(input image.Image) (image.Image, error) {
+			if magnify <= 1 {
+				return input, nil
+			}
+			in, ok := input.(*image.RGBA)
+			if !ok {
+				return nil, fmt.Errorf("image not RGBA, very weird")
+			}
+
+			out := image.NewRGBA(
+				image.Rect(
+					0, 0,
+					in.Bounds().Dx()*magnify,
+					in.Bounds().Dy()*magnify),
+			)
+			for x := 0; x < in.Bounds().Dx(); x++ {
+				for y := 0; y < in.Bounds().Dy(); y++ {
+					for xx := 0; xx < magnify; xx++ {
+						for yy := 0; yy < magnify; yy++ {
+							out.SetRGBA(
+								x*magnify+xx,
+								y*magnify+yy,
+								in.RGBAAt(x, y),
+							)
+						}
 					}
 				}
 			}
+
+			return out, nil
 		}
 
-		return out, nil
-	}
+		if screens.ShowFullAnimation {
+			maxDuration = 0
+		}
 
-	var buf []byte
-
-	if screens.ShowFullAnimation {
-		maxDuration = 0
-	}
-
-	if renderGif {
-		buf, err = screens.EncodeGIF(maxDuration, filter)
-	} else {
-		buf, err = screens.EncodeWebP(maxDuration, filter)
-	}
-	if err != nil {
-		return fmt.Errorf("error rendering: %w", err)
+		if renderGif {
+			buf, err = screens.EncodeGIF(maxDuration, filter)
+		} else {
+			buf, err = screens.EncodeWebP(maxDuration, filter)
+		}
+		if err != nil {
+			return fmt.Errorf("error rendering: %w", err)
+		}
 	}
 
 	if outPath == "-" {

@@ -1,0 +1,159 @@
+namespace fb;
+
+enum Align : int {
+  LEFT = 0,
+  CENTER = 1,
+  RIGHT = 2,
+}
+
+table Color {
+  r:uint;
+  g:uint;
+  b:uint;
+  alpha:uint;
+}
+
+table Image {
+  image_data:[ubyte];
+}
+
+table FontFace {
+  font_name:string;
+}
+
+table CanvasOperation {
+  add_arc:fb.AddArc;
+  add_circle:fb.AddCircle;
+  add_line_to:fb.AddLineTo;
+  add_rectangle:fb.AddRectangle;
+  clear:fb.Clear;
+  clip_rectangle:fb.ClipRectangle;
+  draw_image:fb.DrawImage;
+  draw_pixel:fb.DrawPixel;
+  draw_string:fb.DrawString;
+  draw_string_wrapped:fb.DrawStringWrapped;
+  fill_path:fb.FillPath;
+  pop:fb.Pop;
+  push:fb.Push;
+  rotate:fb.Rotate;
+  scale:fb.Scale;
+  set_color:fb.SetColor;
+  set_font_face:fb.SetFontFace;
+  translate:fb.Translate;
+}
+
+table AddArc {
+  x:double;
+  y:double;
+  radius:double;
+  start_angle:double;
+  end_angle:double;
+}
+
+table AddCircle {
+  x:double;
+  y:double;
+  radius:double;
+}
+
+table AddLineTo {
+  x:double;
+  y:double;
+}
+
+table AddRectangle {
+  x:double;
+  y:double;
+  width:double;
+  height:double;
+}
+
+table Clear {
+}
+
+table ClipRectangle {
+  x:double;
+  y:double;
+  width:double;
+  height:double;
+}
+
+table DrawImage {
+  image:fb.Image;
+  x:double;
+  y:double;
+  width:double;
+  height:double;
+}
+
+table DrawPixel {
+  x:int;
+  y:int;
+}
+
+table DrawString {
+  text:string;
+  x:double;
+  y:double;
+  align:fb.Align;
+}
+
+table DrawStringWrapped {
+  text:string;
+  x:double;
+  y:double;
+  width:double;
+  spacing:double;
+  align:fb.Align;
+}
+
+table FillPath {
+}
+
+table FontHeight {
+}
+
+table MeasureString {
+  text:string;
+}
+
+table Pop {
+}
+
+table Push {
+}
+
+table Rotate {
+  angle:double;
+}
+
+table Scale {
+  x:double;
+  y:double;
+}
+
+table SetColor {
+  color:fb.Color;
+}
+
+table SetFontFace {
+  font_face:fb.FontFace;
+}
+
+table TransformPoint {
+  x:double;
+  y:double;
+}
+
+table Translate {
+  dx:double;
+  dy:double;
+}
+
+table CanvasOperationList {
+  operations:[fb.CanvasOperation];
+}
+
+rpc_service Canvas {
+  Perform(CanvasOperationList):Image;
+}
