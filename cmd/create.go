@@ -25,6 +25,7 @@ var createURL string
 
 type TidbytCreateAppRequest struct {
 	OrganizationID string `json:"organizationID"`
+	Private        bool   `json:"private"`
 }
 
 type TidbytCreateAppReply struct {
@@ -82,10 +83,6 @@ var CreateCmd = &cobra.Command{
 				return fmt.Errorf("login with `pixlet login` or use `pixlet set-auth` to configure auth")
 			}
 
-			if createOrg == "" {
-				return fmt.Errorf("organization must not be blank")
-			}
-
 			app.ID, err = createPrivateApp(apiToken, createOrg)
 			if err != nil {
 				if strings.Contains(err.Error(), "user is not authorized to create apps") {
@@ -135,9 +132,12 @@ var CreateCmd = &cobra.Command{
 	},
 }
 
+// Creates private app for organization. If org is blank, attempts to
+// create a per-user private app.
 func createPrivateApp(apiToken string, org string) (string, error) {
 	createAppRequest := &TidbytCreateAppRequest{
 		OrganizationID: org,
+		Private:        org == "",
 	}
 
 	b, err := json.Marshal(createAppRequest)
