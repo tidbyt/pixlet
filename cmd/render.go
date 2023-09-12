@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"go.starlark.net/starlark"
@@ -13,6 +15,7 @@ import (
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
+	"tidbyt.dev/pixlet/starlarkutil"
 )
 
 var (
@@ -23,6 +26,7 @@ var (
 	silenceOutput bool
 	width         int
 	height        int
+	timeout       int
 )
 
 func init() {
@@ -55,7 +59,14 @@ func init() {
 		"max_duration",
 		"d",
 		15000,
-		"Maximum allowed animation duration (ms).",
+		"Maximum allowed animation duration (ms)",
+	)
+	RenderCmd.Flags().IntVarP(
+		&timeout,
+		"timeout",
+		"",
+		5000,
+		"Timeout for execution (ms)",
 	)
 }
 
@@ -106,6 +117,19 @@ func render(cmd *cobra.Command, args []string) error {
 	if silenceOutput {
 		initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
 			thread.Print = func(thread *starlark.Thread, msg string) {}
+			return thread
+		})
+	}
+
+	// Timeout?
+	if timeout > 0 {
+		initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
+			ctx, _ := context.WithTimeoutCause(
+				context.Background(),
+				time.Duration(timeout)*time.Millisecond,
+				fmt.Errorf("timeout after %dms", timeout),
+			)
+			starlarkutil.AttachThreadContext(ctx, thread)
 			return thread
 		})
 	}
