@@ -38,7 +38,7 @@ require (
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
-	go.starlark.net v0.0.0-20230911222709-95963e010017
+	go.starlark.net v0.0.0-20230912135651-745481cf39ed
 	golang.org/x/image v0.12.0
 	golang.org/x/oauth2 v0.12.0
 	golang.org/x/sync v0.3.0
