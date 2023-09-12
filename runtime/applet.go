@@ -272,7 +272,13 @@ func (a *Applet) Call(callable *starlark.Function, args starlark.Tuple, initiali
 		}
 	}()
 
-	resultVal, err := starlark.Call(a.thread(initializers...), callable, args, nil)
+	t := a.thread(initializers...)
+
+	context.AfterFunc(starlarkutil.ThreadContext(t), func() {
+		t.Cancel(context.Cause(starlarkutil.ThreadContext(t)).Error())
+	})
+
+	resultVal, err := starlark.Call(t, callable, args, nil)
 	if err != nil {
 		evalErr, ok := err.(*starlark.EvalError)
 		if ok {

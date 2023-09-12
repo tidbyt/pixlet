@@ -8,10 +8,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
+
+	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
+	"tidbyt.dev/pixlet/starlarkutil"
 )
 
 // Loader is a structure to provide applet loading when a file changes or on
@@ -27,6 +31,7 @@ type Loader struct {
 	resultsChan      chan Update
 	maxDuration      int
 	initialLoad      chan bool
+	timeout          int
 }
 
 type Update struct {
@@ -45,6 +50,7 @@ func NewLoader(
 	fileChanges chan bool,
 	updatesChan chan Update,
 	maxDuration int,
+	timeout int,
 ) (*Loader, error) {
 
 	l := &Loader{
@@ -58,6 +64,7 @@ func NewLoader(
 		resultsChan:      make(chan Update, 100),
 		maxDuration:      maxDuration,
 		initialLoad:      make(chan bool),
+		timeout:          timeout,
 	}
 
 	cache := runtime.NewInMemoryCache()
@@ -157,7 +164,17 @@ func (l *Loader) loadApplet(config map[string]string) (string, error) {
 		}
 	}
 
-	roots, err := l.applet.Run(config)
+	threadInitializer := func(thread *starlark.Thread) *starlark.Thread {
+		ctx, _ := context.WithTimeoutCause(
+			context.Background(),
+			time.Duration(l.timeout)*time.Millisecond,
+			fmt.Errorf("timeout after %dms", l.timeout),
+		)
+		starlarkutil.AttachThreadContext(ctx, thread)
+		return thread
+	}
+
+	roots, err := l.applet.Run(config, threadInitializer)
 	if err != nil {
 		return "", fmt.Errorf("error running script: %w", err)
 	}
