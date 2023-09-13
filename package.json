@@ -67,8 +67,8 @@
     "react-dom": "17.0.2",
     "react-easy-crop": "4.7.4",
     "react-redux": "8.0.7",
-    "react-router": "6.15.0",
-    "react-router-dom": "6.15.0",
+    "react-router": "6.16.0",
+    "react-router-dom": "6.16.0",
     "react-simple-oauth2-login": "0.5.4"
   }
 }
