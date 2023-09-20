@@ -1,4 +1,4 @@
-package cmd
+package config
 
 import (
 	"context"
@@ -11,20 +11,20 @@ import (
 )
 
 const (
-	oauthCallbackAddr = "localhost:8085"
+	OAuthCallbackAddr = "localhost:8085"
 )
 
 var (
-	privateConfig = viper.New()
+	PrivateConfig = viper.New()
 
-	oauthConf = &oauth2.Config{
+	OAuthConf = &oauth2.Config{
 		ClientID: "d8ae7ea0-4a1a-46b0-b556-6d742687223a",
 		Scopes:   []string{"device", "offline_access", "app-admin"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://login.tidbyt.com/oauth2/auth",
 			TokenURL: "https://login.tidbyt.com/oauth2/token",
 		},
-		RedirectURL: fmt.Sprintf("http://%s", oauthCallbackAddr),
+		RedirectURL: fmt.Sprintf("http://%s", OAuthCallbackAddr),
 	}
 )
 
@@ -33,32 +33,32 @@ func init() {
 		configPath := filepath.Join(ucd, "tidbyt")
 
 		if err := os.MkdirAll(configPath, os.ModePerm); err == nil {
-			privateConfig.AddConfigPath(configPath)
+			PrivateConfig.AddConfigPath(configPath)
 		}
 	}
 
-	privateConfig.SetConfigName("private")
-	privateConfig.SetConfigType("yaml")
-	privateConfig.SetConfigPermissions(0600)
+	PrivateConfig.SetConfigName("private")
+	PrivateConfig.SetConfigType("yaml")
+	PrivateConfig.SetConfigPermissions(0600)
 
-	privateConfig.SafeWriteConfig()
-	privateConfig.ReadInConfig()
+	PrivateConfig.SafeWriteConfig()
+	PrivateConfig.ReadInConfig()
 }
 
-func oauthTokenFromConfig(ctx context.Context) string {
-	if !privateConfig.IsSet("token") {
+func OAuthTokenFromConfig(ctx context.Context) string {
+	if !PrivateConfig.IsSet("token") {
 		return ""
 	}
 
 	var tok oauth2.Token
-	if err := privateConfig.UnmarshalKey("token", &tok); err != nil {
+	if err := PrivateConfig.UnmarshalKey("token", &tok); err != nil {
 		fmt.Println("unmarshaling API token from config:", err)
 		os.Exit(1)
 	}
 
 	if !tok.Valid() {
 		// probably expired, try to refresh
-		ts := oauthConf.TokenSource(ctx, &tok)
+		ts := OAuthConf.TokenSource(ctx, &tok)
 		refreshed, err := ts.Token()
 		if err != nil {
 			fmt.Println("refreshing API token:", err)
@@ -66,8 +66,8 @@ func oauthTokenFromConfig(ctx context.Context) string {
 		}
 
 		tok = *refreshed
-		privateConfig.Set("token", tok)
-		privateConfig.WriteConfig()
+		PrivateConfig.Set("token", tok)
+		PrivateConfig.WriteConfig()
 	}
 
 	return tok.AccessToken

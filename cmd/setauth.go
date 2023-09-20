@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
+	"tidbyt.dev/pixlet/cmd/config"
 )
 
 var SetAuthCmd = &cobra.Command{
@@ -26,8 +27,8 @@ func SetAuth(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("could not load auth JSON: %w", err)
 	}
 
-	privateConfig.Set("token", tok)
-	if err := privateConfig.WriteConfig(); err != nil {
+	config.PrivateConfig.Set("token", tok)
+	if err := config.PrivateConfig.WriteConfig(); err != nil {
 		return fmt.Errorf("could not persist auth token in config: %w", err)
 	}
 

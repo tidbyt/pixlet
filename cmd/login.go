@@ -12,6 +12,8 @@ import (
 	"os"
 	"time"
 
+	"tidbyt.dev/pixlet/cmd/config"
+
 	cowsay "github.com/Code-Hex/Neo-cowsay/v2"
 	"github.com/Code-Hex/Neo-cowsay/v2/decoration"
 	cv "github.com/nirasan/go-oauth-pkce-code-verifier"
@@ -35,7 +37,7 @@ var LoginCmd = &cobra.Command{
 
 func login(cmd *cobra.Command, args []string) {
 	server := &http.Server{
-		Addr: oauthCallbackAddr,
+		Addr: config.OAuthCallbackAddr,
 	}
 
 	var authCode, authState string
@@ -84,7 +86,7 @@ func login(cmd *cobra.Command, args []string) {
 
 	tok, err := authhandler.TokenSourceWithPKCE(
 		context.Background(),
-		oauthConf,
+		config.OAuthConf,
 		state,
 		handler,
 		pkce,
@@ -94,9 +96,9 @@ func login(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	privateConfig.Set("token", tok)
+	config.PrivateConfig.Set("token", tok)
 
-	if err := privateConfig.WriteConfig(); err != nil {
+	if err := config.PrivateConfig.WriteConfig(); err != nil {
 		fmt.Println("persisting token:", err)
 		os.Exit(1)
 	}

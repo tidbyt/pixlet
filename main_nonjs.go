@@ -3,9 +3,9 @@
 package main
 
 import (
-	"tidbyt.dev/pixlet/cmd"
+	"tidbyt.dev/pixlet/cmd/private"
 )
 
 func init() {
-	rootCmd.AddCommand(cmd.CreateCmd)
+	rootCmd.AddCommand(private.CreateCmd)
 }

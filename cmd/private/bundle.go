@@ -1,4 +1,4 @@
-package cmd
+package private
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ func init() {
 var BundleCmd = &cobra.Command{
 	Use:     "bundle",
 	Short:   "Creates a new app bundle",
-	Example: `  pixlet bundle apps/fuzzyclock/`,
+	Example: `  pixlet bundle ./my-app`,
 	Long: `This command will create a new app bundle from an app directory. The directory
 should contain an app manifest and source file. The output of this command will
 be a gzip compressed tar file that can be uploaded to Tidbyt for deployment.`,
