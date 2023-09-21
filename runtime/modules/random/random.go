@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	ModuleName    = "random"
-	threadRandKey = "tidbyt.dev/pixlet/runtime/random"
+	ModuleName       = "random"
+	threadRandKey    = "tidbyt.dev/pixlet/runtime/random"
+	randomSeedWindow = 15
 )
 
 var (
@@ -21,10 +22,16 @@ var (
 )
 
 func AttachToThread(t *starlark.Thread) {
+	nowSeconds := time.Now().UnixMilli() / 1000
+
 	t.SetLocal(
 		threadRandKey,
 		rand.New(
-			rand.NewSource(rand.Int63()),
+			// Seed RNG with a constant for brief time
+			// windows. This allows app to be "random",
+			// while still enabling Tidbyt's backend to
+			// cache the results.
+			rand.NewSource(nowSeconds/randomSeedWindow),
 		),
 	)
 }
