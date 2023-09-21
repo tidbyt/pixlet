@@ -9,6 +9,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
+	"tidbyt.dev/pixlet/cmd/config"
 )
 
 const (
@@ -43,7 +44,7 @@ func listInstallations(cmd *cobra.Command, args []string) error {
 	}
 
 	if apiToken == "" {
-		apiToken = oauthTokenFromConfig(cmd.Context())
+		apiToken = config.OAuthTokenFromConfig(cmd.Context())
 	}
 
 	if apiToken == "" {

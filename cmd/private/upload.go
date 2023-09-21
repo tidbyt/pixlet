@@ -1,4 +1,4 @@
-package cmd
+package private
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/bundle"
+	"tidbyt.dev/pixlet/cmd/config"
 )
 
 var uploadVersion string
@@ -30,8 +31,7 @@ func init() {
 	UploadCmd.MarkFlagRequired("app")
 	UploadCmd.Flags().StringVarP(&uploadVersion, "version", "v", "", "version of the bundle to upload")
 	UploadCmd.MarkFlagRequired("version")
-
-	UploadCmd.Flags().StringVarP(&uploadURL, "url", "u", "https://api.tidbyt.com", "base URL of the remote bundle store")
+	UploadCmd.Flags().StringVarP(&uploadURL, "url", "u", "https://api.tidbyt.com", "base URL of Tidbyt API")
 }
 
 var UploadCmd = &cobra.Command{
@@ -58,7 +58,7 @@ command public once our backend is well positioned to support it.`,
 			return fmt.Errorf("input bundle format is not correct, did you create it with `pixlet bundle`?")
 		}
 
-		apiToken := oauthTokenFromConfig(cmd.Context())
+		apiToken := config.OAuthTokenFromConfig(cmd.Context())
 		if apiToken == "" {
 			return fmt.Errorf("login with `pixlet login` or use `pixlet set-auth` to configure auth")
 		}

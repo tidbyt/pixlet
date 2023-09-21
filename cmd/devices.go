@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"tidbyt.dev/pixlet/cmd/config"
 )
 
 const (
@@ -21,7 +22,7 @@ var DevicesCmd = &cobra.Command{
 }
 
 func devices(cmd *cobra.Command, args []string) {
-	apiToken = oauthTokenFromConfig(cmd.Context())
+	apiToken = config.OAuthTokenFromConfig(cmd.Context())
 	if apiToken == "" {
 		fmt.Println("login with `pixlet login`")
 		os.Exit(1)

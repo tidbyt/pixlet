@@ -1,4 +1,4 @@
-package cmd
+package private
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"tidbyt.dev/pixlet/cmd/config"
 )
 
 var deployVersion string
@@ -25,20 +26,16 @@ func init() {
 	DeployCmd.MarkFlagRequired("app")
 	DeployCmd.Flags().StringVarP(&deployVersion, "version", "v", "", "version of the bundle to deploy")
 	DeployCmd.MarkFlagRequired("version")
-
-	DeployCmd.Flags().StringVarP(&deployURL, "url", "u", "https://api.tidbyt.com", "base URL of the remote bundle store")
+	DeployCmd.Flags().StringVarP(&deployURL, "url", "u", "https://api.tidbyt.com", "base URL of Tidbyt API")
 }
 
 var DeployCmd = &cobra.Command{
 	Use:     "deploy",
-	Short:   "Deploys an app to production (internal only)",
-	Example: `  pixlet deploy --app fuzzy-clock --version v0.0.1`,
-	Long: `This command will deploy an app to production in the Tidbyt backend. Note, this
-command is for internal use only at the moment, and normal API tokens will not
-be able to deploy apps. We fully intend to make this command generally available
-once our backend can support public deploys.`,
+	Short:   "Deploys a private app version",
+	Example: `  pixlet deploy --app <app-id> --version v0.0.1`,
+	Long:    `This command will deploy a private app to the Tidbyt backend.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		apiToken := oauthTokenFromConfig(cmd.Context())
+		apiToken := config.OAuthTokenFromConfig(cmd.Context())
 		if apiToken == "" {
 			return fmt.Errorf("login with `pixlet login` or use `pixlet set-auth` to configure auth")
 		}
