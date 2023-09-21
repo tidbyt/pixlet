@@ -13,10 +13,10 @@ import (
 
 type TidbytApp struct {
 	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Version        string `json:"version"`
-	Private        bool   `json:"private"`
-	OrganizationID string `json:"organizationID"`
+	Name           string `json:"name,omitempty"`
+	Version        string `json:"version,omitempty"`
+	Private        bool   `json:"private,omitempty"`
+	OrganizationID string `json:"organizationID,omitempty"`
 }
 
 var listURL string
@@ -75,11 +75,11 @@ var ListCmd = &cobra.Command{
 			if !app.Private {
 				continue
 			}
-			fmt.Printf("%s - %s", app.ID, app.Name)
-			if app.OrganizationID != "" {
-				fmt.Printf(" - team=%s", app.OrganizationID)
+			appJson, err := json.Marshal(app)
+			if err != nil {
+				return fmt.Errorf("could not marshal app: %w", err)
 			}
-			fmt.Printf("\n")
+			fmt.Println(string(appJson))
 		}
 
 		return nil
