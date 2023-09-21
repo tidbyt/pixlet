@@ -17,7 +17,7 @@ func init() {
 	ServeCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port for serving rendered images")
 	ServeCmd.Flags().BoolVarP(&watch, "watch", "w", true, "Reload scripts on change")
 	ServeCmd.Flags().IntVarP(&maxDuration, "max_duration", "d", 15000, "Maximum allowed animation duration (ms)")
-	ServeCmd.Flags().IntVarP(&timeout, "timeout", "", 5000, "Timeout for execution (ms)")
+	ServeCmd.Flags().IntVarP(&timeout, "timeout", "", 30000, "Timeout for execution (ms)")
 }
 
 var ServeCmd = &cobra.Command{

@@ -65,7 +65,7 @@ func init() {
 		&timeout,
 		"timeout",
 		"",
-		5000,
+		30000,
 		"Timeout for execution (ms)",
 	)
 }
