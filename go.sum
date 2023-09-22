@@ -422,6 +422,8 @@ github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427 h1:br5WYVw/jr4G0PZpBBx2f
 github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427/go.mod h1:+SCm6iJHe2lfsQzlbLCsd5XsTKYSD0VqtQmWMnNs9OE=
 github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601 h1:W7xhAgRtepnWBTmbzb0R+5ikjEYCX1c55SN8HJv5FcI=
 github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601/go.mod h1:JU6yp7mldR7lmftjHPtaDs+Q8xn7l2tMR1XYx5iJELg=
+github.com/tidbyt/go-libwebp v0.0.0-20230922075150-fb11063b2a6a h1:zvAhEO3ZB7m1Lc3BwJXLTDrLrHVAbcDByJ7XkL4WR+s=
+github.com/tidbyt/go-libwebp v0.0.0-20230922075150-fb11063b2a6a/go.mod h1:JU6yp7mldR7lmftjHPtaDs+Q8xn7l2tMR1XYx5iJELg=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9znI5mJU=
