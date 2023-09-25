@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
-	github.com/antchfx/xmlquery v1.3.16
+	github.com/antchfx/xmlquery v1.3.18
 	github.com/bazelbuild/buildtools v0.0.0-20230425225026-3dcc8d67e8ea
 	github.com/client9/misspell v0.3.4
 	github.com/dustin/go-humanize v1.0.1
