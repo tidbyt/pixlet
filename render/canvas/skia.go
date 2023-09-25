@@ -1,7 +1,7 @@
 package canvas
 
 /*
-#cgo LDFLAGS: /Users/rohan/code/tidbyt/bazel-bin/canvas-server/libcanvas_lib.a
+#cgo LDFLAGS: /Users/rohan/code/tidbyt/bazel-bin/canvas-server/libcanvas.a
 #
 #cgo LDFLAGS: -L/Users/rohan/code/tidbyt/skia/out/Release-macos-arm64
 #cgo LDFLAGS: -ldng_sdk
@@ -44,16 +44,21 @@ import "C"
 
 import (
 	"bytes"
-	"context"
 	"image"
 	"image/color"
+	"image/png"
+	"sync"
 	"unsafe"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/tidbyt/go-libwebp/webp"
-	"golang.org/x/image/font"
 
+	"tidbyt.dev/pixlet/fonts"
 	"tidbyt.dev/pixlet/render/canvas/fb"
+)
+
+var (
+	onceFonts sync.Once
 )
 
 type SkiaCanvas struct {
@@ -61,7 +66,29 @@ type SkiaCanvas struct {
 	operations []flatbuffers.UOffsetT
 }
 
-func NewSkiaCanvas(ctx context.Context) Canvas {
+func init() {
+	register("skia", NewSkiaCanvas)
+}
+
+func loadFonts() {
+	names := fonts.Names()
+
+	for _, name := range names {
+		font := fonts.GetFont(name)
+		if len(font.TTF) == 0 {
+			continue
+		}
+
+		cFont := C.CBytes(font.TTF)
+		defer C.free(cFont)
+
+		C.canvas_register_typeface((*C.uint8_t)(cFont), C.size_t(len(font.TTF)), C.CString(name))
+	}
+}
+
+func NewSkiaCanvas(width, height int) Canvas {
+	onceFonts.Do(loadFonts)
+
 	return &SkiaCanvas{
 		builder: flatbuffers.NewBuilder(1024),
 	}
@@ -155,7 +182,7 @@ func (c *SkiaCanvas) ClipRectangle(x, y, w, h float64) {
 
 func (c *SkiaCanvas) DrawGoImage(x, y float64, img image.Image) {
 	var buf bytes.Buffer
-	encoder.Encode(&buf, img)
+	png.Encode(&buf, img)
 
 	imgBytes := c.builder.CreateByteVector(buf.Bytes())
 	fb.ImageStart(c.builder)
@@ -375,14 +402,16 @@ func (c *SkiaCanvas) SetColor(col color.Color) {
 	c.operations = append(c.operations, operation)
 }
 
-func (c *SkiaCanvas) SetFontFace(fontFace font.Face) {
-	// Assuming the FontFace to FlatBuffers conversion requires further detail.
-	// Placeholder for now.
+func (c *SkiaCanvas) SetFont(font *fonts.Font) {
+	fontNameStr := c.builder.CreateString(font.Name)
+
 	fb.FontFaceStart(c.builder)
-	font := fb.FontFaceEnd(c.builder)
+	fb.FontFaceAddName(c.builder, fontNameStr)
+	fb.FontFaceAddSize(c.builder, int32(font.Font.PixelSize))
+	fc := fb.FontFaceEnd(c.builder)
 
 	fb.SetFontFaceStart(c.builder)
-	fb.SetFontFaceAddFontFace(c.builder, font)
+	fb.SetFontFaceAddFontFace(c.builder, fc)
 	setFontFace := fb.SetFontFaceEnd(c.builder)
 
 	fb.CanvasOperationStart(c.builder)

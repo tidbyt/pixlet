@@ -16,7 +16,7 @@ import (
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
-	"tidbyt.dev/pixlet/globals"
+	pixletrender "tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/starlarkutil"
 )
@@ -94,8 +94,8 @@ func render(cmd *cobra.Command, args []string) error {
 func doTheThing(args []string) error {
 	script := args[0]
 
-	globals.Width = width
-	globals.Height = height
+	pixletrender.FrameWidth = width
+	pixletrender.FrameHeight = height
 
 	if !strings.HasSuffix(script, ".star") {
 		return fmt.Errorf("script file must have suffix .star: %s", script)

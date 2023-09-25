@@ -18,7 +18,8 @@ table Image {
 }
 
 table FontFace {
-  font_name:string;
+  name:string;
+  size:int;
 }
 
 table CanvasOperation {

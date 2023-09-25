@@ -41,7 +41,7 @@ func (rcv *FontFace) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *FontFace) FontName() []byte {
+func (rcv *FontFace) Name() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -49,11 +49,26 @@ func (rcv *FontFace) FontName() []byte {
 	return nil
 }
 
-func FontFaceStart(builder *flatbuffers.Builder) {
-	builder.StartObject(1)
+func (rcv *FontFace) Size() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
 }
-func FontFaceAddFontName(builder *flatbuffers.Builder, fontName flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(fontName), 0)
+
+func (rcv *FontFace) MutateSize(n int32) bool {
+	return rcv._tab.MutateInt32Slot(6, n)
+}
+
+func FontFaceStart(builder *flatbuffers.Builder) {
+	builder.StartObject(2)
+}
+func FontFaceAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
+}
+func FontFaceAddSize(builder *flatbuffers.Builder, size int32) {
+	builder.PrependInt32Slot(1, size, 0)
 }
 func FontFaceEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

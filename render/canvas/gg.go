@@ -6,11 +6,15 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
-	"golang.org/x/image/font"
+	"tidbyt.dev/pixlet/fonts"
 )
 
 type GGCanvas struct {
 	dc *gg.Context
+}
+
+func init() {
+	register("gg", NewGGCanvas)
 }
 
 func NewGGCanvas(width, height int) Canvas {
@@ -110,8 +114,8 @@ func (c *GGCanvas) SetColor(color color.Color) {
 	c.dc.SetColor(color)
 }
 
-func (c *GGCanvas) SetFontFace(fontFace font.Face) {
-	c.dc.SetFontFace(fontFace)
+func (c *GGCanvas) SetFont(font *fonts.Font) {
+	c.dc.SetFontFace(font.Font.NewFace())
 }
 
 func (c *GGCanvas) TransformPoint(x, y float64) (ax, ay float64) {

@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/fonts"
 	"tidbyt.dev/pixlet/render/canvas"
 )
 
@@ -51,7 +52,7 @@ func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Re
 	if tw.Font == "" {
 		tw.Font = DefaultFontFace
 	}
-	face := GetFont(tw.Font)
+	face := fonts.GetFont(tw.Font).Font.NewFace()
 	// The bounds provided by user or parent widget
 	width := tw.Width
 	if width == 0 {
@@ -105,7 +106,8 @@ func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx i
 	if tw.Font == "" {
 		tw.Font = DefaultFontFace
 	}
-	face := GetFont(tw.Font)
+	font := fonts.GetFont(tw.Font)
+	face := font.Font.NewFace()
 	// Text alignment
 	align := canvas.AlignLeft
 	if tw.Align == "center" {
@@ -119,7 +121,7 @@ func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx i
 	metrics := face.Metrics()
 	descent := metrics.Descent.Floor()
 
-	dc.SetFontFace(face)
+	dc.SetFont(font)
 	if tw.Color != nil {
 		dc.SetColor(tw.Color)
 	} else {
