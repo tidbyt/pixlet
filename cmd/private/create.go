@@ -120,9 +120,9 @@ var CreateCmd = &cobra.Command{
 
 		fmt.Println("")
 		fmt.Println("To deploy your app:")
-		fmt.Printf("\tpixlet bundle ./\n")
-		fmt.Printf("\tpixlet upload bundle.tar.gz --app %s --version v0.0.1\n", app.ID)
-		fmt.Printf("\tpixlet deploy --app %s --version v0.0.1\n", app.ID)
+		fmt.Printf("\tpixlet private bundle ./\n")
+		fmt.Printf("\tpixlet private upload bundle.tar.gz --app %s --version v0.0.1\n", app.ID)
+		fmt.Printf("\tpixlet private deploy --app %s --version v0.0.1\n", app.ID)
 
 		return nil
 	},
