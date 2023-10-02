@@ -9,6 +9,7 @@ func init() {
 	PrivateCmd.AddCommand(BundleCmd)
 	PrivateCmd.AddCommand(UploadCmd)
 	PrivateCmd.AddCommand(DeployCmd)
+	PrivateCmd.AddCommand(DeleteCmd)
 	PrivateCmd.AddCommand(ListCmd)
 }
 
