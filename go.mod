@@ -39,7 +39,7 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.0
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20230925163745-10651d5192ab
-	golang.org/x/image v0.12.0
+	golang.org/x/image v0.13.0
 	golang.org/x/oauth2 v0.12.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/text v0.13.0
