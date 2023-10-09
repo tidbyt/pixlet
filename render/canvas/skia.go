@@ -1,7 +1,7 @@
 package canvas
 
 /*
-#cgo LDFLAGS: -L/Users/rohan/Downloads/Skia-m110-d88a7b5-macos-Release-arm64/out/Release-macos-arm64
+#cgo LDFLAGS: -L/Users/rohan/Downloads/Skia-m110-ad42464-1-macos-Release-arm64/out/Release-macos-arm64
 #cgo LDFLAGS: -ldng_sdk
 #cgo LDFLAGS: -lexpat
 #cgo LDFLAGS: -lharfbuzz
@@ -35,7 +35,7 @@ package canvas
 #cgo LDFLAGS: -mmacosx-version-min=14.0
 #
 #cgo CXXFLAGS: -std=c++17
-#cgo CXXFLAGS: -I/Users/rohan/Downloads/Skia-m110-d88a7b5-macos-Release-arm64
+#cgo CXXFLAGS: -I/Users/rohan/Downloads/Skia-m110-ad42464-1-macos-Release-arm64
 #
 #include <stdlib.h>
 #include "skia.h"
