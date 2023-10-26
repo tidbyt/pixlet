@@ -36,7 +36,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427
 	github.com/tidbyt/go-libwebp v0.0.0-20230922075150-fb11063b2a6a
-	github.com/vmihailenco/msgpack/v5 v5.4.0
+	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20231016134836-22325403fcb3
 	golang.org/x/image v0.13.0
