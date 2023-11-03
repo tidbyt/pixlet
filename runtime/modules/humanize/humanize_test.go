@@ -80,7 +80,7 @@ def main():
 
 func TestHumanize(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("human.star", []byte(humanSource), nil)
+	err := app.Load("humanid", "human.star", []byte(humanSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

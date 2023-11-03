@@ -28,7 +28,7 @@ def main():
 
 func TestOption(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("option.star", []byte(optionSource), nil)
+	err := app.Load("oid", "option.star", []byte(optionSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

@@ -48,7 +48,7 @@ def main():
 
 func TestRandom(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("random_test.star", []byte(randomSrc), nil)
+	err := app.Load("randomid", "random_test.star", []byte(randomSrc), nil)
 	require.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

@@ -53,7 +53,8 @@ func init() {
 
 type Applet struct {
 	Filename            string
-	Id                  string
+	ThreadID            string
+	AppID               string
 	Globals             starlark.StringDict
 	SecretDecryptionKey *SecretDecryptionKey
 
@@ -69,7 +70,7 @@ type Applet struct {
 
 func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 	t := &starlark.Thread{
-		Name: a.Id,
+		Name: a.ThreadID,
 		Load: a.loadModule,
 		Print: func(thread *starlark.Thread, msg string) {
 			fmt.Printf("[%s] %s\n", a.Filename, msg)
@@ -92,23 +93,24 @@ func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 // Loads an applet. The script filename is used as a descriptor only,
 // and the actual code should be passed in src. Optionally also pass
 // loader to make additional starlark modules available to the script.
-func (a *Applet) Load(filename string, src []byte, loader ModuleLoader) (err error) {
-	return a.LoadWithInitializers(filename, src, loader)
+func (a *Applet) Load(appID string, filename string, src []byte, loader ModuleLoader) (err error) {
+	return a.LoadWithInitializers(appID, filename, src, loader)
 }
 
-func (a *Applet) LoadWithInitializers(filename string, src []byte, loader ModuleLoader, initializers ...ThreadInitializer) (err error) {
+func (a *Applet) LoadWithInitializers(appID string, filename string, src []byte, loader ModuleLoader, initializers ...ThreadInitializer) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic while executing %s: %v", a.Filename, r)
 		}
 	}()
 
+	a.AppID = appID
 	a.Filename = filename
 	a.loader = loader
 
 	a.src = src
 
-	a.Id = fmt.Sprintf("%s/%x", filename, md5.Sum(src))
+	a.ThreadID = fmt.Sprintf("%s/%x", filename, md5.Sum(src))
 
 	if a.SecretDecryptionKey != nil {
 		a.decrypter, err = a.SecretDecryptionKey.decrypterForApp(a)

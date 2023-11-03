@@ -114,7 +114,7 @@ func ProfileApp(script string, config map[string]string) (*pprof_profile.Profile
 	})
 
 	applet := runtime.Applet{}
-	err = applet.LoadWithInitializers(script, src, nil, initializers...)
+	err = applet.LoadWithInitializers("", script, src, nil, initializers...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load applet: %w", err)
 	}

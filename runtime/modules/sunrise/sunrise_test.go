@@ -52,7 +52,7 @@ def main():
 
 func TestSunrise(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("sun.star", []byte(sunSource), nil)
+	err := app.Load("sunid", "sun.star", []byte(sunSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

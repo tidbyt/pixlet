@@ -94,7 +94,8 @@ func (sdk *SecretDecryptionKey) decrypterForApp(a *Applet) (decrypter, error) {
 		return nil, errors.Wrap(err, "NewHybridDecrypt")
 	}
 
-	context := []byte(strings.TrimSuffix(a.Filename, ".star"))
+	contextA := []byte(a.AppID)
+	contextB := []byte(strings.TrimSuffix(a.Filename, ".star"))
 
 	return func(s starlark.String) (starlark.String, error) {
 		v := regexp.MustCompile(`\s`).ReplaceAllString(s.GoString(), "")
@@ -103,9 +104,12 @@ func (sdk *SecretDecryptionKey) decrypterForApp(a *Applet) (decrypter, error) {
 			return "", errors.Wrapf(err, "base64 decoding of secret: %s", s)
 		}
 
-		cleartext, err := dec.Decrypt(ciphertext, context)
+		cleartext, err := dec.Decrypt(ciphertext, contextA)
 		if err != nil {
-			return "", errors.Wrapf(err, "decrypting secret: %s", s)
+			cleartext, err = dec.Decrypt(ciphertext, contextB)
+			if err != nil {
+				return "", fmt.Errorf("decrypting secret %s: %w", s, err)
+			}
 		}
 
 		return starlark.String(cleartext), nil

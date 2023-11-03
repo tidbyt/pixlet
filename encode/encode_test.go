@@ -145,7 +145,7 @@ def main():
 
 func TestFile(t *testing.T) {
 	app := runtime.Applet{}
-	err := app.Load("test.star", []byte(TestDotStar), nil)
+	err := app.Load("testid", "test.star", []byte(TestDotStar), nil)
 	assert.NoError(t, err)
 
 	roots, err := app.Run(map[string]string{})
@@ -158,7 +158,7 @@ func TestFile(t *testing.T) {
 
 func TestHash(t *testing.T) {
 	app := runtime.Applet{}
-	err := app.Load("test.star", []byte(TestDotStar), nil)
+	err := app.Load("testid", "test.star", []byte(TestDotStar), nil)
 	require.NoError(t, err)
 
 	roots, err := app.Run(map[string]string{})
@@ -179,7 +179,7 @@ func TestHash(t *testing.T) {
 	// change the app slightly
 	modifiedSource := strings.Replace(TestDotStar, "foo bar", "bar foo", 1)
 	app2 := runtime.Applet{}
-	err = app2.Load("test.star", []byte(modifiedSource), nil)
+	err = app2.Load("testid2", "test.star", []byte(modifiedSource), nil)
 	require.NoError(t, err)
 
 	roots2, err := app2.Run(map[string]string{})
@@ -238,7 +238,7 @@ def main():
     return render.Root(show_full_animation=True, child=render.Box())
 `
 	app := runtime.Applet{}
-	require.NoError(t, app.Load("test.star", []byte(requestFull), nil))
+	require.NoError(t, app.Load("testid", "test.star", []byte(requestFull), nil))
 	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
 	assert.True(t, ScreensFromRoots(roots).ShowFullAnimation)
@@ -249,7 +249,7 @@ def main():
     return render.Root(child=render.Box())
 `
 	app = runtime.Applet{}
-	require.NoError(t, app.Load("test.star", []byte(dontRequestFull), nil))
+	require.NoError(t, app.Load("testid", "test.star", []byte(dontRequestFull), nil))
 	roots, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
 	assert.False(t, ScreensFromRoots(roots).ShowFullAnimation)
@@ -276,7 +276,7 @@ def main():
 `)
 
 	app := runtime.Applet{}
-	err := app.Load("test.star", src, nil)
+	err := app.Load("testid", "test.star", src, nil)
 	assert.NoError(t, err)
 
 	roots, err := app.Run(map[string]string{})

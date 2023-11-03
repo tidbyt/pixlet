@@ -14,7 +14,7 @@ import (
 
 func loadApp(code string) (*runtime.Applet, error) {
 	app := &runtime.Applet{}
-	err := app.Load("test.star", []byte(code), nil)
+	err := app.Load("testid", "test.star", []byte(code), nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

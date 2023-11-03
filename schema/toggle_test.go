@@ -34,7 +34,7 @@ def main():
 
 func TestToggle(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("toggle.star", []byte(toggleSource), nil)
+	err := app.Load("tid", "toggle.star", []byte(toggleSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

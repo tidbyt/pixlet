@@ -30,7 +30,7 @@ def main():
 
 func TestGenerated(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("generated.star", []byte(generatedSource), nil)
+	err := app.Load("gid", "generated.star", []byte(generatedSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

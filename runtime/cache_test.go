@@ -33,7 +33,7 @@ def main():
 `
 	InitCache(NewInMemoryCache())
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -54,7 +54,7 @@ def main():
 `
 	InitCache(NewInMemoryCache())
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	// first time, i == 1
@@ -72,7 +72,7 @@ def main():
 	// but run the same code using different filename, and cached
 	// data ends up in a different namespace
 	app = &Applet{}
-	err = app.Load("test2.star", []byte(src), nil)
+	err = app.Load("testid", "test2.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	roots, _ = app.Run(map[string]string{})
@@ -103,7 +103,7 @@ def main():
 `
 	InitCache(nil)
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	screens, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -121,7 +121,7 @@ def main():
 `
 	InitCache(nil)
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	screens, err := app.Run(map[string]string{})
 	assert.Error(t, err)

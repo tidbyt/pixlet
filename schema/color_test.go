@@ -56,7 +56,7 @@ def main():
     return []
 `
 	app := &runtime.Applet{}
-	err := app.Load("colors.star", []byte(src), nil)
+	err := app.Load("cid", "colors.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})
@@ -91,7 +91,7 @@ def main(config):
     return []
 `
 	app := &runtime.Applet{}
-	err := app.Load("colors.star", []byte(src), nil)
+	err := app.Load("cid", "colors.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	// Well formed input -> success

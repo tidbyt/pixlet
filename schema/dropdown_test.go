@@ -52,7 +52,7 @@ def main():
 
 func TestDropdown(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("dropdown.star", []byte(dropdownSource), nil)
+	err := app.Load("ddid", "dropdown.star", []byte(dropdownSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

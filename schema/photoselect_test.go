@@ -32,7 +32,7 @@ def main():
 
 func TestPhotoSelect(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("photo_select.star", []byte(photoSelectSource), nil)
+	err := app.Load("photid", "photo_select.star", []byte(photoSelectSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

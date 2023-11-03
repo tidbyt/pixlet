@@ -136,7 +136,7 @@ def main():
 
 func TestBigDotStar(t *testing.T) {
 	app := &Applet{}
-	err := app.Load("big.star", []byte(TestDotStar), nil)
+	err := app.Load("bigid", "big.star", []byte(TestDotStar), nil)
 	assert.NoError(t, err)
 	screens, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -159,7 +159,7 @@ def main():
 	)
 
 	app := &Applet{}
-	err := app.Load(filename, []byte(src), nil)
+	err := app.Load("boxid", filename, []byte(src), nil)
 	assert.NoError(t, err)
 
 	b := app.Globals["b"]
@@ -195,7 +195,7 @@ def main():
 	)
 
 	app := &Applet{}
-	err := app.Load(filename, []byte(src), nil)
+	err := app.Load("textid", filename, []byte(src), nil)
 	assert.NoError(t, err)
 
 	txt := app.Globals["t"]
@@ -240,7 +240,7 @@ def main():
 `, base64.StdEncoding.EncodeToString(p.Bytes()))
 
 	app := &Applet{}
-	err := app.Load(filename, []byte(src), nil)
+	err := app.Load("imageid", filename, []byte(src), nil)
 	assert.NoError(t, err)
 
 	starlarkP := app.Globals["img"]

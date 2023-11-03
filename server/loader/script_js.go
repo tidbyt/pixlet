@@ -10,7 +10,7 @@ import (
 	"tidbyt.dev/pixlet/runtime"
 )
 
-func loadScript(applet *runtime.Applet, filename string) error {
+func loadScript(applet *runtime.Applet, appID string, filename string) error {
 	res, err := http.Get(filename)
 	if err != nil {
 		return fmt.Errorf("failed to fetch file %s: %w", filename, err)
@@ -22,7 +22,7 @@ func loadScript(applet *runtime.Applet, filename string) error {
 		return fmt.Errorf("failed to read file %s: %w", filename, err)
 	}
 
-	err = applet.Load(filename, src, nil)
+	err = applet.Load(appID, filename, src, nil)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}

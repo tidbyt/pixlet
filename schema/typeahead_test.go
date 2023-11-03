@@ -47,7 +47,7 @@ def main():
 
 func TestTypeahead(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("typeahead.star", []byte(typeaheadSource), nil)
+	err := app.Load("tahid", "typeahead.star", []byte(typeaheadSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

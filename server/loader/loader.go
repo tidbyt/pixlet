@@ -72,7 +72,7 @@ func NewLoader(
 	runtime.InitCache(cache)
 
 	if !l.watch {
-		err := loadScript(&l.applet, l.filename)
+		err := loadScript(&l.applet, "app-id", l.filename)
 		l.markInitialLoadComplete()
 		if err != nil {
 			return nil, err
@@ -157,7 +157,7 @@ func (l *Loader) CallSchemaHandler(ctx context.Context, handlerName, parameter s
 
 func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	if l.watch {
-		err := loadScript(&l.applet, l.filename)
+		err := loadScript(&l.applet, "app-id", l.filename)
 		l.markInitialLoadComplete()
 		if err != nil {
 			return "", err

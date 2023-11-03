@@ -68,7 +68,7 @@ def main():
 `, snippet)
 
 		app := runtime.Applet{}
-		err = app.Load(name, []byte(src), nil)
+		err = app.Load(fmt.Sprintf("id-%s", name), name, []byte(src), nil)
 		if err != nil {
 			panic(err)
 		}
