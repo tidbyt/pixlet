@@ -34,7 +34,7 @@ def main():
 
 func TestText(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("text.star", []byte(textSource), nil)
+	err := app.Load("tid", "text.star", []byte(textSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

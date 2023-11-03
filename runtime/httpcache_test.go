@@ -19,7 +19,7 @@ func TestInitHTTP(t *testing.T) {
 	assert.NoError(t, err)
 
 	app := &Applet{}
-	err = app.Load("httpcache.star", b, nil)
+	err = app.Load("httpid", "httpcache.star", b, nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

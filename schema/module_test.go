@@ -42,7 +42,7 @@ def main():
 
 func TestStarlarkSchema(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("starlark.star", []byte(schemaSource), nil)
+	err := app.Load("starlarkid", "starlark.star", []byte(schemaSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})
@@ -51,7 +51,7 @@ func TestStarlarkSchema(t *testing.T) {
 }
 func TestSchemaModuleLoads(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("source.star", []byte(moduleSource), nil)
+	err := app.Load("sourceid", "source.star", []byte(moduleSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

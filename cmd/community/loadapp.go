@@ -43,7 +43,7 @@ func LoadApp(cmd *cobra.Command, args []string) error {
 	})
 
 	applet := runtime.Applet{}
-	err = applet.LoadWithInitializers(script, src, nil, initializers...)
+	err = applet.LoadWithInitializers("", script, src, nil, initializers...)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}

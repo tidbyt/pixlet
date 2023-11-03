@@ -32,7 +32,7 @@ def main():
 
 func TestLocation(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("location.star", []byte(locationSource), nil)
+	err := app.Load("lid", "location.star", []byte(locationSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

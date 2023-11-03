@@ -62,7 +62,7 @@ def main():
 
 func TestLocationBased(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("location_based.star", []byte(locationBasedSource), nil)
+	err := app.Load("lbid", "location_based.star", []byte(locationBasedSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

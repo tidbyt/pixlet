@@ -46,7 +46,7 @@ func TestSecretDecrypt(t *testing.T) {
 	err = khPub.WriteWithNoSecrets(keyset.NewJSONWriter(pubJSON))
 	require.NoError(t, err)
 
-	// encrypt the secret
+	// encrypt the secret (method 1)
 	encrypted, err := (&SecretEncryptionKey{
 		PublicKeysetJSON: pubJSON.Bytes(),
 	}).Encrypt("test", plaintext)
@@ -75,10 +75,46 @@ def main():
 		SecretDecryptionKey: decryptionKey,
 	}
 
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	require.NoError(t, err)
 
 	roots, err := app.Run(nil)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(roots))
+
+	// encrypt the secret (method 2)
+	encrypted, err = (&SecretEncryptionKey{
+		PublicKeysetJSON: pubJSON.Bytes(),
+	}).Encrypt("testid", plaintext)
+	require.NoError(t, err)
+	assert.NotEqual(t, encrypted, "")
+
+	src = fmt.Sprintf(`
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
+
+EXPECTED_PLAINTEXT = "%s"
+ENCRYPTED = "%s"
+DECRYPTED = secret.decrypt(ENCRYPTED)
+
+def assert_eq(message, actual, expected):
+	if not expected == actual:
+		fail(message, "-", "expected", expected, "actual", actual)
+
+def main():
+	assert_eq("secret value", DECRYPTED, EXPECTED_PLAINTEXT)
+	return render.Root(child=render.Box())
+`, plaintext, encrypted)
+
+	app = &Applet{
+		SecretDecryptionKey: decryptionKey,
+	}
+
+	err = app.Load("testid", "test.star", []byte(src), nil)
+	require.NoError(t, err)
+
+	roots, err = app.Run(nil)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(roots))
 }
@@ -132,7 +168,7 @@ def main():
 		SecretDecryptionKey: nil,
 	}
 
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	require.NoError(t, err)
 
 	roots, err := app.Run(nil)

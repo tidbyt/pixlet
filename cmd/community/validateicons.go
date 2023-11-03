@@ -47,7 +47,7 @@ func ValidateIcons(cmd *cobra.Command, args []string) error {
 	})
 
 	applet := runtime.Applet{}
-	err = applet.LoadWithInitializers(args[0], src, nil, initializers...)
+	err = applet.LoadWithInitializers("", args[0], src, nil, initializers...)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}

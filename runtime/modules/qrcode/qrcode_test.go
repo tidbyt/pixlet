@@ -29,7 +29,7 @@ def main():
 
 func TestQRCode(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("test.star", []byte(qrCodeSource), nil)
+	err := app.Load("testid", "test.star", []byte(qrCodeSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

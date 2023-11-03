@@ -74,7 +74,7 @@ def main():
     return [r.Root(child=r.Text("1337"))]
 `
 	app := &runtime.Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	require.NoError(t, err)
 	screens, err := app.Run(map[string]string{})
 	require.NoError(t, err)

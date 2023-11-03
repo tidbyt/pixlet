@@ -32,7 +32,7 @@ def main():
 
 func TestDateTime(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("date_time.star", []byte(dateTimeSource), nil)
+	err := app.Load("dtid", "date_time.star", []byte(dateTimeSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

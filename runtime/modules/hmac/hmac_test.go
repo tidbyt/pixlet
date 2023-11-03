@@ -26,7 +26,7 @@ def main():
 
 func TestHmac(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("hmac_test.star", []byte(hmacSource), nil)
+	err := app.Load("hmacid", "hmac_test.star", []byte(hmacSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

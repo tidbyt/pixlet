@@ -48,7 +48,7 @@ def main():
 
 func TestOAuth2(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("oauth2.star", []byte(oauth2Source), nil)
+	err := app.Load("oaid", "oauth2.star", []byte(oauth2Source), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})

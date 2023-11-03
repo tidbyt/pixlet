@@ -31,7 +31,7 @@ def main():
 
 func TestHandler(t *testing.T) {
 	app := &runtime.Applet{}
-	err := app.Load("handler.star", []byte(handlerSource), nil)
+	err := app.Load("hid", "handler.star", []byte(handlerSource), nil)
 	assert.NoError(t, err)
 
 	screens, err := app.Run(map[string]string{})
@@ -42,7 +42,7 @@ func TestHandler(t *testing.T) {
 func TestHandlerBadParams(t *testing.T) {
 	// Handler is a string
 	app := &runtime.Applet{}
-	err := app.Load("text.star", []byte(`
+	err := app.Load("tid", "text.star", []byte(`
 load("schema.star", "schema")
 
 def foobar(param):
@@ -60,7 +60,7 @@ def main():
 
 	// Type is not valid
 	app = &runtime.Applet{}
-	err = app.Load("text.star", []byte(`
+	err = app.Load("tid", "text.star", []byte(`
 load("schema.star", "schema")
 
 def foobar(param):

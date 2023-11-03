@@ -14,14 +14,14 @@ import (
 
 func TestLoadEmptySrc(t *testing.T) {
 	app := &Applet{}
-	err := app.Load("test.star", []byte{}, nil)
+	err := app.Load("testid", "test.star", []byte{}, nil)
 	assert.Error(t, err)
 }
 
 func TestLoadMalformed(t *testing.T) {
 	src := "this is not valid starlark"
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.Error(t, err)
 }
 
@@ -33,7 +33,7 @@ def main():
     return render.Root(child=render.Box())
 `
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	// As is this
@@ -45,7 +45,7 @@ def main2():
 main = main2
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	// And this (a lambda is a function)
@@ -57,7 +57,7 @@ def main2():
 main = lambda: main2()
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 
 	// But not this, because a string is not a function
@@ -69,7 +69,7 @@ def main2():
 main = "main2"
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	assert.Error(t, err)
 
 	// And not this either, because here main is gone
@@ -79,7 +79,7 @@ def main2():
     return render.Root(child=render.Box())
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	assert.Error(t, err)
 
 }
@@ -92,7 +92,7 @@ def main():
     return [render.Box()]
 `
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	screens, err := app.Run(map[string]string{})
 	assert.Error(t, err)
@@ -106,7 +106,7 @@ def main():
 `
 
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	screens, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -119,7 +119,7 @@ def main():
     return [render.Root(child=render.Box()), render.Root(child=render.Text("hi"))]
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	screens, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -141,7 +141,7 @@ def main():
     return render.Root(child=render.Box())
 `
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	roots, err := app.Run(config)
 	assert.NoError(t, err)
@@ -170,7 +170,7 @@ def main(config):
 	return [render.Root(child=render.Box()) for _ in range(int(config["one"]) + int(config["two"]))]
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	require.NoError(t, err)
 	roots, err = app.Run(config)
 	require.NoError(t, err)
@@ -208,7 +208,7 @@ def main():
     return render.Root(child=render.Box())
 `
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	roots, err := app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -230,7 +230,7 @@ def main():
     return render.Root(child=render.Box())
 `
 	app = &Applet{}
-	err = app.Load("test.star", []byte(src), loader)
+	err = app.Load("testid", "test.star", []byte(src), loader)
 	assert.NoError(t, err)
 	roots, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -255,7 +255,7 @@ def main():
 	}
 
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	_, err = app.Run(map[string]string{}, initializer)
 	assert.NoError(t, err)
@@ -275,7 +275,7 @@ def main():
 `
 
 	app := &Applet{}
-	err := app.Load("test.star", []byte(src), nil)
+	err := app.Load("testid", "test.star", []byte(src), nil)
 	assert.NoError(t, err)
 	_, err = app.Run(map[string]string{})
 	assert.NoError(t, err)
@@ -323,7 +323,7 @@ def main(config):
 `
 
 	app := &Applet{}
-	err = app.Load("test.star", []byte(src), nil)
+	err = app.Load("testid", "test.star", []byte(src), nil)
 	_, err = app.Run(map[string]string{"ZIP_BYTES": buf.String()}, initializer)
 	assert.NoError(t, err)
 
