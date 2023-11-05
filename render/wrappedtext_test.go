@@ -8,7 +8,7 @@ import (
 )
 
 func TestWrappedTextWithBounds(t *testing.T) {
-	text := WrappedText{Content: "AB CD."}
+	text := &WrappedText{Content: "AB CD."}
 
 	// Sufficient space to fit on single line
 	im := PaintWidget(text, image.Rect(0, 0, 25, 8), 0)
@@ -62,9 +62,9 @@ func TestWrappedTextWithBounds(t *testing.T) {
 	}, im))
 }
 
-func TestWrappedTextWithSize(t *testing.T) {
+func TestWrappedTextWithsize(t *testing.T) {
 	// Weight and Height parameters override the bounds
-	text := WrappedText{Content: "AB CD.", Width: 7, Height: 12}
+	text := &WrappedText{Content: "AB CD.", Width: 7, Height: 12}
 	im := PaintWidget(text, image.Rect(0, 0, 40, 40), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + "..",
@@ -82,7 +82,7 @@ func TestWrappedTextWithSize(t *testing.T) {
 	}, im))
 
 	// Height can be overridden separately
-	text = WrappedText{Content: "AB CD.", Height: 12}
+	text = &WrappedText{Content: "AB CD.", Height: 12}
 	im = PaintWidget(text, image.Rect(0, 0, 9, 40), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + "....",
@@ -100,7 +100,7 @@ func TestWrappedTextWithSize(t *testing.T) {
 	}, im))
 
 	// Ditto for Width
-	text = WrappedText{Content: "AB CD.", Width: 3}
+	text = &WrappedText{Content: "AB CD.", Width: 3}
 	im = PaintWidget(text, image.Rect(0, 0, 9, 5), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"...",
@@ -114,7 +114,7 @@ func TestWrappedTextWithSize(t *testing.T) {
 func TestWrappedTextLineSpacing(t *testing.T) {
 
 	// Single pixel line space
-	text := WrappedText{Content: "AB CD.", LineSpacing: 1}
+	text := &WrappedText{Content: "AB CD.", LineSpacing: 1}
 	im := PaintWidget(text, image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + ".......",
@@ -136,7 +136,7 @@ func TestWrappedTextLineSpacing(t *testing.T) {
 	}, im))
 
 	// Add another one
-	text = WrappedText{Content: "AB CD.", LineSpacing: 2}
+	text = &WrappedText{Content: "AB CD.", LineSpacing: 2}
 	im = PaintWidget(text, image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"....." + ".......",
@@ -160,7 +160,7 @@ func TestWrappedTextLineSpacing(t *testing.T) {
 
 func TestWrappedTextAlignment(t *testing.T) {
 	// Default to left align.
-	text := WrappedText{Content: "AB CD."}
+	text := &WrappedText{Content: "AB CD."}
 	im := PaintWidget(text, image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......." + ".....",
@@ -182,7 +182,7 @@ func TestWrappedTextAlignment(t *testing.T) {
 	}, im))
 
 	// Right alignment.
-	text = WrappedText{Content: "AB CD.", Align: "right"}
+	text = &WrappedText{Content: "AB CD.", Align: "right"}
 	im = PaintWidget(text, image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......." + ".....",
@@ -204,7 +204,7 @@ func TestWrappedTextAlignment(t *testing.T) {
 	}, im))
 
 	// Center alignment.
-	text = WrappedText{Content: "AB CD.", Align: "center"}
+	text = &WrappedText{Content: "AB CD.", Align: "center"}
 	im = PaintWidget(text, image.Rect(0, 0, 21, 16), 0)
 	assert.Equal(t, nil, checkImage([]string{
 		"......." + ".....",
