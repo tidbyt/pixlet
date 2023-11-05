@@ -17,7 +17,7 @@ require (
 	github.com/google/pprof v0.0.0-20231101202521-4ca4178f5c7a
 	github.com/google/tink/go v1.7.0
 	github.com/gorilla/mux v1.8.0
-	github.com/gorilla/websocket v1.5.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/nathan-osman/go-sunrise v1.1.0
