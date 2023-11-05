@@ -234,3 +234,8 @@ func TestWrappedTextAlignment(t *testing.T) {
 		"......." + ".....",
 	}, im))
 }
+
+func TestWrappedTextMissingFont(t *testing.T) {
+	text := &WrappedText{Content: "AB CD.", Font: "missing"}
+	assert.Error(t, text.Init())
+}
