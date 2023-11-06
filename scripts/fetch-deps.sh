@@ -22,7 +22,6 @@ do
 		unzip -q "${LIBWEBP_VERSION}-${ARCH}.zip" -d "${ARCH}"
 	else
 		curl -sLO "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/${LIBWEBP_VERSION}-${ARCH}.tar.gz"
-		curl -sLO "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/${LIBWEBP_VERSION}-${ARCH}.tar.gz.asc"
 		tar -xf "${LIBWEBP_VERSION}-${ARCH}.tar.gz"
 		mv "${LIBWEBP_VERSION}-${ARCH}" "${ARCH}"
 	fi
