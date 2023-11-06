@@ -27,7 +27,7 @@ const PublicKeysetJSON = `{
 }`
 
 var EncryptCmd = &cobra.Command{
-	Use:     "encrypt [app name] [secret value]...",
+	Use:     "encrypt [app ID] [secret value]...",
 	Short:   "Encrypt a secret for use in the Tidbyt community repo",
 	Example: "encrypt weather my-top-secretweather-api-key-123456",
 	Args:    cobra.MinimumNArgs(2),
@@ -39,12 +39,12 @@ func encrypt(cmd *cobra.Command, args []string) {
 		PublicKeysetJSON: []byte(PublicKeysetJSON),
 	}
 
-	appName := args[0]
+	appID := args[0]
 	encrypted := make([]string, len(args)-1)
 
 	for i, val := range args[1:] {
 		var err error
-		encrypted[i], err = sek.Encrypt(appName, val)
+		encrypted[i], err = sek.Encrypt(appID, val)
 		if err != nil {
 			log.Fatalf("encrypting value: %v", err)
 		}
