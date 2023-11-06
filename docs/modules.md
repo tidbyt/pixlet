@@ -185,7 +185,7 @@ The secret module can decrypt values that were encrypted with `pixlet encrypt`.
 
 | Function | Description |
 | --- | --- |
-| `decrypt(value)` | Decrypts and returns the value when running in Tidbyt cloud. Returns `None` when running locally. Decryption will fail if the name of the app doesn't match the name that was passed to `pixlet encrypt`.  |
+| `decrypt(value)` | Decrypts and returns the value when running in Tidbyt cloud. Returns `None` when running locally. Decryption will fail if the ID of the app doesn't match the ID that was passed to `pixlet encrypt`.  |
 
 Example:
 ```starlark

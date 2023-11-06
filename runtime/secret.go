@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"regexp"
-	"strings"
 	"sync"
 
 	"github.com/google/tink/go/hybrid"
@@ -37,9 +36,9 @@ type SecretEncryptionKey struct {
 }
 
 // Encrypt encrypts a value for use as a secret in an app. Provide both a value
-// and the name of the app the encrypted secret will be used in. The value will
+// and the ID of the app the encrypted secret will be used in. The value will
 // only be usable with the specified app.
-func (sek *SecretEncryptionKey) Encrypt(appName, plaintext string) (string, error) {
+func (sek *SecretEncryptionKey) Encrypt(appID, plaintext string) (string, error) {
 	r := bytes.NewReader(sek.PublicKeysetJSON)
 	kh, err := keyset.ReadWithNoSecrets(keyset.NewJSONReader(r))
 	if err != nil {
@@ -51,7 +50,7 @@ func (sek *SecretEncryptionKey) Encrypt(appName, plaintext string) (string, erro
 		return "", errors.Wrap(err, "NewHybridEncrypt")
 	}
 
-	context := []byte(strings.TrimSuffix(appName, ".star"))
+	context := []byte(appID)
 	ciphertext, err := enc.Encrypt([]byte(plaintext), context)
 	if err != nil {
 		return "", errors.Wrap(err, "encrypting secret")
@@ -94,8 +93,7 @@ func (sdk *SecretDecryptionKey) decrypterForApp(a *Applet) (decrypter, error) {
 		return nil, errors.Wrap(err, "NewHybridDecrypt")
 	}
 
-	contextA := []byte(a.AppID)
-	contextB := []byte(strings.TrimSuffix(a.Filename, ".star"))
+	context := []byte(a.AppID)
 
 	return func(s starlark.String) (starlark.String, error) {
 		v := regexp.MustCompile(`\s`).ReplaceAllString(s.GoString(), "")
@@ -104,12 +102,9 @@ func (sdk *SecretDecryptionKey) decrypterForApp(a *Applet) (decrypter, error) {
 			return "", errors.Wrapf(err, "base64 decoding of secret: %s", s)
 		}
 
-		cleartext, err := dec.Decrypt(ciphertext, contextA)
+		cleartext, err := dec.Decrypt(ciphertext, context)
 		if err != nil {
-			cleartext, err = dec.Decrypt(ciphertext, contextB)
-			if err != nil {
-				return "", fmt.Errorf("decrypting secret %s: %w", s, err)
-			}
+			return "", fmt.Errorf("decrypting secret %s: %w", s, err)
 		}
 
 		return starlark.String(cleartext), nil
