@@ -19,7 +19,6 @@ for ARCH in $RELEASE_ARCHS
 do
 	if [[ $ARCH == windows* ]]; then
 		curl -sLO "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/${LIBWEBP_VERSION}-${ARCH}.zip"
-		curl -sLO "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/${LIBWEBP_VERSION}-${ARCH}.zip.asc"
 		unzip -q "${LIBWEBP_VERSION}-${ARCH}.zip" -d "${ARCH}"
 	else
 		curl -sLO "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/${LIBWEBP_VERSION}-${ARCH}.tar.gz"
