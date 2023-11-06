@@ -57,7 +57,10 @@ func (t *Text) Init() error {
 	if t.Font == "" {
 		t.Font = DefaultFontFace
 	}
-	face := GetFont(t.Font)
+	face, err := GetFont(t.Font)
+	if err != nil {
+		return err
+	}
 
 	dc := gg.NewContext(0, 0)
 	dc.SetFontFace(face)

@@ -4,13 +4,15 @@ package render
 
 import (
 	"encoding/base64"
-	"log"
+	"fmt"
+	"sync"
 
 	"github.com/zachomedia/go-bdf"
 	"golang.org/x/image/font"
 )
 
 var fontCache = map[string]font.Face{}
+var fontMutex = &sync.Mutex{}
 
 func GetFontList() []string {
 	fontNames := []string{}
@@ -20,26 +22,29 @@ func GetFontList() []string {
 	return fontNames
 }
 
-func GetFont(name string) font.Face {
+func GetFont(name string) (font.Face, error) {
+	fontMutex.Lock()
+	defer fontMutex.Unlock()
+
 	if font, ok := fontCache[name]; ok {
-		return font
+		return font, nil
 	}
 
 	dataB64, ok := fontDataRaw[name]
 	if !ok {
-		log.Panicf("Unknown font '%s', the available fonts are: %v", name, GetFontList())
+		return nil, fmt.Errorf("unknown font '%s'", name)
 	}
 
 	data, err := base64.StdEncoding.DecodeString(dataB64)
 	if err != nil {
-		log.Panicf("couldn't decode %s: %s", name, err)
+		return nil, fmt.Errorf("decoding font '%s': %w", name, err)
 	}
 
 	f, err := bdf.Parse(data)
 	if err != nil {
-		log.Panicf("couldn't parse %s: %s", name, err)
+		return nil, fmt.Errorf("parsing font '%s': %w", name, err)
 	}
 
 	fontCache[name] = f.NewFace()
-	return fontCache[name]
+	return fontCache[name], nil
 }
