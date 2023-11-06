@@ -14,7 +14,7 @@ import (
 	"tidbyt.dev/pixlet/manifest"
 )
 
-const MaxRenderTime = 500000000 // 500ms
+const MaxRenderTime = 1000000000 // 1000ms
 
 func init() {
 	CheckCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find apps recursively")
