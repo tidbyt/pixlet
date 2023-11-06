@@ -15,7 +15,7 @@ mkdir -p "/tmp/$LIBWEBP_VERSION"
 pushd "/tmp/$LIBWEBP_VERSION" > /dev/null
 
 # WebP release signing key.
-gpg --receive-keys --keyserver hkps://keyserver.ubuntu.com 6B0E6B70976DE303EDF2F601F9C3D6BDB8232B5D
+gpg --receive-keys --keyserver hkps://keyserver.ubuntu.com 6B0E6B70976DE303EDF2F601F9C3D6BDB8232B5D 2>/dev/null
 
 echo "Fetching WebP Binaries"
 for ARCH in $RELEASE_ARCHS
