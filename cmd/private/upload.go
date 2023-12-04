@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,8 +16,11 @@ import (
 )
 
 var uploadVersion string
-var uploadAppID string
+var uploadDir string
 var uploadURL string
+var uploadSkipDeploy bool
+
+var defaultVersion = fmt.Sprintf("%d", time.Now().Unix())
 
 type TidbytBundleUpload struct {
 	AppID   string `json:"appID"`
@@ -27,84 +29,71 @@ type TidbytBundleUpload struct {
 }
 
 func init() {
-	UploadCmd.Flags().StringVarP(&uploadAppID, "app", "a", "", "app ID of the bundle to upload")
-	UploadCmd.MarkFlagRequired("app")
-	UploadCmd.Flags().StringVarP(&uploadVersion, "version", "v", "", "version of the bundle to upload")
-	UploadCmd.MarkFlagRequired("version")
+	UploadCmd.Flags().StringVarP(&uploadDir, "app-dir", "a", ".", "app directory to upload")
+	UploadCmd.Flags().StringVarP(&uploadVersion, "version", "v", defaultVersion, "version of the app")
 	UploadCmd.Flags().StringVarP(&uploadURL, "url", "u", "https://api.tidbyt.com", "base URL of Tidbyt API")
+	UploadCmd.Flags().BoolVarP(&uploadSkipDeploy, "skip-deploy", "s", false, "skip deploying the bundle after uploading")
 }
 
 var UploadCmd = &cobra.Command{
 	Use:     "upload",
-	Short:   "Uploads an app bundle to Tidbyt (internal only)",
-	Example: `  pixlet upload bundle.tar.gz --app fuzzy-clock --version v0.0.1 --token {{ api_token }}`,
-	Long: `This command will upload an app bundle (see pixlet bundle) using the specified
-app ID and version. Note, this is for internal use only at the moment, and
-normal API tokens will not work with this command. We fully intend to make this
-command public once our backend is well positioned to support it.`,
-	Args: cobra.ExactArgs(1),
+	Short:   "Uploads an app to Tidbyt",
+	Example: "  pixlet private upload  --app-dir app/startrek/ --version v0.0.1",
+	Long: `This command uploads your private app. By default, the app is assumed
+to be in the current directory, is given timestamp as version, and is deployed.
+These defaults can be overridden with the --app-dir, --version, and --skip-deploy
+flags.`,
+	Args: cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		bundleFile := args[0]
-		info, err := os.Stat(bundleFile)
+
+		// Some sanity checks
+		if uploadVersion == "" {
+			return fmt.Errorf("version must not be blank")
+		}
+		if uploadDir == "" {
+			return fmt.Errorf("app-dir must not be blank")
+		}
+		info, err := os.Stat(uploadDir)
 		if err != nil {
-			return fmt.Errorf("input bundle file invalid: %w", err)
+			return fmt.Errorf("bad app-dir: %w", err)
+		}
+		if !info.IsDir() {
+			return fmt.Errorf("app-dir must be a directory")
 		}
 
-		if info.IsDir() {
-			return fmt.Errorf("input bundle must be a file")
+		// Create bundle
+		buf := &bytes.Buffer{}
+		ab, err := bundle.InitFromPath(uploadDir)
+		if err != nil {
+			return fmt.Errorf("could not init bundle: %w", err)
+		}
+		err = ab.WriteBundle(buf)
+		if err != nil {
+			return err
 		}
 
-		if !strings.HasSuffix(bundleFile, "tar.gz") {
-			return fmt.Errorf("input bundle format is not correct, did you create it with `pixlet bundle`?")
-		}
-
+		// Authenticate
 		apiToken := config.OAuthTokenFromConfig(cmd.Context())
 		if apiToken == "" {
 			return fmt.Errorf("login with `pixlet login` or use `pixlet set-auth` to configure auth")
 		}
 
-		if uploadAppID == "" {
-			return fmt.Errorf("app must not be blank")
-		}
-
-		if uploadVersion == "" {
-			return fmt.Errorf("version must not be blank")
-		}
-
-		f, err := os.Open(bundleFile)
-		if err != nil {
-			return fmt.Errorf("could not open bundle: %w", err)
-		}
-		defer f.Close()
-
-		// Load the bundle to ensure it's valid.
-		ab, err := bundle.LoadBundle(f)
-		if err != nil {
-			return fmt.Errorf("could not load bundle: %w", err)
-		}
-
-		// Re-write the bundle to ensure it's standard.
-		buf := &bytes.Buffer{}
-		err = ab.WriteBundle(buf)
-		if err != nil {
-			return fmt.Errorf("could not re-create bundle: %w", err)
-		}
-
+		// Marshal request
 		uploadBundle := &TidbytBundleUpload{
-			AppID:   uploadAppID,
+			AppID:   ab.Manifest.ID,
 			Version: uploadVersion,
 			Bundle:  base64.StdEncoding.EncodeToString(buf.Bytes()),
 		}
-
-		b, err := json.Marshal(uploadBundle)
+		body, err := json.Marshal(uploadBundle)
 		if err != nil {
 			return fmt.Errorf("could not marshal request: %w", err)
 		}
 
-		requestURL := fmt.Sprintf("%s/v0/apps/%s/upload", uploadURL, uploadAppID)
-		req, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewReader(b))
+		// Upload
+		requestURL := fmt.Sprintf("%s/v0/apps/%s/upload", uploadURL, ab.Manifest.ID)
+		req, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewReader(body))
 		if err != nil {
-			return fmt.Errorf("could not create http request: %w", err)
+			return fmt.Errorf("could not create upload request: %w", err)
 		}
 
 		req.Header.Set("Content-Type", "application/json")
@@ -124,6 +113,47 @@ command public once our backend is well positioned to support it.`,
 			body, _ := io.ReadAll(resp.Body)
 			return fmt.Errorf("request returned status %d with message: %s", resp.StatusCode, body)
 		}
+
+		// Possibly done
+		if uploadSkipDeploy {
+			fmt.Printf("Uploaded version %s of app %s\n", uploadVersion, ab.Manifest.ID)
+			return nil
+		}
+
+		// Otherwise: deploy
+
+		// Build deploy request
+		d := &TidbytAppDeploy{
+			AppID:   ab.Manifest.ID,
+			Version: uploadVersion,
+		}
+		body, err = json.Marshal(d)
+		if err != nil {
+			return fmt.Errorf("could not create deploy request: %w", err)
+		}
+
+		// Deploy
+		requestURL = fmt.Sprintf("%s/v0/apps/%s/deploy", uploadURL, ab.Manifest.ID)
+		req, err = http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body))
+		if err != nil {
+			return fmt.Errorf("could not create http request: %w", err)
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiToken))
+
+		resp, err = client.Do(req)
+		if err != nil {
+			return fmt.Errorf("could not make HTTP request to %s: %w", requestURL, err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			body, _ := io.ReadAll(resp.Body)
+			return fmt.Errorf("request returned status %d with message: %s", resp.StatusCode, body)
+		}
+
+		fmt.Printf("Uploaded and deployed version %s of app %s\n", uploadVersion, ab.Manifest.ID)
 
 		return nil
 	},
