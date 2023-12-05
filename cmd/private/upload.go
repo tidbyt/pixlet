@@ -29,7 +29,7 @@ type TidbytBundleUpload struct {
 }
 
 func init() {
-	UploadCmd.Flags().StringVarP(&uploadDir, "app-dir", "a", ".", "app directory to upload")
+	UploadCmd.Flags().StringVarP(&uploadDir, "app-dir", "d", ".", "app directory to upload")
 	UploadCmd.Flags().StringVarP(&uploadVersion, "version", "v", defaultVersion, "version of the app")
 	UploadCmd.Flags().StringVarP(&uploadURL, "url", "u", "https://api.tidbyt.com", "base URL of Tidbyt API")
 	UploadCmd.Flags().BoolVarP(&uploadSkipDeploy, "skip-deploy", "s", false, "skip deploying the bundle after uploading")
