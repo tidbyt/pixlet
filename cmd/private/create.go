@@ -34,7 +34,7 @@ type TidbytCreateAppReply struct {
 func init() {
 	CreateCmd.Flags().StringVarP(&createOrg, "org", "o", "", "organization to create the app in")
 	CreateCmd.Flags().StringVarP(&createURL, "url", "u", "https://api.tidbyt.com", "base URL of Tidbyt API")
-	CreateCmd.Flags().StringVarP(&createDir, "app-dir", "a", ".", "directory to create the app in")
+	CreateCmd.Flags().StringVarP(&createDir, "app-dir", "d", ".", "directory to create the app in")
 }
 
 // CreateCmd prompts the user for info and generates a new app.
