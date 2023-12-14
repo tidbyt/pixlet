@@ -11,6 +11,7 @@ func init() {
 	PrivateCmd.AddCommand(DeployCmd)
 	PrivateCmd.AddCommand(DeleteCmd)
 	PrivateCmd.AddCommand(ListCmd)
+	PrivateCmd.AddCommand(LogsCmd)
 }
 
 var PrivateCmd = &cobra.Command{
