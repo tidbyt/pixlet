@@ -12,9 +12,12 @@ import (
 	"github.com/spf13/cobra"
 	"go.starlark.net/starlark"
 
+	"tidbyt.dev/gtfs"
+	gtfs_storage "tidbyt.dev/gtfs/storage"
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
+	starlark_gtfs "tidbyt.dev/pixlet/runtime/modules/gtfs"
 	"tidbyt.dev/pixlet/starlarkutil"
 )
 
@@ -27,6 +30,7 @@ var (
 	width         int
 	height        int
 	timeout       int
+	gtfsDir       string
 )
 
 func init() {
@@ -67,6 +71,13 @@ func init() {
 		"",
 		30000,
 		"Timeout for execution (ms)",
+	)
+	RenderCmd.Flags().StringVarP(
+		&gtfsDir,
+		"gtfs",
+		"",
+		"",
+		"Directory for GTFS database (must be set to load gtfs.star",
 	)
 }
 
@@ -137,6 +148,18 @@ func render(cmd *cobra.Command, args []string) error {
 	cache := runtime.NewInMemoryCache()
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
+
+	if gtfsDir != "" {
+		gtfsStorage, err := gtfs_storage.NewSQLiteStorage(gtfs_storage.SQLiteConfig{
+			OnDisk:    true,
+			Directory: gtfsDir,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create gtfs storage: %w", err)
+		}
+		starlark_gtfs.Manager = gtfs.NewManager(gtfsStorage)
+		starlark_gtfs.Manager.Refresh(context.Background())
+	}
 
 	applet := runtime.Applet{}
 	err = applet.LoadWithInitializers("", script, src, nil, initializers...)

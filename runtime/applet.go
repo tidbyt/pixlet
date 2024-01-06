@@ -24,6 +24,7 @@ import (
 
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
+	"tidbyt.dev/pixlet/runtime/modules/gtfs"
 	"tidbyt.dev/pixlet/runtime/modules/hmac"
 	"tidbyt.dev/pixlet/runtime/modules/humanize"
 	"tidbyt.dev/pixlet/runtime/modules/qrcode"
@@ -352,6 +353,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 		return starlark.StringDict{
 			starlibjson.Module.Name: starlibjson.Module,
 		}, nil
+
+	case "gtfs.star":
+		return gtfs.LoadModule()
 
 	case "hash.star":
 		return starlibhash.LoadModule()
