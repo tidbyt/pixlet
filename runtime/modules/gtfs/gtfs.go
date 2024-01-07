@@ -19,7 +19,7 @@ const (
 	ModuleName = "gtfs"
 )
 
-// The GTFSManager must be set for module to loaded
+// The GTFSManager must be set for module to load
 var Manager *gtfs.Manager
 
 var (
