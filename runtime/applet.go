@@ -78,6 +78,8 @@ func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
 		},
 	}
 
+	t.SetLocal("appID", a.AppID)
+
 	if a.decrypter != nil {
 		a.decrypter.attachToThread(t)
 	}

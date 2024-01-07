@@ -27,13 +27,19 @@ var (
 	module            starlark.StringDict
 	moduleInitialized bool
 
-	mutex         sync.RWMutex
-	staticCache   map[string]*gtfs.Static
-	realtimeCache map[string]*gtfs.Realtime
+	mutex sync.RWMutex
+	cache map[cacheKey]*GTFS
 )
+
+type cacheKey struct {
+	appID       string
+	staticURL   string
+	realtimeURL string
+}
 
 func LoadModule() (starlark.StringDict, error) {
 	once.Do(func() {
+		cache = map[cacheKey]*GTFS{}
 		if Manager != nil {
 			module = starlark.StringDict{
 				ModuleName: &starlarkstruct.Module{
@@ -77,11 +83,11 @@ func buildHeaders(headers *starlark.Dict) (map[string]string, error) {
 
 			kStr, ok := k.(starlark.String)
 			if !ok {
-				return nil, fmt.Errorf("header key must be string, found %s: %s", k.Type(), k.String())
+				return nil, fmt.Errorf("key must be string, found %s: %s", k.Type(), k.String())
 			}
 			vStr, ok := v.(starlark.String)
 			if !ok {
-				return nil, fmt.Errorf("header value be string, found %s: %s", v.Type(), v.String())
+				return nil, fmt.Errorf("value be string, found %s: %s", v.Type(), v.String())
 			}
 
 			goHeaders[kStr.GoString()] = vStr.GoString()
@@ -89,6 +95,103 @@ func buildHeaders(headers *starlark.Dict) (map[string]string, error) {
 	}
 
 	return goHeaders, nil
+}
+
+func loadGTFS(
+	appID string,
+	staticURL string,
+	staticHeaders map[string]string,
+	realtimeURL string,
+	realtimeHeaders map[string]string,
+) (*GTFS, error) {
+
+	key := cacheKey{appID, staticURL, realtimeURL}
+
+	// From cache, if available.
+	mutex.RLock()
+	g, found := cache[cacheKey{appID, staticURL, realtimeURL}]
+	mutex.RUnlock()
+	if found {
+		return g, nil
+	}
+
+	// Otherwise from Manager. Double-checked locking to avoid
+	// redundant loads.
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	g, found = cache[cacheKey{appID, staticURL, realtimeURL}]
+	if found {
+		return g, nil
+	}
+
+	// Still not in cache, so we gotta load it. Static first
+	static, err := Manager.LoadStaticAsync(appID, staticURL, staticHeaders, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	// Realtime, if requested
+	var realtime *gtfs.Realtime
+	if realtimeURL != "" {
+		realtime, err = Manager.LoadRealtime(
+			appID,
+			static,
+			realtimeURL,
+			realtimeHeaders,
+			time.Now(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("loading realtime feed: %w", err)
+		}
+	}
+
+	// Here's the object
+	g = &GTFS{
+		static:      static,
+		realtime:    realtime,
+		departures:  starlark.NewBuiltin("departures", gtfsDepartures),
+		directions:  starlark.NewBuiltin("directions", gtfsDirections),
+		nearbyStops: starlark.NewBuiltin("nearby_stops", gtfsNearbyStops),
+	}
+
+	// Now load stops
+	stops, err := g.static.Reader.Stops()
+	if err != nil {
+		return nil, fmt.Errorf("getting stops: %w", err)
+	}
+	g.stops = starlark.NewDict(len(stops))
+	for _, s := range stops {
+		g.stops.SetKey(starlark.String(s.ID), makeStop(s))
+	}
+	g.stops.Freeze()
+
+	// Routes
+	routes, err := g.static.Reader.Routes()
+	if err != nil {
+		return nil, fmt.Errorf("getting routes: %w", err)
+	}
+	g.routes = starlark.NewDict(len(routes))
+	for _, r := range routes {
+		g.routes.SetKey(starlark.String(r.ID), makeRoute(r))
+	}
+	g.routes.Freeze()
+
+	// Trips
+	trips, err := g.static.Reader.Trips()
+	if err != nil {
+		return nil, fmt.Errorf("getting trips: %w", err)
+	}
+	g.trips = starlark.NewDict(len(trips))
+	for _, t := range trips {
+		g.trips.SetKey(starlark.String(t.ID), makeTrip(t))
+	}
+	g.trips.Freeze()
+
+	// Write to cache, and we're done
+	cache[key] = g
+
+	return g, nil
 }
 
 func newGTFS(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
@@ -110,10 +213,21 @@ func newGTFS(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, 
 		return nil, fmt.Errorf("unpacking GTFS args: %w", err)
 	}
 
-	// TODO: determine app ID, and make sure a LoadStaticAsync()
-	// call creates the consumer record.
+	appID, ok := thread.Local("appID").(string)
+	if !ok {
+		return nil, fmt.Errorf("appID not in thread local storage")
+	}
 
-	// Make sure URLs are valid
+	// Validate static params
+	goStaticURL := staticURL.GoString()
+	if goStaticURL == "" {
+		return nil, fmt.Errorf("static URL is required")
+	}
+	goStaticHeaders, err := buildHeaders(staticHeaders)
+	if err != nil {
+		return nil, fmt.Errorf("static headers: %w", err)
+	}
+
 	u, e := url.Parse(staticURL.GoString())
 	if e != nil {
 		return nil, fmt.Errorf("bad static URL: %w", e)
@@ -122,96 +236,32 @@ func newGTFS(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, 
 		return nil, fmt.Errorf("static URL must be http or https")
 	}
 
-	if realtimeURL.GoString() != "" {
-		u, e = url.Parse(realtimeURL.GoString())
+	// Validate realtime params
+	var goRealtimeHeaders map[string]string
+	goRealtimeURL := realtimeURL.GoString()
+	if goRealtimeURL != "" {
+		u, e = url.Parse(goRealtimeURL)
 		if e != nil {
 			return nil, fmt.Errorf("bad realtime URL: %w", e)
 		}
 		if u.Scheme != "http" && u.Scheme != "https" {
-			return nil, fmt.Errorf("realtime URL must be http or https")
+			return nil, fmt.Errorf("realtime URL must be http:// or https://")
+		}
+
+		if realtimeHeaders != nil {
+			goRealtimeHeaders, err = buildHeaders(realtimeHeaders)
+			if err != nil {
+				return nil, fmt.Errorf("realtime headers: %w", err)
+			}
 		}
 	}
 
-	var goStaticHeaders map[string]string
-	if staticHeaders != nil {
-		goStaticHeaders, err = buildHeaders(staticHeaders)
-		if err != nil {
-			return nil, fmt.Errorf("static headers: %w", err)
-		}
-	}
-
-	var goRealtimeHeaders map[string]string
-	if realtimeHeaders != nil {
-		goRealtimeHeaders, err = buildHeaders(realtimeHeaders)
-		if err != nil {
-			return nil, fmt.Errorf("realtime headers: %w", err)
-		}
-	}
-
-	// This is ugly and annoying
-	//
-	// TODO: Manager should cache static and realtime feeds on
-	// consumer ID and possibly even URL.
-
-	// Load feeds
-	static, err := Manager.LoadStaticAsync("consumerid", staticURL.GoString(), goStaticHeaders, time.Now())
+	gtfs, err := loadGTFS(appID, goStaticURL, goStaticHeaders, goRealtimeURL, goRealtimeHeaders)
 	if err != nil {
-		return nil, fmt.Errorf("loading static feed: %w", err)
+		return nil, fmt.Errorf("loading GTFS: %w", err)
 	}
 
-	var realtime *gtfs.Realtime
-	if realtimeURL.GoString() != "" {
-		realtime, err = Manager.LoadRealtime(
-			"consumerid",
-			static,
-			realtimeURL.GoString(),
-			goRealtimeHeaders,
-			time.Now(),
-		)
-		if err != nil {
-			return nil, fmt.Errorf("loading realtime feed: %w", err)
-		}
-	}
-
-	g := &GTFS{
-		static:      static,
-		realtime:    realtime,
-		departures:  starlark.NewBuiltin("departures", gtfsDepartures),
-		directions:  starlark.NewBuiltin("directions", gtfsDirections),
-		nearbyStops: starlark.NewBuiltin("nearby_stops", gtfsNearbyStops),
-	}
-
-	stops, err := g.static.Reader.Stops()
-	if err != nil {
-		return nil, fmt.Errorf("getting stops: %w", err)
-	}
-	g.stops = starlark.NewDict(len(stops))
-	for _, s := range stops {
-		g.stops.SetKey(starlark.String(s.ID), makeStop(s))
-	}
-	g.stops.Freeze()
-
-	routes, err := g.static.Reader.Routes()
-	if err != nil {
-		return nil, fmt.Errorf("getting routes: %w", err)
-	}
-	g.routes = starlark.NewDict(len(routes))
-	for _, r := range routes {
-		g.routes.SetKey(starlark.String(r.ID), makeRoute(r))
-	}
-	g.routes.Freeze()
-
-	trips, err := g.static.Reader.Trips()
-	if err != nil {
-		return nil, fmt.Errorf("getting trips: %w", err)
-	}
-	g.trips = starlark.NewDict(len(trips))
-	for _, t := range trips {
-		g.trips.SetKey(starlark.String(t.ID), makeTrip(t))
-	}
-	g.trips.Freeze()
-
-	return g, nil
+	return gtfs, nil
 }
 
 func gtfsDepartures(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
