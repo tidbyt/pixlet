@@ -10,7 +10,9 @@ import (
 	starlibtime "go.starlark.net/lib/time"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
 	"tidbyt.dev/gtfs"
+	"tidbyt.dev/gtfs/model"
 )
 
 const (
@@ -130,31 +132,45 @@ func newGTFS(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, 
 		}
 	}
 
-	goStaticHeaders, err := buildHeaders(staticHeaders)
-	if err != nil {
-		return nil, fmt.Errorf("static headers: %w", err)
+	var goStaticHeaders map[string]string
+	if staticHeaders != nil {
+		goStaticHeaders, err = buildHeaders(staticHeaders)
+		if err != nil {
+			return nil, fmt.Errorf("static headers: %w", err)
+		}
 	}
 
-	goRealtimeHeaders, err := buildHeaders(realtimeHeaders)
-	if err != nil {
-		return nil, fmt.Errorf("realtime headers: %w", err)
+	var goRealtimeHeaders map[string]string
+	if realtimeHeaders != nil {
+		goRealtimeHeaders, err = buildHeaders(realtimeHeaders)
+		if err != nil {
+			return nil, fmt.Errorf("realtime headers: %w", err)
+		}
 	}
 
 	// This is ugly and annoying
 	//
 	// TODO: Manager should cache static and realtime feeds on
 	// consumer ID and possibly even URL.
-	//
-	// TODO: Have LoadRealtime accept a Static as param
 
 	// Load feeds
 	static, err := Manager.LoadStaticAsync("consumerid", staticURL.GoString(), goStaticHeaders, time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("loading static feed: %w", err)
 	}
-	realtime, err := Manager.LoadRealtime("consumerid", staticURL.GoString(), goStaticHeaders, realtimeURL.GoString(), goRealtimeHeaders, time.Now())
-	if err != nil {
-		return nil, fmt.Errorf("loading realtime feed: %w", err)
+
+	var realtime *gtfs.Realtime
+	if realtimeURL.GoString() != "" {
+		realtime, err = Manager.LoadRealtime(
+			"consumerid",
+			static,
+			realtimeURL.GoString(),
+			goRealtimeHeaders,
+			time.Now(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("loading realtime feed: %w", err)
+		}
 	}
 
 	g := &GTFS{
@@ -238,7 +254,7 @@ func gtfsDepartures(thread *starlark.Thread, b *starlark.Builtin, args starlark.
 	}
 
 	// Get departures. Realtime if available, otherwise Static.
-	var departures []gtfs.Departure
+	var departures []model.Departure
 	if g.realtime != nil {
 		departures, err = g.realtime.Departures(stopID.GoString(), time.Time(when), time.Duration(window), goLimit, routeID.GoString(), goDirectionID, nil)
 		if err != nil {
@@ -280,7 +296,6 @@ func gtfsDirections(thread *starlark.Thread, b *starlark.Builtin, args starlark.
 
 	directionList := make([]starlark.Value, 0, len(directions))
 	for _, rd := range directions {
-		directionList = append(directionList, makeRouteDirection(rd))
 		headsigns := make([]starlark.Value, 0, len(rd.Headsigns))
 		for _, hs := range rd.Headsigns {
 			headsigns = append(headsigns, starlark.String(hs))
