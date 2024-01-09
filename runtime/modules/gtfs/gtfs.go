@@ -22,13 +22,18 @@ const (
 // The GTFSManager must be set for module to load
 var Manager *gtfs.Manager
 
+const (
+	StaticRefreshInterval   = 5 * time.Minute
+	RealtimeRefreshInterval = 10 * time.Second
+)
+
 var (
 	once              sync.Once
 	module            starlark.StringDict
 	moduleInitialized bool
 
 	mutex sync.RWMutex
-	cache map[cacheKey]*GTFS
+	cache map[cacheKey]cacheValue
 )
 
 type cacheKey struct {
@@ -37,9 +42,15 @@ type cacheKey struct {
 	realtimeURL string
 }
 
+type cacheValue struct {
+	gtfs                *GTFS
+	staticRefreshedAt   time.Time
+	realtimeRefreshedAt time.Time
+}
+
 func LoadModule() (starlark.StringDict, error) {
 	once.Do(func() {
-		cache = map[cacheKey]*GTFS{}
+		cache = map[cacheKey]cacheValue{}
 		if Manager != nil {
 			module = starlark.StringDict{
 				ModuleName: &starlarkstruct.Module{
@@ -107,58 +118,84 @@ func loadGTFS(
 
 	key := cacheKey{appID, staticURL, realtimeURL}
 
-	// From cache, if available.
+	// If up to date GTFS is in cache, use it.
 	mutex.RLock()
-	g, found := cache[cacheKey{appID, staticURL, realtimeURL}]
+	v := cache[key]
 	mutex.RUnlock()
-	if found {
-		return g, nil
+
+	now := time.Now()
+	refreshStatic := now.Sub(v.staticRefreshedAt) > StaticRefreshInterval
+	refreshRealtime := realtimeURL != "" && now.Sub(v.realtimeRefreshedAt) > RealtimeRefreshInterval
+
+	if !refreshStatic && !refreshRealtime {
+		return v.gtfs, nil
 	}
 
-	// Otherwise from Manager. Double-checked locking to avoid
-	// redundant loads.
+	// Otherwise new stuff's needed from Manager. Double-checked
+	// locking to avoid redundant loads.
+
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	g, found = cache[cacheKey{appID, staticURL, realtimeURL}]
-	if found {
-		return g, nil
+	// double-check
+	v = cache[key]
+	refreshStatic = now.Sub(v.staticRefreshedAt) > StaticRefreshInterval
+	refreshRealtime = realtimeURL != "" && now.Sub(v.realtimeRefreshedAt) > RealtimeRefreshInterval
+	if !refreshStatic && !refreshRealtime {
+		return v.gtfs, nil
 	}
 
-	// Still not in cache, so we gotta load it. Static first
-	static, err := Manager.LoadStaticAsync(appID, staticURL, staticHeaders, time.Now())
-	if err != nil {
-		return nil, err
+	nv := cacheValue{
+		gtfs: &GTFS{
+			departures:  starlark.NewBuiltin("departures", gtfsDepartures),
+			directions:  starlark.NewBuiltin("directions", gtfsDirections),
+			nearbyStops: starlark.NewBuiltin("nearby_stops", gtfsNearbyStops),
+		},
+		staticRefreshedAt:   v.staticRefreshedAt,
+		realtimeRefreshedAt: v.realtimeRefreshedAt,
 	}
 
-	// Realtime, if requested
-	var realtime *gtfs.Realtime
-	if realtimeURL != "" {
-		realtime, err = Manager.LoadRealtime(
-			appID,
-			static,
-			realtimeURL,
-			realtimeHeaders,
-			time.Now(),
-		)
+	if v.gtfs != nil {
+		nv.gtfs.static = v.gtfs.static
+		nv.gtfs.realtime = v.gtfs.realtime
+		nv.gtfs.routes = v.gtfs.routes
+		nv.gtfs.stops = v.gtfs.stops
+		nv.gtfs.trips = v.gtfs.trips
+	}
+
+	if refreshStatic {
+		static, err := Manager.LoadStaticAsync(appID, staticURL, staticHeaders, time.Now())
 		if err != nil {
-			return nil, fmt.Errorf("loading realtime feed: %w", err)
+			return nil, err
+		}
+		nv.gtfs.static = static
+		nv.staticRefreshedAt = time.Now()
+
+		err = loadStopsRoutesTrips(nv.gtfs)
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	// Here's the object
-	g = &GTFS{
-		static:      static,
-		realtime:    realtime,
-		departures:  starlark.NewBuiltin("departures", gtfsDepartures),
-		directions:  starlark.NewBuiltin("directions", gtfsDirections),
-		nearbyStops: starlark.NewBuiltin("nearby_stops", gtfsNearbyStops),
+	if refreshRealtime {
+		realtime, err := Manager.LoadRealtime(appID, nv.gtfs.static, realtimeURL, realtimeHeaders, time.Now())
+		if err != nil {
+			return nil, err
+		}
+		nv.gtfs.realtime = realtime
+		nv.realtimeRefreshedAt = time.Now()
 	}
 
-	// Now load stops
+	cache[key] = nv
+
+	return nv.gtfs, nil
+}
+
+func loadStopsRoutesTrips(g *GTFS) error {
+	// Stops
 	stops, err := g.static.Reader.Stops()
 	if err != nil {
-		return nil, fmt.Errorf("getting stops: %w", err)
+		return fmt.Errorf("getting stops: %w", err)
 	}
 	g.stops = starlark.NewDict(len(stops))
 	for _, s := range stops {
@@ -169,7 +206,7 @@ func loadGTFS(
 	// Routes
 	routes, err := g.static.Reader.Routes()
 	if err != nil {
-		return nil, fmt.Errorf("getting routes: %w", err)
+		return fmt.Errorf("getting routes: %w", err)
 	}
 	g.routes = starlark.NewDict(len(routes))
 	for _, r := range routes {
@@ -180,7 +217,7 @@ func loadGTFS(
 	// Trips
 	trips, err := g.static.Reader.Trips()
 	if err != nil {
-		return nil, fmt.Errorf("getting trips: %w", err)
+		return fmt.Errorf("getting trips: %w", err)
 	}
 	g.trips = starlark.NewDict(len(trips))
 	for _, t := range trips {
@@ -188,10 +225,7 @@ func loadGTFS(
 	}
 	g.trips.Freeze()
 
-	// Write to cache, and we're done
-	cache[key] = g
-
-	return g, nil
+	return nil
 }
 
 func newGTFS(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
@@ -287,8 +321,6 @@ func gtfsDepartures(thread *starlark.Thread, b *starlark.Builtin, args starlark.
 	if err != nil {
 		return nil, fmt.Errorf("unpacking arguments for GTFS.departures: %s", err)
 	}
-
-	// TODO: would assigning -1 before UnpackArgs() work as well?
 
 	// These will be 0 if not provided, but we need them to
 	// default to -1
@@ -426,7 +458,6 @@ func (g *GTFS) Attr(name string) (starlark.Value, error) {
 }
 
 func (g *GTFS) Hash() (uint32, error) {
-	// TODO: Is this reasonable?
 	sum, err := hashstructure.Hash(g, hashstructure.FormatV2, nil)
 	return uint32(sum), err
 }

@@ -1,8 +1,14 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/spf13/cobra"
 
+	"tidbyt.dev/gtfs"
+	gtfs_storage "tidbyt.dev/gtfs/storage"
+	starlark_gtfs "tidbyt.dev/pixlet/runtime/modules/gtfs"
 	"tidbyt.dev/pixlet/server"
 )
 
@@ -18,6 +24,7 @@ func init() {
 	ServeCmd.Flags().BoolVarP(&watch, "watch", "w", true, "Reload scripts on change")
 	ServeCmd.Flags().IntVarP(&maxDuration, "max_duration", "d", 15000, "Maximum allowed animation duration (ms)")
 	ServeCmd.Flags().IntVarP(&timeout, "timeout", "", 30000, "Timeout for execution (ms)")
+	ServeCmd.Flags().StringVarP(&gtfsDir, "gtfs_dir", "", "", "Directory for GTFS database (must be set to load gtfs.star")
 }
 
 var ServeCmd = &cobra.Command{
@@ -28,6 +35,18 @@ var ServeCmd = &cobra.Command{
 }
 
 func serve(cmd *cobra.Command, args []string) error {
+	if gtfsDir != "" {
+		gtfsStorage, err := gtfs_storage.NewSQLiteStorage(gtfs_storage.SQLiteConfig{
+			OnDisk:    true,
+			Directory: gtfsDir,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create gtfs storage: %w", err)
+		}
+		starlark_gtfs.Manager = gtfs.NewManager(gtfsStorage)
+		starlark_gtfs.Manager.Refresh(context.Background())
+	}
+
 	s, err := server.NewServer(host, port, watch, args[0], maxDuration, timeout)
 	if err != nil {
 		return err

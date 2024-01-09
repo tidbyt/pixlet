@@ -74,7 +74,7 @@ func init() {
 	)
 	RenderCmd.Flags().StringVarP(
 		&gtfsDir,
-		"gtfs",
+		"gtfs_dir",
 		"",
 		"",
 		"Directory for GTFS database (must be set to load gtfs.star",
