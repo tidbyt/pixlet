@@ -113,5 +113,5 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	tidbyt.dev/gtfs v0.0.0-20240104212647-16ac9017454d // indirect
+	tidbyt.dev/gtfs v0.0.0-20240106215412-7e8db92704b7 // indirect
 )

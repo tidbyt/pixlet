@@ -965,3 +965,5 @@ rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 tidbyt.dev/gtfs v0.0.0-20240104212647-16ac9017454d h1:3RbVN2ZrrHHtNaEPFHtsjKukLQTFheNlCHSZJEzv75w=
 tidbyt.dev/gtfs v0.0.0-20240104212647-16ac9017454d/go.mod h1:rywAkpTLzBpa/4a6UexXLu6nPAglz2ceB87DOJnVr9E=
+tidbyt.dev/gtfs v0.0.0-20240106215412-7e8db92704b7 h1:pvzf5HyZNpcMY1fTncNN/wsKkpuIjOz2Z+6YwRqf3+M=
+tidbyt.dev/gtfs v0.0.0-20240106215412-7e8db92704b7/go.mod h1:rywAkpTLzBpa/4a6UexXLu6nPAglz2ceB87DOJnVr9E=
