@@ -19,7 +19,7 @@ const (
 	ModuleName = "gtfs"
 )
 
-// The GTFSManager must be set for module to load
+// Manager must be set for module to load
 var Manager *gtfs.Manager
 
 const (
@@ -36,6 +36,8 @@ var (
 	cache map[cacheKey]cacheValue
 )
 
+// Creating a new GTFS object requires reading stuff from db, which is
+// expensive, so we have to take care to cache the objects.
 type cacheKey struct {
 	appID       string
 	staticURL   string
@@ -84,6 +86,7 @@ type GTFS struct {
 	nearbyStops *starlark.Builtin
 }
 
+// Turns a Starlark dict into a map.
 func buildHeaders(headers *starlark.Dict) (map[string]string, error) {
 	goHeaders := map[string]string{}
 
@@ -108,6 +111,7 @@ func buildHeaders(headers *starlark.Dict) (map[string]string, error) {
 	return goHeaders, nil
 }
 
+// Loads up a GTFS object.
 func loadGTFS(
 	appID string,
 	staticURL string,
@@ -118,7 +122,7 @@ func loadGTFS(
 
 	key := cacheKey{appID, staticURL, realtimeURL}
 
-	// If up to date GTFS is in cache, use it.
+	// If up to date GTFS object is in cache, use it.
 	mutex.RLock()
 	v := cache[key]
 	mutex.RUnlock()
@@ -133,11 +137,10 @@ func loadGTFS(
 
 	// Otherwise new stuff's needed from Manager. Double-checked
 	// locking to avoid redundant loads.
-
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	// double-check
+	// the "double-check"
 	v = cache[key]
 	refreshStatic = now.Sub(v.staticRefreshedAt) > StaticRefreshInterval
 	refreshRealtime = realtimeURL != "" && now.Sub(v.realtimeRefreshedAt) > RealtimeRefreshInterval
@@ -145,6 +148,7 @@ func loadGTFS(
 		return v.gtfs, nil
 	}
 
+	// Definitely need to hit Manager and create a new GTFS object.
 	nv := cacheValue{
 		gtfs: &GTFS{
 			departures:  starlark.NewBuiltin("departures", gtfsDepartures),
@@ -191,6 +195,7 @@ func loadGTFS(
 	return nv.gtfs, nil
 }
 
+// Populates the GTFS object with stops, routes, and trips.
 func loadStopsRoutesTrips(g *GTFS) error {
 	// Stops
 	stops, err := g.static.Reader.Stops()
@@ -312,8 +317,8 @@ func gtfsDepartures(thread *starlark.Thread, b *starlark.Builtin, args starlark.
 		"departures",
 		args, kwargs,
 		"stop_id", &stopID,
-		"when", &when,
-		"window", &window,
+		"when?", &when,
+		"window?", &window,
 		"limit?", &limit,
 		"route_id?", &routeID,
 		"direction_id?", &directionID,
@@ -335,15 +340,30 @@ func gtfsDepartures(thread *starlark.Thread, b *starlark.Builtin, args starlark.
 		}
 	}
 
+	goStopID := stopID.GoString()
+	goWhen := time.Time(when)
+	goWindow := time.Duration(window)
+	goRouteID := routeID.GoString()
+
+	if stopID.GoString() == "" {
+		return nil, fmt.Errorf("stop_id is required")
+	}
+	if goWhen.IsZero() {
+		goWhen = time.Now()
+	}
+	if goWindow == 0 {
+		goWindow = 30 * time.Minute
+	}
+
 	// Get departures. Realtime if available, otherwise Static.
 	var departures []model.Departure
 	if g.realtime != nil {
-		departures, err = g.realtime.Departures(stopID.GoString(), time.Time(when), time.Duration(window), goLimit, routeID.GoString(), goDirectionID, nil)
+		departures, err = g.realtime.Departures(goStopID, goWhen, goWindow, goLimit, goRouteID, goDirectionID, nil)
 		if err != nil {
 			return nil, fmt.Errorf("getting realtime departures: %w", err)
 		}
 	} else {
-		departures, err = g.static.Departures(stopID.GoString(), time.Time(when), time.Duration(window), goLimit, routeID.GoString(), goDirectionID, nil)
+		departures, err = g.static.Departures(goStopID, goWhen, goWindow, goLimit, goRouteID, goDirectionID, nil)
 		if err != nil {
 			return nil, fmt.Errorf("getting static departures: %w", err)
 		}
@@ -371,7 +391,12 @@ func gtfsDirections(thread *starlark.Thread, b *starlark.Builtin, args starlark.
 		return nil, fmt.Errorf("unpacking arguments for GTFS.directions: %s", err)
 	}
 
-	directions, err := g.static.RouteDirections(stopID.GoString())
+	goStopID := stopID.GoString()
+	if goStopID == "" {
+		return nil, fmt.Errorf("stop_id is required")
+	}
+
+	directions, err := g.static.RouteDirections(goStopID)
 	if err != nil {
 		return nil, fmt.Errorf("getting directions: %w", err)
 	}
