@@ -1998,10 +1998,6 @@ func newWrappedText(
 
 	w.frame_count = starlark.NewBuiltin("frame_count", wrappedtextFrameCount)
 
-	if err := w.Init(); err != nil {
-		return nil, err
-	}
-
 	return w, nil
 }
 
