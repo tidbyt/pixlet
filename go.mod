@@ -25,7 +25,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/nirasan/go-oauth-pkce-code-verifier v0.0.0-20220510032225-4f9f17eaec4c
 	github.com/nlepage/go-wasm-http-server v1.1.0
-	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
+	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/pkg/errors v0.9.1
 	github.com/qri-io/starlib v0.5.1-0.20220611014110-7fb7ff9ec804
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
