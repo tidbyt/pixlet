@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"go.starlark.net/starlark"
 )
 
 func TestInitHTTP(t *testing.T) {
@@ -182,4 +185,44 @@ func TestDetermineTTLNoHeaders(t *testing.T) {
 
 	ttl := DetermineTTL(req, res)
 	assert.Equal(t, MinRequestTTL, ttl)
+}
+
+func TestSetCookieOnRedirect(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Requests to "/login" set a cookie and redirect to /destination
+		if strings.HasSuffix(r.URL.Path, "/login") {
+			w.Header().Set("Set-Cookie", "doodad=foobar; path=/; HttpOnly")
+			w.Header().Set("Location", "/destination")
+			w.WriteHeader(302)
+			return
+		}
+		// Requests to /destination must have cookie set
+		if strings.HasSuffix(r.URL.Path, "/destination") {
+			c, err := r.Cookie("doodad")
+			if err != nil {
+				t.Errorf("Expected cookie `doodad` not present")  // Occurs if client has no cookie jar
+			}
+			if c.Value != "foobar" {
+				t.Errorf("Cookie `doodad` value mismatch. Expected foobar, got %s", c.Value)
+			}
+			if _, err := w.Write([]byte(`{"hello":"world"}`)); err != nil {
+				t.Fatal(err)
+			}
+			return
+		}
+		t.Errorf("Unexpected path requested: %s", r.URL.Path)
+	}))
+
+	starlark.Universe["test_server_url"] = starlark.String(ts.URL)
+	c := NewInMemoryCache()
+	InitHTTP(c)
+
+	b, err := os.ReadFile("testdata/httpredirect.star")
+	assert.NoError(t, err)
+
+	app, err := NewApplet("httpredirect.star", b)
+	assert.NoError(t, err)
+
+	_, err = app.Run(context.Background())
+	assert.NoError(t, err)
 }
