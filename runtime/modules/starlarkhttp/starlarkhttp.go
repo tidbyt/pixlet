@@ -32,6 +32,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strconv"
 	"strings"
@@ -39,6 +40,7 @@ import (
 	util "github.com/qri-io/starlib/util"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+	"golang.org/x/net/publicsuffix"
 )
 
 // AsString unquotes a starlark string value
@@ -51,9 +53,18 @@ func AsString(x starlark.Value) (string, error) {
 const ModuleName = "http.star"
 
 var (
+	// Providing a cookie jar allows sessions and redirects to work properly. With a
+	// jar present, any cookies set in a response will automatically be added to
+	// subsequent requests. This means that we can follow redirects after logging into
+	// a session. Without a jar, any cookies will be dropped from redirects unless explicitly
+	// set in the original outgoing request.
+	// https://cs.opensource.google/go/go/+/master:src/net/http/client.go;drc=4c394b5638cc2694b1eff6418bc3e7db8132de0e;l=88
+	jar, _ = cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	// StarlarkHTTPClient is the http client used to create the http module. override with
 	// a custom client before calling LoadModule
-	StarlarkHTTPClient = http.DefaultClient
+	StarlarkHTTPClient = &http.Client{
+		Jar: jar,
+	}
 	// StarlarkHTTPGuard is a global RequestGuard used in LoadModule. override with a custom
 	// implementation before calling LoadModule
 	StarlarkHTTPGuard RequestGuard
