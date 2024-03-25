@@ -30,6 +30,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    env:
+      SKIA_PACK_VERSION: m116-47d3027-1
+
     steps:
       - name: Install Go
         uses: actions/setup-go@v4
@@ -58,19 +61,31 @@ jobs:
 
       - name: Install Linux dependencies
         if: matrix.os == 'ubuntu-22.04'
-        run: sudo apt-get install -y libwebp-dev
+        run: |
+          sudo apt-get install -y libwebp-dev
+          curl -LO https://github.com/JetBrains/skia-pack/releases/download/$SKIA_PACK_VERSION/Skia-$SKIA_PACK_VERSION-linux-Release-x64.zip
+          unzip -d ./skia-pack Skia-$SKIA_PACK_VERSION-linux-Release-x64.zip
 
       - name: Install macOS dependencies
         if: matrix.os == 'macos-latest'
-        run: brew install webp
+        run: |
+          brew install webp
+          curl -LO https://github.com/JetBrains/skia-pack/releases/download/$SKIA_PACK_VERSION/Skia-$SKIA_PACK_VERSION-macos-Release-x64.zip
+          unzip -d ./skia-pack Skia-$SKIA_PACK_VERSION-macos-Release-x64.zip
 
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         shell: msys2 {0}
         run: |
           set MSYSTEM=MINGW64
+
           curl -LO https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-libwebp-1.2.4-4-any.pkg.tar.zst
           pacman -U --noconfirm mingw-w64-x86_64-libwebp-1.2.4-4-any.pkg.tar.zst
+
+          pacman -S --noconfirm unzip
+
+          curl -LO https://github.com/JetBrains/skia-pack/releases/download/$SKIA_PACK_VERSION/Skia-$SKIA_PACK_VERSION-windows-Release-x64.zip
+          unzip -d ./skia-pack Skia-$SKIA_PACK_VERSION-windows-Release-x64.zip
 
       - name: Install frontend dependencies
         run: npm install
