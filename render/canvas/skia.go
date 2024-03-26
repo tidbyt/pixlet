@@ -8,7 +8,6 @@ package canvas
 #cgo LDFLAGS: -lharfbuzz
 #cgo LDFLAGS: -licu
 #cgo LDFLAGS: -ljpeg
-#cgo LDFLAGS: -lparticles
 #cgo LDFLAGS: -lpiex
 #cgo LDFLAGS: -lpng
 #cgo LDFLAGS: -lskcms
