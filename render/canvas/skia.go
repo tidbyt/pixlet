@@ -1,3 +1,5 @@
+// go:build skia
+
 package canvas
 
 /*
@@ -22,17 +24,6 @@ package canvas
 #cgo LDFLAGS: -lwebp_sse41
 #cgo LDFLAGS: -lwuffs
 #cgo LDFLAGS: -lzlib
-#
-#cgo LDFLAGS: -framework Foundation
-#cgo LDFLAGS: -framework CoreFoundation
-#cgo LDFLAGS: -framework CoreGraphics
-#cgo LDFLAGS: -framework CoreText
-#cgo LDFLAGS: -framework ImageIO
-#cgo LDFLAGS: -framework Carbon
-#cgo LDFLAGS: -framework Metal
-#
-#cgo LDFLAGS: -lstdc++
-#cgo LDFLAGS: -mmacosx-version-min=14.0
 #
 #cgo CXXFLAGS: -std=c++17
 #cgo CXXFLAGS: -I/Users/rohan/Downloads/Skia-m110-ad42464-1-macos-Release-arm64
