@@ -3,11 +3,11 @@ GIT_COMMIT = $(shell git rev-list -1 HEAD)
 ifeq ($(OS),Windows_NT)
 	BINARY = pixlet.exe
 	LDFLAGS = -ldflags="-s -extldflags=-static -X 'tidbyt.dev/pixlet/cmd.Version=$(GIT_COMMIT)'"
-	TAGS = -tags timetzdata
+	TAGS = -tags "timetzdata,$(GOTAGS)"
 else
 	BINARY = pixlet
 	LDFLAGS = -ldflags="-X 'tidbyt.dev/pixlet/cmd.Version=$(GIT_COMMIT)'"
-	TAGS =
+	TAGS = -tags "$(GOTAGS)"
 endif
 
 all: build wasm

@@ -3,6 +3,8 @@
 package canvas
 
 /*
+#cgo LDFLAGS: -L${SRCDIR}/../../skia-pack/out/Release-macos-arm64
+
 #cgo LDFLAGS: -framework Foundation
 #cgo LDFLAGS: -framework CoreFoundation
 #cgo LDFLAGS: -framework CoreGraphics
