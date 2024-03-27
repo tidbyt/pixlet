@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Sequence renders a list of child widgets in sequence.
@@ -20,11 +20,13 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Sequence(
-//   children = [
-//     animation.Transformation(...),
-//     animation.Transformation(...),
-//     ...
-//   ],
+//
+//	children = [
+//	  animation.Transformation(...),
+//	  animation.Transformation(...),
+//	  ...
+//	],
+//
 // ),
 // EXAMPLE END
 type Sequence struct {
@@ -57,7 +59,7 @@ func (s Sequence) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectan
 	return image.Rect(0, 0, 0, 0)
 }
 
-func (s Sequence) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (s Sequence) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	fc := 0
 
 	for _, c := range s.Children {

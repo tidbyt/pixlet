@@ -7,7 +7,7 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 type Starfield struct {
@@ -38,7 +38,7 @@ func (s *Star) Tick() {
 }
 
 // TODO: use PolyLine from path.go instead
-func DrawLine(dc *gg.Context, x0, y0, x1, y1 int) {
+func DrawLine(dc canvas.Canvas, x0, y0, x1, y1 int) {
 	dx := x1 - x0
 	if dx < 0 {
 		dx = -dx
@@ -61,23 +61,23 @@ func DrawLine(dc *gg.Context, x0, y0, x1, y1 int) {
 
 	if dx == 0 {
 		for ; y0 != y1; y0 += sy {
-			dc.SetPixel(x0, y0)
+			dc.DrawPixel(x0, y0)
 		}
-		dc.SetPixel(x0, y0)
+		dc.DrawPixel(x0, y0)
 		return
 	}
 
 	if dy == 0 {
 		for ; x0 != x1; x0 += sx {
-			dc.SetPixel(x0, y0)
+			dc.DrawPixel(x0, y0)
 		}
-		dc.SetPixel(x0, y0)
+		dc.DrawPixel(x0, y0)
 		return
 	}
 
 	err := dx + dy
 
-	dc.SetPixel(x0, y0)
+	dc.DrawPixel(x0, y0)
 	for x0 != x1 && y0 != y1 {
 		e2 := 2 * err
 		if e2 >= dy {
@@ -88,7 +88,7 @@ func DrawLine(dc *gg.Context, x0, y0, x1, y1 int) {
 			err += dx
 			y0 += sy
 		}
-		dc.SetPixel(x0, y0)
+		dc.DrawPixel(x0, y0)
 	}
 }
 
@@ -116,7 +116,7 @@ func (s *Starfield) PaintBounds(bounds image.Rectangle, frameIdx int) image.Imag
 	return image.Rect(0, 0, 64, 32)
 }
 
-func (s *Starfield) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (s *Starfield) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	Black := color.RGBA{R: 0, G: 0, B: 0, A: 0xff}
 
 	dc.SetColor(Black)
@@ -143,7 +143,7 @@ func (s *Starfield) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) 
 			DrawLine(dc, pX, pY, X, Y)
 		}
 		dc.SetColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
-		dc.SetPixel(X, Y)
+		dc.DrawPixel(X, Y)
 	}
 
 	dc.SetColor(color.RGBA{0xff, 0xff, 0xff, 0xff})

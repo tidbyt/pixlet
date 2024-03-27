@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Row lays out and draws its children horizontally (in a row).
@@ -35,24 +35,28 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Row(
-//      children=[
-//           render.Box(width=10, height=8, color="#a00"),
-//           render.Box(width=14, height=6, color="#0a0"),
-//           render.Box(width=16, height=4, color="#00a"),
-//      ],
+//
+//	children=[
+//	     render.Box(width=10, height=8, color="#a00"),
+//	     render.Box(width=14, height=6, color="#0a0"),
+//	     render.Box(width=16, height=4, color="#00a"),
+//	],
+//
 // )
 // EXAMPLE END
 //
 // EXAMPLE BEGIN
 // render.Row(
-//      expanded=True,
-//      main_align="space_between",
-//      cross_align="end",
-//      children=[
-//           render.Box(width=10, height=8, color="#a00"),
-//           render.Box(width=14, height=6, color="#0a0"),
-//           render.Box(width=16, height=4, color="#00a"),
-//      ],
+//
+//	expanded=True,
+//	main_align="space_between",
+//	cross_align="end",
+//	children=[
+//	     render.Box(width=10, height=8, color="#a00"),
+//	     render.Box(width=14, height=6, color="#0a0"),
+//	     render.Box(width=16, height=4, color="#00a"),
+//	],
+//
 // )
 // EXAMPLE END
 type Row struct {
@@ -75,7 +79,7 @@ func (r Row) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	return v.PaintBounds(bounds, frameIdx)
 }
 
-func (r Row) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (r Row) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	v := Vector{
 		Vertical:   false,
 		Children:   r.Children,

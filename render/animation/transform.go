@@ -1,11 +1,11 @@
 package animation
 
 import (
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 type Transform interface {
-	Apply(ctx *gg.Context, origin Vec2f, rounding Rounding)
+	Apply(ctx canvas.Canvas, origin Vec2f, rounding Rounding)
 	Interpolate(other Transform, progress float64) (result Transform, ok bool)
 }
 

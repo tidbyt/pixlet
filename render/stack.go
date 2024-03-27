@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Stack draws its children on top of each other.
@@ -16,11 +16,13 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Stack(
-//      children=[
-//           render.Box(width=50, height=25, color="#911"),
-//           render.Text("hello there"),
-//           render.Box(width=4, height=32, color="#119"),
-//      ],
+//
+//	children=[
+//	     render.Box(width=50, height=25, color="#911"),
+//	     render.Text("hello there"),
+//	     render.Box(width=4, height=32, color="#119"),
+//	],
+//
 // )
 // EXAMPLE END
 type Stack struct {
@@ -51,7 +53,7 @@ func (s Stack) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle
 	return image.Rect(0, 0, width, height)
 }
 
-func (s Stack) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (s Stack) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	for _, child := range s.Children {
 		dc.Push()
 		child.Paint(dc, bounds, frameIdx)

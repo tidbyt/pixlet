@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 type Insets struct {
@@ -52,7 +52,7 @@ func (p Padding) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectang
 	return image.Rect(0, 0, width, height)
 }
 
-func (p Padding) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (p Padding) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	cb := p.Child.PaintBounds(
 		image.Rect(0, 0, bounds.Dx()-p.Pad.Left-p.Pad.Right, bounds.Dy()-p.Pad.Top-p.Pad.Bottom),
 		frameIdx,
@@ -69,8 +69,8 @@ func (p Padding) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 
 	if p.Color != nil {
 		dc.SetColor(p.Color)
-		dc.DrawRectangle(0, 0, float64(width), float64(height))
-		dc.Fill()
+		dc.AddRectangle(0, 0, float64(width), float64(height))
+		dc.FillPath()
 	}
 
 	dc.Push()
@@ -85,13 +85,12 @@ func (p Padding) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		clipTop = 0
 	}
 
-	dc.DrawRectangle(
+	dc.ClipRectangle(
 		float64(clipLeft),
 		float64(clipTop),
 		float64(width-p.Pad.Left-p.Pad.Right),
 		float64(height-p.Pad.Top-p.Pad.Bottom),
 	)
-	dc.Clip()
 
 	dc.Translate(float64(p.Pad.Left), float64(p.Pad.Top))
 

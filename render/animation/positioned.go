@@ -4,9 +4,8 @@ import (
 	"image"
 	"math"
 
-	"github.com/tidbyt/gg"
-
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Animate a widget from start to end coordinates.
@@ -22,7 +21,6 @@ import (
 // DOC(Curve): Easing curve to use, default is 'linear'
 // DOC(Delay): Delay before animation in frames
 // DOC(Hold): Delay after animation in frames
-//
 type AnimatedPositioned struct {
 	render.Widget
 	Child    render.Widget `starlark:"child,required"`
@@ -40,7 +38,7 @@ func (o AnimatedPositioned) PaintBounds(bounds image.Rectangle, frameIdx int) im
 	return bounds
 }
 
-func (o AnimatedPositioned) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (o AnimatedPositioned) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	var position float64
 
 	if frameIdx < o.Delay {

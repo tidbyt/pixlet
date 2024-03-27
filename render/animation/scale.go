@@ -1,20 +1,19 @@
 package animation
 
-import (
-	"github.com/tidbyt/gg"
-)
+import "tidbyt.dev/pixlet/render/canvas"
 
 // Transform by scaling by a given factor.
 //
 // DOC(X): Horizontal scale factor
 // DOC(Y): Vertical scale factor
-//
 type Scale struct {
 	Vec2f
 }
 
-func (self Scale) Apply(ctx *gg.Context, origin Vec2f, rounding Rounding) {
-	ctx.ScaleAbout(self.X, self.Y, origin.X, origin.Y)
+func (self Scale) Apply(ctx canvas.Canvas, origin Vec2f, rounding Rounding) {
+	ctx.Translate(origin.X, origin.Y)
+	ctx.Scale(self.X, self.Y)
+	ctx.Translate(-origin.X, -origin.Y)
 }
 
 func (self Scale) Interpolate(other Transform, progress float64) (result Transform, ok bool) {

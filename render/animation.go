@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Animations turns a list of children into an animation, where each
@@ -16,13 +16,15 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Animation(
-//      children=[
-//           render.Box(width=10, height=10, color="#300"),
-//           render.Box(width=12, height=12, color="#500"),
-//           render.Box(width=14, height=14, color="#700"),
-//           render.Box(width=16, height=16, color="#900"),
-//           render.Box(width=18, height=18, color="#b00"),
-//      ],
+//
+//	children=[
+//	     render.Box(width=10, height=10, color="#300"),
+//	     render.Box(width=12, height=12, color="#500"),
+//	     render.Box(width=14, height=14, color="#700"),
+//	     render.Box(width=16, height=16, color="#900"),
+//	     render.Box(width=18, height=18, color="#b00"),
+//	],
+//
 // )
 // EXAMPLE END
 type Animation struct {
@@ -49,7 +51,7 @@ func (a Animation) PaintBounds(bounds image.Rectangle, frameIdx int) image.Recta
 	return a.Children[ModInt(frameIdx, len(a.Children))].PaintBounds(bounds, frameIdx)
 }
 
-func (a Animation) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (a Animation) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	if len(a.Children) == 0 {
 		return
 	}
