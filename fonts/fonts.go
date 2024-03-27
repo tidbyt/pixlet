@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	//go:embed *.bdf
+	//go:embed *.bdf *.ttf
 	files embed.FS
 
 	once      sync.Once
@@ -24,6 +24,9 @@ type Font struct {
 
 	// BDF is the raw BDF font data.
 	BDF []byte
+
+	// TTF is the raw TTF font data.
+	TTF []byte
 }
 
 func loadFonts() {
@@ -46,6 +49,12 @@ func loadFonts() {
 			continue
 		}
 
+		ttfBuf, err := files.ReadFile(name + ".ttf")
+		if err != nil {
+			fmt.Printf("files.ReadFile(): %s\n", err)
+			continue
+		}
+
 		fnt, err := bdf.Parse(bdfBuf)
 		if err != nil {
 			fmt.Printf("bdf.Parse(%s): %s\n", ffi.Name(), err)
@@ -55,6 +64,7 @@ func loadFonts() {
 			Name: name,
 			Font: fnt,
 			BDF:  bdfBuf,
+			TTF:  ttfBuf,
 		}
 	}
 }
