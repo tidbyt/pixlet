@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // A vector draws its children either vertically or horizontally (like
@@ -80,7 +80,7 @@ func (v Vector) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangl
 	return image.Rect(0, 0, width, height)
 }
 
-func (v Vector) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (v Vector) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	// (dx, dy) determines the orientation of this Vector
 	dx, dy := 1, 0
 	if v.Vertical {
@@ -207,13 +207,12 @@ func (v Vector) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		dc.Push()
 		dc.Translate(float64(dx*offset+dy*crossOffset), float64(dx*crossOffset+dy*offset))
 
-		dc.DrawRectangle(
+		dc.ClipRectangle(
 			float64(0),
 			float64(0),
 			float64(cb.Dx()),
 			float64(cb.Dy()),
 		)
-		dc.Clip()
 
 		child.Paint(dc, image.Rect(0, 0, boundsW-dx*sumW, boundsH-dy*sumH), frameIdx)
 		dc.Pop()

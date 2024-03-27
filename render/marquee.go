@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Marquee scrolls its child horizontally or vertically.
@@ -38,10 +38,12 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Marquee(
-//      width=64,
-//      child=render.Text("this won't fit in 64 pixels"),
-//      offset_start=5,
-//      offset_end=32,
+//
+//	width=64,
+//	child=render.Text("this won't fit in 64 pixels"),
+//	offset_start=5,
+//	offset_end=32,
+//
 // )
 // EXAMPLE END
 type Marquee struct {
@@ -110,7 +112,7 @@ func (m Marquee) FrameCount() int {
 	}
 }
 
-func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (m Marquee) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	var cb image.Rectangle
 	var cw int
 	var size int
@@ -174,16 +176,14 @@ func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	if m.isVertical() {
 		offset -= int(align * float64(cb.Dy()))
 		dc.Push()
-		dc.DrawRectangle(0, 0, float64(pb.Dx()), float64(pb.Dy()))
-		dc.Clip()
+		dc.ClipRectangle(0, 0, float64(pb.Dx()), float64(pb.Dy()))
 		dc.Translate(0, float64(offset))
 		m.Child.Paint(dc, image.Rect(0, 0, bounds.Dx(), m.Height*10), 0)
 		dc.Pop()
 	} else {
 		offset -= int(align * float64(cb.Dx()))
 		dc.Push()
-		dc.DrawRectangle(0, 0, float64(pb.Dx()), float64(pb.Dy()))
-		dc.Clip()
+		dc.ClipRectangle(0, 0, float64(pb.Dx()), float64(pb.Dy()))
 		dc.Translate(float64(offset), 0)
 		m.Child.Paint(dc, image.Rect(0, 0, m.Width*10, bounds.Dy()), 0)
 		dc.Pop()

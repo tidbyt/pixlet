@@ -5,6 +5,8 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/fonts"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // WrappedText draws multi-line text.
@@ -27,9 +29,11 @@ import (
 // DOC(Align): Text Alignment
 // EXAMPLE BEGIN
 // render.WrappedText(
-//       content="this is a multi-line text string",
-//       width=50,
-//       color="#fa0",
+//
+//	content="this is a multi-line text string",
+//	width=50,
+//	color="#fa0",
+//
 // )
 // EXAMPLE END
 type WrappedText struct {
@@ -48,7 +52,7 @@ func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Re
 	if tw.Font == "" {
 		tw.Font = DefaultFontFace
 	}
-	face := GetFont(tw.Font)
+	face := fonts.GetFont(tw.Font).Font.NewFace()
 	// The bounds provided by user or parent widget
 	width := tw.Width
 	if width == 0 {
@@ -98,17 +102,18 @@ func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Re
 	return image.Rect(0, 0, width, height)
 }
 
-func (tw WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	if tw.Font == "" {
 		tw.Font = DefaultFontFace
 	}
-	face := GetFont(tw.Font)
+	font := fonts.GetFont(tw.Font)
+	face := font.Font.NewFace()
 	// Text alignment
-	align := gg.AlignLeft
+	align := canvas.AlignLeft
 	if tw.Align == "center" {
-		align = gg.AlignCenter
+		align = canvas.AlignCenter
 	} else if tw.Align == "right" {
-		align = gg.AlignRight
+		align = canvas.AlignRight
 	}
 
 	width := tw.PaintBounds(bounds, frameIdx).Dx()
@@ -116,7 +121,7 @@ func (tw WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int
 	metrics := face.Metrics()
 	descent := metrics.Descent.Floor()
 
-	dc.SetFontFace(face)
+	dc.SetFont(font)
 	if tw.Color != nil {
 		dc.SetColor(tw.Color)
 	} else {
@@ -124,13 +129,11 @@ func (tw WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int
 	}
 
 	dc.DrawStringWrapped(
-		tw.Content,
 		0,
 		float64(-descent),
-		0,
-		0,
 		float64(width),
 		(float64(tw.LineSpacing)+dc.FontHeight())/dc.FontHeight(),
+		tw.Content,
 		align,
 	)
 }

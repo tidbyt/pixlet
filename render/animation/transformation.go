@@ -5,9 +5,8 @@ import (
 	"image"
 	"sort"
 
-	"github.com/tidbyt/gg"
-
 	"tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 func makeKeyframe(p float64) Keyframe {
@@ -142,23 +141,25 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 //
 // EXAMPLE BEGIN
 // animation.Transformation(
-//   child = render.Box(render.Circle(diameter = 6, color = "#0f0")),
-//   duration = 100,
-//   delay = 0,
-//   origin = animation.Origin(0.5, 0.5),
-//   direction = "alternate",
-//   fill_mode = "forwards",
-//   keyframes = [
-//     animation.Keyframe(
-//       percentage = 0.0,
-//       transforms = [animation.Rotate(0), animation.Translate(-10, 0), animation.Rotate(0)],
-//       curve = "ease_in_out",
-//     ),
-//     animation.Keyframe(
-//       percentage = 1.0,
-//       transforms = [animation.Rotate(360), animation.Translate(-10, 0), animation.Rotate(-360)],
-//     ),
-//   ],
+//
+//	child = render.Box(render.Circle(diameter = 6, color = "#0f0")),
+//	duration = 100,
+//	delay = 0,
+//	origin = animation.Origin(0.5, 0.5),
+//	direction = "alternate",
+//	fill_mode = "forwards",
+//	keyframes = [
+//	  animation.Keyframe(
+//	    percentage = 0.0,
+//	    transforms = [animation.Rotate(0), animation.Translate(-10, 0), animation.Rotate(0)],
+//	    curve = "ease_in_out",
+//	  ),
+//	  animation.Keyframe(
+//	    percentage = 1.0,
+//	    transforms = [animation.Rotate(360), animation.Translate(-10, 0), animation.Rotate(-360)],
+//	  ),
+//	],
+//
 // ),
 // EXAMPLE END
 type Transformation struct {
@@ -207,7 +208,7 @@ func (self *Transformation) PaintBounds(bounds image.Rectangle, frameIdx int) im
 	return image.Rect(0, 0, w, h)
 }
 
-func (self *Transformation) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (self *Transformation) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	bounds = self.PaintBounds(bounds, frameIdx)
 	cb := self.Child.PaintBounds(bounds, frameIdx)
 
