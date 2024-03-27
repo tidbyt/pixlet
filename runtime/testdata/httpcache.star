@@ -5,9 +5,9 @@ Description: It's an app for testing.
 Author: Test Dev
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("assert.star", "assert")
+load("http.star", "http")
+load("render.star", "render")
 
 def main(config):
     resp = http.get(
