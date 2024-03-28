@@ -6,11 +6,13 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
+	"golang.org/x/image/font"
 	"tidbyt.dev/pixlet/fonts"
 )
 
 type GGCanvas struct {
-	dc *gg.Context
+	dc              *gg.Context
+	currentFontFace font.Face
 }
 
 func NewGGCanvas(width, height int) Canvas {
@@ -60,7 +62,7 @@ func (c *GGCanvas) DrawString(x, y float64, text string) {
 	c.dc.DrawString(text, x, y)
 }
 
-func (c *GGCanvas) DrawStringWrapped(x, y, w, spacing float64, text string, align TextAlign) {
+func (c *GGCanvas) DrawStringWrapped(x, y, w, extraSpacing float64, text string, align TextAlign) {
 	var alignFlag gg.Align
 	switch align {
 	case AlignLeft:
@@ -71,15 +73,15 @@ func (c *GGCanvas) DrawStringWrapped(x, y, w, spacing float64, text string, alig
 		alignFlag = gg.AlignRight
 	}
 
-	c.dc.DrawStringWrapped(text, x, y, 0, 0, w, spacing, alignFlag)
+	metrics := c.currentFontFace.Metrics()
+	descent := float64(metrics.Descent.Floor())
+	spacing := (extraSpacing + c.dc.FontHeight()) / c.dc.FontHeight()
+
+	c.dc.DrawStringWrapped(text, x, y-descent, 0, 0, w, spacing, alignFlag)
 }
 
 func (c *GGCanvas) FillPath() {
 	c.dc.Fill()
-}
-
-func (c *GGCanvas) FontHeight() float64 {
-	return c.dc.FontHeight()
 }
 
 func (c *GGCanvas) Image() image.Image {
@@ -111,7 +113,8 @@ func (c *GGCanvas) SetColor(color color.Color) {
 }
 
 func (c *GGCanvas) SetFont(font *fonts.Font) {
-	c.dc.SetFontFace(font.Font.NewFace())
+	c.currentFontFace = font.Font.NewFace()
+	c.dc.SetFontFace(c.currentFontFace)
 }
 
 func (c *GGCanvas) TransformPoint(x, y float64) (ax, ay float64) {

@@ -54,14 +54,11 @@ type Canvas interface {
 	DrawString(x, y float64, text string)
 
 	// DrawStringWrapped draws the given text at (x, y), wrapping it to fit within the given width
-	// and using the given spacing between lines.
-	DrawStringWrapped(x, y, w, spacing float64, text string, align TextAlign)
+	// and with optional extra spacing between lines.
+	DrawStringWrapped(x, y, w, extraSpacing float64, text string, align TextAlign)
 
 	// FillPath fills the current path.
 	FillPath()
-
-	// FontHeight returns the height of the current font.
-	FontHeight() float64
 
 	// Image returns an image of the canvas.
 	Image() image.Image

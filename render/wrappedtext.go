@@ -107,7 +107,6 @@ func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx i
 		tw.Font = DefaultFontFace
 	}
 	font := fonts.GetFont(tw.Font)
-	face := font.Font.NewFace()
 	// Text alignment
 	align := canvas.AlignLeft
 	if tw.Align == "center" {
@@ -118,9 +117,6 @@ func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx i
 
 	width := tw.PaintBounds(bounds, frameIdx).Dx()
 
-	metrics := face.Metrics()
-	descent := metrics.Descent.Floor()
-
 	dc.SetFont(font)
 	if tw.Color != nil {
 		dc.SetColor(tw.Color)
@@ -130,9 +126,9 @@ func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx i
 
 	dc.DrawStringWrapped(
 		0,
-		float64(-descent),
+		0,
 		float64(width),
-		(float64(tw.LineSpacing)+dc.FontHeight())/dc.FontHeight(),
+		float64(tw.LineSpacing),
 		tw.Content,
 		align,
 	)
