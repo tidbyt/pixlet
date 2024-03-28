@@ -6,8 +6,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/tidbyt/gg"
-	"tidbyt.dev/pixlet/globals"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 const (
@@ -21,8 +20,10 @@ const (
 	DefaultMaxFrameCount = 2000
 )
 
-var FrameWidth = DefaultFrameWidth
-var FrameHeight = DefaultFrameHeight
+var (
+	FrameWidth  = DefaultFrameWidth
+	FrameHeight = DefaultFrameHeight
+)
 
 // Every Widget tree has a Root.
 //
@@ -50,6 +51,7 @@ type Root struct {
 
 	maxParallelFrames int
 	maxFrameCount     int
+	newCanvas         canvas.Provider
 }
 
 type RootPaintOption func(*Root)
@@ -71,6 +73,14 @@ func WithMaxParallelFrames(max int) RootPaintOption {
 func WithMaxFrameCount(max int) RootPaintOption {
 	return func(r *Root) {
 		r.maxFrameCount = max
+	}
+}
+
+// WithCanvasProvider sets the canvas provider used to create new
+// canvases.
+func WithCanvasProvider(p canvas.Provider) RootPaintOption {
+	return func(r *Root) {
+		r.newCanvas = p
 	}
 }
 
@@ -97,13 +107,6 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 		parallelism = runtime.NumCPU()
 	}
 
-	if globals.Width != DefaultFrameWidth {
-		FrameWidth = globals.Width
-	}
-	if globals.Height != DefaultFrameHeight {
-		FrameHeight = globals.Height
-	}
-
 	var wg sync.WaitGroup
 	sem := make(chan bool, parallelism)
 	for i := 0; i < numFrames; i++ {
@@ -116,7 +119,11 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 				wg.Done()
 			}()
 
-			dc := gg.NewContext(FrameWidth, FrameHeight)
+			if r.newCanvas == nil {
+				r.newCanvas = canvas.DefaultCanvasProvider
+			}
+			dc := r.newCanvas(FrameWidth, FrameHeight)
+
 			if solidBackground {
 				dc.SetColor(color.Black)
 				dc.Clear()
@@ -124,6 +131,7 @@ func (r Root) Paint(solidBackground bool, opts ...RootPaintOption) []image.Image
 
 			dc.Push()
 			r.Child.Paint(dc, image.Rect(0, 0, FrameWidth, FrameHeight), i)
+
 			dc.Pop()
 			frames[i] = dc.Image()
 		}(i)

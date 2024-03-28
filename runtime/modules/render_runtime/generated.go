@@ -10,6 +10,7 @@ import (
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
+	"tidbyt.dev/pixlet/fonts"
 	"tidbyt.dev/pixlet/render"
 )
 
@@ -22,7 +23,7 @@ var renderModule = RenderModule{}
 
 func LoadRenderModule() (starlark.StringDict, error) {
 	renderModule.once.Do(func() {
-		fontList := render.GetFontList()
+		fontList := fonts.Names()
 		fnt := starlark.NewDict(len(fontList))
 		for _, name := range fontList {
 			fnt.SetKey(starlark.String(name), starlark.String(name))
@@ -1997,10 +1998,6 @@ func newWrappedText(
 	w.Align = align.GoString()
 
 	w.frame_count = starlark.NewBuiltin("frame_count", wrappedtextFrameCount)
-
-	if err := w.Init(); err != nil {
-		return nil, err
-	}
 
 	return w, nil
 }

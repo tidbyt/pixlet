@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // Circle draws a circle with the given `diameter` and `color`. If a
@@ -18,9 +18,11 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Circle(
-//      color="#666",
-//      diameter=30,
-//      child=render.Circle(color="#0ff", diameter=10),
+//
+//	color="#666",
+//	diameter=30,
+//	child=render.Circle(color="#0ff", diameter=10),
+//
 // )
 // EXAMPLE END
 type Circle struct {
@@ -35,12 +37,12 @@ func (c Circle) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangl
 	return image.Rect(0, 0, c.Diameter, c.Diameter)
 }
 
-func (c Circle) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+func (c Circle) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 	dc.SetColor(c.Color)
 
 	r := float64(c.Diameter) / 2
-	dc.DrawCircle(r, r, r)
-	dc.Fill()
+	dc.AddCircle(r, r, r)
+	dc.FillPath()
 
 	if c.Child != nil {
 		dc.Push()

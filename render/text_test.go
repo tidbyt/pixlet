@@ -192,11 +192,3 @@ func TestTextFonts(t *testing.T) {
 	assert.Equal(t, 17, w)
 	assert.Equal(t, 8, h)
 }
-
-func TestTextMissingFont(t *testing.T) {
-	text := &Text{
-		Content: "QqÖ!",
-		Font:    "missing",
-	}
-	assert.Error(t, text.Init())
-}

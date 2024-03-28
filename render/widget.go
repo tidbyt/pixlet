@@ -3,14 +3,14 @@ package render
 import (
 	"image"
 
-	"github.com/tidbyt/gg"
+	"tidbyt.dev/pixlet/render/canvas"
 )
 
 // A Widget is a self-contained object that can render itself as an image.
 type Widget interface {
 	// PaintBounds Returns the bounds of the area that will actually be drawn to when Paint() is called
 	PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle
-	Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int)
+	Paint(canvas canvas.Canvas, bounds image.Rectangle, frameIdx int)
 	FrameCount() int
 }
 
