@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"tidbyt.dev/pixlet/render/canvas"
+	"github.com/tidbyt/gg"
 )
 
 // A Box is a rectangular widget that can hold a child widget.
@@ -22,14 +22,12 @@ import (
 //
 // EXAMPLE BEGIN
 // render.Box(
-//
-//	color="#00f",
-//	child=render.Box(
-//	     width=20,
-//	     height=10,
-//	     color="#f00",
-//	)
-//
+//      color="#00f",
+//      child=render.Box(
+//           width=20,
+//           height=10,
+//           color="#f00",
+//      )
 // )
 // EXAMPLE END
 type Box struct {
@@ -51,7 +49,7 @@ func (b Box) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	return image.Rect(0, 0, w, h)
 }
 
-func (b Box) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
+func (b Box) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	w, h := b.Width, b.Height
 	if w == 0 {
 		w = bounds.Dx()
@@ -62,8 +60,8 @@ func (b Box) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 
 	if b.Color != nil {
 		dc.SetColor(b.Color)
-		dc.AddRectangle(0, 0, float64(w), float64(h))
-		dc.FillPath()
+		dc.DrawRectangle(0, 0, float64(w), float64(h))
+		dc.Fill()
 	}
 
 	if b.Child != nil {
@@ -75,12 +73,13 @@ func (b Box) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 		} else {
 			dc.Push()
 
-			dc.ClipRectangle(
+			dc.DrawRectangle(
 				float64(b.Padding),
 				float64(b.Padding),
 				float64(chW),
 				float64(chH),
 			)
+			dc.Clip()
 
 			childBounds := b.Child.PaintBounds(image.Rect(0, 0, chW, chH), frameIdx)
 

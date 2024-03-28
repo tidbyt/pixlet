@@ -1,7 +1,7 @@
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("qrcode.star", "qrcode")
 load("render.star", "render")
+load("qrcode.star", "qrcode")
 
 def main(config):
     url = "https://tidbyt.com?utm_source=pixlet_example"

@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"strings"
 
-	"tidbyt.dev/pixlet/render/canvas"
+	"github.com/tidbyt/gg"
 )
 
 var DefaultPalette = map[string]color.RGBA{
@@ -106,7 +106,7 @@ func CheckImage(expected []string, actual image.Image) error {
 
 func PaintWidget(w Widget, bounds image.Rectangle, frameIdx int) image.Image {
 	pb := w.PaintBounds(bounds, frameIdx)
-	dc := canvas.NewGGCanvas(pb.Dx(), pb.Dy())
+	dc := gg.NewContext(pb.Dx(), pb.Dy())
 	w.Paint(dc, bounds, frameIdx)
 	return dc.Image()
 }

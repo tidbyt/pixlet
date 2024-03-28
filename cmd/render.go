@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
-	pixletrender "tidbyt.dev/pixlet/render"
+	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/starlarkutil"
 )
@@ -79,8 +80,8 @@ var RenderCmd = &cobra.Command{
 func render(cmd *cobra.Command, args []string) error {
 	script := args[0]
 
-	pixletrender.FrameWidth = width
-	pixletrender.FrameHeight = height
+	globals.Width = width
+	globals.Height = height
 
 	if !strings.HasSuffix(script, ".star") {
 		return fmt.Errorf("script file must have suffix .star: %s", script)
@@ -105,7 +106,7 @@ func render(cmd *cobra.Command, args []string) error {
 		config[split[0]] = strings.Join(split[1:], "=")
 	}
 
-	src, err := os.ReadFile(script)
+	src, err := ioutil.ReadFile(script)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
@@ -199,7 +200,7 @@ func render(cmd *cobra.Command, args []string) error {
 	if outPath == "-" {
 		_, err = os.Stdout.Write(buf)
 	} else {
-		err = os.WriteFile(outPath, buf, 0644)
+		err = ioutil.WriteFile(outPath, buf, 0644)
 	}
 
 	if err != nil {

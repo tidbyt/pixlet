@@ -1,6 +1,6 @@
-load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
+load("encoding/base64.star", "base64")
 
 def main(config):
     encoded = config.get("photo", DEFAULT_PHOTO)

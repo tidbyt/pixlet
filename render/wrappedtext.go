@@ -5,8 +5,8 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
-	"tidbyt.dev/pixlet/fonts"
-	"tidbyt.dev/pixlet/render/canvas"
+
+	"golang.org/x/image/font"
 )
 
 // WrappedText draws multi-line text.
@@ -46,13 +46,26 @@ type WrappedText struct {
 	LineSpacing int
 	Color       color.Color
 	Align       string
+
+	face font.Face
 }
 
-func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
+func (tw *WrappedText) Init() error {
 	if tw.Font == "" {
 		tw.Font = DefaultFontFace
 	}
-	face := fonts.GetFont(tw.Font).Font.NewFace()
+
+	face, err := GetFont(tw.Font)
+	if err != nil {
+		return err
+	}
+
+	tw.face = face
+
+	return nil
+}
+
+func (tw *WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
 	// The bounds provided by user or parent widget
 	width := tw.Width
 	if width == 0 {
@@ -71,7 +84,7 @@ func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Re
 	// NOTE: Can't use dc.MeasureMultilineString() here. It only
 	// deals with texts that have actual \n in them.
 	dc := gg.NewContext(width, 0)
-	dc.SetFontFace(face)
+	dc.SetFontFace(tw.face)
 	w := 0.0
 	h := 0.0
 	for _, line := range dc.WordWrap(tw.Content, float64(width)) {
@@ -102,22 +115,21 @@ func (tw WrappedText) PaintBounds(bounds image.Rectangle, frameIdx int) image.Re
 	return image.Rect(0, 0, width, height)
 }
 
-func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
-	if tw.Font == "" {
-		tw.Font = DefaultFontFace
-	}
-	font := fonts.GetFont(tw.Font)
+func (tw *WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	// Text alignment
-	align := canvas.AlignLeft
+	align := gg.AlignLeft
 	if tw.Align == "center" {
-		align = canvas.AlignCenter
+		align = gg.AlignCenter
 	} else if tw.Align == "right" {
-		align = canvas.AlignRight
+		align = gg.AlignRight
 	}
 
 	width := tw.PaintBounds(bounds, frameIdx).Dx()
 
-	dc.SetFont(font)
+	metrics := tw.face.Metrics()
+	descent := metrics.Descent.Floor()
+
+	dc.SetFontFace(tw.face)
 	if tw.Color != nil {
 		dc.SetColor(tw.Color)
 	} else {
@@ -125,15 +137,17 @@ func (tw WrappedText) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx i
 	}
 
 	dc.DrawStringWrapped(
+		tw.Content,
+		0,
+		float64(-descent),
 		0,
 		0,
 		float64(width),
-		float64(tw.LineSpacing),
-		tw.Content,
+		(float64(tw.LineSpacing)+dc.FontHeight())/dc.FontHeight(),
 		align,
 	)
 }
 
-func (tw WrappedText) FrameCount() int {
+func (tw *WrappedText) FrameCount() int {
 	return 1
 }

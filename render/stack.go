@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"tidbyt.dev/pixlet/render/canvas"
+	"github.com/tidbyt/gg"
 )
 
 // Stack draws its children on top of each other.
@@ -53,7 +53,7 @@ func (s Stack) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle
 	return image.Rect(0, 0, width, height)
 }
 
-func (s Stack) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
+func (s Stack) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	for _, child := range s.Children {
 		dc.Push()
 		child.Paint(dc, bounds, frameIdx)

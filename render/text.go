@@ -5,9 +5,6 @@ import (
 	"image/color"
 
 	"github.com/tidbyt/gg"
-
-	"tidbyt.dev/pixlet/fonts"
-	"tidbyt.dev/pixlet/render/canvas"
 )
 
 var (
@@ -48,31 +45,8 @@ func (t *Text) Size() (int, int) {
 	return t.img.Bounds().Dx(), t.img.Bounds().Dy()
 }
 
-func (t *Text) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
-	if t.Font == "" {
-		t.Font = DefaultFontFace
-	}
-
-	font := fonts.GetFont(t.Font)
-
-	face := font.Font.NewFace()
-	metrics := face.Metrics()
-	ascent := metrics.Ascent.Floor()
-	descent := metrics.Descent.Floor()
-
-	height := ascent + descent
-	if t.Height != 0 {
-		height = t.Height
-	}
-
-	dc.SetFont(font)
-	if t.Color != nil {
-		dc.SetColor(t.Color)
-	} else {
-		dc.SetColor(DefaultFontColor)
-	}
-
-	dc.DrawString(0, float64(height-descent-t.Offset), t.Content)
+func (t *Text) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
+	dc.DrawImage(t.img, 0, 0)
 }
 
 func (t *Text) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
@@ -83,9 +57,10 @@ func (t *Text) Init() error {
 	if t.Font == "" {
 		t.Font = DefaultFontFace
 	}
-
-	font := fonts.GetFont(t.Font)
-	face := font.Font.NewFace()
+	face, err := GetFont(t.Font)
+	if err != nil {
+		return err
+	}
 
 	dc := gg.NewContext(0, 0)
 	dc.SetFontFace(face)

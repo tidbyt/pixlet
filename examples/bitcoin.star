@@ -1,6 +1,6 @@
-load("encoding/base64.star", "base64")
-load("http.star", "http")
 load("render.star", "render")
+load("http.star", "http")
+load("encoding/base64.star", "base64")
 
 COINDESK_PRICE_URL = "https://api.coindesk.com/v1/bpi/currentprice.json"
 

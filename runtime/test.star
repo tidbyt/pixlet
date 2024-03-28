@@ -1,6 +1,6 @@
+load("render.star", "render")
 load("assert.star", "assert")
 load("encoding/base64.star", "base64")
-load("render.star", "render")
 
 # Font tests
 assert.eq(render.fonts["6x13"], "6x13")

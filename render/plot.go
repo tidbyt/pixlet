@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"tidbyt.dev/pixlet/render/canvas"
+	"github.com/tidbyt/gg"
 )
 
 var DefaultPlotColor = color.RGBA{0xff, 0xff, 0xff, 0xff}
@@ -29,27 +29,25 @@ var FillDampFactor uint8 = 0x55
 //
 // EXAMPLE BEGIN
 // render.Plot(
-//
-//	data = [
-//	  (0, 3.35),
-//	  (1, 2.15),
-//	  (2, 2.37),
-//	  (3, -0.31),
-//	  (4, -3.53),
-//	  (5, 1.31),
-//	  (6, -1.3),
-//	  (7, 4.60),
-//	  (8, 3.33),
-//	  (9, 5.92),
-//	],
-//	width = 64,
-//	height = 32,
-//	color = "#0f0",
-//	color_inverted = "#f00",
-//	x_lim = (0, 9),
-//	y_lim = (-5, 7),
-//	fill = True,
-//
+//   data = [
+//     (0, 3.35),
+//     (1, 2.15),
+//     (2, 2.37),
+//     (3, -0.31),
+//     (4, -3.53),
+//     (5, 1.31),
+//     (6, -1.3),
+//     (7, 4.60),
+//     (8, 3.33),
+//     (9, 5.92),
+//   ],
+//   width = 64,
+//   height = 32,
+//   color = "#0f0",
+//   color_inverted = "#f00",
+//   x_lim = (0, 9),
+//   y_lim = (-5, 7),
+//   fill = True,
 // ),
 // EXAMPLE END
 type Plot struct {
@@ -198,7 +196,7 @@ func (p Plot) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle 
 	return image.Rect(0, 0, p.Width, p.Height)
 }
 
-func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
+func (p Plot) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	// Set line and fill colors
 	var col color.Color
 	col = color.RGBA{0xff, 0xff, 0xff, 0xff}
@@ -232,13 +230,13 @@ func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 			dc.SetColor(fillColInv)
 			for ; y != p.invThreshold && y >= 0; y-- {
 				tx, ty := dc.TransformPoint(float64(x), float64(y))
-				dc.DrawPixel(int(tx), int(ty))
+				dc.SetPixel(int(tx), int(ty))
 			}
 		} else {
 			dc.SetColor(fillCol)
 			for ; y <= p.invThreshold && y <= p.Height; y++ {
 				tx, ty := dc.TransformPoint(float64(x), float64(y))
-				dc.DrawPixel(int(tx), int(ty))
+				dc.SetPixel(int(tx), int(ty))
 			}
 		}
 	}
@@ -252,7 +250,7 @@ func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 			} else {
 				dc.SetColor(col)
 			}
-			dc.DrawPixel(int(point.X), int(point.Y))
+			dc.SetPixel(int(point.X), int(point.Y))
 		}
 	} else {
 		// the line itself
@@ -264,7 +262,7 @@ func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 				dc.SetColor(col)
 			}
 			tx, ty := dc.TransformPoint(float64(x), float64(y))
-			dc.DrawPixel(int(tx), int(ty))
+			dc.SetPixel(int(tx), int(ty))
 		}
 	}
 }

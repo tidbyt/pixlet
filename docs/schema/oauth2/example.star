@@ -1,8 +1,8 @@
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("encoding/json.star", "json")
 
 OAUTH2_CLIENT_SECRET = secret.decrypt("your-client-secret")
 

@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"tidbyt.dev/pixlet/render/canvas"
+	"github.com/tidbyt/gg"
 )
 
 // PieChart draws a circular pie chart of size `diameter`. It takes two
@@ -18,11 +18,9 @@ import (
 //
 // EXAMPLE BEGIN
 // render.PieChart(
-//
-//	colors = [ "#fff", "#0f0", "#00f" ],
-//	weights  = [ 180, 135, 45 ],
-//	diameter = 30,
-//
+//      colors = [ "#fff", "#0f0", "#00f" ],
+//      weights  = [ 180, 135, 45 ],
+//      diameter = 30,
 // )
 // EXAMPLE END
 type PieChart struct {
@@ -37,7 +35,7 @@ func (c PieChart) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectan
 	return image.Rect(0, 0, c.Diameter, c.Diameter)
 }
 
-func (c PieChart) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
+func (c PieChart) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	total := 0.0
 	for _, v := range c.Weights {
 		total += v
@@ -49,10 +47,10 @@ func (c PieChart) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) 
 	for i, v := range c.Weights {
 		end := start + v/total
 		dc.SetColor(c.Colors[i%len(c.Colors)])
-		dc.AddArc(r, r, r, start*2*math.Pi, end*2*math.Pi)
-		dc.AddLineTo(r, r)
-		dc.AddLineTo(r+r*math.Cos(start*2*math.Pi), r+r*math.Sin(start*2*math.Pi))
-		dc.FillPath()
+		dc.DrawArc(r, r, r, start*2*math.Pi, end*2*math.Pi)
+		dc.LineTo(r, r)
+		dc.LineTo(r+r*math.Cos(start*2*math.Pi), r+r*math.Sin(start*2*math.Pi))
+		dc.Fill()
 		start = end
 	}
 }

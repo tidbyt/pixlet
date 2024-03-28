@@ -1,8 +1,8 @@
-load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
-load("sunrise.star", "sunrise")
 load("time.star", "time")
+load("encoding/json.star", "json")
+load("sunrise.star", "sunrise")
 
 DEFAULT_LOCATION = """
 {

@@ -21,7 +21,7 @@ func (p *Image) InitFromWebP(data []byte) error {
 
 	p.Delay = img.Timestamp[0]
 	for _, im := range img.Image {
-		p.imgs = append(p.imgs, imageContainer{Image: im})
+		p.imgs = append(p.imgs, im)
 	}
 
 	return nil

@@ -1,5 +1,5 @@
-load("assert.star", "assert")
 load("http.star", "http")
+load("assert.star", "assert")
 
 res_1 = http.get(test_server_url, params = {"a": "b", "c": "d"})
 assert.eq(res_1.url, test_server_url + "?a=b&c=d")

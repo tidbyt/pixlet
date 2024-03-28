@@ -1,7 +1,7 @@
-load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("humanize.star", "humanize")
 
 DEFAULT_COUNTER = "1337"
 DEFAULT_APPS = "42"
