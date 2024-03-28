@@ -32,6 +32,9 @@ type Canvas interface {
 	// AddLineTo adds a line to the current path, from the current point to (x, y).
 	AddLineTo(x, y float64)
 
+	// AddPixel adds a pixel to the current path at (x, y).
+	AddPixel(x, y int)
+
 	// AddRectangle adds a rectangle to the current path.
 	AddRectangle(x, y, w, h float64)
 
@@ -46,9 +49,6 @@ type Canvas interface {
 
 	// DrawImageFromBuffer draws the given image at (x, y).
 	DrawImageFromBuffer(x, y, w, h float64, img []byte)
-
-	// DrawPixel draws a pixel at (x, y).
-	DrawPixel(x, y int)
 
 	// DrawString draws the given text at (x, y).
 	DrawString(x, y float64, text string)
@@ -84,9 +84,6 @@ type Canvas interface {
 
 	// SetFont sets the current font.
 	SetFont(font *fonts.Font)
-
-	// TransformPoint does a thing.
-	TransformPoint(x, y float64) (ax, ay float64)
 
 	// Translate translates the canvas by (dx, dy) for future drawing operations.
 	Translate(dx, dy float64)
