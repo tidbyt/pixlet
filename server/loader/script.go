@@ -1,4 +1,4 @@
-//go:build !js && !wasm
+//go:build !js
 
 package loader
 

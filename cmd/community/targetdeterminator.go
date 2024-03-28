@@ -1,3 +1,5 @@
+//go:build !wasip1
+
 package community
 
 import (
@@ -20,6 +22,8 @@ func init() {
 	TargetDeterminatorCmd.MarkFlagRequired("old")
 	TargetDeterminatorCmd.Flags().StringVarP(&newCommit, "new", "n", "", "The new commit to compare against")
 	TargetDeterminatorCmd.MarkFlagRequired("new")
+
+	CommunityCmd.AddCommand(TargetDeterminatorCmd)
 }
 
 var TargetDeterminatorCmd = &cobra.Command{

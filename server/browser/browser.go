@@ -1,3 +1,5 @@
+//go:build !wasip1
+
 // Package browser provides the ability to send WebP images to a browser over
 // websockets.
 package browser
