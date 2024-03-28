@@ -38,7 +38,7 @@ require (
 	github.com/tidbyt/go-libwebp v0.0.0-20230922075150-fb11063b2a6a
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
-	go.starlark.net v0.0.0-20240307200823-981680b3e495
+	go.starlark.net v0.0.0-20240314022150-ee8ed142361c
 	golang.org/x/image v0.14.0
 	golang.org/x/oauth2 v0.15.0
 	golang.org/x/sync v0.5.0
@@ -105,7 +105,7 @@ require (
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
