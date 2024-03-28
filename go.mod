@@ -33,7 +33,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427
 	github.com/tidbyt/go-libwebp v0.0.0-20230922075150-fb11063b2a6a
 	github.com/vmihailenco/msgpack/v5 v5.4.1
