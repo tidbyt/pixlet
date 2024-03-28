@@ -231,14 +231,14 @@ func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 		if y > p.invThreshold {
 			dc.SetColor(fillColInv)
 			for ; y != p.invThreshold && y >= 0; y-- {
-				tx, ty := dc.TransformPoint(float64(x), float64(y))
-				dc.DrawPixel(int(tx), int(ty))
+				dc.AddPixel(x, y)
+				dc.FillPath()
 			}
 		} else {
 			dc.SetColor(fillCol)
 			for ; y <= p.invThreshold && y <= p.Height; y++ {
-				tx, ty := dc.TransformPoint(float64(x), float64(y))
-				dc.DrawPixel(int(tx), int(ty))
+				dc.AddPixel(x, y)
+				dc.FillPath()
 			}
 		}
 	}
@@ -252,7 +252,8 @@ func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 			} else {
 				dc.SetColor(col)
 			}
-			dc.DrawPixel(int(point.X), int(point.Y))
+			dc.AddPixel(point.X, point.Y)
+			dc.FillPath()
 		}
 	} else {
 		// the line itself
@@ -263,8 +264,8 @@ func (p Plot) Paint(dc canvas.Canvas, bounds image.Rectangle, frameIdx int) {
 			} else {
 				dc.SetColor(col)
 			}
-			tx, ty := dc.TransformPoint(float64(x), float64(y))
-			dc.DrawPixel(int(tx), int(ty))
+			dc.AddPixel(x, y)
+			dc.FillPath()
 		}
 	}
 }
