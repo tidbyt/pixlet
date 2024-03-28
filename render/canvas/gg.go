@@ -32,10 +32,6 @@ func (c *GGCanvas) AddLineTo(x, y float64) {
 	c.dc.LineTo(x, y)
 }
 
-func (c *GGCanvas) AddPixel(x, y int) {
-	c.dc.DrawRectangle(float64(x), float64(y), 1, 1)
-}
-
 func (c *GGCanvas) AddRectangle(x, y, w, h float64) {
 	c.dc.DrawRectangle(x, y, w, h)
 }
@@ -56,6 +52,10 @@ func (c *GGCanvas) DrawGoImage(x, y float64, img image.Image) {
 func (c *GGCanvas) DrawImageFromBuffer(x, y, w, h float64, img []byte) {
 	im, _, _ := image.Decode(bytes.NewReader(img))
 	c.dc.DrawImage(im, int(x), int(y))
+}
+
+func (c *GGCanvas) DrawPixel(x, y int) {
+	c.dc.SetPixel(x, y)
 }
 
 func (c *GGCanvas) DrawString(x, y float64, text string) {
@@ -115,6 +115,10 @@ func (c *GGCanvas) SetColor(color color.Color) {
 func (c *GGCanvas) SetFont(font *fonts.Font) {
 	c.currentFontFace = font.Font.NewFace()
 	c.dc.SetFontFace(c.currentFontFace)
+}
+
+func (c *GGCanvas) TransformPoint(x, y float64) (ax, ay float64) {
+	return c.dc.TransformPoint(x, y)
 }
 
 func (c *GGCanvas) Translate(dx, dy float64) {
