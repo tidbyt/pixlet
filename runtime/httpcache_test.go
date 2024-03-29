@@ -191,6 +191,9 @@ func TestSetCookieOnRedirect(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Requests to "/login" set a cookie and redirect to /destination
 		if strings.HasSuffix(r.URL.Path, "/login") {
+			if len(r.Cookies()) != 0 {
+				t.Errorf("Cookie was already set on initial call")
+			}
 			w.Header().Set("Set-Cookie", "doodad=foobar; path=/; HttpOnly")
 			w.Header().Set("Location", "/destination")
 			w.WriteHeader(302)
@@ -200,7 +203,7 @@ func TestSetCookieOnRedirect(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/destination") {
 			c, err := r.Cookie("doodad")
 			if err != nil {
-				t.Errorf("Expected cookie `doodad` not present")  // Occurs if client has no cookie jar
+				t.Errorf("Expected cookie `doodad` not present") // Occurs if client has no cookie jar
 			}
 			if c.Value != "foobar" {
 				t.Errorf("Cookie `doodad` value mismatch. Expected foobar, got %s", c.Value)
@@ -224,5 +227,13 @@ func TestSetCookieOnRedirect(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = app.Run(context.Background())
+	assert.NoError(t, err)
+
+	// Run it again and check that we're not using the same cookie jar
+	// across executions. If we were, the first request would error out.
+	app2, err := NewApplet("httpredirect.star", b)
+	assert.NoError(t, err)
+
+	_, err = app2.Run(context.Background())
 	assert.NoError(t, err)
 }

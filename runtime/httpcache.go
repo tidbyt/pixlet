@@ -56,20 +56,22 @@ func InitHTTP(cache Cache) {
 		transport: http.DefaultTransport,
 	}
 
-	// Providing a cookie jar allows sessions and redirects to work properly. With a
-	// jar present, any cookies set in a response will automatically be added to
-	// subsequent requests. This means that we can follow redirects after logging into
-	// a session. Without a jar, any cookies will be dropped from redirects unless explicitly
-	// set in the original outgoing request.
-	// https://cs.opensource.google/go/go/+/master:src/net/http/client.go;drc=4c394b5638cc2694b1eff6418bc3e7db8132de0e;l=88
-	jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List}) // never returns non-nil err
+	starlarkhttp.StarlarkHTTPClient = func() *http.Client {
+		// Providing a cookie jar allows sessions and redirects to work properly. With a
+		// jar present, any cookies set in a response will automatically be added to
+		// subsequent requests. This means that we can follow redirects after logging into
+		// a session. Without a jar, any cookies will be dropped from redirects unless explicitly
+		// set in the original outgoing request.
+		// https://cs.opensource.google/go/go/+/master:src/net/http/client.go;drc=4c394b5638cc2694b1eff6418bc3e7db8132de0e;l=88
+		jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List}) // never returns non-nil err
 
-	httpClient := &http.Client{
-		Jar:       jar,
-		Transport: cc,
-		Timeout:   HTTPTimeout * 2,
+		httpClient := &http.Client{
+			Jar:       jar,
+			Transport: cc,
+			Timeout:   HTTPTimeout * 2,
+		}
+		return httpClient
 	}
-	starlarkhttp.StarlarkHTTPClient = httpClient
 }
 
 // RoundTrip is an approximation of what our internal HTTP proxy does. It should
