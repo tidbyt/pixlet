@@ -1,6 +1,7 @@
 package qrcode_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,11 +29,10 @@ def main():
 `
 
 func TestQRCode(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("testid", "test.star", []byte(qrCodeSource), nil)
+	app, err := runtime.NewApplet("test.star", []byte(qrCodeSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

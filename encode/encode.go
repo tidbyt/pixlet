@@ -2,9 +2,9 @@ package encode
 
 import (
 	"crypto/sha256"
+	"fmt"
 	"image"
 
-	"github.com/pkg/errors"
 	"github.com/vmihailenco/msgpack/v5"
 
 	"tidbyt.dev/pixlet/render"
@@ -77,7 +77,7 @@ func (s *Screens) Hash() ([]byte, error) {
 
 	j, err := msgpack.Marshal(hashable)
 	if err != nil {
-		return nil, errors.Wrap(err, "marshaling render tree to JSON")
+		return nil, fmt.Errorf("marshaling render tree to JSON: %w", err)
 	}
 
 	h := sha256.Sum256(j)

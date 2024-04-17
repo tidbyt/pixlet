@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,11 +52,10 @@ def main():
 `
 
 func TestDropdown(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("ddid", "dropdown.star", []byte(dropdownSource), nil)
+	app, err := runtime.NewApplet("dropdown.star", []byte(dropdownSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

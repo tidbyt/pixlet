@@ -1,6 +1,7 @@
 package xpath_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -73,10 +74,9 @@ def main():
 
     return [r.Root(child=r.Text("1337"))]
 `
-	app := &runtime.Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := runtime.NewApplet("test.star", []byte(src))
 	require.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	require.NoError(t, err)
 	assert.NotNil(t, screens)
 }

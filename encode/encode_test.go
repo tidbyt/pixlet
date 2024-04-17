@@ -2,6 +2,7 @@ package encode
 
 import (
 	"bytes"
+	"context"
 	"image/gif"
 	"strings"
 	"testing"
@@ -144,11 +145,10 @@ def main():
 `
 
 func TestFile(t *testing.T) {
-	app := runtime.Applet{}
-	err := app.Load("testid", "test.star", []byte(TestDotStar), nil)
+	app, err := runtime.NewApplet("test.star", []byte(TestDotStar))
 	assert.NoError(t, err)
 
-	roots, err := app.Run(map[string]string{})
+	roots, err := app.Run(context.Background())
 	assert.NoError(t, err)
 
 	webp, err := ScreensFromRoots(roots).EncodeWebP(15000)
@@ -157,11 +157,10 @@ func TestFile(t *testing.T) {
 }
 
 func TestHash(t *testing.T) {
-	app := runtime.Applet{}
-	err := app.Load("testid", "test.star", []byte(TestDotStar), nil)
+	app, err := runtime.NewApplet("test.star", []byte(TestDotStar))
 	require.NoError(t, err)
 
-	roots, err := app.Run(map[string]string{})
+	roots, err := app.Run(context.Background())
 	require.NoError(t, err)
 
 	// ensure we can calculate a hash
@@ -178,11 +177,10 @@ func TestHash(t *testing.T) {
 
 	// change the app slightly
 	modifiedSource := strings.Replace(TestDotStar, "foo bar", "bar foo", 1)
-	app2 := runtime.Applet{}
-	err = app2.Load("testid2", "test.star", []byte(modifiedSource), nil)
+	app2, err := runtime.NewApplet("test.star", []byte(modifiedSource))
 	require.NoError(t, err)
 
-	roots2, err := app2.Run(map[string]string{})
+	roots2, err := app2.Run(context.Background())
 	require.NoError(t, err)
 
 	// ensure we can calculate a hash on the new app
@@ -237,9 +235,9 @@ load("render.star", "render")
 def main():
     return render.Root(show_full_animation=True, child=render.Box())
 `
-	app := runtime.Applet{}
-	require.NoError(t, app.Load("testid", "test.star", []byte(requestFull), nil))
-	roots, err := app.Run(map[string]string{})
+	app, err := runtime.NewApplet("test.star", []byte(requestFull))
+	require.NoError(t, err)
+	roots, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.True(t, ScreensFromRoots(roots).ShowFullAnimation)
 
@@ -248,9 +246,9 @@ load("render.star", "render")
 def main():
     return render.Root(child=render.Box())
 `
-	app = runtime.Applet{}
-	require.NoError(t, app.Load("testid", "test.star", []byte(dontRequestFull), nil))
-	roots, err = app.Run(map[string]string{})
+	app, err = runtime.NewApplet("test.star", []byte(dontRequestFull))
+	require.NoError(t, err)
+	roots, err = app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, ScreensFromRoots(roots).ShowFullAnimation)
 }
@@ -275,11 +273,10 @@ def main():
     )
 `)
 
-	app := runtime.Applet{}
-	err := app.Load("testid", "test.star", src, nil)
+	app, err := runtime.NewApplet("test.star", src)
 	assert.NoError(t, err)
 
-	roots, err := app.Run(map[string]string{})
+	roots, err := app.Run(context.Background())
 	assert.NoError(t, err)
 
 	// Source above will produce a 70 frame animation

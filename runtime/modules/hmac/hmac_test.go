@@ -1,6 +1,7 @@
 package hmac_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,11 +26,11 @@ def main():
 `
 
 func TestHmac(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("hmacid", "hmac_test.star", []byte(hmacSource), nil)
+	app, err := runtime.NewApplet("hmac_test.star", []byte(hmacSource))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

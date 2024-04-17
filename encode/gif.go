@@ -9,7 +9,6 @@ import (
 	"image/gif"
 
 	"github.com/ericpauley/go-quantize/quantize"
-	"github.com/pkg/errors"
 )
 
 // Renders a screen to GIF. Optionally pass filters for postprocessing
@@ -56,7 +55,7 @@ func (s *Screens) EncodeGIF(maxDuration int, filters ...ImageFilter) ([]byte, er
 	buf := &bytes.Buffer{}
 	err = gif.EncodeAll(buf, g)
 	if err != nil {
-		return nil, errors.Wrap(err, "encoding")
+		return nil, fmt.Errorf("encoding: %w", err)
 	}
 
 	return buf.Bytes(), nil

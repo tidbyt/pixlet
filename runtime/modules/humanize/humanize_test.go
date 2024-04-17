@@ -1,6 +1,7 @@
 package humanize_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -79,11 +80,11 @@ def main():
 `
 
 func TestHumanize(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("humanid", "human.star", []byte(humanSource), nil)
+	app, err := runtime.NewApplet("human.star", []byte(humanSource))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

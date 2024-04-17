@@ -3,6 +3,7 @@ package runtime
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"fmt"
 	"testing"
 
@@ -13,15 +14,13 @@ import (
 )
 
 func TestLoadEmptySrc(t *testing.T) {
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte{}, nil)
+	_, err := NewApplet("test.star", []byte{})
 	assert.Error(t, err)
 }
 
 func TestLoadMalformed(t *testing.T) {
 	src := "this is not valid starlark"
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	_, err := NewApplet("test.star", []byte(src))
 	assert.Error(t, err)
 }
 
@@ -32,9 +31,9 @@ load("render.star", "render")
 def main():
     return render.Root(child=render.Box())
 `
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
 	// As is this
 	src = `
@@ -44,9 +43,9 @@ def main2():
 
 main = main2
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	app, err = NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
 	// And this (a lambda is a function)
 	src = `
@@ -56,9 +55,9 @@ def main2():
 
 main = lambda: main2()
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	app, err = NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
 	// But not this, because a string is not a function
 	src = `
@@ -68,8 +67,7 @@ def main2():
 
 main = "main2"
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	_, err = NewApplet("test.star", []byte(src))
 	assert.Error(t, err)
 
 	// And not this either, because here main is gone
@@ -78,10 +76,8 @@ load("render.star", "render")
 def main2():
     return render.Root(child=render.Box())
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	_, err = NewApplet("test.star", []byte(src))
 	assert.Error(t, err)
-
 }
 
 func TestRunMainReturnsFrames(t *testing.T) {
@@ -91,10 +87,10 @@ load("render.star", "render")
 def main():
     return [render.Box()]
 `
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	screens, err := app.Run(context.Background())
 	assert.Error(t, err)
 	assert.Nil(t, screens)
 
@@ -105,10 +101,10 @@ def main():
     return render.Root(child=render.Box())
 `
 
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	app, err = NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	screens, err = app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	screens, err = app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 
@@ -118,10 +114,10 @@ load("render.star", "render")
 def main():
     return [render.Root(child=render.Box()), render.Root(child=render.Text("hi"))]
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	app, err = NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	screens, err = app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	screens, err = app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
@@ -140,10 +136,10 @@ load("render.star", "render")
 def main():
     return render.Root(child=render.Box())
 `
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	roots, err := app.Run(config)
+	assert.NotNil(t, app)
+	roots, err := app.RunWithConfig(context.Background(), config)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(roots))
 
@@ -169,10 +165,10 @@ def main(config):
 
 	return [render.Root(child=render.Box()) for _ in range(int(config["one"]) + int(config["two"]))]
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
+	app, err = NewApplet("test.star", []byte(src))
 	require.NoError(t, err)
-	roots, err = app.Run(config)
+	require.NotNil(t, app)
+	roots, err = app.RunWithConfig(context.Background(), config)
 	require.NoError(t, err)
 	assert.Equal(t, 3, len(roots))
 }
@@ -207,10 +203,10 @@ def main():
         fail("time broken")
     return render.Root(child=render.Box())
 `
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	roots, err := app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	roots, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(roots))
 
@@ -229,10 +225,9 @@ def main():
         fail("something went wrong")
     return render.Root(child=render.Box())
 `
-	app = &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), loader)
+	app, err = NewApplet("test.star", []byte(src), WithModuleLoader(loader))
 	assert.NoError(t, err)
-	roots, err = app.Run(map[string]string{})
+	roots, err = app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(roots))
 
@@ -254,10 +249,10 @@ def main():
 		return thread
 	}
 
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src), WithThreadInitializer(initializer))
 	assert.NoError(t, err)
-	_, err = app.Run(map[string]string{}, initializer)
+	assert.NotNil(t, app)
+	_, err = app.Run(context.Background())
 	assert.NoError(t, err)
 
 	// our print function should have been called
@@ -274,14 +269,14 @@ def main():
 	return render.Root(child=render.Box())
 `
 
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	_, err = app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	_, err = app.Run(context.Background())
 	assert.NoError(t, err)
 }
 
-func TestZipModule(t *testing.T) {
+func TestZIPModule(t *testing.T) {
 	// Create a new zip file to read from starlark
 	// https://go.dev/src/archive/zip/example_test.go
 	buf := new(bytes.Buffer)
@@ -302,16 +297,6 @@ func TestZipModule(t *testing.T) {
 	err := w.Close()
 	assert.NoError(t, err)
 
-	// override the print function of the thread so we can check we got correct
-	// values from the zip module.
-	var printedText []string
-	initializer := func(thread *starlark.Thread) *starlark.Thread {
-		thread.Print = func(thread *starlark.Thread, msg string) {
-			printedText = append(printedText, msg)
-		}
-		return thread
-	}
-
 	src := `
 load("compress/zipfile.star", "zipfile")
 def main(config):
@@ -322,9 +307,20 @@ def main(config):
     return []
 `
 
-	app := &Applet{}
-	err = app.Load("testid", "test.star", []byte(src), nil)
-	_, err = app.Run(map[string]string{"ZIP_BYTES": buf.String()}, initializer)
+	// override the print function of the thread so we can check we got correct
+	// values from the zip module.
+	var printedText []string
+	printFunc := func(thread *starlark.Thread, msg string) {
+		printedText = append(printedText, msg)
+	}
+
+	app, err := NewApplet("test.star", []byte(src), WithPrintFunc(printFunc))
+	require.NoError(t, err)
+	require.NotNil(t, app)
+	_, err = app.RunWithConfig(
+		context.Background(),
+		map[string]string{"ZIP_BYTES": buf.String()},
+	)
 	assert.NoError(t, err)
 
 	assert.Equal(t, []string{

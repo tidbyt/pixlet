@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,20 +42,18 @@ def main():
 `
 
 func TestStarlarkSchema(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("starlarkid", "starlark.star", []byte(schemaSource), nil)
+	app, err := runtime.NewApplet("starlark.star", []byte(schemaSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
 func TestSchemaModuleLoads(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("sourceid", "source.star", []byte(moduleSource), nil)
+	app, err := runtime.NewApplet("source.star", []byte(moduleSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

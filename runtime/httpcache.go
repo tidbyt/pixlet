@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"tidbyt.dev/pixlet/runtime/modules/starlarkhttp"
 )
 
@@ -109,7 +108,7 @@ func (c *cacheClient) RoundTrip(req *http.Request) (*http.Response, error) {
 func cacheKey(req *http.Request) (string, error) {
 	r, err := httputil.DumpRequest(req, true)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to serialize request")
+		return "", fmt.Errorf("%s: %w", "failed to serialize request", err)
 	}
 
 	h := sha256.Sum256(r)

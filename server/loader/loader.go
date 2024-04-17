@@ -10,12 +10,9 @@ import (
 	"log"
 	"time"
 
-	"go.starlark.net/starlark"
-
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
-	"tidbyt.dev/pixlet/starlarkutil"
 )
 
 // Loader is a structure to provide applet loading when a file changes or on
@@ -72,10 +69,12 @@ func NewLoader(
 	runtime.InitCache(cache)
 
 	if !l.watch {
-		err := loadScript(&l.applet, "app-id", l.filename)
+		app, err := loadScript("app-id", l.filename)
 		l.markInitialLoadComplete()
 		if err != nil {
 			return nil, err
+		} else {
+			l.applet = *app
 		}
 	}
 
@@ -157,24 +156,22 @@ func (l *Loader) CallSchemaHandler(ctx context.Context, handlerName, parameter s
 
 func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	if l.watch {
-		err := loadScript(&l.applet, "app-id", l.filename)
+		app, err := loadScript("app-id", l.filename)
 		l.markInitialLoadComplete()
 		if err != nil {
 			return "", err
+		} else {
+			l.applet = *app
 		}
 	}
 
-	threadInitializer := func(thread *starlark.Thread) *starlark.Thread {
-		ctx, _ := context.WithTimeoutCause(
-			context.Background(),
-			time.Duration(l.timeout)*time.Millisecond,
-			fmt.Errorf("timeout after %dms", l.timeout),
-		)
-		starlarkutil.AttachThreadContext(ctx, thread)
-		return thread
-	}
+	ctx, _ := context.WithTimeoutCause(
+		context.Background(),
+		time.Duration(l.timeout)*time.Millisecond,
+		fmt.Errorf("timeout after %dms", l.timeout),
+	)
 
-	roots, err := l.applet.Run(config, threadInitializer)
+	roots, err := l.applet.RunWithConfig(ctx, config)
 	if err != nil {
 		return "", fmt.Errorf("error running script: %w", err)
 	}

@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -97,7 +97,7 @@ func profile(cmd *cobra.Command, args []string) error {
 }
 
 func ProfileApp(script string, config map[string]string) (*pprof_profile.Profile, error) {
-	src, err := ioutil.ReadFile(script)
+	src, err := os.ReadFile(script)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file %s: %w", script, err)
 	}
@@ -106,15 +106,7 @@ func ProfileApp(script string, config map[string]string) (*pprof_profile.Profile
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
 
-	// Remove the print function from the starlark thread.
-	initializers := []runtime.ThreadInitializer{}
-	initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
-		thread.Print = func(thread *starlark.Thread, msg string) {}
-		return thread
-	})
-
-	applet := runtime.Applet{}
-	err = applet.LoadWithInitializers("", script, src, nil, initializers...)
+	applet, err := runtime.NewApplet(script, src, runtime.WithPrintDisabled())
 	if err != nil {
 		return nil, fmt.Errorf("failed to load applet: %w", err)
 	}
@@ -124,7 +116,7 @@ func ProfileApp(script string, config map[string]string) (*pprof_profile.Profile
 		return nil, fmt.Errorf("error starting profiler: %w", err)
 	}
 
-	_, err = applet.Run(config, initializers...)
+	_, err = applet.RunWithConfig(context.Background(), config)
 	if err != nil {
 		_ = starlark.StopProfile()
 		return nil, fmt.Errorf("error running script: %w", err)

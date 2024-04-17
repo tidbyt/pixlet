@@ -3,9 +3,9 @@
 package encode
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/tidbyt/go-libwebp/webp"
 )
 
@@ -29,7 +29,7 @@ func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, e
 		WebPKMax,
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "initializing encoder")
+		return nil, fmt.Errorf("%s: %w", "initializing encoder", err)
 	}
 	defer anim.Close()
 
@@ -45,7 +45,7 @@ func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, e
 		}
 
 		if err := anim.AddFrame(im, frameDuration); err != nil {
-			return nil, errors.Wrap(err, "adding frame")
+			return nil, fmt.Errorf("%s: %w", "adding frame", err)
 		}
 
 		if maxDuration > 0 && remainingDuration <= 0 {
@@ -55,7 +55,7 @@ func (s *Screens) EncodeWebP(maxDuration int, filters ...ImageFilter) ([]byte, e
 
 	buf, err := anim.Assemble()
 	if err != nil {
-		return nil, errors.Wrap(err, "encoding animation")
+		return nil, fmt.Errorf("%s: %w", "encoding animation", err)
 	}
 
 	return buf, nil

@@ -4,21 +4,16 @@ package loader
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"tidbyt.dev/pixlet/runtime"
 )
 
-func loadScript(applet *runtime.Applet, appID string, filename string) error {
-	src, err := ioutil.ReadFile(filename)
+func loadScript(appID string, filename string) (*runtime.Applet, error) {
+	src, err := os.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("failed to read file %s: %w", filename, err)
+		return nil, fmt.Errorf("failed to read file %s: %w", filename, err)
 	}
 
-	err = applet.Load(appID, filename, src, nil)
-	if err != nil {
-		return fmt.Errorf("failed to load applet: %w", err)
-	}
-
-	return nil
+	return runtime.NewApplet(appID, src)
 }

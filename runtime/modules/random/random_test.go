@@ -1,6 +1,7 @@
 package random_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,11 +48,10 @@ def main():
 `
 
 func TestRandom(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("randomid", "random_test.star", []byte(randomSrc), nil)
+	app, err := runtime.NewApplet("random_test.star", []byte(randomSrc))
 	require.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	require.NoError(t, err)
 	assert.NotNil(t, screens)
 }

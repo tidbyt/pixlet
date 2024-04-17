@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,11 +32,10 @@ def main():
 `
 
 func TestLocation(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("lid", "location.star", []byte(locationSource), nil)
+	app, err := runtime.NewApplet("location.star", []byte(locationSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

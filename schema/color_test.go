@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,11 +56,10 @@ assert(s2.palette[3] == "#323334")
 def main():
     return []
 `
-	app := &runtime.Applet{}
-	err := app.Load("cid", "colors.star", []byte(src), nil)
+	app, err := runtime.NewApplet("colors.star", []byte(src))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
@@ -90,48 +90,47 @@ def main(config):
 
     return []
 `
-	app := &runtime.Applet{}
-	err := app.Load("cid", "colors.star", []byte(src), nil)
+	app, err := runtime.NewApplet("colors.star", []byte(src))
 	assert.NoError(t, err)
 
 	// Well formed input -> success
-	screens, err := app.Run(map[string]string{"default": "#ffaa77", "palette": "[]"})
+	screens, err := app.RunWithConfig(context.Background(), map[string]string{"default": "#ffaa77", "palette": "[]"})
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 
 	// Bad default
-	_, err = app.Run(map[string]string{"default": "#nothex", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#nothex", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "0", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "0", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "01", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "01", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#01", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#01", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "0123", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "0123", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#0123", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#0123", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "01234", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "01234", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#01234", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#01234", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "0123456", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "0123456", "palette": "[]"})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#0123456", "palette": "[]"})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#0123456", "palette": "[]"})
 	assert.Error(t, err)
 
 	// Bad palette
-	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["nothex"]`})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#ffaa77", "palette": `["nothex"]`})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0"]`})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0"]`})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "#0f"]`})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "#0f"]`})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0123"]`})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0123"]`})
 	assert.Error(t, err)
-	_, err = app.Run(map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0123456"]`})
+	_, err = app.RunWithConfig(context.Background(), map[string]string{"default": "#ffaa77", "palette": `["fff", "ffaabb", "0123456"]`})
 	assert.Error(t, err)
 }

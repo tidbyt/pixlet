@@ -46,8 +46,7 @@ func ValidateIcons(cmd *cobra.Command, args []string) error {
 		return thread
 	})
 
-	applet := runtime.Applet{}
-	err = applet.LoadWithInitializers("", args[0], src, nil, initializers...)
+	applet, err := runtime.NewApplet(args[0], src, runtime.WithPrintDisabled())
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}
@@ -69,7 +68,7 @@ func ValidateIcons(cmd *cobra.Command, args []string) error {
 		}
 
 		if _, ok := icons.IconsMap[field.Icon]; !ok {
-			return fmt.Errorf("app '%s' contains unknown icon: '%s'", applet.Filename, field.Icon)
+			return fmt.Errorf("app '%s' contains unknown icon: '%s'", applet.ID, field.Icon)
 		}
 	}
 
