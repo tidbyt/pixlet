@@ -1,6 +1,6 @@
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 
 EXAMPLE_LOCATION = """
 {
