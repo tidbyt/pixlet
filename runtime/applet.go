@@ -5,6 +5,8 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"testing"
 
 	starlibgzip "github.com/qri-io/starlib/compress/gzip"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
@@ -280,6 +282,29 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 // GetSchema returns the config for the applet.
 func (app *Applet) GetSchema() string {
 	return string(app.schemaJSON)
+}
+
+// RunTests runs all test functions that are defined in the applet source.
+func (app *Applet) RunTests(t *testing.T) {
+	app.initializers = append(app.initializers, func(thread *starlark.Thread) *starlark.Thread {
+		starlarktest.SetReporter(thread, t)
+		return thread
+	})
+
+	for name, global := range app.globals {
+		if !strings.HasPrefix(name, "test_") {
+			continue
+		}
+
+		fun, ok := global.(*starlark.Function)
+		if ok && fun != app.main {
+			t.Run(name, func(t *testing.T) {
+				if _, err := app.Call(context.Background(), fun); err != nil {
+					t.Error(err)
+				}
+			})
+		}
+	}
 }
 
 // Calls any callable from Applet.Globals. Pass args and receive a
