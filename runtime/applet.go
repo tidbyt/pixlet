@@ -2,11 +2,14 @@ package runtime
 
 import (
 	"context"
-	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"io/fs"
+	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	starlibgzip "github.com/qri-io/starlib/compress/gzip"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
@@ -51,13 +54,15 @@ type ThreadInitializer func(thread *starlark.Thread) *starlark.Thread
 type Applet struct {
 	ID string
 
-	src          []byte
 	loader       ModuleLoader
 	initializers []ThreadInitializer
 
-	globals starlark.StringDict
-	main    *starlark.Function
+	globals map[string]starlark.StringDict
 
+	mainFile string
+	mainFun  *starlark.Function
+
+	schemaFile string
 	schema     *schema.Schema
 	schemaJSON []byte
 }
@@ -65,13 +70,6 @@ type Applet struct {
 func WithModuleLoader(loader ModuleLoader) AppletOption {
 	return func(a *Applet) error {
 		a.loader = loader
-		return nil
-	}
-}
-
-func WithThreadInitializer(initializer ThreadInitializer) AppletOption {
-	return func(a *Applet) error {
-		a.initializers = append(a.initializers, initializer)
 		return nil
 	}
 }
@@ -105,9 +103,24 @@ func WithPrintDisabled() AppletOption {
 }
 
 func NewApplet(id string, src []byte, opts ...AppletOption) (*Applet, error) {
+	fn := id
+	if !strings.HasSuffix(fn, ".star") {
+		fn += ".star"
+	}
+
+	vfs := fstest.MapFS{
+		fn: &fstest.MapFile{
+			Data: src,
+		},
+	}
+
+	return NewAppletFromFS(id, vfs, opts...)
+}
+
+func NewAppletFromFS(id string, fsys fs.FS, opts ...AppletOption) (*Applet, error) {
 	a := &Applet{
-		ID:  id,
-		src: src,
+		ID:      id,
+		globals: make(map[string]starlark.StringDict),
 	}
 
 	for _, opt := range opts {
@@ -116,68 +129,11 @@ func NewApplet(id string, src []byte, opts ...AppletOption) (*Applet, error) {
 		}
 	}
 
-	if err := a.load(); err != nil {
+	if err := a.load(fsys); err != nil {
 		return nil, err
 	}
 
 	return a, nil
-}
-
-func (a *Applet) load() (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic while executing %s: %v", a.ID, r)
-		}
-	}()
-
-	predeclared := starlark.StringDict{
-		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
-	}
-
-	globals, err := starlark.ExecFileOptions(
-		&syntax.FileOptions{
-			Set:       true,
-			Recursion: true,
-		},
-		a.newThread(context.Background()),
-		a.ID,
-		a.src,
-		predeclared,
-	)
-	if err != nil {
-		return fmt.Errorf("starlark.ExecFile: %v", err)
-	}
-	a.globals = globals
-
-	mainFun, found := globals["main"]
-	if !found {
-		return fmt.Errorf("%s didn't export a main() function", a.ID)
-	}
-	main, ok := mainFun.(*starlark.Function)
-	if !ok {
-		return fmt.Errorf("%s exported a main() that is not function", a.ID)
-	}
-	a.main = main
-
-	schemaFun, _ := a.globals[schema.SchemaFunctionName].(*starlark.Function)
-	if schemaFun != nil {
-		schemaVal, err := a.Call(context.Background(), schemaFun)
-		if err != nil {
-			return fmt.Errorf("calling schema function for %s: %w", a.ID, err)
-		}
-
-		a.schema, err = schema.FromStarlark(schemaVal, a.globals)
-		if err != nil {
-			return fmt.Errorf("parsing schema for %s: %w", a.ID, err)
-		}
-
-		a.schemaJSON, err = json.Marshal(a.schema)
-		if err != nil {
-			return fmt.Errorf("serializing schema to JSON for %s: %w", a.ID, err)
-		}
-	}
-
-	return nil
 }
 
 // Run executes the applet's main function. It returns the render roots that are
@@ -190,12 +146,12 @@ func (a *Applet) Run(ctx context.Context) (roots []render.Root, err error) {
 // starlark dict. It returns the render roots that are returned by the applet.
 func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (roots []render.Root, err error) {
 	var args starlark.Tuple
-	if a.main.NumParams() > 0 {
+	if a.mainFun.NumParams() > 0 {
 		starlarkConfig := AppletConfig(config)
 		args = starlark.Tuple{starlarkConfig}
 	}
 
-	returnValue, err := a.Call(ctx, a.main, args...)
+	returnValue, err := a.Call(ctx, a.mainFun, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +209,7 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 		return options, nil
 
 	case schema.ReturnSchema:
-		sch, err := schema.FromStarlark(resultVal, app.globals)
+		sch, err := schema.FromStarlark(resultVal, app.globals[app.schemaFile])
 		if err != nil {
 			return "", err
 		}
@@ -291,18 +247,19 @@ func (app *Applet) RunTests(t *testing.T) {
 		return thread
 	})
 
-	for name, global := range app.globals {
-		if !strings.HasPrefix(name, "test_") {
-			continue
-		}
+	for file, globals := range app.globals {
+		for name, global := range globals {
+			if !strings.HasPrefix(name, "test_") {
+				continue
+			}
 
-		fun, ok := global.(*starlark.Function)
-		if ok && fun != app.main {
-			t.Run(name, func(t *testing.T) {
-				if _, err := app.Call(context.Background(), fun); err != nil {
-					t.Error(err)
-				}
-			})
+			if fun, ok := global.(*starlark.Function); ok {
+				t.Run(fmt.Sprintf("%s/%s", file, name), func(t *testing.T) {
+					if _, err := app.Call(context.Background(), fun); err != nil {
+						t.Error(err)
+					}
+				})
+			}
 		}
 	}
 }
@@ -337,6 +294,164 @@ func (a *Applet) Call(ctx context.Context, callable *starlark.Function, args ...
 	}
 
 	return resultVal, nil
+}
+
+func (a *Applet) load(fsys fs.FS) (err error) {
+	if err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, walkDirErr error) error {
+		if walkDirErr != nil {
+			return walkDirErr
+		}
+
+		if d.IsDir() || filepath.Dir(path) != "." {
+			// only process files in the root directory
+			return nil
+		}
+
+		if !strings.HasSuffix(path, ".star") {
+			// not a starlark file
+			return nil
+		}
+
+		return a.ensureLoaded(fsys, path)
+	}); err != nil {
+		return err
+	}
+
+	if a.mainFun == nil {
+		return fmt.Errorf("no main() function found in %s", a.ID)
+	}
+
+	return nil
+}
+
+func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...string) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic while executing %s: %v", a.ID, r)
+		}
+	}()
+
+	// normalize path so that it can be used as a key
+	path = filepath.Clean(path)
+	if _, ok := a.globals[path]; ok {
+		// already loaded, good to go
+		return nil
+	}
+
+	// use the currentlyLoading slice to detect circular dependencies
+	if slices.Contains(currentlyLoading, path) {
+		return fmt.Errorf("circular dependency detected: %s -> %s", strings.Join(currentlyLoading, " -> "), path)
+	} else {
+		// mark this file as currently loading. if we encounter it again,
+		// we have a circular dependency.
+		currentlyLoading = append(currentlyLoading, path)
+	}
+
+	src, err := fs.ReadFile(fsys, path)
+	if err != nil {
+		return fmt.Errorf("reading %s: %v", path, err)
+	}
+
+	predeclared := starlark.StringDict{
+		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
+	}
+
+	thread := a.newThread(context.Background())
+
+	// override loader to allow loading starlark files
+	thread.Load = func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
+		// normalize module path
+		modulePath := filepath.Clean(module)
+
+		// if the module exists on the filesystem, load it
+		if _, err := fs.Stat(fsys, modulePath); err == nil {
+			// ensure the module is loaded, and pass the currentlyLoading slice
+			// to detect circular dependencies
+			if err := a.ensureLoaded(fsys, modulePath, currentlyLoading...); err != nil {
+				return nil, err
+			}
+
+			if g, ok := a.globals[modulePath]; !ok {
+				return nil, fmt.Errorf("module %s not loaded", modulePath)
+			} else {
+				return g, nil
+			}
+		}
+
+		// fallback to default loader
+		return a.loadModule(thread, module)
+	}
+
+	globals, err := starlark.ExecFileOptions(
+		&syntax.FileOptions{
+			Set:       true,
+			Recursion: true,
+		},
+		thread,
+		a.ID,
+		src,
+		predeclared,
+	)
+	if err != nil {
+		return fmt.Errorf("starlark.ExecFile: %v", err)
+	}
+	a.globals[path] = globals
+
+	// if the file is in the root directory, check for the main function
+	// and schema function
+	mainFun, _ := globals["main"].(*starlark.Function)
+	if mainFun != nil {
+		if a.mainFile != "" {
+			return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", path, a.mainFile)
+		}
+
+		a.mainFile = path
+		a.mainFun = mainFun
+	}
+
+	schemaFun, _ := globals[schema.SchemaFunctionName].(*starlark.Function)
+	if schemaFun != nil {
+		if a.schemaFile != "" {
+			return fmt.Errorf("multiple files with a %s() function:\n- %s\n- %s", schema.SchemaFunctionName, path, a.schemaFile)
+		}
+		a.schemaFile = path
+
+		schemaVal, err := a.Call(context.Background(), schemaFun)
+		if err != nil {
+			return fmt.Errorf("calling schema function for %s: %w", a.ID, err)
+		}
+
+		a.schema, err = schema.FromStarlark(schemaVal, globals)
+		if err != nil {
+			return fmt.Errorf("parsing schema for %s: %w", a.ID, err)
+		}
+
+		a.schemaJSON, err = json.Marshal(a.schema)
+		if err != nil {
+			return fmt.Errorf("serializing schema to JSON for %s: %w", a.ID, err)
+		}
+	}
+
+	return nil
+}
+
+func (a *Applet) newThread(ctx context.Context) *starlark.Thread {
+	t := &starlark.Thread{
+		Name: a.ID,
+		Load: a.loadModule,
+		Print: func(thread *starlark.Thread, msg string) {
+			fmt.Printf("[%s] %s\n", a.ID, msg)
+		},
+	}
+
+	starlarkutil.AttachThreadContext(ctx, t)
+	random.AttachToThread(t)
+
+	for _, init := range a.initializers {
+		t = init(t)
+	}
+
+	return t
 }
 
 func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.StringDict, error) {
@@ -438,23 +553,4 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	default:
 		return nil, fmt.Errorf("invalid module: %s", module)
 	}
-}
-
-func (a *Applet) newThread(ctx context.Context) *starlark.Thread {
-	t := &starlark.Thread{
-		Name: fmt.Sprintf("%s/%x", a.ID, md5.Sum(a.src)),
-		Load: a.loadModule,
-		Print: func(thread *starlark.Thread, msg string) {
-			fmt.Printf("[%s] %s\n", a.ID, msg)
-		},
-	}
-
-	starlarkutil.AttachThreadContext(ctx, t)
-	random.AttachToThread(t)
-
-	for _, init := range a.initializers {
-		t = init(t)
-	}
-
-	return t
 }
