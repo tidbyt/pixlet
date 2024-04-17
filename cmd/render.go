@@ -4,18 +4,15 @@ import (
 	"context"
 	"fmt"
 	"image"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
-	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
-	"tidbyt.dev/pixlet/starlarkutil"
 )
 
 var (
@@ -106,45 +103,37 @@ func render(cmd *cobra.Command, args []string) error {
 		config[split[0]] = strings.Join(split[1:], "=")
 	}
 
-	src, err := ioutil.ReadFile(script)
+	src, err := os.ReadFile(script)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
 
 	// Remove the print function from the starlark thread if the silent flag is
 	// passed.
-	initializers := []runtime.ThreadInitializer{}
+	var opts []runtime.AppletOption
 	if silenceOutput {
-		initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
-			thread.Print = func(thread *starlark.Thread, msg string) {}
-			return thread
-		})
+		opts = append(opts, runtime.WithPrintDisabled())
 	}
 
-	// Timeout?
+	ctx := context.Background()
 	if timeout > 0 {
-		initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
-			ctx, _ := context.WithTimeoutCause(
-				context.Background(),
-				time.Duration(timeout)*time.Millisecond,
-				fmt.Errorf("timeout after %dms", timeout),
-			)
-			starlarkutil.AttachThreadContext(ctx, thread)
-			return thread
-		})
+		ctx, _ = context.WithTimeoutCause(
+			ctx,
+			time.Duration(timeout)*time.Millisecond,
+			fmt.Errorf("timeout after %dms", timeout),
+		)
 	}
 
 	cache := runtime.NewInMemoryCache()
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
 
-	applet := runtime.Applet{}
-	err = applet.LoadWithInitializers("", script, src, nil, initializers...)
+	applet, err := runtime.NewApplet(script, src, opts...)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}
 
-	roots, err := applet.Run(config, initializers...)
+	roots, err := applet.RunWithConfig(ctx, config)
 	if err != nil {
 		return fmt.Errorf("error running script: %w", err)
 	}
@@ -200,7 +189,7 @@ func render(cmd *cobra.Command, args []string) error {
 	if outPath == "-" {
 		_, err = os.Stdout.Write(buf)
 	} else {
-		err = ioutil.WriteFile(outPath, buf, 0644)
+		err = os.WriteFile(outPath, buf, 0644)
 	}
 
 	if err != nil {

@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,19 +31,17 @@ def main():
 `
 
 func TestHandler(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("hid", "handler.star", []byte(handlerSource), nil)
+	app, err := runtime.NewApplet("handler.star", []byte(handlerSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
 
 func TestHandlerBadParams(t *testing.T) {
 	// Handler is a string
-	app := &runtime.Applet{}
-	err := app.Load("tid", "text.star", []byte(`
+	app, err := runtime.NewApplet("text.star", []byte(`
 load("schema.star", "schema")
 
 def foobar(param):
@@ -55,12 +54,12 @@ h = schema.Handler(
 
 def main():
 	return []
-`), nil)
+`))
 	assert.Error(t, err)
+	assert.Nil(t, app)
 
 	// Type is not valid
-	app = &runtime.Applet{}
-	err = app.Load("tid", "text.star", []byte(`
+	app, err = runtime.NewApplet("text.star", []byte(`
 load("schema.star", "schema")
 
 def foobar(param):
@@ -73,7 +72,7 @@ h = schema.Handler(
 
 def main():
 	return []
-`), nil)
+`))
 	assert.Error(t, err)
-
+	assert.Nil(t, app)
 }

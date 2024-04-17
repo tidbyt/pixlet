@@ -10,7 +10,6 @@ import (
 	"github.com/google/tink/go/hybrid"
 	"github.com/google/tink/go/keyset"
 	"github.com/google/tink/go/tink"
-	"github.com/pkg/errors"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
@@ -42,18 +41,18 @@ func (sek *SecretEncryptionKey) Encrypt(appID, plaintext string) (string, error)
 	r := bytes.NewReader(sek.PublicKeysetJSON)
 	kh, err := keyset.ReadWithNoSecrets(keyset.NewJSONReader(r))
 	if err != nil {
-		return "", errors.Wrap(err, "reading keyset JSON")
+		return "", fmt.Errorf("%s: %w", "reading keyset JSON", err)
 	}
 
 	enc, err := hybrid.NewHybridEncrypt(kh)
 	if err != nil {
-		return "", errors.Wrap(err, "NewHybridEncrypt")
+		return "", fmt.Errorf("%s: %w", "NewHybridEncrypt", err)
 	}
 
 	context := []byte(appID)
 	ciphertext, err := enc.Encrypt([]byte(plaintext), context)
 	if err != nil {
-		return "", errors.Wrap(err, "encrypting secret")
+		return "", fmt.Errorf("%s: %w", "encrypting secret", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
@@ -85,21 +84,21 @@ func (sdk *SecretDecryptionKey) decrypterForApp(a *Applet) (decrypter, error) {
 	r := bytes.NewReader(sdk.EncryptedKeysetJSON)
 	kh, err := keyset.Read(keyset.NewJSONReader(r), sdk.KeyEncryptionKey)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading keyset JSON")
+		return nil, fmt.Errorf("%s: %w", "reading keyset JSON", err)
 	}
 
 	dec, err := hybrid.NewHybridDecrypt(kh)
 	if err != nil {
-		return nil, errors.Wrap(err, "NewHybridDecrypt")
+		return nil, fmt.Errorf("%s: %w", "NewHybridDecrypt", err)
 	}
 
-	context := []byte(a.AppID)
+	context := []byte(a.ID)
 
 	return func(s starlark.String) (starlark.String, error) {
 		v := regexp.MustCompile(`\s`).ReplaceAllString(s.GoString(), "")
 		ciphertext, err := base64.StdEncoding.DecodeString(v)
 		if err != nil {
-			return "", errors.Wrapf(err, "base64 decoding of secret: %s", s)
+			return "", fmt.Errorf("base64 decoding of secret: %s: %w", s, err)
 		}
 
 		cleartext, err := dec.Decrypt(ciphertext, context)

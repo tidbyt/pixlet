@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"image"
@@ -135,10 +136,9 @@ def main():
 `
 
 func TestBigDotStar(t *testing.T) {
-	app := &Applet{}
-	err := app.Load("bigid", "big.star", []byte(TestDotStar), nil)
+	app, err := NewApplet("big.star", []byte(TestDotStar))
 	assert.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
@@ -158,11 +158,10 @@ def main():
 `
 	)
 
-	app := &Applet{}
-	err := app.Load("boxid", filename, []byte(src), nil)
+	app, err := NewApplet(filename, []byte(src))
 	assert.NoError(t, err)
 
-	b := app.Globals["b"]
+	b := app.globals["b"]
 	assert.IsType(t, &render_runtime.Box{}, b)
 
 	widget := b.(*render_runtime.Box).AsRenderWidget()
@@ -194,11 +193,10 @@ def main():
 `
 	)
 
-	app := &Applet{}
-	err := app.Load("textid", filename, []byte(src), nil)
+	app, err := NewApplet(filename, []byte(src))
 	assert.NoError(t, err)
 
-	txt := app.Globals["t"]
+	txt := app.globals["t"]
 	assert.IsType(t, &render_runtime.Text{}, txt)
 
 	widget := txt.(*render_runtime.Text).AsRenderWidget()
@@ -239,11 +237,10 @@ def main():
 
 `, base64.StdEncoding.EncodeToString(p.Bytes()))
 
-	app := &Applet{}
-	err := app.Load("imageid", filename, []byte(src), nil)
+	app, err := NewApplet(filename, []byte(src))
 	assert.NoError(t, err)
 
-	starlarkP := app.Globals["img"]
+	starlarkP := app.globals["img"]
 	require.IsType(t, &render_runtime.Image{}, starlarkP)
 
 	actualIm := render.PaintWidget(starlarkP.(*render_runtime.Image).AsRenderWidget(), image.Rect(0, 0, 64, 32), 0)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"tidbyt.dev/pixlet/runtime"
@@ -13,13 +12,7 @@ import (
 )
 
 func loadApp(code string) (*runtime.Applet, error) {
-	app := &runtime.Applet{}
-	err := app.Load("testid", "test.star", []byte(code), nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	return app, nil
+	return runtime.NewApplet("test.star", []byte(code))
 }
 
 func TestSchemaAllTypesSuccess(t *testing.T) {

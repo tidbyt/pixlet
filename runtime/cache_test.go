@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,10 +33,10 @@ def main():
     return [render.Root(child=render.Box()) for i in range(int(one) + int(two) + int(three))]
 `
 	InitCache(NewInMemoryCache())
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	roots, err := app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	roots, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, roots)
 	assert.Equal(t, 1+2+3, len(roots))
@@ -53,35 +54,35 @@ def main():
     return frames
 `
 	InitCache(NewInMemoryCache())
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
 	// first time, i == 1
-	roots, err := app.Run(map[string]string{})
+	roots, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, roots)
 	assert.Equal(t, 1, len(roots))
 
 	// i == 2
-	roots, err = app.Run(map[string]string{})
+	roots, err = app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, roots)
 	assert.Equal(t, 2, len(roots))
 
 	// but run the same code using different filename, and cached
 	// data ends up in a different namespace
-	app = &Applet{}
-	err = app.Load("testid", "test2.star", []byte(src), nil)
+	app, err = NewApplet("test2.star", []byte(src))
 	assert.NoError(t, err)
+	assert.NotNil(t, app)
 
-	roots, _ = app.Run(map[string]string{})
+	roots, _ = app.Run(context.Background())
 	assert.Equal(t, 1, len(roots))
 
-	roots, _ = app.Run(map[string]string{})
+	roots, _ = app.Run(context.Background())
 	assert.Equal(t, 2, len(roots))
 
-	roots, _ = app.Run(map[string]string{})
+	roots, _ = app.Run(context.Background())
 	assert.Equal(t, 3, len(roots))
 
 }
@@ -102,10 +103,10 @@ def main():
     return render.Root(child=render.Box())
 `
 	InitCache(nil)
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
@@ -120,10 +121,10 @@ def main():
     return render.Root(child=render.Box())
 `
 	InitCache(nil)
-	app := &Applet{}
-	err := app.Load("testid", "test.star", []byte(src), nil)
+	app, err := NewApplet("test.star", []byte(src))
 	assert.NoError(t, err)
-	screens, err := app.Run(map[string]string{})
+	assert.NotNil(t, app)
+	screens, err := app.Run(context.Background())
 	assert.Error(t, err)
 	assert.Nil(t, screens)
 }

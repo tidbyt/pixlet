@@ -4,9 +4,10 @@ package main
 // documentation.
 
 import (
+	"context"
 	"fmt"
 	"image"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"tidbyt.dev/pixlet/encode"
@@ -40,7 +41,7 @@ func Magnify(input image.Image) (image.Image, error) {
 }
 
 func main() {
-	files, err := ioutil.ReadDir(".")
+	files, err := os.ReadDir(".")
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +52,7 @@ func main() {
 			continue
 		}
 
-		content, err := ioutil.ReadFile(f.Name())
+		content, err := os.ReadFile(f.Name())
 		if err != nil {
 			panic(err)
 		}
@@ -67,13 +68,12 @@ def main():
     return render.Root(child=w)
 `, snippet)
 
-		app := runtime.Applet{}
-		err = app.Load(fmt.Sprintf("id-%s", name), name, []byte(src), nil)
+		app, err := runtime.NewApplet(name, []byte(src))
 		if err != nil {
 			panic(err)
 		}
 
-		roots, err := app.Run(nil)
+		roots, err := app.Run(context.Background())
 		if err != nil {
 			panic(err)
 		}
@@ -83,7 +83,7 @@ def main():
 			panic(err)
 		}
 
-		err = ioutil.WriteFile(fmt.Sprintf("img/widget_%s.gif", name), gif, 0644)
+		err = os.WriteFile(fmt.Sprintf("img/widget_%s.gif", name), gif, 0644)
 		if err != nil {
 			panic(err)
 		}

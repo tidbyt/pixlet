@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pkg/errors"
 	starlibgzip "github.com/qri-io/starlib/compress/gzip"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
 	starlibcsv "github.com/qri-io/starlib/encoding/csv"
@@ -17,10 +16,10 @@ import (
 	starlibjson "go.starlark.net/lib/json"
 	starlibmath "go.starlark.net/lib/math"
 	starlibtime "go.starlark.net/lib/time"
-	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 	"go.starlark.net/starlarktest"
+	"go.starlark.net/syntax"
 
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
@@ -38,138 +37,163 @@ import (
 
 type ModuleLoader func(*starlark.Thread, string) (starlark.StringDict, error)
 
+type PrintFunc func(thread *starlark.Thread, msg string)
+
+type AppletOption func(*Applet) error
+
 // ThreadInitializer is called when building a Starlark thread to run an applet
 // on. It can customize the thread by overriding behavior or attaching thread
 // local data.
 type ThreadInitializer func(thread *starlark.Thread) *starlark.Thread
 
-func init() {
-	resolve.AllowFloat = true
-	resolve.AllowLambda = true
-	resolve.AllowNestedDef = true
-	resolve.AllowSet = true
-	resolve.AllowRecursion = true
-}
-
 type Applet struct {
-	Filename            string
-	ThreadID            string
-	AppID               string
-	Globals             starlark.StringDict
-	SecretDecryptionKey *SecretDecryptionKey
+	ID string
 
-	src         []byte
-	loader      ModuleLoader
-	predeclared starlark.StringDict
-	main        *starlark.Function
+	src          []byte
+	loader       ModuleLoader
+	initializers []ThreadInitializer
+
+	globals starlark.StringDict
+	main    *starlark.Function
 
 	schema     *schema.Schema
 	schemaJSON []byte
-	decrypter  decrypter
 }
 
-func (a *Applet) thread(initializers ...ThreadInitializer) *starlark.Thread {
-	t := &starlark.Thread{
-		Name: a.ThreadID,
-		Load: a.loadModule,
-		Print: func(thread *starlark.Thread, msg string) {
-			fmt.Printf("[%s] %s\n", a.Filename, msg)
-		},
+func WithModuleLoader(loader ModuleLoader) AppletOption {
+	return func(a *Applet) error {
+		a.loader = loader
+		return nil
 	}
-
-	if a.decrypter != nil {
-		a.decrypter.attachToThread(t)
-	}
-
-	random.AttachToThread(t)
-
-	for _, init := range initializers {
-		t = init(t)
-	}
-
-	return t
 }
 
-// Loads an applet. The script filename is used as a descriptor only,
-// and the actual code should be passed in src. Optionally also pass
-// loader to make additional starlark modules available to the script.
-func (a *Applet) Load(appID string, filename string, src []byte, loader ModuleLoader) (err error) {
-	return a.LoadWithInitializers(appID, filename, src, loader)
+func WithThreadInitializer(initializer ThreadInitializer) AppletOption {
+	return func(a *Applet) error {
+		a.initializers = append(a.initializers, initializer)
+		return nil
+	}
 }
 
-func (a *Applet) LoadWithInitializers(appID string, filename string, src []byte, loader ModuleLoader, initializers ...ThreadInitializer) (err error) {
+func WithSecretDecryptionKey(key *SecretDecryptionKey) AppletOption {
+	return func(a *Applet) error {
+		if decrypter, err := key.decrypterForApp(a); err != nil {
+			return fmt.Errorf("preparing secret key: %w", err)
+		} else {
+			a.initializers = append(a.initializers, func(t *starlark.Thread) *starlark.Thread {
+				decrypter.attachToThread(t)
+				return t
+			})
+			return nil
+		}
+	}
+}
+
+func WithPrintFunc(print PrintFunc) AppletOption {
+	return func(a *Applet) error {
+		a.initializers = append(a.initializers, func(t *starlark.Thread) *starlark.Thread {
+			t.Print = print
+			return t
+		})
+		return nil
+	}
+}
+
+func WithPrintDisabled() AppletOption {
+	return WithPrintFunc(func(thread *starlark.Thread, msg string) {})
+}
+
+func NewApplet(id string, src []byte, opts ...AppletOption) (*Applet, error) {
+	a := &Applet{
+		ID:  id,
+		src: src,
+	}
+
+	for _, opt := range opts {
+		if err := opt(a); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := a.load(); err != nil {
+		return nil, err
+	}
+
+	return a, nil
+}
+
+func (a *Applet) load() (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic while executing %s: %v", a.Filename, r)
+			err = fmt.Errorf("panic while executing %s: %v", a.ID, r)
 		}
 	}()
 
-	a.AppID = appID
-	a.Filename = filename
-	a.loader = loader
-
-	a.src = src
-
-	a.ThreadID = fmt.Sprintf("%s/%x", filename, md5.Sum(src))
-
-	if a.SecretDecryptionKey != nil {
-		a.decrypter, err = a.SecretDecryptionKey.decrypterForApp(a)
-		if err != nil {
-			return errors.Wrapf(err, "preparing secret key for %s", a.Filename)
-		}
-	}
-
-	a.predeclared = starlark.StringDict{
+	predeclared := starlark.StringDict{
 		"struct": starlark.NewBuiltin("struct", starlarkstruct.Make),
 	}
 
-	globals, err := starlark.ExecFile(a.thread(initializers...), a.Filename, a.src, a.predeclared)
+	globals, err := starlark.ExecFileOptions(
+		&syntax.FileOptions{
+			Set:       true,
+			Recursion: true,
+		},
+		a.newThread(context.Background()),
+		a.ID,
+		a.src,
+		predeclared,
+	)
 	if err != nil {
 		return fmt.Errorf("starlark.ExecFile: %v", err)
 	}
-	a.Globals = globals
+	a.globals = globals
 
 	mainFun, found := globals["main"]
 	if !found {
-		return fmt.Errorf("%s didn't export a main() function", filename)
+		return fmt.Errorf("%s didn't export a main() function", a.ID)
 	}
 	main, ok := mainFun.(*starlark.Function)
 	if !ok {
-		return fmt.Errorf("%s exported a main() that is not function", filename)
+		return fmt.Errorf("%s exported a main() that is not function", a.ID)
 	}
 	a.main = main
 
-	schemaFun, _ := a.Globals[schema.SchemaFunctionName].(*starlark.Function)
+	schemaFun, _ := a.globals[schema.SchemaFunctionName].(*starlark.Function)
 	if schemaFun != nil {
-		schemaVal, err := a.Call(schemaFun, nil)
+		schemaVal, err := a.Call(context.Background(), schemaFun)
 		if err != nil {
-			return errors.Wrapf(err, "calling schema function for %s", a.Filename)
+			return fmt.Errorf("calling schema function for %s: %w", a.ID, err)
 		}
 
-		a.schema, err = schema.FromStarlark(schemaVal, a.Globals)
+		a.schema, err = schema.FromStarlark(schemaVal, a.globals)
 		if err != nil {
-			return errors.Wrapf(err, "parsing schema for %s", a.Filename)
+			return fmt.Errorf("parsing schema for %s: %w", a.ID, err)
 		}
 
 		a.schemaJSON, err = json.Marshal(a.schema)
 		if err != nil {
-			return errors.Wrapf(err, "serializing schema to JSON for %s", a.Filename)
+			return fmt.Errorf("serializing schema to JSON for %s: %w", a.ID, err)
 		}
 	}
 
 	return nil
 }
 
-// Runs the applet's main function, passing it configuration as a
-// starlark dict.
-func (a *Applet) Run(config map[string]string, initializers ...ThreadInitializer) (roots []render.Root, err error) {
+// Run executes the applet's main function. It returns the render roots that are
+// returned by the applet.
+func (a *Applet) Run(ctx context.Context) (roots []render.Root, err error) {
+	return a.RunWithConfig(ctx, nil)
+}
+
+// RunWithConfig exceutes the applet's main function, passing it configuration as a
+// starlark dict. It returns the render roots that are returned by the applet.
+func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (roots []render.Root, err error) {
 	var args starlark.Tuple
 	if a.main.NumParams() > 0 {
 		starlarkConfig := AppletConfig(config)
 		args = starlark.Tuple{starlarkConfig}
 	}
 
-	returnValue, err := a.Call(a.main, args, initializers...)
+	returnValue, err := a.Call(ctx, a.main, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -210,9 +234,9 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 	}
 
 	resultVal, err := app.Call(
+		ctx,
 		handler.Function,
-		starlark.Tuple{starlark.String(parameter)},
-		attachContext(ctx),
+		starlark.String(parameter),
 	)
 	if err != nil {
 		return "", fmt.Errorf("calling schema handler %s: %v", handlerName, err)
@@ -227,14 +251,14 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 		return options, nil
 
 	case schema.ReturnSchema:
-		sch, err := schema.FromStarlark(resultVal, app.Globals)
+		sch, err := schema.FromStarlark(resultVal, app.globals)
 		if err != nil {
 			return "", err
 		}
 
 		s, err := json.Marshal(sch)
 		if err != nil {
-			return "", errors.Wrap(err, "serializing schema to JSON")
+			return "", fmt.Errorf("serializing schema to JSON: %w", err)
 		}
 
 		return string(s), nil
@@ -258,33 +282,26 @@ func (app *Applet) GetSchema() string {
 	return string(app.schemaJSON)
 }
 
-func attachContext(ctx context.Context) ThreadInitializer {
-	return func(thread *starlark.Thread) *starlark.Thread {
-		starlarkutil.AttachThreadContext(ctx, thread)
-		return thread
-	}
-}
-
 // Calls any callable from Applet.Globals. Pass args and receive a
 // starlark Value, or an error if you're unlucky.
-func (a *Applet) Call(callable *starlark.Function, args starlark.Tuple, initializers ...ThreadInitializer) (val starlark.Value, err error) {
+func (a *Applet) Call(ctx context.Context, callable *starlark.Function, args ...starlark.Value) (val starlark.Value, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic while running %s: %v", a.Filename, r)
+			err = fmt.Errorf("panic while running %s: %v", a.ID, r)
 		}
 	}()
 
-	t := a.thread(initializers...)
+	t := a.newThread(ctx)
 
-	context.AfterFunc(starlarkutil.ThreadContext(t), func() {
-		t.Cancel(context.Cause(starlarkutil.ThreadContext(t)).Error())
+	context.AfterFunc(ctx, func() {
+		t.Cancel(context.Cause(ctx).Error())
 	})
 
 	resultVal, err := starlark.Call(t, callable, args, nil)
 	if err != nil {
 		evalErr, ok := err.(*starlark.EvalError)
 		if ok {
-			return nil, errors.New(evalErr.Backtrace())
+			return nil, fmt.Errorf(evalErr.Backtrace())
 		}
 		return nil, fmt.Errorf(
 			"in %s at %s: %s",
@@ -396,4 +413,23 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 	default:
 		return nil, fmt.Errorf("invalid module: %s", module)
 	}
+}
+
+func (a *Applet) newThread(ctx context.Context) *starlark.Thread {
+	t := &starlark.Thread{
+		Name: fmt.Sprintf("%s/%x", a.ID, md5.Sum(a.src)),
+		Load: a.loadModule,
+		Print: func(thread *starlark.Thread, msg string) {
+			fmt.Printf("[%s] %s\n", a.ID, msg)
+		},
+	}
+
+	starlarkutil.AttachThreadContext(ctx, t)
+	random.AttachToThread(t)
+
+	for _, init := range a.initializers {
+		t = init(t)
+	}
+
+	return t
 }

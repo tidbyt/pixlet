@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,11 +34,10 @@ def main():
 `
 
 func TestToggle(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("tid", "toggle.star", []byte(toggleSource), nil)
+	app, err := runtime.NewApplet("toggle.star", []byte(toggleSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

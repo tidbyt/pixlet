@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,11 +48,10 @@ def main():
 `
 
 func TestOAuth2(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("oaid", "oauth2.star", []byte(oauth2Source), nil)
+	app, err := runtime.NewApplet("oauth2.star", []byte(oauth2Source))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }

@@ -1,6 +1,7 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,11 +32,10 @@ def main():
 `
 
 func TestDateTime(t *testing.T) {
-	app := &runtime.Applet{}
-	err := app.Load("dtid", "date_time.star", []byte(dateTimeSource), nil)
+	app, err := runtime.NewApplet("date_time.star", []byte(dateTimeSource))
 	assert.NoError(t, err)
 
-	screens, err := app.Run(map[string]string{})
+	screens, err := app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, screens)
 }
