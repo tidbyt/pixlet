@@ -111,7 +111,7 @@ The `humanize` module has formatters for units to human friendly sizes.
 
 Example:
 
-See [examples/humanize.star](../examples/humanize.star) for an example.
+See [examples/humanize/humanize.star](../examples/humanize/humanize.star) for an example.
 
 ## Pixlet module: XPath
 
@@ -177,7 +177,7 @@ The schema module provides configuration options for your app. See the [schema d
 
 Example:
 
-See [examples/schema_hello_world.star](../examples/schema_hello_world.star) for an example.
+See [examples/schema_hello_world/schema_hello_world.star](../examples/schema_hello_world/schema_hello_world.star) for an example.
 
 ## Pixlet module: Secret
 
@@ -210,7 +210,7 @@ The `sunrise` module calculates sunrise and sunset times for a given set of GPS 
 
 Example:
 
-See [examples/sunrise.star](../examples/sunrise.star) for an example.
+See [examples/sunrise/sunrise.star](../examples/sunrise/sunrise.star) for an example.
 
 ## Pixlet module: Random
 

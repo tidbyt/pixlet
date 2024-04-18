@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
+	"testing/fstest"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -68,23 +71,49 @@ func init() {
 }
 
 var RenderCmd = &cobra.Command{
-	Use:   "render [script] [<key>=value>]...",
-	Short: "Run a Pixlet script with provided config parameters",
+	Use:   "render [path] [<key>=value>]...",
+	Short: "Run a Pixlet program with provided config parameters",
 	Args:  cobra.MinimumNArgs(1),
 	RunE:  render,
+	Long: `Render a Pixlet program with provided config parameters.
+
+The path argument should be the path to the Pixlet program to run. The
+program can be a single file with the .star extension, or a directory
+containing multiple Starlark files and resources.
+	`,
 }
 
 func render(cmd *cobra.Command, args []string) error {
-	script := args[0]
+	path := args[0]
 
-	globals.Width = width
-	globals.Height = height
-
-	if !strings.HasSuffix(script, ".star") {
-		return fmt.Errorf("script file must have suffix .star: %s", script)
+	// check if path exists, and whether it is a directory or a file
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("failed to stat %s: %w", path, err)
 	}
 
-	outPath := strings.TrimSuffix(script, ".star")
+	var fs fs.FS
+	var outPath string
+	if info.IsDir() {
+		fs = os.DirFS(path)
+		outPath = filepath.Join(path, filepath.Base(path))
+	} else {
+		if !strings.HasSuffix(path, ".star") {
+			return fmt.Errorf("script file must have suffix .star: %s", path)
+		}
+
+		src, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read file %s: %w", path, err)
+		}
+
+		fs = fstest.MapFS{
+			filepath.Base(path): {Data: src},
+		}
+
+		outPath = strings.TrimSuffix(path, ".star")
+	}
+
 	if renderGif {
 		outPath += ".gif"
 	} else {
@@ -94,6 +123,9 @@ func render(cmd *cobra.Command, args []string) error {
 		outPath = output
 	}
 
+	globals.Width = width
+	globals.Height = height
+
 	config := map[string]string{}
 	for _, param := range args[1:] {
 		split := strings.Split(param, "=")
@@ -101,11 +133,6 @@ func render(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("parameters must be on form <key>=<value>, found %s", param)
 		}
 		config[split[0]] = strings.Join(split[1:], "=")
-	}
-
-	src, err := os.ReadFile(script)
-	if err != nil {
-		return fmt.Errorf("failed to read file %s: %w", script, err)
 	}
 
 	// Remove the print function from the starlark thread if the silent flag is
@@ -128,7 +155,7 @@ func render(cmd *cobra.Command, args []string) error {
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
 
-	applet, err := runtime.NewApplet(script, src, opts...)
+	applet, err := runtime.NewAppletFromFS(filepath.Base(path), fs, opts...)
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}

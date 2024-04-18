@@ -274,6 +274,7 @@ func (a *Applet) Call(ctx context.Context, callable *starlark.Function, args ...
 	}()
 
 	t := a.newThread(ctx)
+	defer starlarkutil.RunOnExitFuncs(t)
 
 	context.AfterFunc(ctx, func() {
 		t.Cancel(context.Cause(ctx).Error())
@@ -357,6 +358,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 	}
 
 	thread := a.newThread(context.Background())
+	defer starlarkutil.RunOnExitFuncs(thread)
 
 	// override loader to allow loading starlark files
 	thread.Load = func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
@@ -382,53 +384,64 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 		return a.loadModule(thread, module)
 	}
 
-	globals, err := starlark.ExecFileOptions(
-		&syntax.FileOptions{
-			Set:       true,
-			Recursion: true,
-		},
-		thread,
-		a.ID,
-		src,
-		predeclared,
-	)
-	if err != nil {
-		return fmt.Errorf("starlark.ExecFile: %v", err)
-	}
-	a.globals[path] = globals
-
-	// if the file is in the root directory, check for the main function
-	// and schema function
-	mainFun, _ := globals["main"].(*starlark.Function)
-	if mainFun != nil {
-		if a.mainFile != "" {
-			return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", path, a.mainFile)
-		}
-
-		a.mainFile = path
-		a.mainFun = mainFun
-	}
-
-	schemaFun, _ := globals[schema.SchemaFunctionName].(*starlark.Function)
-	if schemaFun != nil {
-		if a.schemaFile != "" {
-			return fmt.Errorf("multiple files with a %s() function:\n- %s\n- %s", schema.SchemaFunctionName, path, a.schemaFile)
-		}
-		a.schemaFile = path
-
-		schemaVal, err := a.Call(context.Background(), schemaFun)
+	switch filepath.Ext(path) {
+	case ".star":
+		globals, err := starlark.ExecFileOptions(
+			&syntax.FileOptions{
+				Set:       true,
+				Recursion: true,
+			},
+			thread,
+			a.ID,
+			src,
+			predeclared,
+		)
 		if err != nil {
-			return fmt.Errorf("calling schema function for %s: %w", a.ID, err)
+			return fmt.Errorf("starlark.ExecFile: %v", err)
+		}
+		a.globals[path] = globals
+
+		// if the file is in the root directory, check for the main function
+		// and schema function
+		mainFun, _ := globals["main"].(*starlark.Function)
+		if mainFun != nil {
+			if a.mainFile != "" {
+				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", path, a.mainFile)
+			}
+
+			a.mainFile = path
+			a.mainFun = mainFun
 		}
 
-		a.schema, err = schema.FromStarlark(schemaVal, globals)
-		if err != nil {
-			return fmt.Errorf("parsing schema for %s: %w", a.ID, err)
+		schemaFun, _ := globals[schema.SchemaFunctionName].(*starlark.Function)
+		if schemaFun != nil {
+			if a.schemaFile != "" {
+				return fmt.Errorf("multiple files with a %s() function:\n- %s\n- %s", schema.SchemaFunctionName, path, a.schemaFile)
+			}
+			a.schemaFile = path
+
+			schemaVal, err := a.Call(context.Background(), schemaFun)
+			if err != nil {
+				return fmt.Errorf("calling schema function for %s: %w", a.ID, err)
+			}
+
+			a.schema, err = schema.FromStarlark(schemaVal, globals)
+			if err != nil {
+				return fmt.Errorf("parsing schema for %s: %w", a.ID, err)
+			}
+
+			a.schemaJSON, err = json.Marshal(a.schema)
+			if err != nil {
+				return fmt.Errorf("serializing schema to JSON for %s: %w", a.ID, err)
+			}
 		}
 
-		a.schemaJSON, err = json.Marshal(a.schema)
-		if err != nil {
-			return fmt.Errorf("serializing schema to JSON for %s: %w", a.ID, err)
+	default:
+		a.globals[path] = starlark.StringDict{
+			"file": File{
+				fsys: fsys,
+				path: path,
+			}.Struct(),
 		}
 	}
 

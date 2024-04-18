@@ -2,8 +2,8 @@
 .DS_Store
 
 # Rendered Apps
-examples/*.webp
-examples/*.gif
+examples/**/*.webp
+examples/**/*.gif
 
 # Pixlet Binary
 pixlet
