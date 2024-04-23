@@ -7,7 +7,6 @@ import (
 
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
-	"tidbyt.dev/pixlet/starlarkutil"
 )
 
 type File struct {
@@ -18,25 +17,8 @@ type File struct {
 func (f File) Struct() *starlarkstruct.Struct {
 	return starlarkstruct.FromStringDict(starlark.String("File"), starlark.StringDict{
 		"path":    starlark.String(f.path),
-		"open":    starlark.NewBuiltin("open", f.open),
 		"readall": starlark.NewBuiltin("readall", f.readall),
 	})
-}
-
-func (f File) open(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var mode starlark.String
-	if err := starlark.UnpackArgs("open", args, kwargs, "mode?", &mode); err != nil {
-		return nil, err
-	}
-
-	r, err := f.reader(string(mode))
-	if err != nil {
-		return nil, err
-	} else {
-		starlarkutil.AddOnExit(thread, func() { r.Close() })
-	}
-
-	return r.Struct(), nil
 }
 
 func (f File) readall(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {

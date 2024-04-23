@@ -15,14 +15,6 @@ def assert_eq(message, actual, expected):
 	if not expected == actual:
 		fail(message, "-", "expected", expected, "actual", actual)
 
-def test_read():
-	f = hello.open()
-	assert_eq("read", f.read(), "hello world")
-
-def test_read_binary():
-	f = hello.open(mode="rb")
-	assert_eq("read_binary", f.read(), b"hello world")
-
 def test_readall():
 	assert_eq("readall", hello.readall(), "hello world")
 
