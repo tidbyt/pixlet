@@ -1,19 +1,11 @@
-//go:build !js && !wasm
-
 package loader
 
 import (
-	"fmt"
-	"os"
+	"io/fs"
 
 	"tidbyt.dev/pixlet/runtime"
 )
 
-func loadScript(appID string, filename string) (*runtime.Applet, error) {
-	src, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file %s: %w", filename, err)
-	}
-
-	return runtime.NewApplet(appID, src)
+func loadScript(appID string, fs fs.FS) (*runtime.Applet, error) {
+	return runtime.NewAppletFromFS(appID, fs)
 }

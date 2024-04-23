@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"log"
 	"time"
 
@@ -18,7 +19,7 @@ import (
 // Loader is a structure to provide applet loading when a file changes or on
 // demand.
 type Loader struct {
-	filename         string
+	fs               fs.FS
 	fileChanges      chan bool
 	watch            bool
 	applet           runtime.Applet
@@ -42,7 +43,7 @@ type Update struct {
 // encoded WebP strings. If watch is enabled, both file changes and on demand
 // requests will send updates over the updatesChan.
 func NewLoader(
-	filename string,
+	fs fs.FS,
 	watch bool,
 	fileChanges chan bool,
 	updatesChan chan Update,
@@ -51,7 +52,7 @@ func NewLoader(
 ) (*Loader, error) {
 
 	l := &Loader{
-		filename:         filename,
+		fs:               fs,
 		fileChanges:      fileChanges,
 		watch:            watch,
 		applet:           runtime.Applet{},
@@ -69,7 +70,7 @@ func NewLoader(
 	runtime.InitCache(cache)
 
 	if !l.watch {
-		app, err := loadScript("app-id", l.filename)
+		app, err := loadScript("app-id", l.fs)
 		l.markInitialLoadComplete()
 		if err != nil {
 			return nil, err
@@ -106,7 +107,7 @@ func (l *Loader) Run() error {
 			l.updatesChan <- up
 			l.resultsChan <- up
 		case <-l.fileChanges:
-			log.Printf("detected updates for %s, reloading\n", l.filename)
+			log.Println("detected updates, reloading")
 			up := Update{}
 
 			webp, err := l.loadApplet(config)
@@ -156,7 +157,7 @@ func (l *Loader) CallSchemaHandler(ctx context.Context, handlerName, parameter s
 
 func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	if l.watch {
-		app, err := loadScript("app-id", l.filename)
+		app, err := loadScript("app-id", l.fs)
 		l.markInitialLoadComplete()
 		if err != nil {
 			return "", err

@@ -72,13 +72,13 @@ func init() {
 
 var RenderCmd = &cobra.Command{
 	Use:   "render [path] [<key>=value>]...",
-	Short: "Run a Pixlet program with provided config parameters",
+	Short: "Run a Pixlet app with provided config parameters",
 	Args:  cobra.MinimumNArgs(1),
 	RunE:  render,
-	Long: `Render a Pixlet program with provided config parameters.
+	Long: `Render a Pixlet app with provided config parameters.
 
-The path argument should be the path to the Pixlet program to run. The
-program can be a single file with the .star extension, or a directory
+The path argument should be the path to the Pixlet app to run. The
+app can be a single file with the .star extension, or a directory
 containing multiple Starlark files and resources.
 	`,
 }
