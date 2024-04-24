@@ -221,6 +221,7 @@ func TestModuleLoading(t *testing.T) {
 	// Our basic set of modules can be imported
 	src := `
 load("render.star", "render")
+load("bsoup.star", "bsoup")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -245,6 +246,8 @@ def main():
         fail("re broken")
     if time.parse_duration("10s").seconds != 10:
         fail("time broken")
+    if bsoup.parseHtml("<h1>foo</h1>").find("h1").get_text() != "foo":
+    	fail("bsoup broken")
     return render.Root(child=render.Box())
 `
 	app, err := NewApplet("test.star", []byte(src))
