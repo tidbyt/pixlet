@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"path/filepath"
+	"path"
 	"slices"
 	"strings"
 	"testing"
@@ -310,22 +310,22 @@ func (a *Applet) PathsForBundle() []string {
 }
 
 func (a *Applet) load(fsys fs.FS) (err error) {
-	if err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, walkDirErr error) error {
+	if err := fs.WalkDir(fsys, ".", func(pathToLoad string, d fs.DirEntry, walkDirErr error) error {
 		if walkDirErr != nil {
 			return walkDirErr
 		}
 
-		if d.IsDir() || filepath.Dir(path) != "." {
+		if d.IsDir() || path.Dir(pathToLoad) != "." {
 			// only process files in the root directory
 			return nil
 		}
 
-		if !strings.HasSuffix(path, ".star") {
+		if !strings.HasSuffix(pathToLoad, ".star") {
 			// not a starlark file
 			return nil
 		}
 
-		return a.ensureLoaded(fsys, path)
+		return a.ensureLoaded(fsys, pathToLoad)
 	}); err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func (a *Applet) load(fsys fs.FS) (err error) {
 	return nil
 }
 
-func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...string) (err error) {
+func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ...string) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic while executing %s: %v", a.ID, r)
@@ -345,28 +345,28 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 	}()
 
 	// normalize path so that it can be used as a key
-	path = filepath.Clean(path)
-	if _, ok := a.globals[path]; ok {
+	pathToLoad = path.Clean(pathToLoad)
+	if _, ok := a.globals[pathToLoad]; ok {
 		// already loaded, good to go
 		return nil
 	}
 
 	// use the currentlyLoading slice to detect circular dependencies
-	if slices.Contains(currentlyLoading, path) {
-		return fmt.Errorf("circular dependency detected: %s -> %s", strings.Join(currentlyLoading, " -> "), path)
+	if slices.Contains(currentlyLoading, pathToLoad) {
+		return fmt.Errorf("circular dependency detected: %s -> %s", strings.Join(currentlyLoading, " -> "), pathToLoad)
 	} else {
 		// mark this file as currently loading. if we encounter it again,
 		// we have a circular dependency.
-		currentlyLoading = append(currentlyLoading, path)
+		currentlyLoading = append(currentlyLoading, pathToLoad)
 
 		// also mark the file as loaded to keep track of all of the files
 		// that have been loaded
-		a.loadedPaths[path] = true
+		a.loadedPaths[pathToLoad] = true
 	}
 
-	src, err := fs.ReadFile(fsys, path)
+	src, err := fs.ReadFile(fsys, pathToLoad)
 	if err != nil {
-		return fmt.Errorf("reading %s: %v", path, err)
+		return fmt.Errorf("reading %s: %v", pathToLoad, err)
 	}
 
 	predeclared := starlark.StringDict{
@@ -379,7 +379,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 	// override loader to allow loading starlark files
 	thread.Load = func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
 		// normalize module path
-		modulePath := filepath.Clean(module)
+		modulePath := path.Clean(module)
 
 		// if the module exists on the filesystem, load it
 		if _, err := fs.Stat(fsys, modulePath); err == nil {
@@ -400,7 +400,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 		return a.loadModule(thread, module)
 	}
 
-	switch filepath.Ext(path) {
+	switch path.Ext(pathToLoad) {
 	case ".star":
 		globals, err := starlark.ExecFileOptions(
 			&syntax.FileOptions{
@@ -415,26 +415,26 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 		if err != nil {
 			return fmt.Errorf("starlark.ExecFile: %v", err)
 		}
-		a.globals[path] = globals
+		a.globals[pathToLoad] = globals
 
 		// if the file is in the root directory, check for the main function
 		// and schema function
 		mainFun, _ := globals["main"].(*starlark.Function)
 		if mainFun != nil {
 			if a.mainFile != "" {
-				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", path, a.mainFile)
+				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", pathToLoad, a.mainFile)
 			}
 
-			a.mainFile = path
+			a.mainFile = pathToLoad
 			a.mainFun = mainFun
 		}
 
 		schemaFun, _ := globals[schema.SchemaFunctionName].(*starlark.Function)
 		if schemaFun != nil {
 			if a.schemaFile != "" {
-				return fmt.Errorf("multiple files with a %s() function:\n- %s\n- %s", schema.SchemaFunctionName, path, a.schemaFile)
+				return fmt.Errorf("multiple files with a %s() function:\n- %s\n- %s", schema.SchemaFunctionName, pathToLoad, a.schemaFile)
 			}
-			a.schemaFile = path
+			a.schemaFile = pathToLoad
 
 			schemaVal, err := a.Call(context.Background(), schemaFun)
 			if err != nil {
@@ -453,10 +453,10 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 		}
 
 	default:
-		a.globals[path] = starlark.StringDict{
+		a.globals[pathToLoad] = starlark.StringDict{
 			"file": File{
 				fsys: fsys,
-				path: path,
+				path: pathToLoad,
 			}.Struct(),
 		}
 	}
