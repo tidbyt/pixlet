@@ -42,7 +42,7 @@ be a gzip compressed tar file that can be uploaded to Tidbyt for deployment.`,
 			return fmt.Errorf("output must be a directory")
 		}
 
-		ab, err := bundle.InitFromPath(bundleInput)
+		ab, err := bundle.FromDir(bundleInput)
 		if err != nil {
 			return fmt.Errorf("could not init bundle: %w", err)
 		}

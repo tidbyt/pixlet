@@ -11,7 +11,7 @@ import (
 
 func TestBundleWriteAndLoad(t *testing.T) {
 	// Ensure we can load the bundle from an app.
-	ab, err := bundle.InitFromPath("testdata/testapp")
+	ab, err := bundle.FromDir("testdata/testapp")
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
 	assert.NotNil(t, ab.Source)
