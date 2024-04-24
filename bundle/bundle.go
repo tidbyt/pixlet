@@ -34,7 +34,7 @@ type AppBundle struct {
 	Source   fs.FS
 }
 
-func fromFS(fs fs.FS) (*AppBundle, error) {
+func FromFS(fs fs.FS) (*AppBundle, error) {
 	m, err := fs.Open(manifest.ManifestFileName)
 	if err != nil {
 		return nil, fmt.Errorf("could not open manifest: %w", err)
@@ -53,10 +53,10 @@ func fromFS(fs fs.FS) (*AppBundle, error) {
 	}, nil
 }
 
-// InitFromPath translates a directory containing an app manifest and source
+// FromDir translates a directory containing an app manifest and source
 // into an AppBundle.
-func InitFromPath(dir string) (*AppBundle, error) {
-	return fromFS(os.DirFS(dir))
+func FromDir(dir string) (*AppBundle, error) {
+	return FromFS(os.DirFS(dir))
 }
 
 // LoadBundle loads a compressed archive into an AppBundle.
@@ -78,7 +78,7 @@ func LoadBundle(in io.Reader) (*AppBundle, error) {
 		return nil, fmt.Errorf("creating tarfs: %w", err)
 	}
 
-	return fromFS(fs)
+	return FromFS(fs)
 }
 
 // WriteBundleToPath is a helper to be able to write the bundle to a provided
