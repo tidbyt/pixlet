@@ -51,12 +51,10 @@ func ManifestPrompt() (*manifest.Manifest, error) {
 	}
 
 	return &manifest.Manifest{
-		ID:          manifest.GenerateID(name),
-		Name:        name,
-		Summary:     summary,
-		Desc:        desc,
-		Author:      author,
-		FileName:    manifest.GenerateFileName(name),
-		PackageName: manifest.GeneratePackageName(name),
+		ID:      manifest.GenerateID(name),
+		Name:    name,
+		Summary: summary,
+		Desc:    desc,
+		Author:  author,
 	}, nil
 }

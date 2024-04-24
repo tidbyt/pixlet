@@ -56,6 +56,7 @@ type Applet struct {
 
 	loader       ModuleLoader
 	initializers []ThreadInitializer
+	loadedPaths  map[string]bool
 
 	globals map[string]starlark.StringDict
 
@@ -119,8 +120,9 @@ func NewApplet(id string, src []byte, opts ...AppletOption) (*Applet, error) {
 
 func NewAppletFromFS(id string, fsys fs.FS, opts ...AppletOption) (*Applet, error) {
 	a := &Applet{
-		ID:      id,
-		globals: make(map[string]starlark.StringDict),
+		ID:          id,
+		globals:     make(map[string]starlark.StringDict),
+		loadedPaths: make(map[string]bool),
 	}
 
 	for _, opt := range opts {
@@ -297,6 +299,16 @@ func (a *Applet) Call(ctx context.Context, callable *starlark.Function, args ...
 	return resultVal, nil
 }
 
+// PathsForBundle returns a list of all the paths that have been loaded by the
+// applet. This is useful for creating a bundle of the applet.
+func (a *Applet) PathsForBundle() []string {
+	paths := make([]string, 0, len(a.loadedPaths))
+	for path := range a.loadedPaths {
+		paths = append(paths, path)
+	}
+	return paths
+}
+
 func (a *Applet) load(fsys fs.FS) (err error) {
 	if err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, walkDirErr error) error {
 		if walkDirErr != nil {
@@ -346,6 +358,10 @@ func (a *Applet) ensureLoaded(fsys fs.FS, path string, currentlyLoading ...strin
 		// mark this file as currently loading. if we encounter it again,
 		// we have a circular dependency.
 		currentlyLoading = append(currentlyLoading, path)
+
+		// also mark the file as loaded to keep track of all of the files
+		// that have been loaded
+		a.loadedPaths[path] = true
 	}
 
 	src, err := fs.ReadFile(fsys, path)

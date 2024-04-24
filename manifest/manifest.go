@@ -16,21 +16,22 @@ type Manifest struct {
 	// ID is the unique identifier of this app. It has to be globally unique,
 	// which means it cannot conflict with any of our private apps.
 	ID string `json:"id" yaml:"id"`
+
 	// Name is the name of the applet. Ex. "Fuzzy Clock"
 	Name string `json:"name" yaml:"name"`
+
 	// Summary is the short form of what this applet does. Ex. "Human readable
 	// time".
 	Summary string `json:"summary" yaml:"summary"`
+
 	// Desc is the long form of what this applet does. Ex. "Display the time in
 	// a groovy, human-readable way."
 	Desc string `json:"desc" yaml:"desc"`
+
 	// Author is the person or organization who contributed this applet. Ex,
 	// "Max Timkovich"
 	Author string `json:"author" yaml:"author"`
-	// FileName is the name of the starlark source file.
-	FileName string `json:"fileName" yaml:"fileName"`
-	// PackageName is the name of the go package where this app lives.
-	PackageName string `json:"packageName" yaml:"packageName"`
+
 	// Source is the starlark source code for this applet using the go `embed`
 	// module.
 	Source []byte `json:"-" yaml:"-"`
@@ -100,24 +101,14 @@ func (m Manifest) Validate() error {
 		return err
 	}
 
-	err = ValidateFileName(m.FileName)
-	if err != nil {
-		return err
-	}
-
-	err = ValidatePackageName(m.PackageName)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-// GeneratePackageName creates a suitable go package name from an app name.
-func GeneratePackageName(name string) string {
-	packageName := strings.ReplaceAll(name, "-", "")
-	packageName = strings.ReplaceAll(packageName, "_", "")
-	return strings.ToLower(strings.Join(strings.Fields(packageName), ""))
+// GenerateDirName creates a suitable directory name from an app name.
+func GenerateDirName(name string) string {
+	dir := strings.ReplaceAll(name, "-", "")
+	dir = strings.ReplaceAll(dir, "_", "")
+	return strings.ToLower(strings.Join(strings.Fields(dir), ""))
 }
 
 // GenerateID creates a suitable ID from an app name.

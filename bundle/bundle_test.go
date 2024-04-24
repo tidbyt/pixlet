@@ -14,7 +14,7 @@ func TestBundleWriteAndLoad(t *testing.T) {
 	ab, err := bundle.InitFromPath("testdata/testapp")
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
-	assert.True(t, len(ab.Source) > 0)
+	assert.NotNil(t, ab.Source)
 
 	// Create a temp directory.
 	dir, err := os.MkdirTemp("", "")
@@ -32,7 +32,23 @@ func TestBundleWriteAndLoad(t *testing.T) {
 	newBun, err := bundle.LoadBundle(f)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", newBun.Manifest.ID)
-	assert.True(t, len(ab.Source) > 0)
+	assert.NotNil(t, ab.Source)
+
+	// Ensure the loaded bundle contains the files we expect.
+	filesExpected := []string{
+		"manifest.yaml",
+		"test_app.star",
+		"test.txt",
+		"a_subdirectory/hi.jpg",
+	}
+	for _, file := range filesExpected {
+		_, err := newBun.Source.Open(file)
+		assert.NoError(t, err)
+	}
+
+	// Ensure the loaded bundle does not contain any extra files.
+	_, err = newBun.Source.Open("unused.txt")
+	assert.ErrorIs(t, err, os.ErrNotExist)
 }
 func TestLoadBundle(t *testing.T) {
 	f, err := os.Open("testdata/bundle.tar.gz")
@@ -41,7 +57,7 @@ func TestLoadBundle(t *testing.T) {
 	ab, err := bundle.LoadBundle(f)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
-	assert.True(t, len(ab.Source) > 0)
+	assert.NotNil(t, ab.Source)
 }
 func TestLoadBundleExcessData(t *testing.T) {
 	f, err := os.Open("testdata/excess-files.tar.gz")
@@ -51,5 +67,5 @@ func TestLoadBundleExcessData(t *testing.T) {
 	ab, err := bundle.LoadBundle(f)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-app", ab.Manifest.ID)
-	assert.True(t, len(ab.Source) > 0)
+	assert.NotNil(t, ab.Source)
 }
