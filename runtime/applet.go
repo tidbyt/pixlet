@@ -409,7 +409,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 				Recursion: true,
 			},
 			thread,
-			a.ID,
+			path.Join(a.ID, pathToLoad),
 			src,
 			predeclared,
 		)
