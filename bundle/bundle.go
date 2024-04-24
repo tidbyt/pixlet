@@ -11,7 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/quay/claircore/pkg/tarfs"
+	"github.com/nlepage/go-tarfs"
 
 	"tidbyt.dev/pixlet/manifest"
 	"tidbyt.dev/pixlet/runtime"
