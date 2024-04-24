@@ -60,7 +60,7 @@ def main():
 Render and serve it with:
 
 ```console
-curl https://raw.githubusercontent.com/tidbyt/pixlet/main/examples/hello_world.star | \
+curl https://raw.githubusercontent.com/tidbyt/pixlet/main/examples/hello_world/hello_world.star | \
   pixlet serve /dev/stdin
 ```
 
@@ -135,7 +135,7 @@ to show the Bitcoin tracker on your Tidbyt:
 
 ```console
 # render the bitcoin example
-pixlet render examples/bitcoin.star
+pixlet render examples/bitcoin/bitcoin.star
 
 # login to your Tidbyt account
 pixlet login
@@ -144,7 +144,7 @@ pixlet login
 pixlet devices
 
 # push to your favorite Tidbyt
-pixlet push <YOUR DEVICE ID> examples/bitcoin.webp
+pixlet push <YOUR DEVICE ID> examples/bitcoin/bitcoin.webp
 ```
 
 To get the ID for a device, run `pixlet devices`. Alternatively, you can
@@ -158,8 +158,8 @@ If all goes well, you should see the Bitcoin tracker appear on your Tidbyt:
 Pushing an applet to your Tidbyt without an installation ID simply displays your applet one time. If you would like your applet to continously display as part of the rotation, add an installation ID to the push command:
 
 ```console
-pixlet render examples/bitcoin.star
-pixlet push --installation-id <INSTALLATION ID> <YOUR DEVICE ID> examples/bitcoin.webp
+pixlet render examples/bitcoin/bitcoin.star
+pixlet push --installation-id <INSTALLATION ID> <YOUR DEVICE ID> examples/bitcoin/bitcoin.webp
 ```
 
 For example, if we set the `installationID` to "Bitcoin", it would appear in the mobile app as follows:

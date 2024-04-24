@@ -1,13 +1,28 @@
-//go:build !js && !wasm
-
-package watcher
+package server
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/fsnotify/fsnotify"
 )
+
+// Watcher is a structure to watch a file for changes and notify a channel.
+type Watcher struct {
+	path        string
+	fileChanges chan bool
+}
+
+// NewWatcher instantiates a new watcher with the provided filename and changes
+// channel.
+func NewWatcher(filename string, fileChanges chan bool) *Watcher {
+	return &Watcher{
+		path:        filepath.FromSlash(filename),
+		fileChanges: fileChanges,
+	}
+}
 
 // Run starts the file watcher in a blocking fashion. This watches an entire
 // directory and only notifies the channel when the specified file is changed.
@@ -27,7 +42,7 @@ func (w *Watcher) Run() error {
 	}
 	defer watcher.Close()
 
-	watcher.Add(filepath.Dir(w.filename))
+	watcher.Add(w.path)
 
 	for {
 		select {
@@ -35,7 +50,8 @@ func (w *Watcher) Run() error {
 			if !ok {
 				return fmt.Errorf("something is weird with the file watcher")
 			}
-			if event.Name == w.filename && (event.Op&(fsnotify.Write|fsnotify.Create)) != 0 {
+			log.Println(event.Name)
+			if strings.HasPrefix(event.Name, w.path) && shouldNotify(event.Op) {
 				w.fileChanges <- true
 			}
 
@@ -46,4 +62,10 @@ func (w *Watcher) Run() error {
 			return fmt.Errorf("error in file watcher: %w", err)
 		}
 	}
+}
+
+func shouldNotify(op fsnotify.Op) bool {
+	// notify on all ops except for chmod, since that is discouraged
+	// in the fsnotify docs.
+	return op.Has(fsnotify.Write | fsnotify.Create | fsnotify.Remove | fsnotify.Rename)
 }

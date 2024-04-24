@@ -83,12 +83,12 @@ func (g *Generator) RemoveApp(app *manifest.Manifest) error {
 }
 
 func (g *Generator) createDir(app *manifest.Manifest) error {
-	p := path.Join(g.root, appsDir, app.PackageName)
+	p := path.Join(g.root, appsDir, manifest.GenerateDirName(app.Name))
 	return os.MkdirAll(p, os.ModePerm)
 }
 
 func (g *Generator) removeDir(app *manifest.Manifest) error {
-	p := path.Join(g.root, appsDir, app.PackageName)
+	p := path.Join(g.root, appsDir, manifest.GenerateDirName(app.Name))
 	return os.RemoveAll(p)
 }
 
@@ -96,7 +96,7 @@ func (g *Generator) writeManifest(app *manifest.Manifest) error {
 	var p string
 	switch g.appType {
 	case Community, Internal:
-		p = path.Join(g.root, appsDir, app.PackageName, manifestName)
+		p = path.Join(g.root, appsDir, manifest.GenerateDirName(app.Name), manifestName)
 	default:
 		p = path.Join(g.root, manifestName)
 	}
@@ -111,12 +111,15 @@ func (g *Generator) writeManifest(app *manifest.Manifest) error {
 }
 
 func (g *Generator) generateStarlark(app *manifest.Manifest) (string, error) {
+	dir := manifest.GenerateDirName(app.Name)
+	fn := manifest.GenerateFileName(app.Name)
+
 	var p string
 	switch g.appType {
 	case Community, Internal:
-		p = path.Join(g.root, appsDir, app.PackageName, app.FileName)
+		p = path.Join(g.root, appsDir, dir, fn)
 	default:
-		p = path.Join(g.root, app.FileName)
+		p = path.Join(g.root, fn)
 	}
 
 	file, err := os.Create(p)
