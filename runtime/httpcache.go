@@ -70,26 +70,13 @@ func (c *cacheClient) RoundTrip(req *http.Request) (*http.Response, error) {
 	ctx, cancel := context.WithTimeout(ctx, HTTPTimeout)
 	defer cancel() // need to do this to not leak a goroutine
 
-	key, err := cacheKey(req, false)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate cache key: %w", err)
-	}
-	// TODO: remove once old cache entries expire
-	keyWithTTL, err := cacheKey(req, true)
+	key, err := cacheKey(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate cache key: %w", err)
 	}
 
 	if req.Method == "GET" || req.Method == "HEAD" || req.Method == "POST" {
 		b, exists, err := c.cache.Get(nil, key)
-		if exists && err == nil {
-			if res, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(b)), req); err == nil {
-				res.Header.Set("tidbyt-cache-status", "HIT")
-				return res, nil
-			}
-		}
-		// TODO: remove once old entries expire
-		b, exists, err = c.cache.Get(nil, keyWithTTL)
 		if exists && err == nil {
 			if res, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(b)), req); err == nil {
 				res.Header.Set("tidbyt-cache-status", "HIT")
@@ -119,12 +106,9 @@ func (c *cacheClient) RoundTrip(req *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-func cacheKey(req *http.Request, keep_ttl bool) (string, error) {
-	// TODO: remove keep_ttl param and make this always happen.
+func cacheKey(req *http.Request) (string, error) {
 	ttl := req.Header.Get(TTLHeader)
-	if !keep_ttl {
-		req.Header.Del(TTLHeader)
-	}
+	req.Header.Del(TTLHeader)
 	r, err := httputil.DumpRequest(req, true)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", "failed to serialize request", err)
