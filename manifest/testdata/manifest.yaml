@@ -4,5 +4,3 @@ name: Fuzzy Clock
 summary: Human readable time
 desc: Display the time in a groovy, human-readable way.
 author: Max Timkovich
-fileName: fuzzy_clock.star
-packageName: fuzzyclock

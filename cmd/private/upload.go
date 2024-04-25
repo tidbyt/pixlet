@@ -63,7 +63,7 @@ flags.`,
 
 		// Create bundle
 		buf := &bytes.Buffer{}
-		ab, err := bundle.InitFromPath(uploadDir)
+		ab, err := bundle.FromDir(uploadDir)
 		if err != nil {
 			return fmt.Errorf("could not init bundle: %w", err)
 		}

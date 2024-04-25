@@ -119,49 +119,6 @@ func ValidateAuthor(author string) error {
 	return nil
 }
 
-func ValidatePackageName(packageName string) error {
-	if packageName == "" {
-		return fmt.Errorf("package names cannot be empty")
-	}
-
-	if packageName != strings.ToLower(packageName) {
-		return fmt.Errorf("package names should be lower case")
-	}
-
-	for _, r := range packageName {
-		if !(unicode.IsLetter(r) || unicode.IsNumber(r)) {
-			return fmt.Errorf("package names can only contain letters, numbers, or an underscore character")
-		}
-	}
-	return nil
-}
-
-// ValidateFileName ensures the file name appears appropriately for starlark
-// source code.
-func ValidateFileName(fileName string) error {
-	if fileName == "" {
-		return fmt.Errorf("fileName cannot be empty")
-	}
-
-	if !strings.HasSuffix(fileName, ".star") {
-		return fmt.Errorf("file names should end in .star: '%s'", fileName)
-	}
-
-	testName := strings.TrimSuffix(fileName, ".star")
-
-	if testName != strings.ToLower(testName) {
-		return fmt.Errorf("file names should be lower case")
-	}
-
-	for _, r := range testName {
-		if !(unicode.IsLetter(r) || unicode.IsNumber(r) || r == underscore) {
-			return fmt.Errorf("file names can only contain letters, numbers, or an underscore character")
-		}
-	}
-
-	return nil
-}
-
 // ValidateID ensures the id will parse when we go to add it to our database
 // internally.
 func ValidateID(id string) error {

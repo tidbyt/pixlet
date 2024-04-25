@@ -4,13 +4,16 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
+	"testing/fstest"
 
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.starlark.net/starlark"
+	"tidbyt.dev/pixlet/schema"
 )
 
 func TestLoadEmptySrc(t *testing.T) {
@@ -173,10 +176,52 @@ def main(config):
 	assert.Equal(t, 3, len(roots))
 }
 
+func TestLoadMultipleFiles(t *testing.T) {
+	mainSrc := `
+load("render.star", "render")
+def main():
+    return render.Root(child=render.Box())
+`
+	schemaDefSrc := `
+load("schema.star", "schema")
+def get_schema():
+    return schema.Schema(
+        version = "1",
+				fields = [],
+		)
+`
+	vfs := fstest.MapFS{
+		"main.star":       {Data: []byte(mainSrc)},
+		"schema_def.star": {Data: []byte(schemaDefSrc)},
+	}
+
+	app, err := NewAppletFromFS("multiple_files", vfs)
+	require.NoError(t, err)
+	require.NotNil(t, app)
+
+	jsonSchema := app.GetSchema()
+	var s schema.Schema
+	json.Unmarshal([]byte(jsonSchema), &s)
+	assert.Equal(t, "1", s.Version)
+
+	roots, err := app.Run(context.Background())
+	assert.NoError(t, err)
+	assert.NotNil(t, roots)
+	assert.Equal(t, 1, len(roots))
+
+	// multiple main functions should fail
+	vfs["main2.star"] = &fstest.MapFile{
+		Data: []byte(mainSrc),
+	}
+	_, err = NewAppletFromFS("multiple_files_multiple_mains", vfs)
+	assert.Error(t, err)
+}
+
 func TestModuleLoading(t *testing.T) {
 	// Our basic set of modules can be imported
 	src := `
 load("render.star", "render")
+load("bsoup.star", "bsoup")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -201,6 +246,8 @@ def main():
         fail("re broken")
     if time.parse_duration("10s").seconds != 10:
         fail("time broken")
+    if bsoup.parseHtml("<h1>foo</h1>").find("h1").get_text() != "foo":
+    	fail("bsoup broken")
     return render.Root(child=render.Box())
 `
 	app, err := NewApplet("test.star", []byte(src))
@@ -230,33 +277,79 @@ def main():
 	roots, err = app.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(roots))
-
 }
 
-func TestThreadInitializer(t *testing.T) {
+func TestDependency(t *testing.T) {
+	// src.star depends on hello.star
 	src := `
 load("render.star", "render")
+load("hello.star", "hello")
+
 def main():
-	print('foobar')
-	return render.Root(child=render.Box())
+		if hello.world() != "hello world":
+				fail("something went wrong")
+		return render.Root(child=render.Box())
 `
-	// override the print function of the thread
-	var printedText string
-	initializer := func(thread *starlark.Thread) *starlark.Thread {
-		thread.Print = func(thread *starlark.Thread, msg string) {
-			printedText += msg
-		}
-		return thread
+
+	helloSrc := `
+def _world():
+		return "hello world"
+
+hello = struct(
+	world = _world,
+)
+`
+
+	vfs := fstest.MapFS{
+		"src.star":   {Data: []byte(src)},
+		"hello.star": {Data: []byte(helloSrc)},
 	}
 
-	app, err := NewApplet("test.star", []byte(src), WithThreadInitializer(initializer))
+	app, err := NewAppletFromFS("test", vfs)
 	assert.NoError(t, err)
-	assert.NotNil(t, app)
-	_, err = app.Run(context.Background())
-	assert.NoError(t, err)
+	if assert.NotNil(t, app) {
+		roots, err := app.Run(context.Background())
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(roots))
+	}
 
-	// our print function should have been called
-	assert.Equal(t, "foobar", printedText)
+	// src2.star shouldn't be able to access private function from hello.star
+	src2 := `
+load("render.star", "render")
+load("hello.star", "_world")
+
+def main():
+		return render.Root(child=render.Box())
+	`
+
+	vfs2 := fstest.MapFS{
+		"src2.star":  {Data: []byte(src2)},
+		"hello.star": {Data: []byte(helloSrc)},
+	}
+
+	_, err = NewAppletFromFS("test", vfs2)
+	assert.ErrorContains(t, err, "not exported")
+}
+
+func TestCircularDependency(t *testing.T) {
+	// Module A depends on module B
+	srcA := `
+load("b.star", "b")
+def a():
+	return b.b()
+`
+	// Module B depends on module A
+	srcB := `
+load("a.star", "a")
+def b():
+	return a.a()
+`
+	vfs := fstest.MapFS{
+		"a.star": {Data: []byte(srcA)},
+		"b.star": {Data: []byte(srcB)},
+	}
+	_, err := NewAppletFromFS("circular_dependency", vfs)
+	assert.ErrorContains(t, err, "circular dependency")
 }
 
 func TestTimezoneDatabase(t *testing.T) {

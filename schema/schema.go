@@ -42,7 +42,7 @@ type SchemaField struct {
 	Visibility  *SchemaVisibility `json:"visibility,omitempty" validate:"omitempty,dive"`
 
 	Default string         `json:"default,omitempty" validate:"required_for=dropdown onoff radio"`
-	Options []SchemaOption `json:"options,omitempty" validate:"required_for=dropdown radio,dive"`
+	Options []SchemaOption `json:"options,omitempty" validate:"required_for=dropdown radio"`
 	Palette []string       `json:"palette,omitempty"`
 
 	Source  string `json:"source,omitempty" validate:"required_for=generated"`

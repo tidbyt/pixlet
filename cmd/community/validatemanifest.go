@@ -12,7 +12,6 @@ import (
 var ValidateManifestAppFileName string
 
 func init() {
-	ValidateManifestCmd.Flags().StringVarP(&ValidateManifestAppFileName, "app-file-name", "a", "", "ensures the app file name is the same as the manifest")
 }
 
 var ValidateManifestCmd = &cobra.Command{
@@ -45,10 +44,6 @@ func ValidateManifest(cmd *cobra.Command, args []string) error {
 	err = m.Validate()
 	if err != nil {
 		return fmt.Errorf("couldn't validate manifest: %w", err)
-	}
-
-	if ValidateManifestAppFileName != "" && m.FileName != ValidateManifestAppFileName {
-		return fmt.Errorf("app name doesn't match: %s != %s", ValidateManifestAppFileName, m.FileName)
 	}
 
 	return nil

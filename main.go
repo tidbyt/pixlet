@@ -18,7 +18,6 @@ var (
 )
 
 func init() {
-	rootCmd.AddCommand(cmd.ServeCmd)
 	rootCmd.AddCommand(cmd.RenderCmd)
 	rootCmd.AddCommand(cmd.PushCmd)
 	rootCmd.AddCommand(cmd.EncryptCmd)

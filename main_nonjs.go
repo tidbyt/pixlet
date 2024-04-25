@@ -10,4 +10,5 @@ import (
 func init() {
 	rootCmd.AddCommand(private.PrivateCmd)
 	rootCmd.AddCommand(cmd.CreateCmd)
+	rootCmd.AddCommand(cmd.ServeCmd)
 }

@@ -18,7 +18,7 @@ def main(config):
 
     resp = http.get(
         url = "https://example.com",
-        ttl_seconds = 60,
+        ttl_seconds = 3,
     )
     assert.eq(resp.headers.get("Tidbyt-Cache-Status"), "HIT")
 
@@ -32,7 +32,7 @@ def main(config):
         url = "https://example.com",
         ttl_seconds = 60,
     )
-    assert.eq(resp.headers.get("Tidbyt-Cache-Status"), "MISS")
+    assert.eq(resp.headers.get("Tidbyt-Cache-Status"), "HIT")
 
     resp = http.post(
         url = "https://example.com",

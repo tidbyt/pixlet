@@ -21,20 +21,16 @@ name: Foo Tracker
 summary: Track realtime foo
 desc: The foo tracker provides realtime feeds for foo.
 author: Tidbyt
-fileName: foo_tracker.star
-packageName: footracker
 `
 
 func TestManifest(t *testing.T) {
 	m := manifest.Manifest{
-		ID:          "foo-tracker",
-		Name:        "Foo Tracker",
-		Summary:     "Track realtime foo",
-		Desc:        "The foo tracker provides realtime feeds for foo.",
-		Author:      "Tidbyt",
-		FileName:    "foo_tracker.star",
-		PackageName: "footracker",
-		Source:      source,
+		ID:      "foo-tracker",
+		Name:    "Foo Tracker",
+		Summary: "Track realtime foo",
+		Desc:    "The foo tracker provides realtime feeds for foo.",
+		Author:  "Tidbyt",
+		Source:  source,
 	}
 
 	expected, err := os.ReadFile("testdata/source.star")
@@ -56,20 +52,16 @@ func TestLoadManifest(t *testing.T) {
 	assert.Equal(t, m.Author, "Max Timkovich")
 	assert.Equal(t, m.Summary, "Human readable time")
 	assert.Equal(t, m.Desc, "Display the time in a groovy, human-readable way.")
-	assert.Equal(t, m.FileName, "fuzzy_clock.star")
-	assert.Equal(t, m.PackageName, "fuzzyclock")
 }
 
 func TestWriteManifest(t *testing.T) {
 	m := manifest.Manifest{
-		ID:          "foo-tracker",
-		Name:        "Foo Tracker",
-		Summary:     "Track realtime foo",
-		Desc:        "The foo tracker provides realtime feeds for foo.",
-		Author:      "Tidbyt",
-		FileName:    "foo_tracker.star",
-		PackageName: "footracker",
-		Source:      source,
+		ID:      "foo-tracker",
+		Name:    "Foo Tracker",
+		Summary: "Track realtime foo",
+		Desc:    "The foo tracker provides realtime feeds for foo.",
+		Author:  "Tidbyt",
+		Source:  source,
 	}
 
 	buff := bytes.Buffer{}
@@ -96,7 +88,7 @@ func TestGeneratePackageName(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := manifest.GeneratePackageName(tc.input)
+		got := manifest.GenerateDirName(tc.input)
 		assert.Equal(t, tc.want, got)
 	}
 }
