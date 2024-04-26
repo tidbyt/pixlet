@@ -3,20 +3,22 @@ package community
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/fs"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
-	"go.starlark.net/starlark"
 	"tidbyt.dev/pixlet/icons"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
+	"tidbyt.dev/pixlet/tools"
 )
 
 var ValidateIconsCmd = &cobra.Command{
-	Use:     "validate-icons <pathspec>",
+	Use:     "validate-icons <path>",
 	Short:   "Validates the schema icons used are available in our mobile app.",
-	Example: `  pixlet community validate-icons app.star`,
+	Example: `pixlet community validate-icons examples/schema_hello_world`,
 	Long: `This command determines if the icons selected in your app schema are supported
 by our mobile app.`,
 	Args: cobra.ExactArgs(1),
@@ -24,29 +26,30 @@ by our mobile app.`,
 }
 
 func ValidateIcons(cmd *cobra.Command, args []string) error {
-	f, err := os.Open(args[0])
-	if err != nil {
-		return fmt.Errorf("couldn't open app: %w", err)
-	}
-	defer f.Close()
+	path := args[0]
 
-	src, err := io.ReadAll(f)
+	// check if path exists, and whether it is a directory or a file
+	info, err := os.Stat(path)
 	if err != nil {
-		return fmt.Errorf("failed to read app %s: %w", args[0], err)
+		return fmt.Errorf("failed to stat %s: %w", path, err)
+	}
+
+	var fs fs.FS
+	if info.IsDir() {
+		fs = os.DirFS(path)
+	} else {
+		if !strings.HasSuffix(path, ".star") {
+			return fmt.Errorf("script file must have suffix .star: %s", path)
+		}
+
+		fs = tools.NewSingleFileFS(path)
 	}
 
 	cache := runtime.NewInMemoryCache()
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
 
-	// Remove the print function from the starlark thread.
-	initializers := []runtime.ThreadInitializer{}
-	initializers = append(initializers, func(thread *starlark.Thread) *starlark.Thread {
-		thread.Print = func(thread *starlark.Thread, msg string) {}
-		return thread
-	})
-
-	applet, err := runtime.NewApplet(args[0], src, runtime.WithPrintDisabled())
+	applet, err := runtime.NewAppletFromFS(filepath.Base(path), fs, runtime.WithPrintDisabled())
 	if err != nil {
 		return fmt.Errorf("failed to load applet: %w", err)
 	}

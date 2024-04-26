@@ -48,11 +48,6 @@ func lintCmd(cmd *cobra.Command, args []string) error {
 	differ, _ := differ.Find()
 	diff = differ
 
-	// TODO: We currently offer misspelling protection in the community repo
-	// for app manifests. We'll want to consider adding additional spelling
-	// support to pixlet lint to ensure typos in apps don't make it to
-	// production.
-
 	// Run buildifier and exit with the returned exit code.
 	exitCode := runBuildifier(args, lint, mode, outputFormat, rflag, vflag)
 	if exitCode != 0 {
