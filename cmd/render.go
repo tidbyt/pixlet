@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"testing/fstest"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -16,6 +15,7 @@ import (
 	"tidbyt.dev/pixlet/encode"
 	"tidbyt.dev/pixlet/globals"
 	"tidbyt.dev/pixlet/runtime"
+	"tidbyt.dev/pixlet/tools"
 )
 
 var (
@@ -102,15 +102,7 @@ func render(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("script file must have suffix .star: %s", path)
 		}
 
-		src, err := os.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("failed to read file %s: %w", path, err)
-		}
-
-		fs = fstest.MapFS{
-			filepath.Base(path): {Data: src},
-		}
-
+		fs = tools.NewSingleFileFS(path)
 		outPath = strings.TrimSuffix(path, ".star")
 	}
 
