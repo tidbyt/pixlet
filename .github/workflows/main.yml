@@ -82,7 +82,7 @@ jobs:
 
       - name: Build Linux
         run: make build
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04'
 
       - name: Build macOS
         run: make build
