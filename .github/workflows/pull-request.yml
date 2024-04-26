@@ -78,9 +78,16 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Build
+      - name: Build Linux
         run: make build
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04'
+
+      - name: Build macOS
+        run: make build
+        if: matrix.os == 'macos-latest'
+        env:
+          LIBRARY_PATH: "/opt/homebrew/lib"
+          CGO_CPPFLAGS: "-I/opt/homebrew/include"
 
       - name: Build Windows
         shell: msys2 {0}
@@ -89,9 +96,16 @@ jobs:
           make build
         if: matrix.os == 'windows-latest'
 
-      - name: Test
+      - name: Test Linux
         run: make test
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04'
+
+      - name: Test macOS
+        run: make test
+        if:  matrix.os == 'macos-latest'
+        env:
+          LIBRARY_PATH: "/opt/homebrew/lib"
+          CGO_CPPFLAGS: "-I/opt/homebrew/include"
 
       - name: Test Windows
         shell: msys2 {0}
