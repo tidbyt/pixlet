@@ -59,34 +59,6 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			baseDir = filepath.Dir(path)
 		}
 
-		// run format and lint on *.star files in the fs
-		fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if d.IsDir() || !strings.HasSuffix(p, ".star") {
-				return nil
-			}
-
-			realPath := filepath.Join(baseDir, p)
-
-			dryRunFlag = true
-			if err := formatCmd(cmd, []string{realPath}); err != nil {
-				foundIssue = true
-				failure(p, fmt.Errorf("app is not formatted correctly: %w", err), fmt.Sprintf("try `pixlet format %s`", realPath))
-			}
-
-			outputFormat = "off"
-			err = lintCmd(cmd, []string{realPath})
-			if err != nil {
-				foundIssue = true
-				failure(p, fmt.Errorf("app has lint warnings: %w", err), fmt.Sprintf("try `pixlet lint --fix %s`", realPath))
-			}
-
-			return nil
-		})
-
 		// Check if an app can load.
 		err = community.LoadApp(cmd, []string{path})
 		if err != nil {
@@ -151,6 +123,34 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 			)
 			continue
 		}
+
+		// run format and lint on *.star files in the fs
+		fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if d.IsDir() || !strings.HasSuffix(p, ".star") {
+				return nil
+			}
+
+			realPath := filepath.Join(baseDir, p)
+
+			dryRunFlag = true
+			if err := formatCmd(cmd, []string{realPath}); err != nil {
+				foundIssue = true
+				failure(p, fmt.Errorf("app is not formatted correctly: %w", err), fmt.Sprintf("try `pixlet format %s`", realPath))
+			}
+
+			outputFormat = "off"
+			err = lintCmd(cmd, []string{realPath})
+			if err != nil {
+				foundIssue = true
+				failure(p, fmt.Errorf("app has lint warnings: %w", err), fmt.Sprintf("try `pixlet lint --fix %s`", realPath))
+			}
+
+			return nil
+		})
 
 		// If we're here, the app and manifest are good to go!
 		success(path)
