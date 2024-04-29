@@ -29,6 +29,7 @@ import (
 
 	"tidbyt.dev/pixlet/render"
 	"tidbyt.dev/pixlet/runtime/modules/animation_runtime"
+	"tidbyt.dev/pixlet/runtime/modules/file"
 	"tidbyt.dev/pixlet/runtime/modules/hmac"
 	"tidbyt.dev/pixlet/runtime/modules/humanize"
 	"tidbyt.dev/pixlet/runtime/modules/qrcode"
@@ -61,12 +62,12 @@ type Applet struct {
 
 	globals map[string]starlark.StringDict
 
-	mainFile string
-	mainFun  *starlark.Function
-
+	mainFile   string
+	mainFun    *starlark.Function
 	schemaFile string
-	schema     *schema.Schema
-	schemaJSON []byte
+
+	Schema     *schema.Schema
+	SchemaJSON []byte
 }
 
 func WithModuleLoader(loader ModuleLoader) AppletOption {
@@ -189,7 +190,7 @@ func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (r
 // CallSchemaHandler calls a schema handler, passing it a single
 // string parameter and returning a single string value.
 func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter string) (result string, err error) {
-	handler, found := app.schema.Handlers[handlerName]
+	handler, found := app.Schema.Handlers[handlerName]
 	if !found {
 		return "", fmt.Errorf("no exported handler named '%s'", handlerName)
 	}
@@ -236,11 +237,6 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 	}
 
 	return "", fmt.Errorf("a very unexpected error happened for handler \"%s\"", handlerName)
-}
-
-// GetSchema returns the config for the applet.
-func (app *Applet) GetSchema() string {
-	return string(app.schemaJSON)
 }
 
 // RunTests runs all test functions that are defined in the applet source.
@@ -439,12 +435,12 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 				return fmt.Errorf("calling schema function for %s: %w", a.ID, err)
 			}
 
-			a.schema, err = schema.FromStarlark(schemaVal, globals)
+			a.Schema, err = schema.FromStarlark(schemaVal, globals)
 			if err != nil {
 				return fmt.Errorf("parsing schema for %s: %w", a.ID, err)
 			}
 
-			a.schemaJSON, err = json.Marshal(a.schema)
+			a.SchemaJSON, err = json.Marshal(a.Schema)
 			if err != nil {
 				return fmt.Errorf("serializing schema to JSON for %s: %w", a.ID, err)
 			}
@@ -452,10 +448,10 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 
 	default:
 		a.globals[pathToLoad] = starlark.StringDict{
-			"file": File{
-				fsys: fsys,
-				path: pathToLoad,
-			}.Struct(),
+			"file": &file.File{
+				FS:   fsys,
+				Path: pathToLoad,
+			},
 		}
 	}
 

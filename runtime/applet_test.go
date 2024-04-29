@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.starlark.net/starlark"
+
 	"tidbyt.dev/pixlet/schema"
 )
 
@@ -199,9 +200,8 @@ def get_schema():
 	require.NoError(t, err)
 	require.NotNil(t, app)
 
-	jsonSchema := app.GetSchema()
 	var s schema.Schema
-	json.Unmarshal([]byte(jsonSchema), &s)
+	json.Unmarshal(app.SchemaJSON, &s)
 	assert.Equal(t, "1", s.Version)
 
 	roots, err := app.Run(context.Background())
@@ -374,7 +374,7 @@ func TestZIPModule(t *testing.T) {
 	// https://go.dev/src/archive/zip/example_test.go
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
-	var files = []struct {
+	files := []struct {
 		Name, Body string
 	}{
 		{"readme.txt", "This archive contains some text files."},
@@ -420,6 +420,37 @@ def main(config):
 		"[\"readme.txt\", \"gopher.txt\", \"todo.txt\"]",
 		"This archive contains some text files.",
 	}, printedText)
+}
+
+func TestReadFile(t *testing.T) {
+	src := `
+load("hello.txt", hello = "file")
+
+def assert_eq(message, actual, expected):
+	if not expected == actual:
+		fail(message, "-", "expected", expected, "actual", actual)
+
+def test_readall():
+	assert_eq("readall", hello.readall(), "hello world")
+
+def test_readall_binary():
+	assert_eq("readall_binary", hello.readall("rb"), b"hello world")
+
+def main():
+	pass
+
+`
+
+	helloTxt := `hello world`
+
+	vfs := &fstest.MapFS{
+		"main.star": {Data: []byte(src)},
+		"hello.txt": {Data: []byte(helloTxt)},
+	}
+
+	app, err := NewAppletFromFS("test_read_file", vfs)
+	require.NoError(t, err)
+	app.RunTests(t)
 }
 
 // TODO: test Screens, especially Screens.Render()

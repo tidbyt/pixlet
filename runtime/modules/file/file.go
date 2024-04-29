@@ -1,27 +1,21 @@
-package runtime
+package file
 
 import (
 	"fmt"
 	"io"
 	"io/fs"
 
+	"github.com/mitchellh/hashstructure/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
 
 type File struct {
-	fsys fs.FS
-	path string
+	FS   fs.FS
+	Path string
 }
 
-func (f File) Struct() *starlarkstruct.Struct {
-	return starlarkstruct.FromStringDict(starlark.String("File"), starlark.StringDict{
-		"path":    starlark.String(f.path),
-		"readall": starlark.NewBuiltin("readall", f.readall),
-	})
-}
-
-func (f File) readall(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func (f *File) readall(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var mode starlark.String
 	if err := starlark.UnpackArgs("readall", args, kwargs, "mode?", &mode); err != nil {
 		return nil, err
@@ -36,7 +30,7 @@ func (f File) readall(thread *starlark.Thread, _ *starlark.Builtin, args starlar
 	return r.read(thread, nil, nil, nil)
 }
 
-func (f File) reader(mode string) (*Reader, error) {
+func (f *File) reader(mode string) (*Reader, error) {
 	var binaryMode bool
 	switch mode {
 	case "", "r", "rt":
@@ -49,11 +43,39 @@ func (f File) reader(mode string) (*Reader, error) {
 		return nil, fmt.Errorf("unsupported mode: %s", mode)
 	}
 
-	fl, err := f.fsys.Open(f.path)
+	fl, err := f.FS.Open(f.Path)
 	if err != nil {
 		return nil, err
 	}
 	return &Reader{fl, binaryMode}, nil
+}
+
+func (f *File) AttrNames() []string {
+	return []string{"path", "readall"}
+}
+
+func (f *File) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "path":
+		return starlark.String(f.Path), nil
+
+	case "readall":
+		return starlark.NewBuiltin("readall", f.readall), nil
+
+	default:
+		return nil, nil
+	}
+}
+
+func (f *File) String() string       { return "File(...)" }
+func (f *File) Type() string         { return "File" }
+func (f *File) Freeze()              {}
+func (f *File) Truth() starlark.Bool { return true }
+
+func (f *File) Hash() (uint32, error) {
+	sum, err := hashstructure.Hash(f, hashstructure.FormatV2, nil)
+	return uint32(sum), err
 }
 
 type Reader struct {

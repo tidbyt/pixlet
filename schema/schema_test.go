@@ -4,20 +4,27 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+	"testing/fstest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
 )
 
 func loadApp(code string) (*runtime.Applet, error) {
-	return runtime.NewApplet("test.star", []byte(code))
+	vfs := fstest.MapFS{
+		"test.star": &fstest.MapFile{Data: []byte(code)},
+		"ding.mp3":  &fstest.MapFile{Data: []byte("ding data")},
+	}
+	return runtime.NewAppletFromFS("test", vfs)
 }
 
 func TestSchemaAllTypesSuccess(t *testing.T) {
 	code := `
 load("schema.star", "schema")
+load("ding.mp3", ding = "file")
 
 # these won't be called unless GetSchemaHandler() is
 def locationbasedhandler():
@@ -35,6 +42,22 @@ def oauth2handler():
 def get_schema():
     return schema.Schema(
         version = "1",
+
+        notifications = [
+            schema.Notification(
+                id = "notificationid",
+                name = "Notification",
+                desc = "A Notification",
+                icon = "notification",
+                sounds = [
+                    schema.Sound(
+                        title = "Ding!",
+                        file = ding,
+                    ),
+                ],
+            ),
+        ],
+
         fields = [
             schema.Location(
                 id = "locationid",
@@ -124,13 +147,28 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	jsonSchema := app.GetSchema()
-
 	var s schema.Schema
-	json.Unmarshal([]byte(jsonSchema), &s)
+	json.Unmarshal(app.SchemaJSON, &s)
 
 	assert.Equal(t, schema.Schema{
 		Version: "1",
+
+		Notifications: []schema.SchemaField{
+			{
+				Type:        "notification",
+				ID:          "notificationid",
+				Name:        "Notification",
+				Description: "A Notification",
+				Icon:        "notification",
+				Sounds: []schema.SchemaSound{
+					{
+						Title: "Ding!",
+						Path:  "ding.mp3",
+					},
+				},
+			},
+		},
+
 		Fields: []schema.SchemaField{
 			{
 				Type:        "location",
@@ -250,6 +288,67 @@ def main():
 			},
 		},
 	}, s)
+}
+
+func TestSchemaWithNotificationInFields(t *testing.T) {
+	code := `
+load("schema.star", "schema")
+load("ding.mp3", ding = "file")
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+
+        fields = [
+            schema.Notification(
+                id = "notificationid",
+                name = "Notification",
+                desc = "A Notification",
+                icon = "notification",
+                sounds = [
+                    schema.Sound(
+                        title = "Ding!",
+                        file = ding,
+                    ),
+                ],
+            ),
+        ],
+    )
+
+def main():
+    return None
+`
+
+	_, err := loadApp(code)
+	assert.ErrorContains(t, err, "expected fields")
+}
+
+func TestSchemaWithFieldsInNotifications(t *testing.T) {
+	code := `
+load("schema.star", "schema")
+load("ding.mp3", ding = "file")
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+
+        notifications = [
+            schema.Color(
+                id = "colorid",
+                name = "Color",
+                desc = "A Color",
+                icon = "brush",
+                default = "ffaa66",
+            ),
+        ],
+    )
+
+def main():
+    return None
+`
+
+	_, err := loadApp(code)
+	assert.ErrorContains(t, err, "expected notifications")
 }
 
 // test with all available config types and flags.
@@ -378,10 +477,8 @@ def main():
 	app, err := loadApp(code)
 	assert.NoError(t, err)
 
-	jsonSchema := app.GetSchema()
-
 	var s schema.Schema
-	json.Unmarshal([]byte(jsonSchema), &s)
+	json.Unmarshal(app.SchemaJSON, &s)
 
 	assert.Equal(t, schema.Schema{
 		Version: "1",
@@ -1052,5 +1149,4 @@ def main():
 	assert.Equal(t, 2, len(options))
 	assert.Equal(t, "L08", options[0].Value)
 	assert.Equal(t, "3rd", options[1].Value)
-
 }

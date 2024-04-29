@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
 	"tidbyt.dev/pixlet/icons"
 	"tidbyt.dev/pixlet/runtime"
 	"tidbyt.dev/pixlet/schema"
@@ -55,12 +56,12 @@ func ValidateIcons(cmd *cobra.Command, args []string) error {
 	}
 
 	s := schema.Schema{}
-	schemaStr := applet.GetSchema()
-	if schemaStr == "" {
+	js := applet.SchemaJSON
+	if len(js) == 0 {
 		return nil
 	}
 
-	err = json.Unmarshal([]byte(schemaStr), &s)
+	err = json.Unmarshal(js, &s)
 	if err != nil {
 		return fmt.Errorf("failed to load schema: %w", err)
 	}
