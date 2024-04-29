@@ -15,7 +15,12 @@ import (
 	"tidbyt.dev/pixlet/tools"
 )
 
-const MaxRenderTime = 1000000000 // 1000ms
+var maxRenderTime = time.Duration(1 * time.Second)
+
+func init() {
+	CheckCmd.Flags().BoolVarP(&rflag, "recursive", "r", false, "find apps recursively")
+	CheckCmd.Flags().DurationVarP(&maxRenderTime, "max-render-time", "", maxRenderTime, "override the default max render time")
+}
 
 var CheckCmd = &cobra.Command{
 	Use:     "check <path>...",
@@ -114,12 +119,12 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("could not profile app: %w", err)
 		}
-		if p.DurationNanos > MaxRenderTime {
+		if p.DurationNanos > maxRenderTime.Nanoseconds() {
 			foundIssue = true
 			failure(
 				path,
 				fmt.Errorf("app takes too long to render %s", time.Duration(p.DurationNanos)),
-				fmt.Sprintf("try optimizing your app using `pixlet profile %s` to get it under %s", path, time.Duration(MaxRenderTime)),
+				fmt.Sprintf("try optimizing your app using `pixlet profile %s` to get it under %s", path, time.Duration(maxRenderTime)),
 			)
 			continue
 		}
