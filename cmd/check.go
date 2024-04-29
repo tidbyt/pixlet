@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/bazelbuild/buildtools/buildifier/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"tidbyt.dev/pixlet/cmd/community"
 	"tidbyt.dev/pixlet/manifest"
+	"tidbyt.dev/pixlet/tools"
 )
 
 var maxRenderTime = time.Duration(1 * time.Second)
@@ -22,10 +23,16 @@ func init() {
 }
 
 var CheckCmd = &cobra.Command{
-	Use:     "check <pathspec>...",
-	Example: `  pixlet check app.star`,
-	Short:   "Checks if an app is ready to publish",
-	Long: `The check command runs a series of checks to ensure your app is ready
+	Use:     "check <path>...",
+	Example: `pixlet check examples/clock`,
+	Short:   "Check if an app is ready to publish",
+	Long: `Check if an app is ready to publish.
+
+The path argument should be the path to the Pixlet app to check. The
+app can be a single file with the .star extension, or a directory
+containing multiple Starlark files and resources.
+
+The check command runs a series of checks to ensure your app is ready
 to publish in the community repo. Every failed check will have a solution
 provided. If your app fails a check, try the provided solution and reach out on
 Discord if you get stuck.`,
@@ -34,85 +41,59 @@ Discord if you get stuck.`,
 }
 
 func checkCmd(cmd *cobra.Command, args []string) error {
-	// Use the same logic as buildifier to find relevant Tidbyt apps.
-	apps := args
-	if rflag {
-		discovered, err := utils.ExpandDirectories(&args)
-		if err != nil {
-			return fmt.Errorf("could not discover apps using recursive flag: %w", err)
-		}
-		apps = discovered
-	} else {
-		for _, app := range apps {
-			if filepath.Ext(app) != ".star" {
-				return fmt.Errorf("only starlark source files or directories with the recursive flag are supported")
-			}
-		}
-	}
-
-	// TODO: this needs to be parallelized.
-
-	// Check every app.
+	// check every path.
 	foundIssue := false
-	for _, app := range apps {
-		// Check app formatting.
-		dryRunFlag = true
-		err := formatCmd(cmd, []string{app})
+	for _, path := range args {
+		// check if path exists, and whether it is a directory or a file
+		info, err := os.Stat(path)
 		if err != nil {
-			foundIssue = true
-			failure(app, fmt.Errorf("app is not formatted correctly: %w", err), fmt.Sprintf("try `pixlet format %s`", app))
-			continue
+			return fmt.Errorf("failed to stat %s: %w", path, err)
+		}
+
+		var fsys fs.FS
+		var baseDir string
+		if info.IsDir() {
+			fsys = os.DirFS(path)
+			baseDir = path
+		} else {
+			if !strings.HasSuffix(path, ".star") {
+				return fmt.Errorf("script file must have suffix .star: %s", path)
+			}
+
+			fsys = tools.NewSingleFileFS(path)
+			baseDir = filepath.Dir(path)
 		}
 
 		// Check if an app can load.
-		err = community.LoadApp(cmd, []string{app})
+		err = community.LoadApp(cmd, []string{path})
 		if err != nil {
 			foundIssue = true
-			failure(app, fmt.Errorf("app failed to load: %w", err), "try `pixlet community load-app` and resolve any runtime issues")
-			continue
-		}
-
-		// Check if app is linted.
-		outputFormat = "off"
-		err = lintCmd(cmd, []string{app})
-		if err != nil {
-			foundIssue = true
-			failure(app, fmt.Errorf("app has lint warnings: %w", err), fmt.Sprintf("try `pixlet lint --fix %s`", app))
+			failure(path, fmt.Errorf("app failed to load: %w", err), "try `pixlet community load-app` and resolve any runtime issues")
 			continue
 		}
 
 		// Ensure icons are valid.
-		err = community.ValidateIcons(cmd, []string{app})
+		err = community.ValidateIcons(cmd, []string{path})
 		if err != nil {
 			foundIssue = true
-			failure(app, fmt.Errorf("app has invalid icons: %w", err), "try `pixlet community list-icons` for the full list of valid icons")
+			failure(path, fmt.Errorf("app has invalid icons: %w", err), "try `pixlet community list-icons` for the full list of valid icons")
 			continue
 		}
 
 		// Check app manifest exists
-		dir := filepath.Dir(app)
-		if !doesManifestExist(dir) {
+		if !doesManifestExist(baseDir) {
 			foundIssue = true
-			failure(app, fmt.Errorf("couldn't find app manifest: %w", err), fmt.Sprintf("try `pixlet community create-manifest %s`", filepath.Join(dir, manifest.ManifestFileName)))
+			failure(path, fmt.Errorf("couldn't find app manifest"), fmt.Sprintf("try `pixlet community create-manifest %s`", filepath.Join(baseDir, manifest.ManifestFileName)))
 			continue
 		}
 
 		// Validate manifest.
-		manifestFile := filepath.Join(dir, manifest.ManifestFileName)
-		community.ValidateManifestAppFileName = filepath.Base(app)
+		manifestFile := filepath.Join(baseDir, manifest.ManifestFileName)
+		community.ValidateManifestAppFileName = filepath.Base(path)
 		err = community.ValidateManifest(cmd, []string{manifestFile})
 		if err != nil {
 			foundIssue = true
-			failure(app, fmt.Errorf("manifest didn't validate: %w", err), "try correcting the validation issue by updating your manifest")
-			continue
-		}
-
-		// Check spelling.
-		community.SilentSpelling = true
-		err = community.SpellCheck(cmd, []string{manifestFile})
-		if err != nil {
-			foundIssue = true
-			failure(app, fmt.Errorf("manifest contains spelling errors: %w", err), fmt.Sprintf("try `pixlet community spell-check --fix %s`", manifestFile))
+			failure(path, fmt.Errorf("manifest didn't validate: %w", err), "try correcting the validation issue by updating your manifest")
 			continue
 		}
 
@@ -126,26 +107,58 @@ func checkCmd(cmd *cobra.Command, args []string) error {
 		// Check if app renders.
 		silenceOutput = true
 		output = f.Name()
-		err = render(cmd, []string{app})
+		err = render(cmd, []string{path})
 		if err != nil {
 			foundIssue = true
-			failure(app, fmt.Errorf("app failed to render: %w", err), "try `pixlet render` and resolve any runtime issues")
+			failure(path, fmt.Errorf("app failed to render: %w", err), "try `pixlet render` and resolve any runtime issues")
 			continue
 		}
 
 		// Check performance.
-		p, err := ProfileApp(app, map[string]string{})
+		p, err := ProfileApp(path, map[string]string{})
 		if err != nil {
 			return fmt.Errorf("could not profile app: %w", err)
 		}
 		if p.DurationNanos > maxRenderTime.Nanoseconds() {
 			foundIssue = true
-			failure(app, fmt.Errorf("app takes too long to render %s", time.Duration(p.DurationNanos)), fmt.Sprintf("try optimizing your app using `pixlet profile %s` to get it under %s", app, maxRenderTime))
+			failure(
+				path,
+				fmt.Errorf("app takes too long to render %s", time.Duration(p.DurationNanos)),
+				fmt.Sprintf("try optimizing your app using `pixlet profile %s` to get it under %s", path, time.Duration(maxRenderTime)),
+			)
 			continue
 		}
 
+		// run format and lint on *.star files in the fs
+		fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if d.IsDir() || !strings.HasSuffix(p, ".star") {
+				return nil
+			}
+
+			realPath := filepath.Join(baseDir, p)
+
+			dryRunFlag = true
+			if err := formatCmd(cmd, []string{realPath}); err != nil {
+				foundIssue = true
+				failure(p, fmt.Errorf("app is not formatted correctly: %w", err), fmt.Sprintf("try `pixlet format %s`", realPath))
+			}
+
+			outputFormat = "off"
+			err = lintCmd(cmd, []string{realPath})
+			if err != nil {
+				foundIssue = true
+				failure(p, fmt.Errorf("app has lint warnings: %w", err), fmt.Sprintf("try `pixlet lint --fix %s`", realPath))
+			}
+
+			return nil
+		})
+
 		// If we're here, the app and manifest are good to go!
-		success(app)
+		success(path)
 	}
 
 	if foundIssue {

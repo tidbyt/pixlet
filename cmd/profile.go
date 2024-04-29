@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"go.starlark.net/starlark"
 
 	"tidbyt.dev/pixlet/runtime"
+	"tidbyt.dev/pixlet/tools"
 )
 
 var (
@@ -27,8 +29,8 @@ func init() {
 }
 
 var ProfileCmd = &cobra.Command{
-	Use:   "profile [script] [<key>=value>]...",
-	Short: "Run a Pixlet script and print its execution-time profile",
+	Use:   "profile <path> [<key>=value>]...",
+	Short: "Run a Pixlet app and print its execution-time profile",
 	Args:  cobra.MinimumNArgs(1),
 	RunE:  profile,
 }
@@ -65,11 +67,7 @@ func (u printUI) WantBrowser() bool                            { return false }
 func (u printUI) SetAutoComplete(complete func(string) string) {}
 
 func profile(cmd *cobra.Command, args []string) error {
-	script := args[0]
-
-	if !strings.HasSuffix(script, ".star") {
-		return fmt.Errorf("script file must have suffix .star: %s", script)
-	}
+	path := args[0]
 
 	config := map[string]string{}
 	for _, param := range args[1:] {
@@ -80,7 +78,7 @@ func profile(cmd *cobra.Command, args []string) error {
 		config[split[0]] = split[1]
 	}
 
-	profile, err := ProfileApp(script, config)
+	profile, err := ProfileApp(path, config)
 	if err != nil {
 		return err
 	}
@@ -96,17 +94,28 @@ func profile(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func ProfileApp(script string, config map[string]string) (*pprof_profile.Profile, error) {
-	src, err := os.ReadFile(script)
+func ProfileApp(path string, config map[string]string) (*pprof_profile.Profile, error) {
+	info, err := os.Stat(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file %s: %w", script, err)
+		return nil, fmt.Errorf("failed to stat %s: %w", path, err)
+	}
+
+	var fsys fs.FS
+	if info.IsDir() {
+		fsys = os.DirFS(path)
+	} else {
+		if !strings.HasSuffix(path, ".star") {
+			return nil, fmt.Errorf("script file must have suffix .star: %s", path)
+		}
+
+		fsys = tools.NewSingleFileFS(path)
 	}
 
 	cache := runtime.NewInMemoryCache()
 	runtime.InitHTTP(cache)
 	runtime.InitCache(cache)
 
-	applet, err := runtime.NewApplet(script, src, runtime.WithPrintDisabled())
+	applet, err := runtime.NewAppletFromFS(path, fsys, runtime.WithPrintDisabled())
 	if err != nil {
 		return nil, fmt.Errorf("failed to load applet: %w", err)
 	}

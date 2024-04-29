@@ -11,9 +11,9 @@ import (
 	"testing"
 	"testing/fstest"
 
+	starlibbsoup "github.com/qri-io/starlib/bsoup"
 	starlibgzip "github.com/qri-io/starlib/compress/gzip"
 	starlibbase64 "github.com/qri-io/starlib/encoding/base64"
-	starlibbsoup "github.com/qri-io/starlib/bsoup"
 	starlibcsv "github.com/qri-io/starlib/encoding/csv"
 	starlibhash "github.com/qri-io/starlib/hash"
 	starlibhtml "github.com/qri-io/starlib/html"
@@ -311,24 +311,21 @@ func (a *Applet) PathsForBundle() []string {
 }
 
 func (a *Applet) load(fsys fs.FS) (err error) {
-	if err := fs.WalkDir(fsys, ".", func(pathToLoad string, d fs.DirEntry, walkDirErr error) error {
-		if walkDirErr != nil {
-			return walkDirErr
+	// list files in the root directory of fsys
+	rootDir, err := fs.ReadDir(fsys, ".")
+	if err != nil {
+		return fmt.Errorf("reading root directory: %v", err)
+	}
+
+	for _, d := range rootDir {
+		if d.IsDir() || !strings.HasSuffix(d.Name(), ".star") {
+			// only process Starlark files
+			continue
 		}
 
-		if d.IsDir() || path.Dir(pathToLoad) != "." {
-			// only process files in the root directory
-			return nil
+		if err := a.ensureLoaded(fsys, d.Name()); err != nil {
+			return err
 		}
-
-		if !strings.HasSuffix(pathToLoad, ".star") {
-			// not a starlark file
-			return nil
-		}
-
-		return a.ensureLoaded(fsys, pathToLoad)
-	}); err != nil {
-		return err
 	}
 
 	if a.mainFun == nil {

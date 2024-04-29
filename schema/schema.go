@@ -39,7 +39,7 @@ type SchemaField struct {
 	Name        string            `json:"name,omitempty" validate:"required_for=datetime dropdown location locationbased onoff radio text typeahead png"`
 	Description string            `json:"description,omitempty"`
 	Icon        string            `json:"icon,omitempty" validate:"forbidden_for=generated"`
-	Visibility  *SchemaVisibility `json:"visibility,omitempty" validate:"omitempty,dive"`
+	Visibility  *SchemaVisibility `json:"visibility,omitempty" validate:"omitempty"`
 
 	Default string         `json:"default,omitempty" validate:"required_for=dropdown onoff radio"`
 	Options []SchemaOption `json:"options,omitempty" validate:"required_for=dropdown radio,dive"`

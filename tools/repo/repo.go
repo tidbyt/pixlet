@@ -5,8 +5,6 @@ import (
 
 	"github.com/gitsight/go-vcsurl"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
 // IsInRepo determines if the provided directory is in the provided git
@@ -59,66 +57,4 @@ func RepoRoot(dir string) (string, error) {
 	}
 
 	return worktree.Filesystem.Root(), nil
-}
-
-func DetermineChanges(dir string, oldCommit string, newCommit string) ([]string, error) {
-	// Load the repo.
-	repo, err := git.PlainOpenWithOptions(dir, &git.PlainOpenOptions{
-		DetectDotGit: true,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("couldn't instantiate repo: %w", err)
-	}
-
-	// Do a bunch of plumbing to get these commits usable for go-git
-	oldHash, err := repo.ResolveRevision(plumbing.Revision(oldCommit))
-	if err != nil {
-		return nil, fmt.Errorf("couldn't parse old commit: %w", err)
-	}
-	newHash, err := repo.ResolveRevision(plumbing.Revision(newCommit))
-	if err != nil {
-		return nil, fmt.Errorf("couldn't parse new commit: %w", err)
-	}
-	old, err := repo.CommitObject(*oldHash)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't find old commit: %w", err)
-	}
-	new, err := repo.CommitObject(*newHash)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't find new commit: %w", err)
-	}
-	oldTree, err := old.Tree()
-	if err != nil {
-		return nil, fmt.Errorf("couldn't generate tree for old commit: %w", err)
-	}
-	newTree, err := new.Tree()
-	if err != nil {
-		return nil, fmt.Errorf("couldn't generate tree for new commit: %w", err)
-	}
-
-	// Diff the two trees to determine what changed.
-	changes, err := oldTree.Diff(newTree)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't get changes between commits: %w", err)
-	}
-
-	// Create a unique list of changed files.
-	changedFiles := []string{}
-	for _, change := range changes {
-		changedFiles = append(changedFiles, getChangeName(change))
-	}
-
-	return changedFiles, nil
-}
-
-func getChangeName(change *object.Change) string {
-	var empty = object.ChangeEntry{}
-
-	// Use the To field for Inserts and Modifications.
-	if change.To != empty {
-		return change.To.Name
-	}
-
-	// The From field for Deletes.
-	return change.From.Name
 }
