@@ -26,15 +26,16 @@ const (
 // Schema holds a configuration object for an applet. It holds a list of fields
 // that are exported from an applet.
 type Schema struct {
-	Version string        `json:"version" validate:"required"`
-	Fields  []SchemaField `json:"schema" validate:"dive"`
+	Version       string        `json:"version" validate:"required"`
+	Fields        []SchemaField `json:"schema" validate:"dive"`
+	Notifications []SchemaField `json:"notifications,omitempty" validate:"dive"`
 
 	Handlers map[string]SchemaHandler `json:"-"`
 }
 
 // SchemaField represents an item in the config used to confgure an applet.
 type SchemaField struct {
-	Type        string            `json:"type" validate:"required,oneof=color datetime dropdown generated location locationbased onoff radio text typeahead oauth2 oauth1 png"`
+	Type        string            `json:"type" validate:"required,oneof=color datetime dropdown generated location locationbased onoff radio text typeahead oauth2 oauth1 png notification"`
 	ID          string            `json:"id" validate:"required"`
 	Name        string            `json:"name,omitempty" validate:"required_for=datetime dropdown location locationbased onoff radio text typeahead png"`
 	Description string            `json:"description,omitempty"`
@@ -44,6 +45,7 @@ type SchemaField struct {
 	Default string         `json:"default,omitempty" validate:"required_for=dropdown onoff radio"`
 	Options []SchemaOption `json:"options,omitempty" validate:"required_for=dropdown radio,dive"`
 	Palette []string       `json:"palette,omitempty"`
+	Sounds  []SchemaSound  `json:"sounds,omitempty" validate:"required_for=notification,dive"`
 
 	Source  string `json:"source,omitempty" validate:"required_for=generated"`
 	Handler string `json:"handler,omitempty" validate:"required_for=generated locationbased typeahead oauth2"`
@@ -59,6 +61,12 @@ type SchemaOption struct {
 	Display string `json:"display"`
 	Text    string `json:"text" validate:"required"` // The same as display, for legacy reasons.
 	Value   string `json:"value" validate:"required"`
+}
+
+// SchemaSound represents a sound that can be played by the applet.
+type SchemaSound struct {
+	Title string `json:"title" validate:"required"`
+	Path  string `json:"path" validate:"required"`
 }
 
 // SchemaVisibility enables conditional fields inside of the mobile app. For
@@ -96,6 +104,9 @@ func (s Schema) MarshalJSON() ([]byte, error) {
 	if a.Fields == nil {
 		a.Fields = make([]SchemaField, 0)
 	}
+	if a.Notifications == nil {
+		a.Notifications = make([]SchemaField, 0)
+	}
 
 	js, err := json.Marshal(a)
 
@@ -105,7 +116,8 @@ func (s Schema) MarshalJSON() ([]byte, error) {
 // FromStarlark creates a new Schema from a Starlark schema object.
 func FromStarlark(
 	val starlark.Value,
-	globals starlark.StringDict) (*Schema, error) {
+	globals starlark.StringDict,
+) (*Schema, error) {
 	var schema *Schema
 
 	starlarkSchema, ok := val.(*StarlarkSchema)
@@ -186,8 +198,8 @@ func FromStarlark(
 
 // Encodes a list of schema options into validated json.
 func EncodeOptions(
-	starlarkOptions starlark.Value) (string, error) {
-
+	starlarkOptions starlark.Value,
+) (string, error) {
 	optionsTree, err := unmarshalStarlark(starlarkOptions)
 	if err != nil {
 		return "", err
@@ -317,7 +329,6 @@ func buildOptions(options interface{}) ([]SchemaOption, error) {
 
 // Validates a Schema object.
 func validateSchema(schema *Schema) error {
-
 	// This custom validator function implements
 	// "required_for", which makes the tagged field required
 	// whenever SchemaField.Type matches one of the parameters.

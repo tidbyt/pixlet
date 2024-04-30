@@ -50,7 +50,6 @@ func NewLoader(
 	maxDuration int,
 	timeout int,
 ) (*Loader, error) {
-
 	l := &Loader{
 		fs:               fs,
 		fileChanges:      fileChanges,
@@ -116,7 +115,7 @@ func (l *Loader) Run() error {
 				up.Err = err
 			} else {
 				up.WebP = webp
-				up.Schema = l.applet.GetSchema()
+				up.Schema = string(l.applet.SchemaJSON)
 			}
 
 			l.updatesChan <- up
@@ -141,7 +140,7 @@ func (l *Loader) LoadApplet(config map[string]string) (string, error) {
 func (l *Loader) GetSchema() []byte {
 	<-l.initialLoad
 
-	s := []byte(l.applet.GetSchema())
+	s := l.applet.SchemaJSON
 	if len(s) > 0 {
 		return s
 	}
