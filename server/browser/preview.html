@@ -20,7 +20,7 @@
 
 <body bgcolor="black">
 	<div style="border: solid 1px white">
-		<img id="render" src="data:image/webp;base64,{{ .WebP }}" />
+		<img id="render" src="data:image/{{ .ImageType }};base64,{{ .Image }}" />
 	</div>
 	<div>
 		<p id="errors" style="color: red;">{{ .Err }}</p>
@@ -53,8 +53,8 @@
 				const err = document.getElementById("errors");
 
 				switch (data.type) {
-					case "webp":
-						img.src = "data:image/webp;base64," + data.message;
+					case "img":
+						img.src = "data:image/" + data.img_type + ";base64," + data.message;
 						err.innerHTML = "";
 						break;
 					case "error":

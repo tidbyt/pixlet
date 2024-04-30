@@ -10,6 +10,7 @@ var (
 	host  string
 	port  int
 	watch bool
+	serveGif bool
 )
 
 func init() {
@@ -18,6 +19,7 @@ func init() {
 	ServeCmd.Flags().BoolVarP(&watch, "watch", "w", true, "Reload scripts on change. Does not recurse sub-directories.")
 	ServeCmd.Flags().IntVarP(&maxDuration, "max_duration", "d", 15000, "Maximum allowed animation duration (ms)")
 	ServeCmd.Flags().IntVarP(&timeout, "timeout", "", 30000, "Timeout for execution (ms)")
+	ServeCmd.Flags().BoolVarP(&serveGif, "gif", "", false, "Generate GIF instead of WebP")
 }
 
 var ServeCmd = &cobra.Command{
@@ -33,7 +35,7 @@ containing multiple Starlark files and resources.`,
 }
 
 func serve(cmd *cobra.Command, args []string) error {
-	s, err := server.NewServer(host, port, watch, args[0], maxDuration, timeout)
+	s, err := server.NewServer(host, port, watch, args[0], maxDuration, timeout, serveGif)
 	if err != nil {
 		return err
 	}

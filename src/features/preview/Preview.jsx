@@ -60,16 +60,16 @@ export default function Preview() {
     const preview = useSelector(state => state.preview);
 
     let displayType = 'data:image/webp;base64,';
-    if (PIXLET_WASM) {
+    if (PIXLET_WASM || preview.value.img_type === "gif") {
         displayType = 'data:image/gif;base64,';
     }
 
-    let webp = 'UklGRhoAAABXRUJQVlA4TA4AAAAvP8AHAAcQEf0PRET/Aw==';
-    if (preview.value.webp) {
-        webp = preview.value.webp;
+    let img = 'UklGRhoAAABXRUJQVlA4TA4AAAAvP8AHAAcQEf0PRET/Aw==';
+    if (preview.value.img) {
+        img = preview.value.img;
     }
 
-    let content = <img src={displayType + webp} className={styles.image} />
+    let content = <img src={displayType + img} className={styles.image} />
     if (preview.loading && PIXLET_WASM) {
         content = <img src={displayType + loading} className={styles.image} />
     }

@@ -12,7 +12,7 @@ export default function Controls() {
     const dispatch = useDispatch();
 
     let imageType = 'webp';
-    if (PIXLET_WASM) {
+    if (PIXLET_WASM || preview.value.img_type === "gif") {
         imageType = 'gif';
     }
 
@@ -21,7 +21,7 @@ export default function Controls() {
         const element = document.createElement("a");
 
         // convert base64 to raw binary data held in a string
-        let byteCharacters = atob(preview.value.webp);
+        let byteCharacters = atob(preview.value.img);
 
         // create an ArrayBuffer with a size in bytes
         let arrayBuffer = new ArrayBuffer(byteCharacters.length);

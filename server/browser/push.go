@@ -53,12 +53,12 @@ func (b *Browser) pushHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	webp, err := b.loader.LoadApplet(config)
+	img, err := b.loader.LoadApplet(config)
 
 	payload, err := json.Marshal(
 		TidbytPushJSON{
 			DeviceID:       deviceID,
-			Image:          webp,
+			Image:          img,
 			InstallationID: installationID,
 			Background:     background,
 		},
