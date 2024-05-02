@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"tidbyt.dev/pixlet/server"
@@ -33,6 +35,10 @@ containing multiple Starlark files and resources.`,
 }
 
 func serve(cmd *cobra.Command, args []string) error {
+	if watch && cmd.Flags().Changed("watch") {
+		fmt.Printf("explicitly setting --watch is unnecessary, since it's the default\n\n")
+	}
+
 	s, err := server.NewServer(host, port, watch, args[0], maxDuration, timeout)
 	if err != nil {
 		return err
