@@ -55,6 +55,10 @@ func push(cmd *cobra.Command, args []string) error {
 		installationID = args[2]
 	}
 
+	if background && len(installationID) == 0 {
+		return fmt.Errorf("Background push won't do anything unless you also specify an installation ID")	
+	}
+
 	if apiToken == "" {
 		apiToken = os.Getenv(APITokenEnv)
 	}
