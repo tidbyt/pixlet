@@ -29,7 +29,7 @@ func NewServer(host string, port int, watch bool, path string, maxDuration int, 
 	// check if path exists, and whether it is a directory or a file
 	info, err := os.Stat(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to stat %s: %w", path, err)
+		return nil, fmt.Errorf("stat'ing %s: %w", path, err)
 	}
 
 	var fs fs.FS
@@ -43,7 +43,7 @@ func NewServer(host string, port int, watch bool, path string, maxDuration int, 
 		}
 
 		fs = tools.NewSingleFileFS(path)
-		w = NewWatcher(filepath.Dir(path), fileChanges)
+		w = NewWatcher(path, fileChanges)
 	}
 
 	updatesChan := make(chan loader.Update, 100)
