@@ -33,7 +33,7 @@ export default function ConfigManager() {
             formData.set(id, item.value);
         });
 
-        if (!loading || !('webp' in preview)) {
+        if (!loading || !('img' in preview)) {
             updatePreviews(formData, params);
         }
     }, [config]);

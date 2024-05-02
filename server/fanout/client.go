@@ -52,7 +52,7 @@ func (f *Fanout) NewClient(conn *websocket.Conn) *Client {
 	return c
 }
 
-// Send is used to send a webp message to the client.
+// Send is used to send an image message to the client.
 func (c *Client) Send(event WebsocketEvent) {
 	c.send <- event
 }
@@ -82,7 +82,7 @@ func (c *Client) reader() {
 	}
 }
 
-// writer writes webp events over the socket when it recieves messages via
+// writer writes image events over the socket when it recieves messages via
 // Send(). It also sends pings to ensure the connection stays alive.
 func (c *Client) writer() {
 	ticker := time.NewTicker(pingPeriod)

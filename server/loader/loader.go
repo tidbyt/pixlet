@@ -30,12 +30,14 @@ type Loader struct {
 	maxDuration      int
 	initialLoad      chan bool
 	timeout          int
+	renderGif		 bool
 }
 
 type Update struct {
-	WebP   string
-	Schema string
-	Err    error
+	Image     string
+	ImageType string
+	Schema    string
+	Err       error
 }
 
 // NewLoader instantiates a new loader structure. The loader will read off of
@@ -49,6 +51,7 @@ func NewLoader(
 	updatesChan chan Update,
 	maxDuration int,
 	timeout int,
+	renderGif bool,
 ) (*Loader, error) {
 	l := &Loader{
 		fs:               fs,
@@ -62,6 +65,7 @@ func NewLoader(
 		maxDuration:      maxDuration,
 		initialLoad:      make(chan bool),
 		timeout:          timeout,
+		renderGif:        renderGif,
 	}
 
 	cache := runtime.NewInMemoryCache()
@@ -95,12 +99,16 @@ func (l *Loader) Run() error {
 		case <-l.requestedChanges:
 			up := Update{}
 
-			webp, err := l.loadApplet(config)
+			img, err := l.loadApplet(config)
 			if err != nil {
 				log.Printf("error loading applet: %v", err)
 				up.Err = err
 			} else {
-				up.WebP = webp
+				up.Image = img
+				up.ImageType = "webp"
+				if l.renderGif {
+					up.ImageType = "gif"
+				}
 			}
 
 			l.updatesChan <- up
@@ -109,12 +117,16 @@ func (l *Loader) Run() error {
 			log.Println("detected updates, reloading")
 			up := Update{}
 
-			webp, err := l.loadApplet(config)
+			img, err := l.loadApplet(config)
 			if err != nil {
 				log.Printf("error loading applet: %v", err)
 				up.Err = err
 			} else {
-				up.WebP = webp
+				up.Image = img
+				up.ImageType = "webp"
+				if l.renderGif {
+					up.ImageType = "gif"
+				}
 				up.Schema = string(l.applet.SchemaJSON)
 			}
 
@@ -134,7 +146,7 @@ func (l *Loader) LoadApplet(config map[string]string) (string, error) {
 	l.configChanges <- config
 	l.requestedChanges <- true
 	result := <-l.resultsChan
-	return result.WebP, result.Err
+	return result.Image, result.Err
 }
 
 func (l *Loader) GetSchema() []byte {
@@ -182,12 +194,17 @@ func (l *Loader) loadApplet(config map[string]string) (string, error) {
 	if screens.ShowFullAnimation {
 		maxDuration = 0
 	}
-	webp, err := screens.EncodeWebP(maxDuration)
+
+	var img []byte
+	if l.renderGif {
+		img, err = screens.EncodeGIF(maxDuration)
+	} else {
+		img, err = screens.EncodeWebP(maxDuration)
+	}
 	if err != nil {
 		return "", fmt.Errorf("error rendering: %w", err)
 	}
-
-	return base64.StdEncoding.EncodeToString(webp), nil
+	return base64.StdEncoding.EncodeToString(img), nil
 }
 
 func (l *Loader) markInitialLoadComplete() {

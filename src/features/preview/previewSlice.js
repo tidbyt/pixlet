@@ -5,7 +5,8 @@ export const previewSlice = createSlice({
     initialState: {
         loading: false,
         value: {
-            webp: '',
+            img: '',
+            img_type: '',
             title: 'Pixlet',
         }
     },
@@ -13,8 +14,12 @@ export const previewSlice = createSlice({
         update: (state = initialState, action) => {
             let up = state;
 
-            if ('webp' in action.payload) {
-                up.value.webp = action.payload.webp;
+            if ('img' in action.payload) {
+                up.value.img = action.payload.img;
+            }
+
+            if ('img_type' in action.payload) {
+                up.value.img_type = action.payload.img_type;
             }
 
             if ('title' in action.payload) {

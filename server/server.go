@@ -23,7 +23,7 @@ type Server struct {
 }
 
 // NewServer creates a new server initialized with the applet.
-func NewServer(host string, port int, watch bool, path string, maxDuration int, timeout int) (*Server, error) {
+func NewServer(host string, port int, watch bool, path string, maxDuration int, timeout int, serveGif bool) (*Server, error) {
 	fileChanges := make(chan bool, 100)
 
 	// check if path exists, and whether it is a directory or a file
@@ -47,13 +47,13 @@ func NewServer(host string, port int, watch bool, path string, maxDuration int, 
 	}
 
 	updatesChan := make(chan loader.Update, 100)
-	l, err := loader.NewLoader(fs, watch, fileChanges, updatesChan, maxDuration, timeout)
+	l, err := loader.NewLoader(fs, watch, fileChanges, updatesChan, maxDuration, timeout, serveGif)
 	if err != nil {
 		return nil, err
 	}
 
 	addr := fmt.Sprintf("%s:%d", host, port)
-	b, err := browser.NewBrowser(addr, filepath.Base(path), watch, updatesChan, l)
+	b, err := browser.NewBrowser(addr, filepath.Base(path), watch, updatesChan, l, serveGif)
 	if err != nil {
 		return nil, err
 	}

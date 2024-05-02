@@ -27,9 +27,10 @@ export default class Watcher {
         const data = JSON.parse(e.data);
 
         switch (data.type) {
-            case 'webp':
+            case 'img':
                 store.dispatch(update({
-                    webp: data.message,
+                    img: data.message,
+                    img_type: data.img_type
                 }));
                 store.dispatch(clearErrors());
                 break;

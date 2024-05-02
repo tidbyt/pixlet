@@ -1,4 +1,4 @@
-// Package browser provides the ability to send WebP images to a browser over
+// Package browser provides the ability to send images to a browser over
 // websockets.
 package browser
 
@@ -19,17 +19,18 @@ import (
 	"tidbyt.dev/pixlet/server/loader"
 )
 
-// Browser provides a structure for serving WebP images over websockets to
+// Browser provides a structure for serving WebP or GIF images over websockets to
 // a web browser.
 type Browser struct {
 	addr       string             // The address to listen on.
 	title      string             // The title of the HTML document.
-	updateChan chan loader.Update // A channel of base64 encoded WebP images.
+	updateChan chan loader.Update // A channel of base64 encoded images.
 	watch      bool
 	fo         *fanout.Fanout
 	r          *mux.Router
 	tmpl       *template.Template
 	loader     *loader.Loader
+	serveGif   bool               // True if serving GIF, false if serving WebP
 }
 
 //go:embed preview-mask.png
@@ -43,10 +44,11 @@ var previewHTML string
 
 // previewData is used to populate the HTML template.
 type previewData struct {
-	Title string `json:"title"`
-	WebP  string `json:"webp"`
-	Watch bool   `json:"-"`
-	Err   string `json:"error,omitempty"`
+	Title  string    `json:"title"`
+	Image  string    `json:"img"`
+	ImageType string `json:"img_type"`
+	Watch  bool      `json:"-"`
+	Err    string    `json:"error,omitempty"`
 }
 type handlerRequest struct {
 	ID    string `json:"id"`
@@ -54,7 +56,7 @@ type handlerRequest struct {
 }
 
 // NewBrowser sets up a browser structure. Call Run() to kick off the main loops.
-func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Update, l *loader.Loader) (*Browser, error) {
+func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Update, l *loader.Loader, serveGif bool) (*Browser, error) {
 	tmpl, err := template.New("preview").Parse(previewHTML)
 	if err != nil {
 		return nil, err
@@ -68,6 +70,7 @@ func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Up
 		title:      title,
 		loader:     l,
 		watch:      watch,
+		serveGif:   serveGif,
 	}
 
 	r := mux.NewRouter()
@@ -92,6 +95,7 @@ func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Up
 	// API endpoints to support the React frontend.
 	r.HandleFunc("/api/v1/preview", b.previewHandler)
 	r.HandleFunc("/api/v1/preview.webp", b.imageHandler)
+	r.HandleFunc("/api/v1/preview.gif", b.imageHandler)
 	r.HandleFunc("/api/v1/push", b.pushHandler)
 	r.HandleFunc("/api/v1/schema", b.schemaHandler).Methods("GET")
 	r.HandleFunc("/api/v1/handlers/{handler}", b.schemaHandlerHandler).Methods("POST")
@@ -103,7 +107,7 @@ func NewBrowser(addr string, title string, watch bool, updateChan chan loader.Up
 
 // Run starts the server process and runs forever in a blocking fashion. The
 // main routines include an update watcher to process incomming changes to the
-// webp and running the http handlers.
+// image and running the http handlers.
 func (b *Browser) Run() error {
 	defer b.fo.Quit()
 
@@ -170,17 +174,21 @@ func (b *Browser) imageHandler(w http.ResponseWriter, r *http.Request) {
 		config[k] = val[0]
 	}
 
-	webp, err := b.loader.LoadApplet(config)
+	img, err := b.loader.LoadApplet(config)
 	if err != nil {
 		http.Error(w, "loading applet", http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "image/webp")
+	img_type := "image/webp"
+	if b.serveGif {
+		img_type = "image/gif"
+	}
+	w.Header().Set("Content-Type", img_type)
 
-	data, err := base64.StdEncoding.DecodeString(webp)
+	data, err := base64.StdEncoding.DecodeString(img)
 	if err != nil {
-		http.Error(w, "decoding webp", http.StatusInternalServerError)
+		http.Error(w, "decoding image", http.StatusInternalServerError)
 		return
 	}
 
@@ -199,10 +207,15 @@ func (b *Browser) previewHandler(w http.ResponseWriter, r *http.Request) {
 		config[k] = val[0]
 	}
 
-	webp, err := b.loader.LoadApplet(config)
+	img, err := b.loader.LoadApplet(config)
+	img_type := "webp"
+	if b.serveGif {
+		img_type = "gif"
+	}
 	data := &previewData{
-		WebP:  webp,
-		Title: b.title,
+		Image:     img,
+		ImageType: img_type,
+		Title:     b.title,
 	}
 	if err != nil {
 		data.Err = err.Error()
@@ -238,13 +251,19 @@ func (b *Browser) websocketHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *Browser) updateWatcher() error {
+	img_type := "webp"
+	if b.serveGif {
+		img_type = "gif"
+	}
+
 	for {
 		select {
 		case up := <-b.updateChan:
 			b.fo.Broadcast(
 				fanout.WebsocketEvent{
-					Type:    fanout.EventTypeWebP,
-					Message: up.WebP,
+					Type:      fanout.EventTypeImage,
+					Message:   up.Image,
+					ImageType: img_type,
 				},
 			)
 
@@ -279,12 +298,12 @@ func (b *Browser) oldRootHandler(w http.ResponseWriter, r *http.Request) {
 		config[k] = vals[0]
 	}
 
-	webp, err := b.loader.LoadApplet(config)
+	img, err := b.loader.LoadApplet(config)
 
 	data := previewData{
 		Title: b.title,
 		Watch: b.watch,
-		WebP:  webp,
+		Image:  img,
 	}
 
 	if err != nil {
