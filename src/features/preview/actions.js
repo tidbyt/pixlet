@@ -16,52 +16,24 @@ export default function fetchPreview(formData) {
         },
     });
 
-    if (PIXLET_WASM) {
-        store.dispatch(loading(true));
-        clearTimeout(timeout);
-        timeout = setTimeout(function () {
-            client.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
-                .then(res => {
-                    store.dispatch(update(res.data));
-                    if ('error' in res.data) {
-                        store.dispatch(setError({ id: res.data.error, message: res.data.error }));
-                    } else {
-                        store.dispatch(clearErrors());
-                    }
-                })
-                .catch(err => {
-                    if (err.response.status == 404) {
-                        store.dispatch(setError({ id: err, message: "error with pixlet, please refresh page" }));
-                        return;
-                    }
-                    store.dispatch(setError({ id: err, message: err }));
-                })
-                .then(() => {
-                    store.dispatch(loading(false));
-                })
-        }, 300);
-
-    } else {
-        client.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
-            .then(res => {
-                document.title = res.data.title;
-                store.dispatch(update(res.data));
-                if ('error' in res.data) {
-                    store.dispatch(setError({ id: res.data.error, message: res.data.error }));
-                } else {
-                    store.dispatch(clearErrors());
-                }
-            })
-            .catch(err => {
-                if (err.response.status == 404) {
-                    store.dispatch(setError({ id: err, message: "error with pixlet, please refresh page" }));
-                    return;
-                }
-                store.dispatch(setError({ id: err, message: err }));
-            })
-            .then(() => {
-                store.dispatch(loading(false));
-            })
-
-    }
+    client.post(`${PIXLET_API_BASE}/api/v1/preview`, formData)
+        .then(res => {
+            document.title = res.data.title;
+            store.dispatch(update(res.data));
+            if ('error' in res.data) {
+                store.dispatch(setError({ id: res.data.error, message: res.data.error }));
+            } else {
+                store.dispatch(clearErrors());
+            }
+        })
+        .catch(err => {
+            if (err.response.status == 404) {
+                store.dispatch(setError({ id: err, message: "error with pixlet, please refresh page" }));
+                return;
+            }
+            store.dispatch(setError({ id: err, message: err }));
+        })
+        .then(() => {
+            store.dispatch(loading(false));
+        })
 }

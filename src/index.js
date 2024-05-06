@@ -23,22 +23,4 @@ const App = () => {
     )
 }
 
-if (PIXLET_WASM && 'serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-            for (let registration of registrations) {
-                registration.unregister();
-            }
-            navigator.serviceWorker.register(new URL('./sw.js', import.meta.url), { scope: "/" }).then(function (registration) {
-                // Registration was successful
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                ReactDOM.render(<App />, document.getElementById('app'));
-            }, function (err) {
-                // registration failed :(
-                console.log('ServiceWorker registration failed: ', err);
-            });
-        });
-    });
-} else {
-    ReactDOM.render(<App />, document.getElementById('app'));
-}
+ReactDOM.render(<App />, document.getElementById('app'));

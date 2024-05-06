@@ -12,7 +12,7 @@ export default function Controls() {
     const dispatch = useDispatch();
 
     let imageType = 'webp';
-    if (PIXLET_WASM || preview.value.img_type === "gif") {
+    if (preview.value.img_type === "gif") {
         imageType = 'gif';
     }
 
