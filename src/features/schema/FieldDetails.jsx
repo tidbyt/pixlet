@@ -27,9 +27,6 @@ export default function FieldDetails({ field }) {
         case 'oauth2':
             return <OAuth2 field={field} />
         case 'png':
-            if (PIXLET_WASM) {
-                return <RawPhotoSelect field={field} />
-            }
             return <PhotoSelect field={field} />
         case 'text':
             return <TextInput field={field} />

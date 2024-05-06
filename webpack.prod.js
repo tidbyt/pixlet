@@ -19,21 +19,11 @@ const copyPlugin = new CopyWebpackPlugin({
 
 
 let plugins = [htmlPlugin, copyPlugin];
-if (process.env.PIXLET_BACKEND === "wasm") {
-    plugins.push(
-        new webpack.DefinePlugin({
-            'PIXLET_WASM': JSON.stringify(true),
-            'PIXLET_API_BASE': JSON.stringify('pixlet'),
-        })
-    );
-} else {
-    plugins.push(
-        new webpack.DefinePlugin({
-            'PIXLET_WASM': JSON.stringify(false),
-            'PIXLET_API_BASE': JSON.stringify(''),
-        })
-    );
-}
+plugins.push(
+    new webpack.DefinePlugin({
+        'PIXLET_API_BASE': JSON.stringify(''),
+    })
+);
 
 module.exports = merge(common, {
     mode: 'production',

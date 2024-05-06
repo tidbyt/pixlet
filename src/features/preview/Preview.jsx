@@ -60,7 +60,7 @@ export default function Preview() {
     const preview = useSelector(state => state.preview);
 
     let displayType = 'data:image/webp;base64,';
-    if (PIXLET_WASM || preview.value.img_type === "gif") {
+    if (preview.value.img_type === "gif") {
         displayType = 'data:image/gif;base64,';
     }
 
@@ -70,9 +70,6 @@ export default function Preview() {
     }
 
     let content = <img src={displayType + img} className={styles.image} />
-    if (preview.loading && PIXLET_WASM) {
-        content = <img src={displayType + loading} className={styles.image} />
-    }
     return (
         <Paper sx={{ bgcolor: "black" }}>
             {content}

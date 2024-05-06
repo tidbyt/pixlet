@@ -9,9 +9,7 @@
   },
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
-    "start:wasm": "make wasm && PIXLET_BACKEND=wasm webpack serve --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "build:wasm": "make wasm && PIXLET_BACKEND=wasm webpack --config webpack.prod.js",
     "clean": "rm -rf dist/static/ && git restore dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

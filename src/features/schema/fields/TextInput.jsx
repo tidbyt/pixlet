@@ -45,14 +45,7 @@ export default function TextInput({ field }) {
 
     const onChange = (event) => {
         setValue(event.target.value);
-        if (PIXLET_WASM) {
-            dispatch(set({
-                id: field.id,
-                value: event.target.value,
-            }));
-        } else {
-            debounceConfig(event);
-        }
+        debounceConfig(event);
     }
 
     const debounceConfig = useCallback(
