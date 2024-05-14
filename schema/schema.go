@@ -65,6 +65,7 @@ type SchemaOption struct {
 
 // SchemaSound represents a sound that can be played by the applet.
 type SchemaSound struct {
+	ID    string `json:"id" validate:"required"`
 	Title string `json:"title" validate:"required"`
 	Path  string `json:"path" validate:"required"`
 }

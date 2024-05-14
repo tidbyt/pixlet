@@ -21,6 +21,7 @@ func newSound(
 	kwargs []starlark.Tuple,
 ) (starlark.Value, error) {
 	var (
+		id    starlark.String
 		title starlark.String
 		file  *file.File
 	)
@@ -28,6 +29,7 @@ func newSound(
 	if err := starlark.UnpackArgs(
 		"Sound",
 		args, kwargs,
+		"id", &id,
 		"title", &title,
 		"file", &file,
 	); err != nil {
@@ -35,6 +37,7 @@ func newSound(
 	}
 
 	s := &Sound{file: file}
+	s.ID = id.GoString()
 	s.Title = title.GoString()
 	s.Path = file.Path
 
@@ -46,11 +49,13 @@ func (s *Sound) AsSchemaSound() SchemaSound {
 }
 
 func (s *Sound) AttrNames() []string {
-	return []string{"title", "file"}
+	return []string{"id", "title", "file"}
 }
 
 func (s *Sound) Attr(name string) (starlark.Value, error) {
 	switch name {
+	case "id":
+		return starlark.String(s.ID), nil
 
 	case "title":
 		return starlark.String(s.Title), nil

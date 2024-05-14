@@ -51,6 +51,7 @@ def get_schema():
                 icon = "notification",
                 sounds = [
                     schema.Sound(
+                        id = "ding",
                         title = "Ding!",
                         file = ding,
                     ),
@@ -162,6 +163,7 @@ def main():
 				Icon:        "notification",
 				Sounds: []schema.SchemaSound{
 					{
+						ID:    "ding",
 						Title: "Ding!",
 						Path:  "ding.mp3",
 					},
@@ -307,6 +309,7 @@ def get_schema():
                 icon = "notification",
                 sounds = [
                     schema.Sound(
+                        id = "ding",
                         title = "Ding!",
                         file = ding,
                     ),
