@@ -18,10 +18,12 @@ def assert(success, message=None):
         fail(message or "assertion failed")
 
 s = schema.Sound(
+	id = "sound1",
 	title = "Sneezing Elephant",
 	file = file,
 )
 
+assert(s.id == "sound1")
 assert(s.title == "Sneezing Elephant")
 assert(s.file == file)
 assert(s.file.readall() == "sound data")

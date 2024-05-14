@@ -16,6 +16,7 @@ load("sound.mp3", "file")
 
 sounds = [
 	schema.Sound(
+		id = "ding",
 		title = "Ding!",
 		file = file,
 	),
@@ -35,6 +36,7 @@ assert.eq(s.name, "New message")
 assert.eq(s.desc, "A new message has arrived")
 assert.eq(s.icon, "message")
 
+assert.eq(s.sounds[0].id, "ding")
 assert.eq(s.sounds[0].title, "Ding!")
 assert.eq(s.sounds[0].file, file)
 
