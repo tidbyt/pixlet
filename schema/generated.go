@@ -9,7 +9,6 @@ import (
 
 type Generated struct {
 	SchemaField
-	starlarkHandler *starlark.Function
 }
 
 func newGenerated(
@@ -35,7 +34,7 @@ func newGenerated(
 	}
 
 	s := &Generated{}
-	s.starlarkHandler = handler
+	s.StarlarkHandler = handler
 	s.Source = source.GoString()
 	s.Handler = handler.Name()
 	s.ID = id.GoString()
@@ -56,14 +55,15 @@ func (s *Generated) AttrNames() []string {
 
 func (s *Generated) Attr(name string) (starlark.Value, error) {
 	switch name {
-
 	case "source":
 		return starlark.String(s.Source), nil
 
 	case "handler":
-		return s.starlarkHandler, nil
+		return s.StarlarkHandler, nil
+
 	case "id":
 		return starlark.String(s.ID), nil
+
 	default:
 		return nil, nil
 	}

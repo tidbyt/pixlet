@@ -36,7 +36,7 @@ type Schema struct {
 // SchemaField represents an item in the config used to confgure an applet.
 type SchemaField struct {
 	Type        string            `json:"type" validate:"required,oneof=color datetime dropdown generated location locationbased onoff radio text typeahead oauth2 oauth1 png notification"`
-	ID          string            `json:"id" validate:"required"`
+	ID          string            `json:"id" validate:"required,excludesall=$"`
 	Name        string            `json:"name,omitempty" validate:"required_for=datetime dropdown location locationbased onoff radio text typeahead png"`
 	Description string            `json:"description,omitempty"`
 	Icon        string            `json:"icon,omitempty" validate:"forbidden_for=generated"`
@@ -47,8 +47,9 @@ type SchemaField struct {
 	Palette []string       `json:"palette,omitempty"`
 	Sounds  []SchemaSound  `json:"sounds,omitempty" validate:"required_for=notification,dive"`
 
-	Source  string `json:"source,omitempty" validate:"required_for=generated"`
-	Handler string `json:"handler,omitempty" validate:"required_for=generated locationbased typeahead oauth2"`
+	Source          string             `json:"source,omitempty" validate:"required_for=generated"`
+	Handler         string             `json:"handler,omitempty" validate:"required_for=generated locationbased typeahead oauth2"`
+	StarlarkHandler *starlark.Function `json:"-"`
 
 	ClientID              string   `json:"client_id,omitempty" validate:"required_for=oauth2"`
 	AuthorizationEndpoint string   `json:"authorization_endpoint,omitempty" validate:"required_for=oauth2"`
@@ -131,6 +132,8 @@ func FromStarlark(
 			}
 		}
 	} else {
+		// this is a legacy path, where the schema was just a dict
+		// instead of a StarlarkSchema object
 		schemaTree, err := unmarshalStarlark(val)
 		if err != nil {
 			return nil, err
@@ -156,22 +159,27 @@ func FromStarlark(
 	}
 
 	for i, schemaField := range schema.Fields {
-		if schemaField.Handler != "" {
-			handlerValue, found := globals[schemaField.Handler]
-			if !found {
+		var handlerFun *starlark.Function
+		if schemaField.StarlarkHandler != nil {
+			handlerFun = schemaField.StarlarkHandler
+		} else if schemaField.Handler != "" {
+			handlerValue, ok := globals[schemaField.Handler]
+			if !ok {
 				return nil, fmt.Errorf(
 					"field %d references non-existent handler \"%s\"",
 					i,
 					schemaField.Handler)
 			}
 
-			handlerFun, ok := handlerValue.(*starlark.Function)
+			handlerFun, ok = handlerValue.(*starlark.Function)
 			if !ok {
 				return nil, fmt.Errorf(
 					"field %d references \"%s\" which is not a function",
 					i, schemaField.Handler)
 			}
+		}
 
+		if handlerFun != nil {
 			var handlerType HandlerReturnType
 			switch schemaField.Type {
 			case "locationbased":
@@ -190,6 +198,8 @@ func FromStarlark(
 					i, schemaField.Type)
 			}
 
+			// prepend the field ID to the handler name to avoid conflicts
+			schemaField.Handler = fmt.Sprintf("%s$%s", schemaField.ID, schemaField.Handler)
 			schema.Handlers[schemaField.Handler] = SchemaHandler{Function: handlerFun, ReturnType: handlerType}
 		}
 	}
