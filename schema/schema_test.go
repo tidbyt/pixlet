@@ -184,7 +184,7 @@ def main():
 				ID:          "locationbasedid",
 				Name:        "Locationbased",
 				Description: "A Locationbased",
-				Handler:     "locationbasedhandler",
+				Handler:     "locationbasedid$locationbasedhandler",
 				Icon:        "locationDot",
 			},
 			{
@@ -258,7 +258,7 @@ def main():
 				ID:          "typeaheadid",
 				Name:        "Typeahead",
 				Description: "A Typeahead",
-				Handler:     "typeaheadhandler",
+				Handler:     "typeaheadid$typeaheadhandler",
 				Icon:        "train",
 			},
 			{
@@ -266,7 +266,7 @@ def main():
 				ID:                    "oauth2id",
 				Name:                  "OAuth2",
 				Description:           "Authentication",
-				Handler:               "oauth2handler",
+				Handler:               "oauth2id$oauth2handler",
 				Icon:                  "train",
 				ClientID:              "oauth2_clientid",
 				AuthorizationEndpoint: "https://example.com/auth",
@@ -498,7 +498,7 @@ def main():
 				ID:          "locationbasedid",
 				Name:        "Locationbased",
 				Description: "A Locationbased",
-				Handler:     "locationbasedhandler",
+				Handler:     "locationbasedid$locationbasedhandler",
 				Icon:        "locationDot",
 			},
 			{
@@ -578,7 +578,7 @@ def main():
 			{
 				Type:    "generated",
 				ID:      "generatedid",
-				Handler: "generatedhandler",
+				Handler: "generatedid$generatedhandler",
 				Source:  "radioid",
 			},
 			{
@@ -586,7 +586,7 @@ def main():
 				ID:          "typeaheadid",
 				Name:        "Typeahead",
 				Description: "A Typeahead",
-				Handler:     "typeaheadhandler",
+				Handler:     "typeaheadid$typeaheadhandler",
 				Icon:        "train",
 			},
 			{
@@ -594,7 +594,7 @@ def main():
 				ID:                    "oauth2id",
 				Name:                  "OAuth2",
 				Description:           "Authentication",
-				Handler:               "oauth2handler",
+				Handler:               "oauth2id$oauth2handler",
 				Icon:                  "train",
 				ClientID:              "oauth2_clientid",
 				AuthorizationEndpoint: "https://example.com/auth",
@@ -1143,7 +1143,7 @@ def main():
 	assert.Equal(t, "1", s.Version)
 	assert.Equal(t, 1, len(s.Fields))
 	assert.Equal(t, "locationbased", s.Fields[0].Type)
-	assert.Equal(t, "get_stations", s.Fields[0].Handler)
+	assert.Equal(t, "station$get_stations", s.Fields[0].Handler)
 
 	data, err = app.CallSchemaHandler(context.Background(), "get_stations", "locationdata")
 	var options []schema.SchemaOption

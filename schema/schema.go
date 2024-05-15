@@ -158,7 +158,9 @@ func FromStarlark(
 		return nil, err
 	}
 
-	for i, schemaField := range schema.Fields {
+	for i := range schema.Fields {
+		schemaField := &schema.Fields[i]
+
 		var handlerFun *starlark.Function
 		if schemaField.StarlarkHandler != nil {
 			handlerFun = schemaField.StarlarkHandler
