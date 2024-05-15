@@ -9,8 +9,7 @@ import (
 
 type OAuth2 struct {
 	SchemaField
-	starlarkHandler *starlark.Function
-	starlarkScopes  *starlark.List
+	starlarkScopes *starlark.List
 }
 
 func newOAuth2(
@@ -52,7 +51,7 @@ func newOAuth2(
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
 	s.Handler = handler.Name()
-	s.starlarkHandler = handler
+	s.StarlarkHandler = handler
 	s.ClientID = clientID.GoString()
 	s.AuthorizationEndpoint = authEndpoint.GoString()
 	s.starlarkScopes = scopes
@@ -109,7 +108,7 @@ func (s *OAuth2) Attr(name string) (starlark.Value, error) {
 		return starlark.String(s.Icon), nil
 
 	case "handler":
-		return s.starlarkHandler, nil
+		return s.StarlarkHandler, nil
 
 	case "client_id":
 		return starlark.String(s.ClientID), nil

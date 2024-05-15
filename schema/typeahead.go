@@ -9,7 +9,6 @@ import (
 
 type Typeahead struct {
 	SchemaField
-	starlarkHandler *starlark.Function
 }
 
 func newTypeahead(
@@ -45,7 +44,7 @@ func newTypeahead(
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
 	s.Handler = handler.Name()
-	s.starlarkHandler = handler
+	s.StarlarkHandler = handler
 
 	return s, nil
 }
@@ -76,7 +75,7 @@ func (s *Typeahead) Attr(name string) (starlark.Value, error) {
 		return starlark.String(s.Icon), nil
 
 	case "handler":
-		return s.starlarkHandler, nil
+		return s.StarlarkHandler, nil
 
 	default:
 		return nil, nil

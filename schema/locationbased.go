@@ -9,7 +9,6 @@ import (
 
 type LocationBased struct {
 	SchemaField
-	starlarkHandler *starlark.Function
 }
 
 func newLocationBased(
@@ -45,7 +44,7 @@ func newLocationBased(
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
 	s.Handler = handler.Name()
-	s.starlarkHandler = handler
+	s.StarlarkHandler = handler
 
 	return s, nil
 }
@@ -76,7 +75,7 @@ func (s *LocationBased) Attr(name string) (starlark.Value, error) {
 		return starlark.String(s.Icon), nil
 
 	case "handler":
-		return s.starlarkHandler, nil
+		return s.StarlarkHandler, nil
 
 	default:
 		return nil, nil
