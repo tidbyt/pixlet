@@ -54,15 +54,14 @@ type AppletOption func(*Applet) error
 type ThreadInitializer func(thread *starlark.Thread) *starlark.Thread
 
 type Applet struct {
-	ID string
+	ID       string
+	Globals  map[string]starlark.StringDict
+	MainFile string
 
 	loader       ModuleLoader
 	initializers []ThreadInitializer
 	loadedPaths  map[string]bool
 
-	globals map[string]starlark.StringDict
-
-	mainFile   string
 	mainFun    *starlark.Function
 	schemaFile string
 
@@ -130,7 +129,7 @@ func NewApplet(id string, src []byte, opts ...AppletOption) (*Applet, error) {
 func NewAppletFromFS(id string, fsys fs.FS, opts ...AppletOption) (*Applet, error) {
 	a := &Applet{
 		ID:          id,
-		globals:     make(map[string]starlark.StringDict),
+		Globals:     make(map[string]starlark.StringDict),
 		loadedPaths: make(map[string]bool),
 	}
 
@@ -220,7 +219,7 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 		return options, nil
 
 	case schema.ReturnSchema:
-		sch, err := schema.FromStarlark(resultVal, app.globals[app.schemaFile])
+		sch, err := schema.FromStarlark(resultVal, app.Globals[app.schemaFile])
 		if err != nil {
 			return "", err
 		}
@@ -253,7 +252,7 @@ func (app *Applet) RunTests(t *testing.T) {
 		return thread
 	})
 
-	for file, globals := range app.globals {
+	for file, globals := range app.Globals {
 		for name, global := range globals {
 			if !strings.HasPrefix(name, "test_") {
 				continue
@@ -347,7 +346,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 
 	// normalize path so that it can be used as a key
 	pathToLoad = path.Clean(pathToLoad)
-	if _, ok := a.globals[pathToLoad]; ok {
+	if _, ok := a.Globals[pathToLoad]; ok {
 		// already loaded, good to go
 		return nil
 	}
@@ -390,7 +389,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 				return nil, err
 			}
 
-			if g, ok := a.globals[modulePath]; !ok {
+			if g, ok := a.Globals[modulePath]; !ok {
 				return nil, fmt.Errorf("module %s not loaded", modulePath)
 			} else {
 				return g, nil
@@ -416,17 +415,17 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 		if err != nil {
 			return fmt.Errorf("starlark.ExecFile: %v", err)
 		}
-		a.globals[pathToLoad] = globals
+		a.Globals[pathToLoad] = globals
 
 		// if the file is in the root directory, check for the main function
 		// and schema function
 		mainFun, _ := globals["main"].(*starlark.Function)
 		if mainFun != nil {
-			if a.mainFile != "" {
-				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", pathToLoad, a.mainFile)
+			if a.MainFile != "" {
+				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", pathToLoad, a.MainFile)
 			}
 
-			a.mainFile = pathToLoad
+			a.MainFile = pathToLoad
 			a.mainFun = mainFun
 		}
 
@@ -454,7 +453,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 		}
 
 	default:
-		a.globals[pathToLoad] = starlark.StringDict{
+		a.Globals[pathToLoad] = starlark.StringDict{
 			"file": &file.File{
 				FS:   fsys,
 				Path: pathToLoad,

@@ -161,7 +161,7 @@ def main():
 	app, err := NewApplet(filename, []byte(src))
 	assert.NoError(t, err)
 
-	b := app.globals["test_box.star"]["b"]
+	b := app.Globals["test_box.star"]["b"]
 	assert.IsType(t, &render_runtime.Box{}, b)
 
 	widget := b.(*render_runtime.Box).AsRenderWidget()
@@ -196,7 +196,7 @@ def main():
 	app, err := NewApplet(filename, []byte(src))
 	assert.NoError(t, err)
 
-	txt := app.globals["test_text.star"]["t"]
+	txt := app.Globals["test_text.star"]["t"]
 	assert.IsType(t, &render_runtime.Text{}, txt)
 
 	widget := txt.(*render_runtime.Text).AsRenderWidget()
@@ -240,7 +240,7 @@ def main():
 	app, err := NewApplet(filename, []byte(src))
 	assert.NoError(t, err)
 
-	starlarkP := app.globals["test_png.star"]["img"]
+	starlarkP := app.Globals["test_png.star"]["img"]
 	require.IsType(t, &render_runtime.Image{}, starlarkP)
 
 	actualIm := render.PaintWidget(starlarkP.(*render_runtime.Image).AsRenderWidget(), image.Rect(0, 0, 64, 32), 0)
