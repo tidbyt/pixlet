@@ -77,6 +77,13 @@ func WithModuleLoader(loader ModuleLoader) AppletOption {
 	}
 }
 
+func WithThreadInitializer(init ThreadInitializer) AppletOption {
+	return func(a *Applet) error {
+		a.initializers = append(a.initializers, init)
+		return nil
+	}
+}
+
 func WithSecretDecryptionKey(key *SecretDecryptionKey) AppletOption {
 	return func(a *Applet) error {
 		if decrypter, err := key.decrypterForApp(a); err != nil {
