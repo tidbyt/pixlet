@@ -6,6 +6,7 @@ import (
 	"testing/fstest"
 
 	"github.com/stretchr/testify/assert"
+
 	"tidbyt.dev/pixlet/runtime"
 )
 
@@ -29,6 +30,7 @@ s = schema.Notification(
 	desc = "A new message has arrived",
 	icon = "message",
 	sounds = sounds,
+	builder = lambda: None,
 )
 
 assert.eq(s.id, "notification1")

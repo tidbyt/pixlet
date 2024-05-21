@@ -170,7 +170,7 @@ func newSchema(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple
 				)
 			}
 
-			s.Schema.Notifications = append(s.Schema.Notifications, n.AsSchemaField())
+			s.Schema.Notifications = append(s.Schema.Notifications, *n)
 		}
 	}
 

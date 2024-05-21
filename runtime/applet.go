@@ -152,23 +152,18 @@ func (a *Applet) Run(ctx context.Context) (roots []render.Root, err error) {
 	return a.RunWithConfig(ctx, nil)
 }
 
-// RunWithConfig exceutes the applet's main function, passing it configuration as a
-// starlark dict. It returns the render roots that are returned by the applet.
-func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (roots []render.Root, err error) {
-	var args starlark.Tuple
-	if a.mainFun.NumParams() > 0 {
-		starlarkConfig := AppletConfig(config)
-		args = starlark.Tuple{starlarkConfig}
-	}
+// ExtractRoots extracts render roots from a Starlark value. It expects the value
+// to be either a single render root or a list of render roots.
+//
+// It's used internally by RunWithConfig to extract the roots returned by the applet.
+func ExtractRoots(val starlark.Value) ([]render.Root, error) {
+	var roots []render.Root
 
-	returnValue, err := a.Call(ctx, a.mainFun, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	if returnRoot, ok := returnValue.(render_runtime.Rootable); ok {
+	if val == starlark.None {
+		// no roots returned
+	} else if returnRoot, ok := val.(render_runtime.Rootable); ok {
 		roots = []render.Root{returnRoot.AsRenderRoot()}
-	} else if returnList, ok := returnValue.(*starlark.List); ok {
+	} else if returnList, ok := val.(*starlark.List); ok {
 		roots = make([]render.Root, returnList.Len())
 		iter := returnList.Iterate()
 		defer iter.Done()
@@ -187,7 +182,29 @@ func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (r
 			i++
 		}
 	} else {
-		return nil, fmt.Errorf("expected app implementation to return Root(s) but found: %s", returnValue.Type())
+		return nil, fmt.Errorf("expected app implementation to return Root(s) but found: %s", val.Type())
+	}
+
+	return roots, nil
+}
+
+// RunWithConfig exceutes the applet's main function, passing it configuration as a
+// starlark dict. It returns the render roots that are returned by the applet.
+func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (roots []render.Root, err error) {
+	var args starlark.Tuple
+	if a.mainFun.NumParams() > 0 {
+		starlarkConfig := AppletConfig(config)
+		args = starlark.Tuple{starlarkConfig}
+	}
+
+	returnValue, err := a.Call(ctx, a.mainFun, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	roots, err = ExtractRoots(returnValue)
+	if err != nil {
+		return nil, err
 	}
 
 	return roots, nil

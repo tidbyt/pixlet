@@ -39,6 +39,9 @@ def typeaheadhandler():
 def oauth2handler():
     return "a-refresh-token"
 
+def build_notification():
+    return None
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -49,6 +52,7 @@ def get_schema():
                 name = "Notification",
                 desc = "A Notification",
                 icon = "notification",
+                builder = build_notification,
                 sounds = [
                     schema.Sound(
                         id = "ding",
@@ -154,18 +158,20 @@ def main():
 	assert.Equal(t, schema.Schema{
 		Version: "1",
 
-		Notifications: []schema.SchemaField{
+		Notifications: []schema.Notification{
 			{
-				Type:        "notification",
-				ID:          "notificationid",
-				Name:        "Notification",
-				Description: "A Notification",
-				Icon:        "notification",
-				Sounds: []schema.SchemaSound{
-					{
-						ID:    "ding",
-						Title: "Ding!",
-						Path:  "ding.mp3",
+				SchemaField: schema.SchemaField{
+					Type:        "notification",
+					ID:          "notificationid",
+					Name:        "Notification",
+					Description: "A Notification",
+					Icon:        "notification",
+					Sounds: []schema.SchemaSound{
+						{
+							ID:    "ding",
+							Title: "Ding!",
+							Path:  "ding.mp3",
+						},
 					},
 				},
 			},
@@ -307,6 +313,7 @@ def get_schema():
                 name = "Notification",
                 desc = "A Notification",
                 icon = "notification",
+                builder = lambda: None,
                 sounds = [
                     schema.Sound(
                         id = "ding",
