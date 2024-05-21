@@ -26,9 +26,9 @@ const (
 // Schema holds a configuration object for an applet. It holds a list of fields
 // that are exported from an applet.
 type Schema struct {
-	Version       string        `json:"version" validate:"required"`
-	Fields        []SchemaField `json:"schema" validate:"dive"`
-	Notifications []SchemaField `json:"notifications,omitempty" validate:"dive"`
+	Version       string         `json:"version" validate:"required"`
+	Fields        []SchemaField  `json:"schema" validate:"dive"`
+	Notifications []Notification `json:"notifications,omitempty" validate:"dive"`
 
 	Handlers map[string]SchemaHandler `json:"-"`
 }
@@ -107,7 +107,7 @@ func (s Schema) MarshalJSON() ([]byte, error) {
 		a.Fields = make([]SchemaField, 0)
 	}
 	if a.Notifications == nil {
-		a.Notifications = make([]SchemaField, 0)
+		a.Notifications = make([]Notification, 0)
 	}
 
 	js, err := json.Marshal(a)
@@ -165,6 +165,8 @@ func FromStarlark(
 		if schemaField.StarlarkHandler != nil {
 			handlerFun = schemaField.StarlarkHandler
 		} else if schemaField.Handler != "" {
+			// legacy schema, where the handler was a string instead of
+			// a function reference
 			handlerValue, ok := globals[schemaField.Handler]
 			if !ok {
 				return nil, fmt.Errorf(

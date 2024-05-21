@@ -54,15 +54,14 @@ type AppletOption func(*Applet) error
 type ThreadInitializer func(thread *starlark.Thread) *starlark.Thread
 
 type Applet struct {
-	ID string
+	ID       string
+	Globals  map[string]starlark.StringDict
+	MainFile string
 
 	loader       ModuleLoader
 	initializers []ThreadInitializer
 	loadedPaths  map[string]bool
 
-	globals map[string]starlark.StringDict
-
-	mainFile   string
 	mainFun    *starlark.Function
 	schemaFile string
 
@@ -130,7 +129,7 @@ func NewApplet(id string, src []byte, opts ...AppletOption) (*Applet, error) {
 func NewAppletFromFS(id string, fsys fs.FS, opts ...AppletOption) (*Applet, error) {
 	a := &Applet{
 		ID:          id,
-		globals:     make(map[string]starlark.StringDict),
+		Globals:     make(map[string]starlark.StringDict),
 		loadedPaths: make(map[string]bool),
 	}
 
@@ -153,23 +152,18 @@ func (a *Applet) Run(ctx context.Context) (roots []render.Root, err error) {
 	return a.RunWithConfig(ctx, nil)
 }
 
-// RunWithConfig exceutes the applet's main function, passing it configuration as a
-// starlark dict. It returns the render roots that are returned by the applet.
-func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (roots []render.Root, err error) {
-	var args starlark.Tuple
-	if a.mainFun.NumParams() > 0 {
-		starlarkConfig := AppletConfig(config)
-		args = starlark.Tuple{starlarkConfig}
-	}
+// ExtractRoots extracts render roots from a Starlark value. It expects the value
+// to be either a single render root or a list of render roots.
+//
+// It's used internally by RunWithConfig to extract the roots returned by the applet.
+func ExtractRoots(val starlark.Value) ([]render.Root, error) {
+	var roots []render.Root
 
-	returnValue, err := a.Call(ctx, a.mainFun, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	if returnRoot, ok := returnValue.(render_runtime.Rootable); ok {
+	if val == starlark.None {
+		// no roots returned
+	} else if returnRoot, ok := val.(render_runtime.Rootable); ok {
 		roots = []render.Root{returnRoot.AsRenderRoot()}
-	} else if returnList, ok := returnValue.(*starlark.List); ok {
+	} else if returnList, ok := val.(*starlark.List); ok {
 		roots = make([]render.Root, returnList.Len())
 		iter := returnList.Iterate()
 		defer iter.Done()
@@ -188,7 +182,29 @@ func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (r
 			i++
 		}
 	} else {
-		return nil, fmt.Errorf("expected app implementation to return Root(s) but found: %s", returnValue.Type())
+		return nil, fmt.Errorf("expected app implementation to return Root(s) but found: %s", val.Type())
+	}
+
+	return roots, nil
+}
+
+// RunWithConfig exceutes the applet's main function, passing it configuration as a
+// starlark dict. It returns the render roots that are returned by the applet.
+func (a *Applet) RunWithConfig(ctx context.Context, config map[string]string) (roots []render.Root, err error) {
+	var args starlark.Tuple
+	if a.mainFun.NumParams() > 0 {
+		starlarkConfig := AppletConfig(config)
+		args = starlark.Tuple{starlarkConfig}
+	}
+
+	returnValue, err := a.Call(ctx, a.mainFun, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	roots, err = ExtractRoots(returnValue)
+	if err != nil {
+		return nil, err
 	}
 
 	return roots, nil
@@ -220,7 +236,7 @@ func (app *Applet) CallSchemaHandler(ctx context.Context, handlerName, parameter
 		return options, nil
 
 	case schema.ReturnSchema:
-		sch, err := schema.FromStarlark(resultVal, app.globals[app.schemaFile])
+		sch, err := schema.FromStarlark(resultVal, app.Globals[app.schemaFile])
 		if err != nil {
 			return "", err
 		}
@@ -253,7 +269,7 @@ func (app *Applet) RunTests(t *testing.T) {
 		return thread
 	})
 
-	for file, globals := range app.globals {
+	for file, globals := range app.Globals {
 		for name, global := range globals {
 			if !strings.HasPrefix(name, "test_") {
 				continue
@@ -347,7 +363,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 
 	// normalize path so that it can be used as a key
 	pathToLoad = path.Clean(pathToLoad)
-	if _, ok := a.globals[pathToLoad]; ok {
+	if _, ok := a.Globals[pathToLoad]; ok {
 		// already loaded, good to go
 		return nil
 	}
@@ -390,7 +406,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 				return nil, err
 			}
 
-			if g, ok := a.globals[modulePath]; !ok {
+			if g, ok := a.Globals[modulePath]; !ok {
 				return nil, fmt.Errorf("module %s not loaded", modulePath)
 			} else {
 				return g, nil
@@ -416,17 +432,17 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 		if err != nil {
 			return fmt.Errorf("starlark.ExecFile: %v", err)
 		}
-		a.globals[pathToLoad] = globals
+		a.Globals[pathToLoad] = globals
 
 		// if the file is in the root directory, check for the main function
 		// and schema function
 		mainFun, _ := globals["main"].(*starlark.Function)
 		if mainFun != nil {
-			if a.mainFile != "" {
-				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", pathToLoad, a.mainFile)
+			if a.MainFile != "" {
+				return fmt.Errorf("multiple files with a main() function:\n- %s\n- %s", pathToLoad, a.MainFile)
 			}
 
-			a.mainFile = pathToLoad
+			a.MainFile = pathToLoad
 			a.mainFun = mainFun
 		}
 
@@ -454,7 +470,7 @@ func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ..
 		}
 
 	default:
-		a.globals[pathToLoad] = starlark.StringDict{
+		a.Globals[pathToLoad] = starlark.StringDict{
 			"file": &file.File{
 				FS:   fsys,
 				Path: pathToLoad,

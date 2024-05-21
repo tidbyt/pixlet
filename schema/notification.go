@@ -9,6 +9,7 @@ import (
 
 type Notification struct {
 	SchemaField
+	Builder        *starlark.Function `json:"-"`
 	starlarkSounds *starlark.List
 }
 
@@ -19,11 +20,12 @@ func newNotification(
 	kwargs []starlark.Tuple,
 ) (starlark.Value, error) {
 	var (
-		id     starlark.String
-		name   starlark.String
-		desc   starlark.String
-		icon   starlark.String
-		sounds *starlark.List
+		id      starlark.String
+		name    starlark.String
+		desc    starlark.String
+		icon    starlark.String
+		sounds  *starlark.List
+		builder *starlark.Function
 	)
 
 	if err := starlark.UnpackArgs(
@@ -34,6 +36,7 @@ func newNotification(
 		"desc", &desc,
 		"icon", &icon,
 		"sounds", &sounds,
+		"builder", &builder,
 	); err != nil {
 		return nil, fmt.Errorf("unpacking arguments for Notification: %s", err)
 	}
@@ -44,6 +47,7 @@ func newNotification(
 	s.Name = name.GoString()
 	s.Description = desc.GoString()
 	s.Icon = icon.GoString()
+	s.Builder = builder
 
 	var soundVal starlark.Value
 	soundIter := sounds.Iterate()
@@ -75,7 +79,7 @@ func (s *Notification) AsSchemaField() SchemaField {
 
 func (s *Notification) AttrNames() []string {
 	return []string{
-		"id", "name", "desc", "icon", "sounds",
+		"id", "name", "desc", "icon", "sounds", "builder",
 	}
 }
 
@@ -96,6 +100,9 @@ func (s *Notification) Attr(name string) (starlark.Value, error) {
 
 	case "sounds":
 		return s.starlarkSounds, nil
+
+	case "builder":
+		return s.Builder, nil
 
 	default:
 		return nil, nil
