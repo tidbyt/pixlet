@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"image"
 
 	"github.com/tidbyt/gg"
@@ -45,7 +46,8 @@ import (
 // )
 // EXAMPLE END
 type Marquee struct {
-	Widget
+	Type string `starlark:"-"`
+
 	Child           Widget `starlark:"child,required"`
 	Width           int    `starlark:"width"`
 	Height          int    `starlark:"height"`
@@ -192,4 +194,23 @@ func (m Marquee) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 
 func (m Marquee) isVertical() bool {
 	return m.ScrollDirection == "vertical"
+}
+
+func (m *Marquee) UnmarshalJSON(data []byte) error {
+	type Alias Marquee
+	aux := &struct {
+		Child json.RawMessage
+		*Alias
+	}{
+		Alias: (*Alias)(m),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	child, err := UnmarshalWidgetJSON(aux.Child)
+	if err != nil {
+		return err
+	}
+	m.Child = child
+	return nil
 }

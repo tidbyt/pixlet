@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"image"
 	"image/color"
 	"runtime"
@@ -141,4 +142,24 @@ func PaintRoots(solidBackground bool, roots ...Root) []image.Image {
 	}
 
 	return images
+}
+
+func (r *Root) UnmarshalJSON(data []byte) error {
+	type Alias Root
+	aux := &struct {
+		Child json.RawMessage
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	child, err := UnmarshalWidgetJSON(aux.Child)
+	if err != nil {
+		return err
+	}
+	r.Child = child
+	return nil
 }

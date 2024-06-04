@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -51,7 +53,7 @@ var FillDampFactor uint8 = 0x55
 // ),
 // EXAMPLE END
 type Plot struct {
-	Widget
+	Type string `starlark:"-"`
 
 	// Coordinates of points to plot
 	Data [][2]float64 `starlark:"data,required"`
@@ -61,10 +63,10 @@ type Plot struct {
 	Height int `starlark:"height,required"`
 
 	// Primary line color
-	Color color.Color `starlark:"color"`
+	Color color.RGBA `starlark:"color"`
 
 	// Optional line color for Y-values below 0
-	ColorInverted color.Color `starlark:"color_inverted"`
+	ColorInverted color.RGBA `starlark:"color_inverted"`
 
 	// Optional limit on X and Y axis
 	XLim [2]float64 `starlark:"x_lim"`
@@ -77,10 +79,10 @@ type Plot struct {
 	ChartType string `starlark:"chart_type"`
 
 	// Optional fill color for Y-values above 0
-	FillColor color.Color `starlark:"fill_color"`
+	FillColor color.RGBA `starlark:"fill_color"`
 
 	// Optional fill color for Y-values below 0
-	FillColorInverted color.Color `starlark:"fill_color_inverted"`
+	FillColorInverted color.RGBA `starlark:"fill_color_inverted"`
 
 	invThreshold int
 }
@@ -187,7 +189,7 @@ func (p *Plot) translatePoints() []PathPoint {
 	return points
 }
 
-func dampenColor(c color.Color, a uint8) color.Color {
+func dampenColor(c color.RGBA, a uint8) color.RGBA {
 	r, g, b, _ := c.RGBA()
 	return color.RGBA{uint8(r * uint32(a) / 255), uint8(g * uint32(a) / 255), uint8(b * uint32(a) / 255), 0xFF}
 }
@@ -198,23 +200,22 @@ func (p Plot) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle 
 
 func (p Plot) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	// Set line and fill colors
-	var col color.Color
-	col = color.RGBA{0xff, 0xff, 0xff, 0xff}
-	if p.Color != nil {
+	col := color.RGBA{0xff, 0xff, 0xff, 0xff}
+	if p.Color != (color.RGBA{}) {
 		col = p.Color
 	}
 	colInv := col
-	if p.ColorInverted != nil {
+	if p.ColorInverted != (color.RGBA{}) {
 		colInv = p.ColorInverted
 	}
 
 	fillCol := dampenColor(col, FillDampFactor)
-	if p.FillColor != nil {
+	if p.FillColor != (color.RGBA{}) {
 		fillCol = p.FillColor
 	}
 
 	fillColInv := dampenColor(colInv, FillDampFactor)
-	if p.FillColorInverted != nil {
+	if p.FillColorInverted != (color.RGBA{}) {
 		fillColInv = p.FillColorInverted
 	}
 
@@ -269,4 +270,87 @@ func (p Plot) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 
 func (p Plot) FrameCount() int {
 	return 1
+}
+
+func (p *Plot) MarshalJSON() ([]byte, error) {
+	type Alias Plot
+	aux := &struct {
+		*Alias
+		Color             string
+		ColorInverted     string
+		FillColor         string
+		FillColorInverted string
+	}{
+		Alias: (*Alias)(p),
+	}
+
+	if p.Color != (color.RGBA{}) {
+		r, g, b, a := p.Color.RGBA()
+		aux.Color = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+
+	if p.ColorInverted != (color.RGBA{}) {
+		r, g, b, a := p.ColorInverted.RGBA()
+		aux.ColorInverted = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+
+	if p.FillColor != (color.RGBA{}) {
+		r, g, b, a := p.FillColor.RGBA()
+		aux.FillColor = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+
+	if p.FillColorInverted != (color.RGBA{}) {
+		r, g, b, a := p.FillColorInverted.RGBA()
+		aux.FillColorInverted = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+
+	return json.Marshal(aux)
+}
+
+func (p *Plot) UnmarshalJSON(data []byte) error {
+	type Alias Plot
+	aux := &struct {
+		*Alias
+		Color             string
+		ColorInverted     string
+		FillColor         string
+		FillColorInverted string
+	}{
+		Alias: (*Alias)(p),
+	}
+
+	err := json.Unmarshal(data, &aux)
+	if err != nil {
+		return err
+	}
+
+	if aux.Color != "" {
+		p.Color, err = ParseColor(aux.Color)
+		if err != nil {
+			return err
+		}
+	}
+
+	if aux.ColorInverted != "" {
+		p.ColorInverted, err = ParseColor(aux.ColorInverted)
+		if err != nil {
+			return err
+		}
+	}
+
+	if aux.FillColor != "" {
+		p.FillColor, err = ParseColor(aux.FillColor)
+		if err != nil {
+			return err
+		}
+	}
+
+	if aux.FillColorInverted != "" {
+		p.FillColorInverted, err = ParseColor(aux.FillColorInverted)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

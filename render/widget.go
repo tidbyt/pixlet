@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
 
 	"github.com/tidbyt/gg"
@@ -45,4 +47,46 @@ func MaxFrameCount(widgets []Widget) int {
 	}
 
 	return m
+}
+
+func UnmarshalWidgetJSON(data []byte) (Widget, error) {
+	if string(data) == "null" {
+		return nil, nil
+	}
+
+	var widgetType struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &widgetType); err != nil {
+		return nil, err
+	}
+
+	var widget Widget
+	switch widgetType.Type {
+	case "Animation":
+		widget = &Animation{}
+	case "Box":
+		widget = &Box{}
+	case "Column":
+		widget = &Column{}
+	case "Image":
+		widget = &Image{}
+	case "Marquee":
+		widget = &Marquee{}
+	case "Row":
+		widget = &Row{}
+	case "Text":
+		widget = &Text{}
+	case "Vector":
+		widget = &Vector{}
+
+	default:
+		return nil, fmt.Errorf("unknown widget type: %s", widgetType.Type)
+	}
+
+	if err := json.Unmarshal(data, widget); err != nil {
+		return nil, err
+	}
+
+	return widget, nil
 }

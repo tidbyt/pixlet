@@ -68,6 +68,7 @@ func (w *{{.GoName}}) AsRenderRoot() render.Root {
 
 {{if .GoWidgetName }}
 func (w *{{.GoName}}) AsRenderWidget() render.Widget {
+	w.{{.GoName}}.Type = "{{.GoName}}"
 	return &w.{{.GoName}}
 }
 {{end}}

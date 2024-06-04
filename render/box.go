@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
 
@@ -31,11 +33,12 @@ import (
 // )
 // EXAMPLE END
 type Box struct {
-	Widget
+	Type string `starlark:"-"`
+
 	Child         Widget
 	Width, Height int
 	Padding       int
-	Color         color.Color
+	Color         color.RGBA
 }
 
 func (b Box) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
@@ -58,7 +61,7 @@ func (b Box) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		h = bounds.Dy()
 	}
 
-	if b.Color != nil {
+	if b.Color != (color.RGBA{}) {
 		dc.SetColor(b.Color)
 		dc.DrawRectangle(0, 0, float64(w), float64(h))
 		dc.Fill()
@@ -102,4 +105,54 @@ func (b Box) FrameCount() int {
 		return b.Child.FrameCount()
 	}
 	return 1
+}
+
+func (b *Box) UnmarshalJSON(data []byte) error {
+	type Alias Box
+	aux := &struct {
+		Child json.RawMessage
+		Color string
+		*Alias
+	}{
+		Alias: (*Alias)(b),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.Child != nil {
+		child, err := UnmarshalWidgetJSON(aux.Child)
+		if err != nil {
+			return err
+		}
+		b.Child = child
+	}
+
+	if aux.Color != "" {
+		col, err := ParseColor(aux.Color)
+		if err != nil {
+			return err
+		}
+		b.Color = col
+	}
+
+	return nil
+}
+
+func (b *Box) MarshalJSON() ([]byte, error) {
+	col := ""
+	if b.Color != (color.RGBA{}) {
+		r, g, b, a := b.Color.RGBA()
+		col = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+	type Alias Box
+	aux := &struct {
+		*Alias
+		Color string
+	}{
+		Alias: (*Alias)(b),
+		Color: col,
+	}
+
+	return json.Marshal(aux)
 }

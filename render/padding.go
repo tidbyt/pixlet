@@ -26,12 +26,12 @@ type Insets struct {
 // DOC(Pad): Padding around the child
 // DOC(Color): Background color
 type Padding struct {
-	Widget
+	Type string `starlark:"-"`
 
 	Child    Widget `starlark:"child,required"`
 	Pad      Insets
 	Expanded bool
-	Color    color.Color
+	Color    color.RGBA
 }
 
 func (p Padding) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
@@ -67,7 +67,7 @@ func (p Padding) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 		height = cb.Dy() + p.Pad.Top + p.Pad.Bottom
 	}
 
-	if p.Color != nil {
+	if p.Color != (color.RGBA{}) {
 		dc.SetColor(p.Color)
 		dc.DrawRectangle(0, 0, float64(width), float64(height))
 		dc.Fill()

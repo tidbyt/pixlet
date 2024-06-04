@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -24,11 +26,11 @@ import (
 // )
 // EXAMPLE END
 type PieChart struct {
-	Widget
+	Type string `starlark:"-"`
 
-	Colors   []color.Color `starlark:"colors, required"`
-	Weights  []float64     `starlark:"weights, required"`
-	Diameter int           `starlark:"diameter,required"`
+	Colors   []color.RGBA `starlark:"colors, required"`
+	Weights  []float64    `starlark:"weights, required"`
+	Diameter int          `starlark:"diameter,required"`
 }
 
 func (c PieChart) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
@@ -57,4 +59,47 @@ func (c PieChart) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 
 func (c PieChart) FrameCount() int {
 	return 1
+}
+
+func (c *PieChart) MarshalJSON() ([]byte, error) {
+	type Alias PieChart
+	aux := &struct {
+		*Alias
+		Colors []string
+	}{
+		Alias:  (*Alias)(c),
+		Colors: make([]string, len(c.Colors)),
+	}
+
+	for i, col := range c.Colors {
+		r, g, b, a := col.RGBA()
+		aux.Colors[i] = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+
+	return json.Marshal(aux)
+}
+
+func (c *PieChart) UnmarshalJSON(data []byte) error {
+	type Alias PieChart
+	aux := &struct {
+		*Alias
+		Colors []string
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	err := json.Unmarshal(data, &aux)
+	if err != nil {
+		return err
+	}
+
+	c.Colors = make([]color.RGBA, len(aux.Colors))
+	for i, col := range aux.Colors {
+		c.Colors[i], err = ParseColor(col)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
