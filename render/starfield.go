@@ -14,7 +14,7 @@ type Starfield struct {
 	Widget
 
 	Child  Widget
-	Color  color.Color
+	Color  color.RGBA
 	Width  int
 	Height int
 	stars  []*Star

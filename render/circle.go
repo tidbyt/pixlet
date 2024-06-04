@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -24,11 +26,11 @@ import (
 // )
 // EXAMPLE END
 type Circle struct {
-	Widget
+	Type string `starlark:"-"`
 
 	Child    Widget
-	Color    color.Color `starlark:"color, required"`
-	Diameter int         `starlark:"diameter,required"`
+	Color    color.RGBA `starlark:"color, required"`
+	Diameter int        `starlark:"diameter,required"`
 }
 
 func (c Circle) PaintBounds(bounds image.Rectangle, frameIdx int) image.Rectangle {
@@ -68,4 +70,44 @@ func (c Circle) FrameCount() int {
 		return c.Child.FrameCount()
 	}
 	return 1
+}
+
+func (c *Circle) UnmarshalJSON(data []byte) error {
+	type Alias Circle
+	aux := &struct {
+		Child json.RawMessage
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.Child != nil {
+		child, err := UnmarshalWidgetJSON(aux.Child)
+		if err != nil {
+			return err
+		}
+		c.Child = child
+	}
+	return nil
+}
+
+func (c *Circle) MarshalJSON() ([]byte, error) {
+	col := ""
+	if c.Color != (color.RGBA{}) {
+		r, g, b, a := c.Color.RGBA()
+		col = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+	type Alias Circle
+	aux := &struct {
+		*Alias
+		Color string
+	}{
+		Alias: (*Alias)(c),
+		Color: col,
+	}
+
+	return json.Marshal(aux)
 }

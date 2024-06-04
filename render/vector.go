@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"image"
 
 	"github.com/tidbyt/gg"
@@ -14,7 +15,7 @@ import (
 // column). MainAlign controls how children are placed along this
 // axis. CrossAlign controls placement orthogonally to the main axis.
 type Vector struct {
-	Widget
+	Type string `starlark:"-"`
 
 	Children   []Widget
 	MainAlign  string `starlark: "main_align"`
@@ -237,4 +238,27 @@ func (v Vector) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 
 func (v Vector) FrameCount() int {
 	return MaxFrameCount(v.Children)
+}
+
+func (v *Vector) UnmarshalJSON(data []byte) error {
+	type Alias Vector
+	aux := &struct {
+		Children []json.RawMessage
+		*Alias
+	}{
+		Alias: (*Alias)(v),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	children := []Widget{}
+	for _, childData := range aux.Children {
+		child, err := UnmarshalWidgetJSON(childData)
+		if err != nil {
+			return err
+		}
+		children = append(children, child)
+	}
+	v.Children = children
+	return nil
 }

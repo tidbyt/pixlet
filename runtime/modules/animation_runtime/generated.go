@@ -140,6 +140,7 @@ func newAnimatedPositioned(
 }
 
 func (w *AnimatedPositioned) AsRenderWidget() render.Widget {
+	w.AnimatedPositioned.Type = "AnimatedPositioned"
 	return &w.AnimatedPositioned
 }
 
@@ -702,6 +703,7 @@ func newTransformation(
 }
 
 func (w *Transformation) AsRenderWidget() render.Widget {
+	w.Transformation.Type = "Transformation"
 	return &w.Transformation
 }
 
