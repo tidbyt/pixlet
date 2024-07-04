@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"runtime/debug"
 	"slices"
 	"strings"
 	"testing"
@@ -291,7 +292,7 @@ func (app *Applet) RunTests(t *testing.T) {
 func (a *Applet) Call(ctx context.Context, callable *starlark.Function, args ...starlark.Value) (val starlark.Value, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic while running %s: %v", a.ID, r)
+			err = fmt.Errorf("panic while running %s: %v\n%s", a.ID, r, debug.Stack())
 		}
 	}()
 
@@ -357,7 +358,7 @@ func (a *Applet) load(fsys fs.FS) (err error) {
 func (a *Applet) ensureLoaded(fsys fs.FS, pathToLoad string, currentlyLoading ...string) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic while executing %s: %v", a.ID, r)
+			err = fmt.Errorf("panic while executing %s: %v\n%s", a.ID, r, debug.Stack())
 		}
 	}()
 
