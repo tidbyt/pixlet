@@ -51,9 +51,11 @@ func AsString(x starlark.Value) (string, error) {
 const ModuleName = "http.star"
 
 var (
-	// StarlarkHTTPClient is the http client used to create the http module. override with
-	// a custom client before calling LoadModule
-	StarlarkHTTPClient = http.DefaultClient
+	// StarlarkHTTPClient is a factory method for creating the http client used to create the http module.
+	// override with a custom function before calling LoadModule
+	StarlarkHTTPClient = func() *http.Client {
+		return http.DefaultClient
+	}
 	// StarlarkHTTPGuard is a global RequestGuard used in LoadModule. override with a custom
 	// implementation before calling LoadModule
 	StarlarkHTTPGuard RequestGuard
@@ -69,7 +71,7 @@ const (
 
 // LoadModule creates an http Module
 func LoadModule() (starlark.StringDict, error) {
-	var m = &Module{cli: StarlarkHTTPClient}
+	var m = &Module{cli: StarlarkHTTPClient()}
 	if StarlarkHTTPGuard != nil {
 		m.rg = StarlarkHTTPGuard
 	}
