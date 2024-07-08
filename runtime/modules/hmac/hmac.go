@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"hash"
 	"sync"
@@ -47,11 +48,12 @@ func LoadModule() (starlark.StringDict, error) {
 func fnHmac(hashFunc func() hash.Hash) func(*starlark.Thread, *starlark.Builtin, starlark.Tuple, []starlark.Tuple) (starlark.Value, error) {
 	return func(t *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		var (
-			key    starlark.Value
-			s      starlark.String
-			binary bool = false
+			key      starlark.Value
+			s        starlark.String
+			binary   bool = false
+			encoding starlark.String = "hex"
 		)
-		if err := starlark.UnpackArgs(fn.Name(), args, kwargs, "key", &key, "s", &s, "binary?", &binary); err != nil {
+		if err := starlark.UnpackArgs(fn.Name(), args, kwargs, "key", &key, "s", &s, "binary?", &binary, "encoding?", &encoding); err != nil {
 			return nil, err
 		}
 
@@ -72,8 +74,10 @@ func fnHmac(hashFunc func() hash.Hash) func(*starlark.Thread, *starlark.Builtin,
 		}
 
 		digest := h.Sum(nil)
-		if binary {
+		if binary || encoding == "binary" {
 			return starlark.Bytes(digest), nil
+		} else if encoding == "base64" {
+			return starlark.String(base64.StdEncoding.EncodeToString(digest)), nil
 		}
 		return starlark.String(fmt.Sprintf("%x", digest)), nil
 	}
