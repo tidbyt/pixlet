@@ -106,6 +106,19 @@ including the runic code block. 4121 code points in total.
 - Ascent: 11
 - Descent: 2
 
+### 6x10
+By [olikraus](https://github.com/olikraus/u8g2/wiki).
+
+![6x16 example](img/6x10.gif)
+
+A medium, monospace, bitmap font with a size of 6x10 pixels. Ideal for fixed-width applications.
+
+- Advance: 6
+- Height: 10
+- Cap height: 7
+- Ascent: 8
+- Descent: 2
+
 ### 10x20
 By [Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/).
 
