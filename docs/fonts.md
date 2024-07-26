@@ -119,6 +119,19 @@ A medium, monospace, bitmap font with a size of 6x10 pixels. Ideal for fixed-wid
 - Ascent: 8
 - Descent: 2
 
+### 6x10-rounded
+Original font By [olikraus](https://github.com/olikraus/u8g2/wiki) & modified by [SynthSolar](https://github.com/SynthSolar).
+
+![6x16-rounded example](img/6x10-rounded.gif)
+
+A medium, monospace, rounded, bitmap font with a size of 6x10 pixels. Ideal for fixed-width applications.
+
+- Advance: 6
+- Height: 10
+- Cap height: 7
+- Ascent: 8
+- Descent: 2
+
 ### 10x20
 By [Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/).
 
