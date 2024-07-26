@@ -45,7 +45,7 @@ func TestSequenceOnlyOneFrameAtATime(t *testing.T) {
 func TestSequenceWithAnimatedChildren(t *testing.T) {
 	// Returns a 2x2 grid with background color, and a single
 	// pixel of foreground color at x,y.
-	frame := func(x, y int, fg color.Color, bg color.Color) Widget {
+	frame := func(x, y int, fg color.RGBA, bg color.RGBA) Widget {
 		row0 := Row{
 			Children: []Widget{
 				Box{Width: 1, Height: 1, Color: bg},

@@ -37,14 +37,14 @@ import (
 // )
 // EXAMPLE END
 type WrappedText struct {
-	Widget
+	Type string `starlark:"-"`
 
 	Content     string `starlark:"content,required"`
 	Font        string
 	Height      int
 	Width       int
 	LineSpacing int
-	Color       color.Color
+	Color       color.RGBA
 	Align       string
 
 	face font.Face
@@ -130,7 +130,7 @@ func (tw *WrappedText) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx in
 	descent := metrics.Descent.Floor()
 
 	dc.SetFontFace(tw.face)
-	if tw.Color != nil {
+	if tw.Color != (color.RGBA{}) {
 		dc.SetColor(tw.Color)
 	} else {
 		dc.SetColor(DefaultFontColor)

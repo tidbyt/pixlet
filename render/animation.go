@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"image"
 
 	"github.com/tidbyt/gg"
@@ -26,7 +27,8 @@ import (
 // )
 // EXAMPLE END
 type Animation struct {
-	Widget
+	Type string `starlark:"-"`
+
 	Children []Widget
 }
 
@@ -62,4 +64,27 @@ func (a Animation) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 	}
 
 	a.Children[ModInt(frameIdx, len(a.Children))].Paint(dc, bounds, frameIdx)
+}
+
+func (a *Animation) UnmarshalJSON(data []byte) error {
+	type Alias Animation
+	aux := &struct {
+		Children []json.RawMessage
+		*Alias
+	}{
+		Alias: (*Alias)(a),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	children := []Widget{}
+	for _, childData := range aux.Children {
+		child, err := UnmarshalWidgetJSON(childData)
+		if err != nil {
+			return err
+		}
+		children = append(children, child)
+	}
+	a.Children = children
+	return nil
 }

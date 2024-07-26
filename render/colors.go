@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func ParseColor(scol string) (color.Color, error) {
+func ParseColor(scol string) (color.RGBA, error) {
 	var format string
 	var fourBits bool
 	var hasAlpha bool
@@ -31,7 +31,7 @@ func ParseColor(scol string) (color.Color, error) {
 		fourBits = false
 		hasAlpha = true
 	default:
-		return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color", scol)
+		return color.RGBA{}, fmt.Errorf("color: %v is not a hex-color", scol)
 	}
 
 	var r, g, b, a uint8
@@ -39,18 +39,18 @@ func ParseColor(scol string) (color.Color, error) {
 	if hasAlpha {
 		n, err := fmt.Sscanf(scol, format, &r, &g, &b, &a)
 		if err != nil {
-			return color.Gray{0}, err
+			return color.RGBA{}, err
 		}
 		if n != 4 {
-			return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color", scol)
+			return color.RGBA{}, fmt.Errorf("color: %v is not a hex-color", scol)
 		}
 	} else {
 		n, err := fmt.Sscanf(scol, format, &r, &g, &b)
 		if err != nil {
-			return color.Gray{0}, err
+			return color.RGBA{}, err
 		}
 		if n != 3 {
-			return color.Gray{0}, fmt.Errorf("color: %v is not a hex-color", scol)
+			return color.RGBA{}, fmt.Errorf("color: %v is not a hex-color", scol)
 		}
 		if fourBits {
 			a = 15
@@ -66,5 +66,5 @@ func ParseColor(scol string) (color.Color, error) {
 		a |= a << 4
 	}
 
-	return color.NRGBA{r, g, b, a}, nil
+	return color.RGBA{r, g, b, a}, nil
 }
