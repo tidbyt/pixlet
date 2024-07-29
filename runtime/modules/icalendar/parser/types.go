@@ -27,15 +27,15 @@ type DuplicateParams struct {
 	Mode int
 }
 
-type DuplicateAttributeError struct {
+type DuplicateAttribute struct {
 	Key, Value string
 }
 
-func NewDuplicateAttributeError(key string, value string) DuplicateAttributeError {
-	return DuplicateAttributeError{key, value}
+func NewDuplicateAttribute(key string, value string) DuplicateAttribute {
+	return DuplicateAttribute{key, value}
 }
 
-func (err DuplicateAttributeError) Error() string {
+func (err DuplicateAttribute) Error() string {
 	return fmt.Sprintf("duplicate attribute '%s': %s", err.Key, err.Value)
 }
 
@@ -105,34 +105,35 @@ func (l *Line) IsValue(key, value string) bool {
 type Event struct {
 	delayed []*Line
 
-	Uid              string
-	Summary          string
-	Description      string
-	Categories       []string
-	Start            *time.Time
-	End              *time.Time
-	RawStart         *RawDate
-	RawEnd           *RawDate
-	Duration         *time.Duration
-	Stamp            *time.Time
-	Created          *time.Time
-	LastModified     *time.Time
-	Location         string
-	LatLng           LatLng
-	Url              string
-	Status           string
-	Organizer        *Organizer
-	Attendees        []*Attendee
-	Attachments      []*Attachment
-	IsRecurring      bool
-	RecurrenceId     string
-	RecurrenceRule   map[string]string
-	ExcludeDates     []*time.Time
-	Sequence         int
-	CustomAttributes []*time.Time
-	Valid            bool
-	Comment          string
-	Class            string
+	Uid               string
+	Summary           string
+	Description       string
+	Categories        []string
+	Start             *time.Time
+	End               *time.Time
+	RawStart          *RawDate
+	RawEnd            *RawDate
+	Duration          *time.Duration
+	Stamp             *time.Time
+	Created           *time.Time
+	LastModified      *time.Time
+	Location          string
+	LatLng            LatLng
+	Url               string
+	Status            string
+	Organizer         *Organizer
+	Attendees         []*Attendee
+	Attachments       []*Attachment
+	IsRecurring       bool
+	RecurrenceId      string
+	RecurrenceRule    map[string]string
+	RawRecurrenceRule string
+	ExcludeDates      []*time.Time
+	Sequence          int
+	CustomAttributes  []*time.Time
+	Valid             bool
+	Comment           string
+	Class             string
 }
 
 type Organizer struct {
