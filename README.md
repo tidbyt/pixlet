@@ -36,11 +36,13 @@ GIF animations, or pushed to a physical Tidbyt device.
 brew install tidbyt/tidbyt/pixlet
 ```
 
-### Install on Linux
+### Install on Linux (Debian-based)
 
 Download the `pixlet` binary from [the latest release][1].
 
 Alternatively you can [build from source](docs/BUILD.md).
+
+Non debian-based linux distros may experience some bugs with the binary. You may find more success by building from source.
 
 [1]: https://github.com/tidbyt/pixlet/releases/latest
 
