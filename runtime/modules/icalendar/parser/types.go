@@ -113,8 +113,8 @@ type Event struct {
 	Categories        []string
 	Start             *time.Time
 	End               *time.Time
-	RawStart          *RawDate
-	RawEnd            *RawDate
+	RawStart          RawDate
+	RawEnd            RawDate
 	Duration          *time.Duration
 	Stamp             *time.Time
 	Created           *time.Time

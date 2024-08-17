@@ -11,7 +11,10 @@ func (cal *Calendar) ExpandRecurringEvent(buf *Event) []Event {
 		return []Event{}
 	}
 
-	allRecurrences := rule.All()
+	now := time.Now()
+	threeMonthsFromNow := now.AddDate(0, 3, 0)
+
+	nextThreeMonthsOfRecurrences := rule.Between(now, threeMonthsFromNow, true)
 
 	var excludedDateTime map[string]*time.Time
 	for _, t := range buf.ExcludeDates {
@@ -20,7 +23,7 @@ func (cal *Calendar) ExpandRecurringEvent(buf *Event) []Event {
 	}
 
 	var expandedEvents []Event
-	for _, rec := range allRecurrences {
+	for _, rec := range nextThreeMonthsOfRecurrences {
 		if _, ok := excludedDateTime[rec.Format(time.RFC3339)]; ok {
 			continue
 		}

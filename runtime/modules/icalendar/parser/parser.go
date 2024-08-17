@@ -44,10 +44,10 @@ func (cal *Calendar) Parse() error {
 
 	for {
 		l, err, done := cal.parseLine()
+		if done {
+			break
+		}
 		if err != nil {
-			if done {
-				break
-			}
 			continue
 		}
 
@@ -243,14 +243,14 @@ func (cal *Calendar) parseEvent(l *Line) error {
 		}
 	case "DTSTART":
 		if err := resolve(cal, l, &cal.buffer.Start, resolveDate, func(cal *Calendar, out *time.Time) {
-			cal.buffer.RawStart = &RawDate{Value: l.Value, Params: l.Params}
+			cal.buffer.RawStart = RawDate{Value: l.Value, Params: l.Params}
 		}); err != nil {
 			return err
 		}
 
 	case "DTEND":
 		if err := resolve(cal, l, &cal.buffer.End, resolveDateEnd, func(cal *Calendar, out *time.Time) {
-			cal.buffer.RawEnd = &RawDate{Value: l.Value, Params: l.Params}
+			cal.buffer.RawEnd = RawDate{Value: l.Value, Params: l.Params}
 		}); err != nil {
 			return err
 		}
@@ -392,16 +392,18 @@ func (cal *Calendar) parseEvent(l *Line) error {
 
 	}
 
-	startTime := cal.buffer.Start.Second()
-	endTime := cal.buffer.End.Second()
-	now := time.Now().Second()
+	if cal.buffer.Start != nil && cal.buffer.End != nil {
+		startTime := cal.buffer.Start.Second()
+		endTime := cal.buffer.End.Second()
+		now := time.Now().Second()
 
-	cal.buffer.MetaData.InProgress = now >= startTime
-	cal.buffer.MetaData.IsThisWeek = now < startTime+7*24*60*60
-	cal.buffer.MetaData.IsToday = time.Unix(int64(now), 0).Day() == time.Unix(int64(startTime), 0).Day()
-	cal.buffer.MetaData.IsTomorrow = time.Unix(int64(now), 0).Day() == time.Unix(int64(startTime), 0).Day()-1
-	cal.buffer.MetaData.MinutesUntilStart = int(startTime-now) / 60
-	cal.buffer.MetaData.MinutesUntilEnd = int(endTime-now) / 60
+		cal.buffer.MetaData.InProgress = now >= startTime
+		cal.buffer.MetaData.IsThisWeek = now < startTime+7*24*60*60
+		cal.buffer.MetaData.IsToday = time.Unix(int64(now), 0).Day() == time.Unix(int64(startTime), 0).Day()
+		cal.buffer.MetaData.IsTomorrow = time.Unix(int64(now), 0).Day() == time.Unix(int64(startTime), 0).Day()-1
+		cal.buffer.MetaData.MinutesUntilStart = int(startTime-now) / 60
+		cal.buffer.MetaData.MinutesUntilEnd = int(endTime-now) / 60
+	}
 
 	return nil
 }
