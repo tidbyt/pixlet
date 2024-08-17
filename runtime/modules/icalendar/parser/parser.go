@@ -92,7 +92,7 @@ func (cal *Calendar) Parse() error {
 			}
 
 			if cal.buffer.IsRecurring {
-				rInstances = append(rInstances, cal.ExpandRecurringEvent(cal.buffer)...)
+				rInstances = append(rInstances, cal.ExpandRecurringEvent(cal.buffer, cal)...)
 			} else {
 				if cal.buffer.End == nil || cal.buffer.Start == nil {
 					continue
@@ -305,12 +305,14 @@ func (cal *Calendar) parseEvent(l *Line) error {
 		*	Reference: https://icalendar.org/iCalendar-RFC-5545/3-8-5-1-exception-date-times.html
 		*	Several parameters are allowed. We should pass parameters we have
 		 */
-		// @TODO NEEDS to be fixed for multiple ex dates
-		d, err := members.ParseTime(l.Value, l.Params, members.TimeStart, false, cal.AllDayEventsTZ)
-		if err == nil {
+		rawDates := strings.Split(l.Value, ",")
+		for _, date := range rawDates {
+			d, err := members.ParseTime(date, l.Params, members.TimeStart, false, cal.AllDayEventsTZ)
+			if err != nil {
+				return fmt.Errorf("could not parse date: %s", date)
+			}
 			cal.buffer.ExcludeDates = append(cal.buffer.ExcludeDates, d)
 		}
-
 	case "SEQUENCE":
 		cal.buffer.Sequence, _ = strconv.Atoi(l.Value)
 	case "LOCATION":

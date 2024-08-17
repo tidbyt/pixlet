@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-// @TODO: Remove cancelled events; event can be canelled at the top level or have individual recurrences cancelled
+// @TODO: Remove cancelled events; event can be cancelled at the top level or have individual recurrences cancelled
 
-func (cal *Calendar) ExpandRecurringEvent(buf *Event) []Event {
+func (cal *Calendar) ExpandRecurringEvent(buf *Event, calendar *Calendar) []Event {
 	rule, err := rrule.StrToRRule(buf.RawRecurrenceRule)
 	if err != nil || buf.Status == "CANCELLED" {
 		return []Event{}
