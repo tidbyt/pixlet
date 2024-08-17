@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
+	"tidbyt.dev/pixlet/runtime/modules/icalendar/parser/members"
 	"time"
 )
 
@@ -27,16 +28,16 @@ type DuplicateParams struct {
 	Mode int
 }
 
-type DuplicateAttribute struct {
+type DuplicateAttributeError struct {
 	Key, Value string
 }
 
-func NewDuplicateAttribute(key string, value string) DuplicateAttribute {
-	return DuplicateAttribute{key, value}
+func NewDuplicateAttribute(k, v string) DuplicateAttributeError {
+	return DuplicateAttributeError{Key: k, Value: v}
 }
 
-func (err DuplicateAttribute) Error() string {
-	return fmt.Sprintf("duplicate attribute '%s': %s", err.Key, err.Value)
+func (err DuplicateAttributeError) Error() string {
+	return fmt.Sprintf("duplicate attribute %s: %s", err.Key, err.Value)
 }
 
 type Calendar struct {
@@ -68,11 +69,12 @@ const (
 )
 
 type Context struct {
-	value int
+	Value    int
+	Previous *Context
 }
 
-func (ctx *Context) Nest() *Context {
-	return &Context{ctx.value}
+func (ctx *Context) Nest(value int) *Context {
+	return &Context{Value: value, Previous: ctx}
 }
 
 type RawDate struct {
@@ -94,11 +96,11 @@ func (l *Line) Is(key, value string) bool {
 	return false
 }
 
-func (l *Line) IsKey(key, value string) bool {
+func (l *Line) IsKey(key string) bool {
 	return strings.TrimSpace(l.Key) == key
 }
 
-func (l *Line) IsValue(key, value string) bool {
+func (l *Line) IsValue(value string) bool {
 	return strings.TrimSpace(l.Value) == value
 }
 
@@ -118,7 +120,7 @@ type Event struct {
 	Created           *time.Time
 	LastModified      *time.Time
 	Location          string
-	LatLng            LatLng
+	LatLng            *LatLng
 	Url               string
 	Status            string
 	Organizer         *Organizer
@@ -130,7 +132,7 @@ type Event struct {
 	RawRecurrenceRule string
 	ExcludeDates      []*time.Time
 	Sequence          int
-	CustomAttributes  []*time.Time
+	CustomAttributes  map[string]string
 	Valid             bool
 	Comment           string
 	Class             string
@@ -159,6 +161,18 @@ type Attachment struct {
 }
 
 type LatLng struct {
-	lat  string
-	long string
+	lat  float64
+	long float64
+}
+
+func (cal *Calendar) IsRecurringInstanceOverridden(instance *Event) bool {
+	for _, e := range cal.Events {
+		if e.Uid == instance.Uid {
+			rid, _ := members.ParseTime(e.RecurrenceId, map[string]string{}, members.TimeStart, false, cal.AllDayEventsTZ)
+			if rid.Equal(*instance.Start) {
+				return true
+			}
+		}
+	}
+	return false
 }

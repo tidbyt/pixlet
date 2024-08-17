@@ -33,6 +33,15 @@ func resolveString(cal *Calendar, l *Line) (string, string, error) {
 	return l.Value, "", nil
 }
 
+func resolveLatLng(gc *Calendar, l *Line) (*LatLng, *LatLng, error) {
+	lat, long, err := members.ParseLatLng(l.Value)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &LatLng{lat, long}, nil, nil
+}
+
 func resolveDate(cal *Calendar, l *Line) (*time.Time, *time.Time, error) {
 	d, err := members.ParseTime(l.Value, l.Params, members.TimeStart, false, cal.AllDayEventsTZ)
 	if err != nil {
