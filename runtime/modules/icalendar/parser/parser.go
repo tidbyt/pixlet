@@ -303,9 +303,9 @@ func (cal *Calendar) parseEvent(l *Line) error {
 	case "EXDATE":
 		/*
 		*	Reference: https://icalendar.org/iCalendar-RFC-5545/3-8-5-1-exception-date-times.html
-		*	Several parameters are allowed.  We should pass parameters we have
+		*	Several parameters are allowed. We should pass parameters we have
 		 */
-
+		// @TODO NEEDS to be fixed for multiple ex dates
 		d, err := members.ParseTime(l.Value, l.Params, members.TimeStart, false, cal.AllDayEventsTZ)
 		if err == nil {
 			cal.buffer.ExcludeDates = append(cal.buffer.ExcludeDates, d)

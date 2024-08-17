@@ -5,9 +5,11 @@ import (
 	"time"
 )
 
+// @TODO: Remove cancelled events; event can be canelled at the top level or have individual recurrences cancelled
+
 func (cal *Calendar) ExpandRecurringEvent(buf *Event) []Event {
 	rule, err := rrule.StrToRRule(buf.RawRecurrenceRule)
-	if err != nil {
+	if err != nil || buf.Status == "CANCELLED" {
 		return []Event{}
 	}
 
