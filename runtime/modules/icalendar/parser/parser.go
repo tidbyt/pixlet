@@ -92,7 +92,7 @@ func (cal *Calendar) Parse() error {
 			}
 
 			if cal.buffer.IsRecurring {
-				rInstances = append(rInstances, cal.ExpandRecurringEvent(cal.buffer, cal)...)
+				rInstances = append(rInstances, cal.ExpandRecurringEvent(cal.buffer)...)
 			} else {
 				if cal.buffer.End == nil || cal.buffer.Start == nil {
 					continue
