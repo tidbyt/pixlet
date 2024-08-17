@@ -286,9 +286,9 @@ The `iCalendar` module parses .ics based calendars into individual events. This 
 calendars from major providers such as Apple, Microsoft, and Google instead of using authentication (OAuth) that's likely 
 to get denied from office IT security departments. The iCalendar specification can be found [here](https://icalendar.org/RFC-Specifications/iCalendar-RFC-5545/).
 
-| Function | Description                                                                                                                                                                                                                                |
-| --- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `parse(rawString)` | Takes a raw iCalendar string and parses into a list of event dictionaries with event data. This function automatically expands recurring events and returns the list sorted by closest start date to furthest start date. |
+| Function | Description                                                                                                                                                                                                                                                                                                                                    |
+| --- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `parse(rawString)` | Takes a raw iCalendar string and parses into a list of event dictionaries with event data. This function automatically expands recurring events and returns the list sorted by closest start date to furthest start date reaching maximum of 3 months of recurring dates from the current time to avoid overloading memory and infinite loops. |
 
 Example:
 
