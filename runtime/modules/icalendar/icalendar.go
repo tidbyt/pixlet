@@ -30,7 +30,7 @@ func LoadModule() (starlark.StringDict, error) {
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
 				Members: starlark.StringDict{
-					"parseCalendar": starlark.NewBuiltin("findNextEvent", parseCalendar),
+					"parse": starlark.NewBuiltin("parse", parse),
 				},
 			},
 		}
@@ -42,7 +42,7 @@ func LoadModule() (starlark.StringDict, error) {
 /*
 * This function returns a list of events with the events metadata
  */
-func parseCalendar(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func parse(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
 		rawCalendar starlark.String
 	)

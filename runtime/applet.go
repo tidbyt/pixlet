@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+	"tidbyt.dev/pixlet/runtime/modules/icalendar"
 
 	starlibbsoup "github.com/qri-io/starlib/bsoup"
 	starlibgzip "github.com/qri-io/starlib/compress/gzip"
@@ -574,6 +575,9 @@ func (a *Applet) loadModule(thread *starlark.Thread, module string) (starlark.St
 
 	case "humanize.star":
 		return humanize.LoadModule()
+
+	case "icalendar.star":
+		return icalendar.LoadModule()
 
 	case "math.star":
 		return starlark.StringDict{
