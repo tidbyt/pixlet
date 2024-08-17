@@ -136,6 +136,14 @@ type Event struct {
 	Valid             bool
 	Comment           string
 	Class             string
+	MetaData          struct {
+		InProgress        bool
+		IsThisWeek        bool
+		IsToday           bool
+		IsTomorrow        bool
+		MinutesUntilStart int
+		MinutesUntilEnd   int
+	}
 }
 
 type Organizer struct {

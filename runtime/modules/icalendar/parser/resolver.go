@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"strings"
 	"tidbyt.dev/pixlet/runtime/modules/icalendar/parser/members"
 	"time"
 )
@@ -50,25 +49,6 @@ func resolveDate(cal *Calendar, l *Line) (*time.Time, *time.Time, error) {
 	}
 
 	return d, nil, nil
-}
-
-func resolveExDate(cal *Calendar, l *Line) ([]*time.Time, []*time.Time, error) {
-	rawDates := strings.Split(l.Value, ",")
-	if len(rawDates) < 1 {
-		return nil, nil, fmt.Errorf("invalid date format: %s", l.Value)
-	}
-
-	var parsedDates []*time.Time
-	for _, date := range rawDates {
-		d, err := members.ParseTime(date, l.Params, members.TimeStart, false, cal.AllDayEventsTZ)
-		if err != nil {
-			return nil, nil, fmt.Errorf("could not parse: %s", err)
-		}
-
-		parsedDates = append(parsedDates, d)
-	}
-
-	return parsedDates, parsedDates, nil
 }
 
 func resolveDateEnd(cal *Calendar, l *Line) (*time.Time, *time.Time, error) {

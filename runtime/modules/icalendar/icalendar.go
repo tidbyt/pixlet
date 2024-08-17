@@ -2,7 +2,6 @@ package icalendar
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"sync"
 	"tidbyt.dev/pixlet/runtime/modules/icalendar/parser"
@@ -31,7 +30,7 @@ func LoadModule() (starlark.StringDict, error) {
 			ModuleName: &starlarkstruct.Module{
 				Name: ModuleName,
 				Members: starlark.StringDict{
-					"findNextEvent": starlark.NewBuiltin("findNextEvent", findNextEvent),
+					"parseCalendar": starlark.NewBuiltin("findNextEvent", parseCalendar),
 				},
 			},
 		}
@@ -60,6 +59,7 @@ func parseCalendar(thread *starlark.Thread, _ *starlark.Builtin, args starlark.T
 	}
 
 	events := make([]starlark.Value, 0, len(calendar.Events))
+
 	for _, event := range calendar.Events {
 		dict := starlark.NewDict(25)
 
@@ -93,42 +93,20 @@ func parseCalendar(thread *starlark.Thread, _ *starlark.Builtin, args starlark.T
 		if err := dict.SetKey(starlark.String("duration_in_seconds"), starlark.Float(event.Duration.Seconds())); err != nil {
 			return nil, fmt.Errorf("setting duration: %s", err)
 		}
-		if err := dict.SetKey(starlark.String("created_at"), starlark.String(event.Created.Format(time.RFC3339))); err != nil {
-			return nil, fmt.Errorf("setting end: %s", err)
-		}
-		if err := dict.SetKey(starlark.String("updated_at"), starlark.String(event.LastModified.Format(time.RFC3339))); err != nil {
-			return nil, fmt.Errorf("setting end: %s", err)
-		}
 		if err := dict.SetKey(starlark.String("url"), starlark.String(event.Url)); err != nil {
 			return nil, fmt.Errorf("setting end: %s", err)
 		}
 		if err := dict.SetKey(starlark.String("sequence"), starlark.MakeInt(event.Sequence)); err != nil {
 			return nil, fmt.Errorf("setting end: %s", err)
 		}
+		if err := dict.SetKey(starlark.String("created_at"), starlark.String(event.Created.Format(time.RFC3339))); err != nil {
+			return nil, fmt.Errorf("setting end: %s", err)
+		}
+		if err := dict.SetKey(starlark.String("updated_at"), starlark.String(event.LastModified.Format(time.RFC3339))); err != nil {
+			return nil, fmt.Errorf("setting end: %s", err)
+		}
 
 		events = append(events, dict)
 	}
 	return starlark.NewList(events), nil
-}
-
-func findNextEvent(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	return starlark.False, nil
-}
-
-func urlEncode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var (
-		starUrl starlark.String
-	)
-
-	if err := starlark.UnpackArgs(
-		"url_encode",
-		args, kwargs,
-		"str", &starUrl,
-	); err != nil {
-		return nil, fmt.Errorf("unpacking arguments for bytes: %s", err)
-	}
-
-	escapedUrl := url.QueryEscape(starUrl.GoString())
-
-	return starlark.String(escapedUrl), nil
 }

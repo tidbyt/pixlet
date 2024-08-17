@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 	"tidbyt.dev/pixlet/runtime/modules/icalendar/parser/members"
@@ -151,6 +152,10 @@ func (cal *Calendar) Parse() error {
 			cal.Events = append(cal.Events, &i)
 		}
 	}
+
+	sort.Slice(cal.Events, func(i, j int) bool {
+		return cal.Events[i].Start.Before(*cal.Events[j].Start)
+	})
 
 	return nil
 
@@ -386,6 +391,17 @@ func (cal *Calendar) parseEvent(l *Line) error {
 		}
 
 	}
+
+	startTime := cal.buffer.Start.Second()
+	endTime := cal.buffer.End.Second()
+	now := time.Now().Second()
+
+	cal.buffer.MetaData.InProgress = now >= startTime
+	cal.buffer.MetaData.IsThisWeek = now < startTime+7*24*60*60
+	cal.buffer.MetaData.IsToday = time.Unix(int64(now), 0).Day() == time.Unix(int64(startTime), 0).Day()
+	cal.buffer.MetaData.IsTomorrow = time.Unix(int64(now), 0).Day() == time.Unix(int64(startTime), 0).Day()-1
+	cal.buffer.MetaData.MinutesUntilStart = int(startTime-now) / 60
+	cal.buffer.MetaData.MinutesUntilEnd = int(endTime-now) / 60
 
 	return nil
 }
