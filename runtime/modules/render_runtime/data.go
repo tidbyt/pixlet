@@ -71,8 +71,8 @@ func WeightsFromStarlark(list *starlark.List) ([]float64, error) {
 	return result, nil
 }
 
-func ColorSeriesFromStarlark(list *starlark.List) ([]color.Color, error) {
-	result := make([]color.Color, 0)
+func ColorSeriesFromStarlark(list *starlark.List) ([]color.RGBA, error) {
+	result := make([]color.RGBA, 0)
 
 	for i := 0; i < list.Len(); i++ {
 		c := list.Index(i)

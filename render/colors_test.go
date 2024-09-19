@@ -1,7 +1,6 @@
 package render
 
 import (
-	"image/color"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,11 +14,8 @@ func ParseAndAssertColor(
 	expectedB uint8,
 	expectedA uint8,
 ) {
-	col, err := ParseColor(scol)
+	c, err := ParseColor(scol)
 	assert.Nil(t, err)
-
-	c, ok := col.(color.NRGBA)
-	assert.True(t, ok)
 
 	assert.Equal(t, expectedR, c.R)
 	assert.Equal(t, expectedG, c.G)

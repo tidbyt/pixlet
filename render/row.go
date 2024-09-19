@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"image"
 
 	"github.com/tidbyt/gg"
@@ -56,7 +57,7 @@ import (
 // )
 // EXAMPLE END
 type Row struct {
-	Widget
+	Type string `starlark:"-"`
 
 	Children   []Widget `starlark:"children,required"`
 	MainAlign  string   `starlark:"main_align"`
@@ -88,4 +89,27 @@ func (r Row) Paint(dc *gg.Context, bounds image.Rectangle, frameIdx int) {
 
 func (r Row) FrameCount() int {
 	return MaxFrameCount(r.Children)
+}
+
+func (r *Row) UnmarshalJSON(data []byte) error {
+	type Alias Row
+	aux := &struct {
+		Children []json.RawMessage
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	children := []Widget{}
+	for _, childData := range aux.Children {
+		child, err := UnmarshalWidgetJSON(childData)
+		if err != nil {
+			return err
+		}
+		children = append(children, child)
+	}
+	r.Children = children
+	return nil
 }
