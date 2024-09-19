@@ -301,6 +301,37 @@ func TestPlotJaggedLine(t *testing.T) {
 
 }
 
+func TestPlotEmpty(t *testing.T) {
+	ic := ImageChecker{
+		Palette: map[string]color.RGBA{
+			"1": {0xff, 0xff, 0xff, 0xff},
+			".": {0, 0, 0, 0},
+		},
+	}
+
+	p := Plot{
+		Width:  10,
+		Height: 10,
+		Data:   [][2]float64{},
+		XLim:   Empty,
+		YLim:   Empty,
+	}
+
+	assert.Equal(t, nil, ic.Check([]string{
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+		"..........",
+	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
+
+}
+
 func TestPlotFewPoints(t *testing.T) {
 	ic := ImageChecker{
 		Palette: map[string]color.RGBA{
