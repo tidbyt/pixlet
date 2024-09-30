@@ -162,6 +162,7 @@ func TestHash(t *testing.T) {
 
 	roots, err := app.Run(context.Background())
 	require.NoError(t, err)
+	assert.False(t, ScreensFromRoots(roots).Empty())
 
 	// ensure we can calculate a hash
 	hash, err := ScreensFromRoots(roots).Hash()
@@ -185,9 +186,31 @@ func TestHash(t *testing.T) {
 
 	// ensure we can calculate a hash on the new app
 	hash2, err := ScreensFromRoots(roots2).Hash()
+	require.NoError(t, err)
 
 	// ensure hashes are different
 	require.NotEqual(t, hash, hash2)
+}
+
+func TestHashEmptyApp(t *testing.T) {
+	app, err := runtime.NewApplet("test.star", []byte(`def main(): return []`))
+	require.NoError(t, err)
+
+	roots, err := app.Run(context.Background())
+	require.NoError(t, err)
+	assert.True(t, ScreensFromRoots(roots).Empty())
+
+	// ensure we can calculate a hash
+	hash, err := ScreensFromRoots(roots).Hash()
+	require.NoError(t, err)
+	require.True(t, len(hash) > 0)
+
+	// ensure the hash doesn't change
+	for i := 0; i < 20; i++ {
+		h, err := ScreensFromRoots(roots).Hash()
+		assert.NoError(t, err)
+		assert.Equal(t, hash, h)
+	}
 }
 
 func TestHashDelayAndMaxAge(t *testing.T) {
