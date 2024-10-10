@@ -278,3 +278,43 @@ def main(config):
         ),
     )
 ```
+
+
+## Pixlet module: iCalendar
+
+The `iCalendar` module parses .ics based calendars into individual events. This is module can be used to parse published 
+calendars from major providers such as Apple, Microsoft, and Google instead of using authentication (OAuth) that's likely 
+to get denied from office IT security departments. The iCalendar specification can be found [here](https://icalendar.org/RFC-Specifications/iCalendar-RFC-5545/).
+
+| Function | Description                                                                                                                                                                                                                                                                                                                                    |
+| --- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `parse(rawString)` | Takes a raw iCalendar string and parses into a list of event dictionaries with event data. This function automatically expands recurring events and returns the list sorted by closest start date to furthest start date reaching maximum of 3 months of recurring dates from the current time to avoid overloading memory and infinite loops. |
+
+Example:
+
+```starlark
+load("icalendar.star", "icalendar")
+load(http.star", "http")
+
+def main(config):
+    icalendar_url = "http://icalendar.org/your/hosted/ics/file"
+    timeout = 60
+    res = http.get(url = url, ttl_seconds = timeout)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+        
+    events = icalendar.parse(res.body())
+    
+    most_recent_event = events[0]
+    print(most_recent_event['summary'])
+    print(most_recent_event['description'])
+    print(most_recent_event['location'])
+    print(most_recent_event['start']) // RFC3339
+    print(most_recent_event['end']) // RFC3339
+    print(most_recent_event['metaData']['minutesUntilStart'])
+    print(most_recent_event['metaData']['minutesUntilEnd'])
+
+    print("Is Cancelled:", most_recent_event['status'] == 'CANCELLED')
+    print("Is Today:", most_recent_event['metaData']['isToday'])
+    print("Is Tomorrow: ", most_recent_event['metaData']['isTomorrow'])
+```
