@@ -54,6 +54,11 @@ func ScreensFromImages(images ...image.Image) *Screens {
 	return &screens
 }
 
+// Empty returns true if there are no render roots or images in this screen.
+func (s *Screens) Empty() bool {
+	return len(s.roots) == 0 && len(s.images) == 0
+}
+
 // Hash returns a hash of the render roots for this screen. This can be used for
 // testing whether two render trees are exactly equivalent, without having to
 // do the actual rendering.
