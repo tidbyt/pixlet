@@ -8,7 +8,8 @@ import (
 )
 
 type Tracer struct {
-	Widget
+	Type string `starlark:"-"`
+
 	Path        Path
 	TraceLength int
 }

@@ -2,6 +2,8 @@ package render
 
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -36,7 +38,8 @@ import (
 // DOC(Height): Scale image to this height
 // DOC(Delay): (Read-only) Frame delay in ms, for animated GIFs
 type Image struct {
-	Widget
+	Type string `starlark:"-"`
+
 	Src           string `starlark:"src,required"`
 	Width, Height int
 	Delay         int `starlark:"delay,readonly"`
@@ -194,4 +197,38 @@ func (p *Image) Init() error {
 	}
 
 	return nil
+}
+
+func (p *Image) UnmarshalJSON(data []byte) error {
+	type Alias Image
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(p),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	src, err := base64.StdEncoding.DecodeString(aux.Src)
+	if err != nil {
+		return err
+	}
+	p.Src = string(src)
+
+	return p.Init()
+}
+
+func (p *Image) MarshalJSON() ([]byte, error) {
+	type Alias Image
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(p),
+	}
+
+	aux.Src = base64.StdEncoding.EncodeToString([]byte(p.Src))
+
+	return json.Marshal(aux)
 }

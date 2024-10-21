@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
 
@@ -31,12 +33,13 @@ var (
 // render.Text(content="Tidbyt!", color="#099")
 // EXAMPLE END
 type Text struct {
-	Widget
+	Type string `starlark:"-"`
+
 	Content string `starlark:"content,required"`
 	Font    string
 	Height  int
 	Offset  int
-	Color   color.Color
+	Color   color.RGBA
 
 	img image.Image
 }
@@ -85,7 +88,7 @@ func (t *Text) Init() error {
 
 	dc = gg.NewContext(width, height)
 	dc.SetFontFace(face)
-	if t.Color != nil {
+	if t.Color != (color.RGBA{}) {
 		dc.SetColor(t.Color)
 	} else {
 		dc.SetColor(DefaultFontColor)
@@ -100,4 +103,46 @@ func (t *Text) Init() error {
 
 func (t Text) FrameCount() int {
 	return 1
+}
+
+func (t *Text) UnmarshalJSON(data []byte) error {
+	type Alias Text
+	aux := &struct {
+		*Alias
+		Color string
+	}{
+		Alias: (*Alias)(t),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.Color != "" {
+		col, err := ParseColor(aux.Color)
+		if err != nil {
+			return err
+		}
+		t.Color = col
+	}
+
+	return t.Init()
+}
+
+func (t *Text) MarshalJSON() ([]byte, error) {
+	col := ""
+	if t.Color != (color.RGBA{}) {
+		r, g, b, a := t.Color.RGBA()
+		col = fmt.Sprintf("#%02x%02x%02x%02x", r>>8, g>>8, b>>8, a>>8)
+	}
+	type Alias Text
+	aux := &struct {
+		*Alias
+		Color string
+	}{
+		Alias: (*Alias)(t),
+		Color: col,
+	}
+
+	return json.Marshal(aux)
 }

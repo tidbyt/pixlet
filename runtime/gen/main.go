@@ -162,7 +162,7 @@ var TypeMap = map[reflect.Type]Type{
 		DocType:      "[Widget]",
 		TemplatePath: "./runtime/gen/attr/children.tmpl",
 	},
-	toDecayedType(new(color.Color)): {
+	toDecayedType(new(color.RGBA)): {
 		GoType:        "starlark.String",
 		DocType:       `color`,
 		TemplatePath:  "./runtime/gen/attr/color.tmpl",
@@ -170,7 +170,7 @@ var TypeMap = map[reflect.Type]Type{
 	},
 
 	// Render `PieChart types`
-	toDecayedType(new([]color.Color)): {
+	toDecayedType(new([]color.RGBA)): {
 		GoType:        "*starlark.List",
 		DocType:       `[color]`,
 		TemplatePath:  "./runtime/gen/attr/colors.tmpl",
@@ -320,6 +320,9 @@ func toGeneratedAttribute(typ reflect.Type, field reflect.StructField) (*Generat
 		}
 
 		result.StarlarkName = strings.TrimSpace(attrs[0])
+		if result.StarlarkName == "-" {
+			return nil, nil
+		}
 
 		for _, attr := range attrs[1:] {
 			attr = strings.TrimSpace(attr)
@@ -378,7 +381,8 @@ func toGeneratedType(pkg Package, val reflect.Value) (*GeneratedType, error) {
 			continue
 		}
 
-		if attr, err := toGeneratedAttribute(typ, field); err == nil {
+		attr, err := toGeneratedAttribute(typ, field)
+		if attr != nil && err == nil {
 			result.Attributes = append(result.Attributes, attr)
 
 			if t, ok := TypeMap[field.Type]; ok {
@@ -390,7 +394,7 @@ func toGeneratedType(pkg Package, val reflect.Value) (*GeneratedType, error) {
 			} else {
 				return nil, fmt.Errorf("%s.%s has unsupported type", typ.Name(), field.Name)
 			}
-		} else {
+		} else if err != nil {
 			return nil, err
 		}
 	}

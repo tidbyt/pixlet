@@ -162,7 +162,7 @@ func findKeyframes(arr []Keyframe, p float64) (Keyframe, Keyframe, error) {
 // ),
 // EXAMPLE END
 type Transformation struct {
-	render.Widget
+	Type string `starlark:"-"`
 
 	Child        render.Widget `starlark:"child,required"`
 	Keyframes    []Keyframe    `starlark:"keyframes,required"`

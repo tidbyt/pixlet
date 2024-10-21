@@ -24,7 +24,8 @@ import (
 // DOC(Hold): Delay after animation in frames
 //
 type AnimatedPositioned struct {
-	render.Widget
+	Type string `starlark:"-"`
+
 	Child    render.Widget `starlark:"child,required"`
 	XStart   int           `starlark:"x_start"`
 	XEnd     int           `starlark:"x_end"`

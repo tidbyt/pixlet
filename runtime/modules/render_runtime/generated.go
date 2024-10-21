@@ -137,6 +137,7 @@ func newAnimation(
 }
 
 func (w *Animation) AsRenderWidget() render.Widget {
+	w.Animation.Type = "Animation"
 	return &w.Animation
 }
 
@@ -257,6 +258,7 @@ func newBox(
 }
 
 func (w *Box) AsRenderWidget() render.Widget {
+	w.Box.Type = "Box"
 	return &w.Box
 }
 
@@ -385,6 +387,7 @@ func newCircle(
 }
 
 func (w *Circle) AsRenderWidget() render.Widget {
+	w.Circle.Type = "Circle"
 	return &w.Circle
 }
 
@@ -509,6 +512,7 @@ func newColumn(
 }
 
 func (w *Column) AsRenderWidget() render.Widget {
+	w.Column.Type = "Column"
 	return &w.Column
 }
 
@@ -620,6 +624,7 @@ func newImage(
 }
 
 func (w *Image) AsRenderWidget() render.Widget {
+	w.Image.Type = "Image"
 	return &w.Image
 }
 
@@ -773,6 +778,7 @@ func newMarquee(
 }
 
 func (w *Marquee) AsRenderWidget() render.Widget {
+	w.Marquee.Type = "Marquee"
 	return &w.Marquee
 }
 
@@ -949,6 +955,7 @@ func newPadding(
 }
 
 func (w *Padding) AsRenderWidget() render.Widget {
+	w.Padding.Type = "Padding"
 	return &w.Padding
 }
 
@@ -1066,6 +1073,7 @@ func newPieChart(
 }
 
 func (w *PieChart) AsRenderWidget() render.Widget {
+	w.PieChart.Type = "PieChart"
 	return &w.PieChart
 }
 
@@ -1254,6 +1262,7 @@ func newPlot(
 }
 
 func (w *Plot) AsRenderWidget() render.Widget {
+	w.Plot.Type = "Plot"
 	return &w.Plot
 }
 
@@ -1516,6 +1525,7 @@ func newRow(
 }
 
 func (w *Row) AsRenderWidget() render.Widget {
+	w.Row.Type = "Row"
 	return &w.Row
 }
 
@@ -1632,6 +1642,7 @@ func newSequence(
 }
 
 func (w *Sequence) AsRenderWidget() render.Widget {
+	w.Sequence.Type = "Sequence"
 	return &w.Sequence
 }
 
@@ -1736,6 +1747,7 @@ func newStack(
 }
 
 func (w *Stack) AsRenderWidget() render.Widget {
+	w.Stack.Type = "Stack"
 	return &w.Stack
 }
 
@@ -1852,6 +1864,7 @@ func newText(
 }
 
 func (w *Text) AsRenderWidget() render.Widget {
+	w.Text.Type = "Text"
 	return &w.Text
 }
 
@@ -2006,6 +2019,7 @@ func newWrappedText(
 }
 
 func (w *WrappedText) AsRenderWidget() render.Widget {
+	w.WrappedText.Type = "WrappedText"
 	return &w.WrappedText
 }
 

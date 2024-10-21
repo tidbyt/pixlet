@@ -398,8 +398,8 @@ func TestPlotInvertedColor(t *testing.T) {
 		},
 		XLim:          Empty,
 		YLim:          Empty,
-		Color:         &color.RGBA{0, 0xff, 0, 0xff},
-		ColorInverted: &color.RGBA{0xff, 0, 0, 0xff},
+		Color:         color.RGBA{0, 0xff, 0, 0xff},
+		ColorInverted: color.RGBA{0xff, 0, 0, 0xff},
 	}
 	assert.Equal(t, nil, ic.Check([]string{
 		"11....11..",
@@ -450,7 +450,7 @@ func TestPlotSurfaceFill(t *testing.T) {
 		},
 		XLim:  Empty,
 		YLim:  Empty,
-		Color: &color.RGBA{0, 0xff, 0, 0xff},
+		Color: color.RGBA{0, 0xff, 0, 0xff},
 		Fill:  true,
 	}
 	assert.Equal(t, nil, ic.Check([]string{
@@ -467,7 +467,7 @@ func TestPlotSurfaceFill(t *testing.T) {
 	}, PaintWidget(p, image.Rect(0, 0, 100, 100), 0)))
 
 	// Fil with ColorInverted
-	p.ColorInverted = &color.RGBA{0xff, 0, 0, 0xff}
+	p.ColorInverted = color.RGBA{0xff, 0, 0, 0xff}
 	assert.Equal(t, nil, ic.Check([]string{
 		"111111..............",
 		",,,,,,1.............",
