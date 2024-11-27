@@ -386,6 +386,7 @@ func (r *Response) Struct() *starlarkstruct.Struct {
 		"encoding":    starlark.String(strings.Join(r.TransferEncoding, ",")),
 
 		"body": starlark.NewBuiltin("body", r.Text),
+		"bytes": starlark.NewBuiltin("bytes", r.Bytes),
 		"json": starlark.NewBuiltin("json", r.JSON),
 	})
 }
@@ -412,6 +413,18 @@ func (r *Response) Text(thread *starlark.Thread, _ *starlark.Builtin, args starl
 	r.Body = io.NopCloser(bytes.NewReader(data))
 
 	return starlark.String(string(data)), nil
+}
+
+// Bytes returns the raw data as bytes
+func (r *Response) Bytes(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	r.Body.Close()
+	// reset reader to allow multiple calls
+	r.Body = io.NopCloser(bytes.NewReader(data))
+	return starlark.Bytes(data), nil
 }
 
 // JSON attempts to parse the response body as JSON
