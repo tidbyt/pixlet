@@ -1,10 +1,16 @@
 load("http.star", "http")
-load("icon.png", icon = "file")
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 
 COINDESK_PRICE_URL = "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD"
 
-BTC_ICON = icon.readall()
+# Load Bitcoin icon from base64 encoded data
+BTC_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAlklEQVQ4T2NkwAH+H2T/jy7FaP+
+TEZtyDEG4Zi0TTPXXzoDF0A1DMQRsADbN6MZdO4NiENwQbAbERh1lWLzMmgFGo5iFZBDYEFwuwG
+sISCPUIKyGgDRjAyBXYXMNIz5XgDQga8TpLboYgux8DO/AwoUuLiEqTLBFMcmxQ7V0gssgklIsL
+AYozjsoBoE45OZi5DRBSnkCAMLhlPBiQGHlAAAAAElFTkSuQmCC
+""")
 
 def main():
     rep = http.get(COINDESK_PRICE_URL, ttl_seconds = 240)
