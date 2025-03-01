@@ -54,8 +54,8 @@ with the `font` parameter. You can read more about the available fonts
 
 To get closer to a truly useful Pixlet app, we'll be pulling in some
 Bitcoin data. CoinDesk's [Bitcoin Price Index
-API](https://www.coindesk.com/coindesk-api) is free to use and
-requires no authentication. We'll use Starlib's [http
+API](https://developers.coindesk.com/documentation/legacy/Price/SingleSymbolPriceEndpoint/)
+is free to use and requires no authentication. We'll use Starlib's [http
 module](https://github.com/qri-io/starlib/tree/master/http) to
 retrieve the data.
 
@@ -68,14 +68,14 @@ anything but the simplest applet.
 load("render.star", "render")
 load("http.star", "http")
 
-COINDESK_PRICE_URL = "https://api.coindesk.com/v1/bpi/currentprice.json"
+COINDESK_PRICE_URL = "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD"
 
 def main():
     rep = http.get(COINDESK_PRICE_URL)
     if rep.status_code != 200:
         fail("Coindesk request failed with status %d", rep.status_code)
 
-    rate = rep.json()["bpi"]["USD"]["rate_float"]
+    rate = rep.json()["USD"]
 
     return render.Root(
         child = render.Text("BTC: %d USD" % rate)
@@ -113,7 +113,7 @@ load("render.star", "render")
 load("http.star", "http")
 load("encoding/base64.star", "base64")
 
-COINDESK_PRICE_URL = "https://api.coindesk.com/v1/bpi/currentprice.json"
+COINDESK_PRICE_URL = "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD"
 
 # Load Bitcoin icon from base64 encoded data
 BTC_ICON = base64.decode("""
@@ -128,7 +128,7 @@ def main():
     if rep.status_code != 200:
         fail("CoinDesk request failed with status %d", rep.status_code)
 
-    rate = rep.json()["bpi"]["USD"]["rate_float"]
+    rate = rep.json()["USD"]
 
     return render.Root(
         child = render.Row( # Row lays out its children horizontally
@@ -166,7 +166,7 @@ load("render.star", "render")
 load("http.star", "http")
 load("encoding/base64.star", "base64")
 
-COINDESK_PRICE_URL = "https://api.coindesk.com/v1/bpi/currentprice.json"
+COINDESK_PRICE_URL = "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD"
 
 BTC_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAlklEQVQ4T2NkwAH+H2T/jy7FaP+
@@ -180,7 +180,7 @@ def main():
     if rep.status_code != 200:
         fail("Coindesk request failed with status %d", rep.status_code)
 
-    rate = rep.json()["bpi"]["USD"]["rate_float"]
+    rate = rep.json()["USD"]
 
     return render.Root(
         child = render.Box( # This Box exists to provide vertical centering
@@ -216,7 +216,7 @@ load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 
-COINDESK_PRICE_URL = "https://api.coindesk.com/v1/bpi/currentprice.json"
+COINDESK_PRICE_URL = "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD"
 
 BTC_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAlklEQVQ4T2NkwAH+H2T/jy7FaP+
@@ -235,7 +235,7 @@ def main():
         rep = http.get(COINDESK_PRICE_URL)
         if rep.status_code != 200:
             fail("Coindesk request failed with status %d", rep.status_code)
-        rate = rep.json()["bpi"]["USD"]["rate_float"]
+        rate = rep.json()["USD"]
         cache.set("btc_rate", str(int(rate)), ttl_seconds=240)
 
     return render.Root(
