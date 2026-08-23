@@ -1,8 +1,6 @@
 module tidbyt.dev/pixlet
 
-go 1.22
-
-toolchain go1.22.2
+go 1.23.0
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
@@ -40,7 +38,7 @@ require (
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
 	go.starlark.net v0.0.0-20240411212711-9b43f0afd521
 	golang.org/x/image v0.18.0
-	golang.org/x/oauth2 v0.19.0
+	golang.org/x/oauth2 v0.27.0
 	golang.org/x/sync v0.7.0
 	golang.org/x/text v0.16.0
 	gopkg.in/yaml.v3 v3.0.1
