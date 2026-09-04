@@ -7,7 +7,7 @@ toolchain go1.22.2
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
 	github.com/antchfx/xmlquery v1.4.0
-	github.com/bazelbuild/buildtools v0.0.0-20230425225026-3dcc8d67e8ea
+	github.com/bazelbuild/buildtools v0.0.0-20260904073137-eaa4d125b423
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4
 	github.com/fatih/color v1.16.0
@@ -68,6 +68,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/safeopen v0.0.0-20260327150837-43626d6f4685 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/ianlancetaylor/demangle v0.0.0-20240312041847-bd984b5ce465 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
