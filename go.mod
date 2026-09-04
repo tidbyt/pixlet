@@ -1,8 +1,6 @@
 module tidbyt.dev/pixlet
 
-go 1.22
-
-toolchain go1.22.2
+go 1.25.0
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4
@@ -38,7 +36,7 @@ require (
 	github.com/tidbyt/go-libwebp v0.0.0-20230922075150-fb11063b2a6a
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be
-	go.starlark.net v0.0.0-20240411212711-9b43f0afd521
+	go.starlark.net v0.0.0-20260904161901-6ecada49e42f
 	golang.org/x/image v0.18.0
 	golang.org/x/oauth2 v0.19.0
 	golang.org/x/sync v0.7.0
@@ -101,9 +99,9 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
