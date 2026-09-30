@@ -7,7 +7,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v4
 
@@ -26,7 +26,7 @@ jobs:
     name: Build and Test
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os: [blacksmith-4vcpu-ubuntu-2204, blacksmith-6vcpu-macos-15, blacksmith-4vcpu-windows-2025]
 
     runs-on: ${{ matrix.os }}
 
