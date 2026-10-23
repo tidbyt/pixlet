@@ -1,6 +1,6 @@
 module tidbyt.dev/pixlet
 
-go 1.22
+go 1.22.0
 
 toolchain go1.22.2
 
@@ -55,7 +55,7 @@ require (
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/antchfx/xpath v1.3.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustmop/soup v1.1.2-0.20190516214245-38228baa104e // indirect
